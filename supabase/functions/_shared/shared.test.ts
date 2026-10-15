@@ -1,6 +1,7 @@
 // Deno tests for the shared, pure helpers (CI: `deno test --no-config supabase/functions/_shared`).
 // No remote imports, so the job needs no network beyond the runtime itself.
 import { CORS_ALLOW_HEADERS, corsHeaders, json, preflight } from './cors.ts';
+import { projectKey } from './env.ts';
 import { STAMP_ALPHABET, STAMP_RE, randomStamp, receiptProblem, stampVerdict } from './stampCodec.ts';
 
 function ok(cond: unknown, msg: string): void {
@@ -43,4 +44,23 @@ Deno.test('stamps have the client stamp shape, use every symbol, and receipts ne
   ok(stampVerdict({ ...row, task_id: 'x' }, good, 0) === 'stamp-mismatch', 'mismatch');
   ok(stampVerdict(row, good, Date.parse('2026-10-14T10:20:01Z')) === 'stamp-expired', 'expired');
   ok(stampVerdict(row, good, Date.parse('2026-10-14T10:00:00Z')) === 'ok', 'live');
+});
+
+Deno.test('the project keys come from what Supabase injects, so no secret has to be set', () => {
+  const from = (env: Record<string, string>) => (name: string) => env[name];
+  const both = {
+    SUPABASE_SECRET_KEYS: JSON.stringify({ default: 'sb_secret_new' }),
+    SUPABASE_PUBLISHABLE_KEYS: JSON.stringify({ default: 'sb_publishable_new' }),
+    SUPABASE_SERVICE_ROLE_KEY: 'legacy-service',
+    SUPABASE_ANON_KEY: 'legacy-anon',
+    SERVICE_ROLE_KEY: 'old-guide-secret',
+  };
+  ok(projectKey('secret', from(both)) === 'sb_secret_new', 'the new secret key first');
+  ok(projectKey('public', from(both)) === 'sb_publishable_new', 'the new publishable key first');
+  const legacy = { SUPABASE_SERVICE_ROLE_KEY: 'legacy-service', SUPABASE_ANON_KEY: 'legacy-anon', SUPABASE_SECRET_KEYS: '{}' };
+  ok(projectKey('secret', from(legacy)) === 'legacy-service', 'an empty dictionary falls back to the legacy key');
+  ok(projectKey('public', from(legacy)) === 'legacy-anon', 'the legacy anon key');
+  ok(projectKey('secret', from({ SUPABASE_SECRET_KEYS: 'not json', SERVICE_ROLE_KEY: 'old-guide-secret' })) === 'old-guide-secret', 'the old secret is still honoured, last');
+  ok(projectKey('secret', from({ SUPABASE_SECRET_KEYS: JSON.stringify({ default: '' }), SUPABASE_SERVICE_ROLE_KEY: '' })) === null, 'empty values are not keys');
+  ok(projectKey('public', from({})) === null, 'nothing set: null, never a crash');
 });

@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "content:export": "tsx scripts/export-courses.ts && tsx scripts/export-build-sheets.ts && tsx scripts/export-cert-sheets.ts && tsx scripts/export-skill-sheets.ts && tsx scripts/export-ontology.ts && tsx scripts/export-profiles.ts",
-    "db:check": "bash scripts/db-check.sh"
+    "db:check": "bash scripts/db-check.sh",
+    "functions:dashboard": "tsx scripts/build-dashboard-functions.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",

@@ -5,10 +5,12 @@
 // The app fire-and-forgets an invoke after each report and stays silent when
 // the function isn't deployed, so nothing depends on it.
 //
-// DEPLOY (you, once — after creating a free Resend account):
-//   supabase functions deploy report-notify
-//   supabase secrets set RESEND_API_KEY=<your Resend API key>
-//   supabase secrets set REPORT_EMAIL=<where the emails go>
+// DEPLOY (you, once — after creating a free Resend account): paste
+// supabase/dashboard/report-notify.ts into the Supabase dashboard
+// (SUPABASE_SETUP.md), or run `supabase functions deploy report-notify`; then
+// add two secrets on the dashboard's Edge Function Secrets page (or with
+// `supabase secrets set`): RESEND_API_KEY=<your Resend API key> and
+// REPORT_EMAIL=<where the emails go>.
 //
 // The caller must be signed in (their JWT is verified); the report fields are
 // re-read as plain strings and length-capped, so the email can't be used to
@@ -17,9 +19,12 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 // R113: answer the browser preflight, and carry the CORS headers on every reply.
 import { json, preflight } from '../_shared/cors.ts';
+import { projectKey } from '../_shared/env.ts';
+
+const env = (name: string) => Deno.env.get(name);
 
 Deno.serve(async (req: Request) => {
-  const origin = Deno.env.get('APP_ORIGIN');
+  const origin = env('APP_ORIGIN');
   const pre = preflight(req, origin);
   if (pre) return pre;
   if (req.method !== 'POST') {
@@ -30,11 +35,11 @@ Deno.serve(async (req: Request) => {
     return json({ error: 'Missing bearer token' }, 401, req, origin);
   }
 
-  const url = Deno.env.get('SUPABASE_URL')!;
-  const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-  const resendKey = Deno.env.get('RESEND_API_KEY');
-  const to = Deno.env.get('REPORT_EMAIL');
-  if (!resendKey || !to) {
+  const url = env('SUPABASE_URL');
+  const anonKey = projectKey('public', env);
+  const resendKey = env('RESEND_API_KEY');
+  const to = env('REPORT_EMAIL');
+  if (!url || !anonKey || !resendKey || !to) {
     // Deployed but not configured: succeed quietly — the dashboard has the report.
     return json({ sent: false }, 200, req, origin);
   }

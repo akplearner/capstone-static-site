@@ -2910,7 +2910,9 @@ describe('R114 — candidate links and employer profiles', () => {
     const guard = code('supabase/functions/_shared/shareGuard.ts');
     expect(guard).toContain("['memberId', 'userId', 'user_id', 'email', 'teamId', 'submittedBy']");
     expect(guard, 'pure').not.toContain('Deno.');
-    expect(read('SUPABASE_SETUP.md')).toContain('supabase functions deploy shared-profile --no-verify-jwt');
+    const setupGuide = read('SUPABASE_SETUP.md');
+    expect(setupGuide, 'the link reader deploys like every other function').toContain('supabase functions deploy shared-profile');
+    expect(setupGuide, 'the JWT check accepts the public key a signed-out reader sends, so no flag').not.toContain('--no-verify-jwt');
   });
 
   it('the token rides in the fragment, the page reads no data layer and is never indexed, and links degrade softly', () => {
@@ -2950,5 +2952,43 @@ describe('R114 — candidate links and employer profiles', () => {
     const register = read('docs/VALUE_REGISTER.md');
     expect(register.match(/^\| \d+ \|/gm)?.length).toBe(39);
     expect(register).toContain('member-created link');
+  });
+});
+
+describe('R115 — the functions deploy from the browser', () => {
+  const FUNCTIONS = ['delete-account', 'report-notify', 'stamp', 'receipt', 'share', 'shared-profile'];
+
+  it('every function reads the keys Supabase injects, so no secret has to be set', () => {
+    for (const f of FUNCTIONS) {
+      const src = code(`supabase/functions/${f}/index.ts`);
+      expect(src, `${f} picks the project key`).toContain('projectKey(');
+      expect(src, `${f} imports the picker`).toContain("from '../_shared/env.ts'");
+      expect(src, `${f} reads no hand-set key`).not.toMatch(/Deno\.env\.get\('(SERVICE_ROLE_KEY|SUPABASE_ANON_KEY|SUPABASE_SERVICE_ROLE_KEY)'\)/);
+      expect(src, `${f}: a missing key is an answer, never a crash`).not.toMatch(/Deno\.env\.get\([^)]*\)!/);
+    }
+    const env = code('supabase/functions/_shared/env.ts');
+    expect(env, 'pure: no Deno API').not.toContain('Deno.');
+    for (const n of ["'SUPABASE_SECRET_KEYS'", "'SUPABASE_PUBLISHABLE_KEYS'", "'SUPABASE_SERVICE_ROLE_KEY'", "'SUPABASE_ANON_KEY'", "'SERVICE_ROLE_KEY'"]) expect(env, n).toContain(n);
+    expect(code('src/lib/shares.ts'), 'a function without keys reads as not set up').toContain("code === 'not-configured'");
+  });
+
+  it('each function has a paste-ready copy, type-checked in CI and kept out of the app build', () => {
+    for (const f of FUNCTIONS) expect(existsSync(`supabase/dashboard/${f}.ts`), `supabase/dashboard/${f}.ts`).toBe(true);
+    expect(read('package.json')).toContain('"functions:dashboard": "tsx scripts/build-dashboard-functions.ts"');
+    expect(read('.github/workflows/ci.yml')).toContain('deno check --no-config supabase/dashboard/*.ts');
+    expect(read('tsconfig.json')).toContain('"supabase/dashboard"');
+    expect(read('eslint.config.mjs')).toContain('"supabase/dashboard/**"');
+    expect(read('supabase/dashboard/README.md')).toContain('npm run functions:dashboard');
+  });
+
+  it('the setup guide deploys from the dashboard, with no secret and no JWT flag', () => {
+    const setup = read('SUPABASE_SETUP.md');
+    for (const n of ['## Deploy the server functions from your browser', 'Deploy a new function', 'Via Editor', 'supabase/dashboard/', 'Copy raw file', 'Deploy updates', 'invalid-session', 'not-available']) {
+      expect(setup, n).toContain(n);
+    }
+    expect(setup, 'no secret to set by hand').not.toMatch(/secrets set SERVICE_ROLE_KEY/);
+    expect(setup).not.toContain('--no-verify-jwt');
+    expect(read('docs/OPERATIONS.md')).not.toContain('--no-verify-jwt');
+    expect(read('docs/ARCHITECTURE.md')).toContain('### Deploying the functions from the browser (R115)');
   });
 });

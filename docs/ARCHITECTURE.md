@@ -508,8 +508,9 @@ it returns once (`profile_shares`, 0015). Only the function inserts; the owner l
 through column grants that refuse the copy and the token hash, revokes it (a trigger dates the
 revocation with the database clock and refuses to undo it) or deletes it with its copy; account
 deletion clears links too. The token rides in the URL fragment (`/share#<token>`), which no server sees;
-`shared-profile`, deployed without JWT verification, serves one live link by its token's hash and
-answers unknown, revoked and expired with the same 404. The public page reads words from the built-in
+`shared-profile` serves one live link by its token's hash and answers unknown, revoked and expired
+with the same 404; the platform's JWT check stays on, because a signed-out reader's request carries
+the project's public key, which the check accepts. The public page reads words from the built-in
 documents, never the data layer, is noindex and disallowed in robots.txt, and says the copy is unsigned
 and not proof of the machine.
 
@@ -519,6 +520,19 @@ every signed-in member's Skill board picker lists them after the work roles and 
 created from the Skill board shares that course alone, its board measured against the chosen profile,
 and records the profile's name. Without 0015 or the functions every piece degrades to "not available":
 the buttons say links are not set up, the account section and the published profiles do not appear.
+
+### Deploying the functions from the browser (R115)
+
+The edge functions deploy without the CLI. Each reads the project's URL and keys from what Supabase
+injects into every function (`supabase/functions/_shared/env.ts`: the `default` entry of
+`SUPABASE_SECRET_KEYS` or `SUPABASE_PUBLISHABLE_KEYS`, else the legacy `SUPABASE_SERVICE_ROLE_KEY` or
+`SUPABASE_ANON_KEY`, else an older guide's `SERVICE_ROLE_KEY` secret), so no secret is set by hand; a
+function without a key answers 503 `not-configured` instead of crashing. The dashboard's editor deploys
+one file, so `npm run functions:dashboard` writes `supabase/dashboard/<name>.ts`: the function's source
+with each `../_shared` helper copied in verbatim. `src/lib/dashboardCopy.test.ts` fails when a copy
+differs from a fresh build, CI type-checks the copies with Deno, and `SUPABASE_SETUP.md` walks the
+paste: Edge Functions, Deploy a new function, Via Editor, name, Deploy function. No function needs
+`--no-verify-jwt`: the platform's JWT check accepts the public key a signed-out reader sends.
 
 ## 7. The MSP / business bridge (dual-use is the unlock)
 

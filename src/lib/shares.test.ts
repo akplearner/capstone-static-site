@@ -62,6 +62,7 @@ describe('candidate links — creating one', () => {
       [refused(403, 'consent-required'), 'consent-required'],
       [refused(404), 'unavailable'],
       [refused(503, 'share-unavailable'), 'unavailable'],
+      [refused(503, 'not-configured'), 'unavailable'],
       [{ data: null, error: { name: 'FunctionsFetchError', context: new TypeError('Failed to fetch') } }, 'unavailable'],
       [refused(500, 'share-failed'), 'failed'],
       [{ data: { id: 'x', token: 'not-a-token', expiresAt: 'x' }, error: null }, 'failed'],

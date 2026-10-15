@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // The service worker is plain browser JS outside the app graph.
     "public/sw.js",
+    // Generated paste-ready copies of the edge functions (npm run functions:dashboard).
+    "supabase/dashboard/**",
   ]),
 ]);
 

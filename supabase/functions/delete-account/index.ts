@@ -9,9 +9,11 @@
 // server-side — never from the request body — so a valid token for account A can
 // never be used to delete account B.
 //
-// DEPLOY (you, once):
-//   supabase functions deploy delete-account
-//   supabase secrets set SERVICE_ROLE_KEY=<your service_role key>
+// DEPLOY (you, once): paste supabase/dashboard/delete-account.ts into the
+// Supabase dashboard (SUPABASE_SETUP.md), or run
+// `supabase functions deploy delete-account`. No secrets: Supabase gives every
+// function the project's URL and keys, the service-role one included
+// (_shared/env.ts), and it never leaves the server.
 // The function is invoked from src/app/account/page.tsx. Until it is deployed the
 // account page tells the user their data was removed but their login was not,
 // which is the truth — it does not claim success it didn't achieve.
@@ -19,9 +21,12 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 // R113: answer the browser preflight, and carry the CORS headers on every reply.
 import { json, preflight } from '../_shared/cors.ts';
+import { projectKey } from '../_shared/env.ts';
+
+const env = (name: string) => Deno.env.get(name);
 
 Deno.serve(async (req: Request) => {
-  const origin = Deno.env.get('APP_ORIGIN');
+  const origin = env('APP_ORIGIN');
   const pre = preflight(req, origin);
   if (pre) return pre;
   if (req.method !== 'POST') {
@@ -33,9 +38,12 @@ Deno.serve(async (req: Request) => {
     return json({ error: 'Missing bearer token' }, 401, req, origin);
   }
 
-  const url = Deno.env.get('SUPABASE_URL')!;
-  const serviceRole = Deno.env.get('SERVICE_ROLE_KEY')!;
-  const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+  const url = env('SUPABASE_URL');
+  const serviceRole = projectKey('secret', env);
+  const anonKey = projectKey('public', env);
+  if (!url || !serviceRole || !anonKey) {
+    return json({ error: 'not-configured' }, 503, req, origin);
+  }
 
   // Verify the caller with their OWN token. This is the identity we delete —
   // taking a user id from the request body instead would be an account-takeover

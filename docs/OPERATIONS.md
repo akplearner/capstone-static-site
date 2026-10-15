@@ -120,13 +120,19 @@ has failed silently in some deployment of some product; none takes more than a m
   `capstone-kpi-board/1` JSON; the dashboard's record grid has eight tiles and its member-profile
   chip downloads the profile and the credential (no `proof`); under reduced motion nothing breathes.
 - [ ] **Candidate links and employer profiles (R114):** cloud, with 0015, `share` and
-  `shared-profile --no-verify-jwt` deployed: turn on "share with employers" on `/account`; Create link
+  `shared-profile` deployed (from the dashboard or the CLI): turn on "share with employers" on `/account`; Create link
   on `/portfolio` shows the URL once (`/share#…`); open it in a private window, signed out: the copy
   under the "unsigned, not proof of the machine" banner, no email anywhere; revoke it on `/account`
   and the page says the link is not available, the same as a made-up token. As an instructor, publish
   `content/profiles/sample-mssp.json` with a new id on `/instructor/profiles`; the Skill board picker
   lists it; Create link there records "measured against" it. Without the consent the dialog points to
   the account page; without the functions it says links are not set up.
+- [ ] **Functions from the browser (R115):** for each of `stamp`, `receipt`, `share` and
+  `shared-profile`: Supabase → Edge Functions → Deploy a new function → Via Editor, paste
+  `supabase/dashboard/<name>.ts` over the example, name it exactly `<name>`, Deploy function; no
+  secret set, JWT verification left on. Test → POST: the first three answer 401 `invalid-session`,
+  `shared-profile` 404 `not-available`. Then the R113 and R114 rows below pass, including a link
+  opened signed out in a private window.
 - [ ] **Stamps, receipts, re-hash and the first validator (R113):** cloud, with `stamp` and `receipt`
   deployed: a task's stamp chip says it was issued by the server; paste output with every token and
   the stamp, and the box says "receipted"; leave the task open past twenty minutes and the chip says

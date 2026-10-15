@@ -59,3 +59,5 @@ jobs:
           deno-version: v2.x
       - run: deno test --no-config supabase/functions/_shared
       - run: deno check --no-config supabase/functions/*/index.ts
+      # The paste-ready copies the setup guide deploys from the dashboard (R115).
+      - run: deno check --no-config supabase/dashboard/*.ts

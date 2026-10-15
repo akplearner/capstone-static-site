@@ -7,16 +7,19 @@
 // table has no client write policy, so the row means the server saw this:
 // a record of the stamp, not proof of the machine.
 //
-// DEPLOY (you, once):
-//   supabase functions deploy receipt
-//   (uses the same SERVICE_ROLE_KEY and optional APP_ORIGIN secrets as `stamp`)
+// DEPLOY (you, once): paste supabase/dashboard/receipt.ts into the Supabase
+// dashboard (SUPABASE_SETUP.md), or run `supabase functions deploy receipt`.
+// No secrets (_shared/env.ts); APP_ORIGIN is optional, as for `stamp`.
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { json, preflight } from '../_shared/cors.ts';
+import { projectKey } from '../_shared/env.ts';
 import { receiptProblem, stampVerdict, type ReceiptInput, type StampRow } from '../_shared/stampCodec.ts';
 
+const env = (name: string) => Deno.env.get(name);
+
 Deno.serve(async (req: Request) => {
-  const origin = Deno.env.get('APP_ORIGIN');
+  const origin = env('APP_ORIGIN');
   const pre = preflight(req, origin);
   if (pre) return pre;
   if (req.method !== 'POST') return json({ error: 'method-not-allowed' }, 405, req, origin);
@@ -24,9 +27,10 @@ Deno.serve(async (req: Request) => {
   const authHeader = req.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) return json({ error: 'missing-token' }, 401, req, origin);
 
-  const url = Deno.env.get('SUPABASE_URL')!;
-  const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-  const serviceRole = Deno.env.get('SERVICE_ROLE_KEY')!;
+  const url = env('SUPABASE_URL');
+  const anonKey = projectKey('public', env);
+  const serviceRole = projectKey('secret', env);
+  if (!url || !anonKey || !serviceRole) return json({ error: 'not-configured' }, 503, req, origin);
   const asCaller = createClient(url, anonKey, { global: { headers: { Authorization: authHeader } } });
   const {
     data: { user },

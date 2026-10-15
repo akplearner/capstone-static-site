@@ -9,17 +9,21 @@
 // this function deployed the app falls back to the client stamp and says
 // nothing about receipts.
 //
-// DEPLOY (you, once):
-//   supabase functions deploy stamp
-//   supabase secrets set SERVICE_ROLE_KEY=<your service_role key>
-//   supabase secrets set APP_ORIGIN=<https://your-app.example>   (optional)
+// DEPLOY (you, once): paste supabase/dashboard/stamp.ts into the Supabase
+// dashboard (SUPABASE_SETUP.md, "Deploy the server functions from your
+// browser"), or run `supabase functions deploy stamp`. No secrets: Supabase
+// gives every function the project's URL and keys (_shared/env.ts). The
+// APP_ORIGIN secret is optional (_shared/cors.ts).
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { json, preflight } from '../_shared/cors.ts';
+import { projectKey } from '../_shared/env.ts';
 import { ID_RE, STAMP_MINUTES, STAMP_REUSE_MINUTES, randomStamp } from '../_shared/stampCodec.ts';
 
+const env = (name: string) => Deno.env.get(name);
+
 Deno.serve(async (req: Request) => {
-  const origin = Deno.env.get('APP_ORIGIN');
+  const origin = env('APP_ORIGIN');
   const pre = preflight(req, origin);
   if (pre) return pre;
   if (req.method !== 'POST') return json({ error: 'method-not-allowed' }, 405, req, origin);
@@ -27,9 +31,10 @@ Deno.serve(async (req: Request) => {
   const authHeader = req.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) return json({ error: 'missing-token' }, 401, req, origin);
 
-  const url = Deno.env.get('SUPABASE_URL')!;
-  const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-  const serviceRole = Deno.env.get('SERVICE_ROLE_KEY')!;
+  const url = env('SUPABASE_URL');
+  const anonKey = projectKey('public', env);
+  const serviceRole = projectKey('secret', env);
+  if (!url || !anonKey || !serviceRole) return json({ error: 'not-configured' }, 503, req, origin);
   const asCaller = createClient(url, anonKey, { global: { headers: { Authorization: authHeader } } });
   const {
     data: { user },

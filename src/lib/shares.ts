@@ -79,7 +79,7 @@ export async function createShare(req: ShareRequest): Promise<{ ok: true; id: st
   if (error) {
     const { status, code } = await failure(error);
     if (code === 'consent-required' || code === 'identity-in-snapshot' || code === 'too-large') return { ok: false, error: code };
-    if (status === 0 || status === 404 || code === 'share-unavailable') return { ok: false, error: 'unavailable' };
+    if (status === 0 || status === 404 || code === 'share-unavailable' || code === 'not-configured') return { ok: false, error: 'unavailable' };
     return { ok: false, error: 'failed' };
   }
   const d = (data ?? {}) as { id?: unknown; token?: unknown; expiresAt?: unknown };

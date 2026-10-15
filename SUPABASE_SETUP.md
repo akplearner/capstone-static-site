@@ -254,6 +254,7 @@ Find what you are actually seeing:
 | "Sign-in started in a different browser" banner | The link was opened inside another app's built-in browser | Open the site in Chrome/Safari itself and sign in there |
 | Signed in with GitHub and progress is gone | GitHub's **primary** email isn't the Gmail used before, so a second empty account was created | Sign out, use Google; delete the stray user under **Authentication → Users** |
 | The browser console says "Could not find the '…' column of '…' in the schema cache", or a feature added in an update never saves | The app was updated but the database was not: a newer migration has not run | Re-run **`supabase/setup.sql`** (**Step 2**); every statement is safe to repeat. Agreement acceptance keeps working meanwhile, without the text hash |
+| Create link says links are not set up, or the stamp chip never says the server issued it | A server function is not deployed, or its name differs from the table | [Deploy the server functions from your browser](#deploy-the-server-functions-from-your-browser) |
 
 Still stuck? `/api/health` tells you which half of the setup to look at: if it says
 `local`, the problem is Vercel (step 6). If it says `cloud`, the problem is in
@@ -302,19 +303,71 @@ your sending domain's SPF/DKIM records verified, and the rate limit raised.
 
 Avoiding all of that is exactly why the default is Google and GitHub.
 
+## Deploy the server functions from your browser
+
+Six small server functions turn on the features below; without them the platform
+still works and says those features are not set up. Each one deploys from the
+Supabase dashboard by pasting one file: no command line, no access token and no
+secrets to copy. Supabase gives every function your project's address and keys
+on its own, and the functions read them from there.
+
+| Function | File to paste | What it turns on | Deploy |
+|---|---|---|---|
+| `stamp` | `supabase/dashboard/stamp.ts` | [Server-issued stamps](#server-stamps-and-verification-receipts) | Yes |
+| `receipt` | `supabase/dashboard/receipt.ts` | Verification receipts | Yes |
+| `share` | `supabase/dashboard/share.ts` | [Creating candidate links](#candidate-links-share-a-portfolio-with-an-employer) | Yes |
+| `shared-profile` | `supabase/dashboard/shared-profile.ts` | Opening a candidate link | Yes |
+| `delete-account` | `supabase/dashboard/delete-account.ts` | [Removing the login](#let-students-delete-their-account) when a student deletes their account | Recommended |
+| `report-notify` | `supabase/dashboard/report-notify.ts` | [An email per issue report](#get-an-email-when-a-student-reports-an-issue) | Optional; needs a Resend key |
+
+For each function (about a minute each):
+
+1. In your Supabase project, click **Edge Functions** in the left sidebar.
+2. Click **Deploy a new function** and choose **Via Editor**.
+3. In this repository on GitHub, open the function's file from the table and
+   click **Copy raw file** (the copy icon above the code). Opening **Raw**,
+   selecting all and copying works too.
+4. Back in Supabase, select everything in the editor (Ctrl/Cmd + A) and paste,
+   replacing the example code.
+5. Change the function name (at the bottom of the editor) to exactly the name in
+   the first column, for example `stamp`. The app calls each function by its
+   name, so a different name leaves the feature off.
+6. Click **Deploy function** and wait for the success message (10 to 30 seconds).
+
+There is nothing else to set. Leave **JWT verification** on (the default) for
+every function, `shared-profile` included: a signed-out visitor opening a link
+still sends your project's public key, and that check accepts it.
+
+**Check it worked.** The **Edge Functions** page lists each name exactly as in
+the table. On a function's page, click **Test**, keep the method POST and click
+**Send Request**. `stamp`, `receipt` and `share` answer **401**
+`{"error":"invalid-session"}`: the function ran, and it wants a signed-in
+student, so that is the right answer here. `shared-profile` answers **404**
+`{"error":"not-available"}`. Never test `delete-account` with a real student's
+token: it deletes that login.
+
+**After an update to this repository** that changes a function, open that
+function in the dashboard, paste the new copy of its file over the code and
+click **Deploy updates**. The files in `supabase/dashboard/` are generated from
+`supabase/functions/` by `npm run functions:dashboard`; never edit them by hand.
+
+Prefer the command line? `supabase functions deploy <name>` deploys straight from
+`supabase/functions/`, also with no secrets.
+
 ## Get an email when a student reports an issue
 
 Every task has a **Report an issue** button. Reports always land on your cohort
 dashboard (`/instructor/<course>/cohort`, "Reported issues") and mark the task
 for the reporter's teammates — no email needed. To ALSO get an email per
-report, deploy the optional function with a free [Resend](https://resend.com)
-account:
+report, deploy `report-notify` ([from your browser](#deploy-the-server-functions-from-your-browser),
+or `supabase functions deploy report-notify`) and give it two secrets from a free
+[Resend](https://resend.com) account, on the dashboard's **Edge Functions →
+Secrets** page (or with `supabase secrets set`):
 
-```bash
-supabase functions deploy report-notify
-supabase secrets set RESEND_API_KEY=<your Resend API key>
-supabase secrets set REPORT_EMAIL=<where the emails should go>
-```
+| Key | Value |
+|---|---|
+| `RESEND_API_KEY` | your Resend API key |
+| `REPORT_EMAIL` | where the emails should go |
 
 Until then the app invokes it quietly and nothing breaks.
 
@@ -322,21 +375,19 @@ Until then the app invokes it quietly and nothing breaks.
 
 The privacy policy promises account deletion. Removing the login itself needs the
 `service_role` key, which must never reach a browser, so it lives in a small
-server-side function:
-
-```bash
-supabase functions deploy delete-account
-supabase secrets set SERVICE_ROLE_KEY=<service_role key>
-```
+server-side function that reads the key on Supabase's side. Deploy
+`delete-account` ([from your browser](#deploy-the-server-functions-from-your-browser),
+or `supabase functions deploy delete-account`); there is no secret to set.
 
 Until this is deployed, `/account` still deletes all of a student's work and then
 honestly reports that the login itself could not be removed.
 
 Every function answers the browser's preflight request itself. To limit which
-site may call them, also set the optional `APP_ORIGIN` secret to your site's
-address (`supabase secrets set APP_ORIGIN=https://<your-site>`); without it a
-function echoes the caller's origin, which is safe because each one still
-requires the caller's own sign-in token.
+site may call them, also add the optional `APP_ORIGIN` secret on **Edge Functions
+→ Secrets**, set to your site's address (`https://<your-site>`; or
+`supabase secrets set APP_ORIGIN=https://<your-site>`). Without it a function
+echoes the caller's origin, which is safe because each one still requires the
+caller's own sign-in token.
 
 ## Server stamps and verification receipts
 
@@ -345,12 +396,12 @@ server (random, theirs, for one task, live for twenty minutes) and every full ma
 server logs the stamp, the step, the output's SHA-256 and the token counts. The pasted output itself
 never leaves the browser; the receipt function refuses any request that carries more. Needs migration
 `0014` (in `supabase/setup.sql`; re-run it once if your project predates it).
+Deploy `stamp` and `receipt` [from your browser](#deploy-the-server-functions-from-your-browser),
+or with the CLI:
 
 ```bash
 supabase functions deploy stamp
 supabase functions deploy receipt
-supabase secrets set SERVICE_ROLE_KEY=<service_role key>     # already set if delete-account is deployed
-supabase secrets set APP_ORIGIN=https://<your-site>          # optional, see above
 ```
 
 Until they are deployed the app uses the stamp the browser derives, exactly as before, and nothing
@@ -363,12 +414,17 @@ A student who has turned on the **share with employers** consent can create a li
 of their portfolio export or credential, for 7, 30 or 90 days, and revoke or delete it from
 `/account`. The copy never carries an email address or account ids; the link's token is 256 random
 bits, shown once and stored only as a hash. Needs migration `0015` (in `supabase/setup.sql`) and two
-functions; the second is public, because whoever holds a link may read it:
+functions; the second serves whoever holds a link, signed in or not. Deploy `share`
+and `shared-profile` [from your browser](#deploy-the-server-functions-from-your-browser),
+or with the CLI:
 
 ```bash
 supabase functions deploy share
-supabase functions deploy shared-profile --no-verify-jwt
+supabase functions deploy shared-profile
 ```
+
+JWT verification stays on for both: a signed-out visitor's request carries the
+project's public key, which the check accepts.
 
 Until they are deployed the Create link buttons answer that links are not set up, the account page
 shows no links section, and every link page says the link is not available.
