@@ -30,10 +30,12 @@ import { ReviewInboxCard } from '@/components/docs/ReviewInboxCard';
 import { TeamReviewQueueCard } from '@/components/docs/TeamReviewQueueCard';
 import { MyWaitingCard } from '@/components/docs/MyWaitingCard';
 import { JoinPanel } from './JoinPanel';
+import { RoleBoard } from './RoleBoard';
+import type { TeammateTaskProgress } from './useCourseProgress';
 import { progressRepo, evidenceRepo, stepNotesRepo, docsRepo, userStateRepo } from '@/lib/data';
-import { notifyStore } from '@/lib/useClientStore';
+import { EMPTY_ARRAY, notifyStore, useClientStore } from '@/lib/useClientStore';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
-import { getTasksByRole, getWeekTasks, isEngagement, isGradedWeek, objectivesFor, phaseTag, weekTasksOrdered } from '@/lib/course-helpers';
+import { getTasksByRole, isEngagement, isGradedWeek, objectivesFor, phaseTag, weekTasksOrdered } from '@/lib/course-helpers';
 import { clearResume } from '@/lib/resume';
 import { phaseForWeek } from '@/lib/quarry';
 import { isDeliverableFiled } from '@/lib/deliverableChain';
@@ -41,6 +43,9 @@ import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { buildIcs, dueLabel, weekDue } from '@/lib/calendar';
 import { downloadText } from '@/lib/download';
 import type { CrewProgress } from '@/lib/game';
+import { roleBoard } from '@/lib/roleBoard';
+import { takeRole } from '@/lib/takeRole';
+import { teamLabel } from '@/lib/team';
 
 /**
  * The course Home: where you are, the stone, your role and your team, and what
@@ -62,6 +67,8 @@ export function HomeTab({
   weekStats,
   taskStats,
   teamWeekStats,
+  teamTaskStats,
+  teamTaskProgress,
   gateStats,
   crew,
   nextTask,
@@ -84,6 +91,9 @@ export function HomeTab({
   taskStats: Record<string, number>;
   /** R98: the team's week percent — the completion banner reads this. */
   teamWeekStats: Record<number, number>;
+  /** R119: the team's percent per task, and each teammate's standing: the roles board reads both. */
+  teamTaskStats: Record<string, number>;
+  teamTaskProgress: Record<string, TeammateTaskProgress[]>;
   gateStats: Record<number, string>;
   crew: CrewProgress;
   nextTask: Task | undefined;
@@ -170,20 +180,17 @@ export function HomeTab({
           .flatMap((w) => weekTasksOrdered(course, member.role, w.number))
           .find((t) => !t.homeLabOnly && (taskStats[t.id] ?? 0) < 100)
       : undefined;
-  const otherRoles = member ? course.roles.filter((r) => r.id !== member.role) : course.roles;
   const savedDocs = member ? docsRepo.get(course.id, member.teamId) : null;
-  // The rest of the team's tasks this week, by role. Titles only — the glance;
-  // every one of them is open to you on Tasks (R98).
-  const otherFocuses = member
-    ? otherRoles
-        .map((r) => ({
-          role: r,
-          titles: getWeekTasks(course, activeWeek)
-            .filter((t) => !t.shared && t.role === r.id)
-            .map((t) => t.title),
-        }))
-        .filter((o) => o.titles.length > 0)
-    : [];
+  // R119: every role of the course with its holders on this team and the week's tasks, each with whose it is and where it stands.
+  const roster = useClientStore(() => progressRepo.getRoster(course.id), EMPTY_ARRAY);
+  const board = member ? roleBoard({ course, week: activeWeek, viewer: member, roster, teamTaskStats, youTaskStats: taskStats, teammates: teamTaskProgress }) : null;
+  // Take an open role: the join panel's own call with only the role replaced; ticks are keyed by the member, so they stay.
+  const takeOpenRole = async (roleId: string) => {
+    if (!member) return { ok: false };
+    const { result, member: next } = await takeRole(course, member, roleId);
+    if (result.ok) onJoined(next);
+    return result;
+  };
 
   /**
    * Reset means reset: completion keys, the evidence ledger, the notes and the
@@ -339,42 +346,11 @@ export function HomeTab({
       )}
 
 
-      {/* The rest of the team's tasks this week, by role. Titles only — a
-          title tells you the slot is covered; the steps live on Tasks, where
-          every one of them is open to you (R98). */}
-      {otherFocuses.length > 0 && (
-        <Surface as="section" variant="inset" className="space-y-3">
-          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <div>
-              <h2 className="text-lg font-semibold text-ink">
-                {course.sharedTrack ? `What the other focuses document this ${unit}` : `The rest of the team’s tasks this ${unit}`}
-              </h2>
-              <p className="text-sm text-muted">Anyone on the team can open and do any of them.</p>
-            </div>
-            <button
-              type="button"
-              onClick={onReadOtherSteps}
-              className="text-sm font-medium text-accent hover:text-accent-strong"
-            >
-              Open them in Tasks →
-            </button>
-          </div>
-          <ul className="grid gap-2 sm:grid-cols-3">
-            {otherFocuses.map(({ role, titles }) => (
-              <li key={role.id} className="rounded-lg bg-panel px-3 py-2 text-sm">
-                <div className="flex items-center gap-2 font-semibold text-ink">
-                  <RoleIcon iconName={role.icon} className="h-4 w-4" color={role.color} />
-                  {role.name}
-                </div>
-                <ul className="mt-1 space-y-0.5 text-muted">
-                  {titles.map((t) => (
-                    <li key={t}>{t}</li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
-        </Surface>
+      {/* R119: the team's roles, one board: your role first, then who holds
+          each of the others and what it is doing, every task open to anyone
+          (R98) and an open role one click to take. */}
+      {joined && member && board && board.roles.length > 1 && (
+        <RoleBoard board={board} unit={unit} teamName={teamLabel(member.teamId)} onOpenTask={(t) => onContinue(t)} onOpenTasks={onReadOtherSteps} onTake={takeOpenRole} />
       )}
 
       {/* One-time migration of this device's local progress into the account */}

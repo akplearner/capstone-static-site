@@ -28,7 +28,7 @@ import { YourTasksStrip } from './YourTasksStrip';
 import { WeekMoreBody } from './WeekMoreBody';
 import { formatMinutes, getTasksByRole, isAdvancedWeek, isSetupWeek, phaseTag, weekSummary, weekTasksOrdered } from '@/lib/course-helpers';
 import { OWNER_COPY, ownerSentence, taskOwnership } from '@/lib/taskOwnership';
-import { taskState } from '@/lib/taskState';
+import { doneByNames, taskState } from '@/lib/taskState';
 import { verifiableSteps } from '@/lib/evidenceLedger';
 import { evidenceRepo } from '@/lib/data';
 import type { StepEvidence } from '@/lib/data/types';
@@ -251,10 +251,7 @@ export function TasksTab({
     const r = roleOf(task.role);
     return { kind: taskOwnership(task, member.role), role: r ? { name: r.name, icon: r.icon, color: r.color } : undefined };
   };
-  const doneByOf = (task: Task) =>
-    (taskStats[task.id] ?? 0) >= 100
-      ? []
-      : (teamTaskProgress[task.id] ?? []).filter((p) => p.pct >= 100 && p.memberId !== member.memberId).map((p) => p.displayName || 'a teammate');
+  const doneByOf = (task: Task) => doneByNames(taskStats[task.id] ?? 0, teamTaskProgress[task.id] ?? [], member.memberId);
 
   // R118: one state, in one vocabulary: the team's (done once anyone did it) and the member's own count.
   const stateOf = (task: Task) => {

@@ -166,7 +166,9 @@ export const localStorageProgressRepo: ProgressRepository = {
     // A student moving teams shouldn't count against their own current slot.
     const others = roster.filter((e) => e.memberId !== member.memberId);
     const cap = course.teamCapacity ?? 0;
-    if (cap > 0) {
+    // A new role on the team they are already on leaves its size as it was (R119), so it is never refused as full.
+    const staying = roster.some((e) => e.memberId === member.memberId && e.teamId === member.teamId);
+    if (cap > 0 && !staying) {
       const onTeam = others.filter((e) => e.teamId === member.teamId).length;
       if (onTeam >= cap) return { ok: false, reason: 'team-full' };
     }

@@ -20,15 +20,21 @@ beforeEach(() => {
 
 /** R116 — the member's role is always on top: the first item of the sticky course bar. */
 describe('RoleStrip', () => {
-  it('says Your role, the role’s name and the team, and links to the role section on Home', () => {
+  it('says Your role, the role’s name and the team, and links to the team’s roles board on Home (R119)', () => {
     render(inCourse(<RoleStrip courseId={C.id} />));
     const strip = screen.getByRole('link', { name: /^Your role: .*Team 1$/ });
-    expect(strip).toHaveAttribute('href', `/courses/${C.id}#role`);
+    expect(strip).toHaveAttribute('href', `/courses/${C.id}#roles`);
     expect(strip).toHaveAttribute('data-role-strip', 'member');
     expect(strip).toHaveTextContent('Your role');
     expect(strip).toHaveTextContent('Team 1');
     const role = C.roles.find((r) => r.id === 'secops')!;
     expect(strip.getAttribute('aria-label')).toBe(`Your role: ${role.name}, Team 1`);
+  });
+
+  it('a one-role course has no board, so the strip lands on the role section instead', () => {
+    const solo = { ...C, roles: [C.roles.find((r) => r.id === 'secops')!] };
+    render(<CourseContext.Provider value={solo}><RoleStrip courseId={C.id} /></CourseContext.Provider>);
+    expect(screen.getByRole('link', { name: /^Your role:/ })).toHaveAttribute('href', `/courses/${C.id}#role`);
   });
 
   it('on the dashboard it is a button that switches to Home first', () => {

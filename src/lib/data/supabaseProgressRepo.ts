@@ -80,7 +80,9 @@ export const supabaseProgressRepo: ProgressRepository = {
     // double-join; per-team cap races are an accepted edge case for now.
     const others = cache.roster(course.id).filter((e) => e.memberId !== member.memberId);
     const cap = course.teamCapacity ?? 0;
-    if (cap > 0 && others.filter((e) => e.teamId === member.teamId).length >= cap) {
+    // A new role on the team they are already on leaves its size as it was (R119), so it is never refused as full.
+    const staying = cache.roster(course.id).some((e) => e.memberId === member.memberId && e.teamId === member.teamId);
+    if (cap > 0 && !staying && others.filter((e) => e.teamId === member.teamId).length >= cap) {
       return { ok: false, reason: 'team-full' };
     }
 

@@ -151,6 +151,7 @@ additive, none requiring a rewrite.
 | A failed load is not "not enrolled" | `courseHydrateFailed` (`supabaseCache`), `useMember().failed`, `CourseLoadFailed`, `CourseEnrolGate` | **Present** (R117; a retry instead of the Join panel; a removed role is asked for again; a full house is said) |
 | One word for done | `src/lib/taskState.ts`, `TaskStateChip`, `TaskRow`, the opened task's header, `WeekHeader`, `WeekRail` tick labels, `REVIEW_VERDICT_LABEL` | **Present** (R118; the team's state and the member's own count, in words and an icon; the instructor's verdict is always named) |
 | What a member waits on | `MyWaitingCard` on Home; the late joiner's "Done for the team. Your own record" on Home | **Present** (R118) |
+| The team's roles board | `src/lib/roleBoard.ts`, `RoleBoard` on Home (`#roles`), `takeRole`, the role strip's target, `roleCoverage` in `RegistrationsPanel` | **Present** (R119; every role with its holders and this week's tasks, an open role is one click to take, ticks stay; staff see each team's open roles) |
 | Acceptance gate (agreements v2, AUP page) | `src/lib/legal/agreements.ts`, `/legal/aup`, `LegalGateOverlay`, `agreement_acceptances.text_sha256` | **Present** (R110; sandbox-only and liability wording drafted, counsel review pending; re-asked at the next sign-in on a version bump) |
 | Event / Attestation | — | **Absent** |
 | `tenant_id` | `course_id`+`team_id` soft scope | **Absent** (column) |

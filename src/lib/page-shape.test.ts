@@ -3039,7 +3039,7 @@ describe('R116 — the role on top, whose task is whose, no week locked', () => 
   it('Home has a role section the strip can land on, and the dashboard card names the role', () => {
     expect(code('src/components/course/HomeTab.tsx')).toContain('<Surface accent="role" seamColor={ownRole.color} id="role"');
     expect(code('src/components/course/HomeTab.tsx')).toContain('.arc &&');
-    expect(code('src/app/courses/[courseId]/page.tsx')).toContain("id !== 'team' && id !== 'role'");
+    expect(code('src/app/courses/[courseId]/page.tsx')).toContain("id !== 'team' && id !== 'role' && id !== 'roles'");
     expect(code('src/app/dashboard/page.tsx')).toContain('{card.role}');
   });
 
@@ -3191,5 +3191,75 @@ describe('R118 — one word for done', () => {
     expect(read('docs/ARCHITECTURE.md')).toContain('### One word for "done" (R118)');
     expect(read('docs/CURRENT_STATE.md')).toContain('| One word for done |');
     expect(read('docs/OPERATIONS.md')).toContain('(R118)');
+  });
+});
+
+/**
+ * R119 — the team's roles board.
+ *
+ * A role says who a task is for, never who may do it, so the team's roles are
+ * one board on Home: every role with the teammates who hold it and this week's
+ * tasks, the viewer's own first, a role nobody holds marked open and one click
+ * to take. These pins keep it pure, props only, never a padlock, never a member
+ * id, and the take-this-role move the join panel's own call.
+ */
+describe('R119 — the team’s roles board', () => {
+  it('the board is one pure module that reuses the vacancy, ownership and state rules, and carries no member id', () => {
+    const pure = code('src/lib/roleBoard.ts');
+    for (const bad of ['Date.', 'Math.random', 'localStorage', "from './data", 'useClientStore']) expect(pure, `pure: ${bad}`).not.toContain(bad);
+    for (const n of ['export function roleBoard(', 'export function roleCoverage(', 'export function holdersLabel(', 'ROLE_BOARD_COPY', 'isVacant(', 'taskOwnership(', 'taskState(', 'doneByNames(']) expect(pure, n).toContain(n);
+    expect(pure.match(/export interface BoardHolder \{[^}]*\}/)?.[0], 'a holder is a name and a flag').not.toContain('memberId');
+    expect(pure.match(/export interface BoardRole \{[^}]*\}/)?.[0], 'a role on the board names no member id').not.toContain('memberId');
+    expect(pure.match(/export interface BoardTask \{[^}]*\}/)?.[0]).not.toContain('memberId');
+  });
+
+  it('the board is props only: one section with the roles anchor, both chips on every task, and the dialog is the confirm alone', () => {
+    const board = code('src/components/course/RoleBoard.tsx');
+    for (const bad of ['useClientStore', 'progressRepo', "from '@/lib/data'", 'useMember', 'localStorage']) expect(board, `props only: ${bad}`).not.toContain(bad);
+    for (const n of ['id="roles"', 'aria-labelledby="roles-title"', '<OwnerChip', '<TaskStateChip', 'data-take-role', 'data-board-role', 'ROLE_BOARD_COPY']) expect(board, n).toContain(n);
+    expect(board, 'no padlock on the board').not.toMatch(/\bLock(Open)?\b/);
+    expect(board.match(/<Dialog /g)?.length).toBe(1);
+    expect(board, 'the board is a section; the dialog sits inside it').toMatch(/return \(\s*<Surface as="section"/);
+    expect(board.indexOf('<Dialog '), 'the dialog follows the section it belongs to').toBeGreaterThan(board.indexOf('<Surface as="section"'));
+  });
+
+  it('Home mounts the board once, in place of the titles-only list, and a role is taken through the join call', () => {
+    const home = code('src/components/course/HomeTab.tsx');
+    expect(home.match(/<RoleBoard /g)?.length).toBe(1);
+    for (const n of ['roleBoard({', 'takeRole(course, member, roleId)', 'board.roles.length > 1', 'onOpenTask={(t) => onContinue(t)}', 'teamTaskProgress']) expect(home, n).toContain(n);
+    expect(home, 'the titles-only list is gone').not.toMatch(/otherFocuses|Titles only/);
+    expect(home.indexOf('<RoleBoard '), 'after the role section').toBeGreaterThan(home.indexOf('<Surface accent="role"'));
+    expect(home.indexOf('<RoleBoard '), 'before the join panel').toBeLessThan(home.indexOf('<JoinPanel'));
+    const take = code('src/lib/takeRole.ts');
+    expect(take.match(/progressRepo\.joinTeam\(/g)?.length).toBe(1);
+    expect(take).toContain('{ ...member, role: roleId }');
+    for (const bad of ['teamId:', 'cohort:', 'displayName:', 'memberId:']) expect(take, `only the role changes: ${bad}`).not.toContain(bad);
+    for (const f of ['src/lib/data/localStorageProgressRepo.ts', 'src/lib/data/supabaseProgressRepo.ts']) expect(code(f), `${f}: a role change on one’s own team is never refused as full`).toContain('const staying = ');
+  });
+
+  it('the role strip lands on the board, the page accepts the hash, the instructor sees each team’s gap, and “done by” has one rule', () => {
+    const strip = code('src/components/course/RoleStrip.tsx');
+    for (const n of ["course.roles.length > 1 ? 'roles' : 'role'", '#${target}', 'goTo(target)']) expect(strip, n).toContain(n);
+    expect(code('src/app/courses/[courseId]/page.tsx')).toContain("id !== 'team' && id !== 'role' && id !== 'roles'");
+    const panel = code('src/components/instructor/RegistrationsPanel.tsx');
+    for (const n of ['roleCoverage(course, data.roster)', 'data-team-open', 'data-role-coverage']) expect(panel, n).toContain(n);
+    expect(code('src/components/course/TasksTab.tsx'), 'the task list and the board say “Done by” from one helper').toContain('doneByNames(');
+    expect(code('src/lib/taskState.ts')).toContain('export function doneByNames(');
+  });
+
+  it('a table scroller that holds sr-only text is positioned, or the text escapes it and the page scrolls sideways on a phone', () => {
+    // `sr-only` is absolutely positioned: with no positioned ancestor inside the scroller it lands at its
+    // static position, far right in a wide table, and widens the whole page (R116, R118, R119).
+    for (const f of ['src/components/team/TeamProgressTable.tsx', 'src/components/instructor/CohortKpiPanel.tsx', 'src/components/instructor/RegistrationsPanel.tsx', 'src/components/account/LinksSection.tsx', 'src/app/instructor/profiles/page.tsx', 'src/app/courses/[courseId]/ledger/page.tsx', 'src/components/grc/RegisterTable.tsx']) {
+      const lines = code(f).split('\n').filter((l) => l.includes('overflow-x-auto'));
+      expect(lines.length, f).toBeGreaterThan(0);
+      for (const l of lines) expect(l, `${f}: ${l.trim().slice(0, 80)}`).toContain('relative');
+    }
+  });
+
+  it('the docs say it', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### The team\'s roles board (R119)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| The team\'s roles board |');
+    expect(read('docs/OPERATIONS.md')).toContain('(R119)');
   });
 });

@@ -134,6 +134,14 @@ has failed silently in some deployment of some product; none takes more than a m
   where every task is done and the member joined late, Home says "Done for the team" with the member's
   own record and a button to their first open step. A form sent for review shows on Home as waiting on
   the reviewing role. The instructor's verdict reads "Instructor: …" on the form and the cohort table.
+- [ ] **The team's roles board (R119):** on Home, below the role section, "Your team's roles this week"
+  lists every role: yours first with a "You" chip, the others with "Held by {names}" from your own
+  team only. Each task shows whose it is (Your task, Everyone, or {Role} · open to anyone) and where it
+  stands, and its title opens it in Tasks. On a team where nobody holds a role, that card says "Open
+  role" and "Any teammate can cover its documents"; Take this role asks first, then your role strip,
+  the board and the Tasks tab all change, and what you ticked is still ticked. The strip's link lands
+  on the board. As an instructor, the cohort page's Registrations panel lists each team that has a role
+  nobody holds ("Team 2 · 2 members · Open roles: …").
 - [ ] **Empty roles and failed loads (R117):** on a team where nobody holds a document's reviewing role,
   submit the form as its drafter: another member sees "Approve (covering for {Role})", the submitter does
   not, the status strip says "any member may cover", approving writes "Covering for {Role}." into the

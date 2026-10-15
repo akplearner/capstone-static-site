@@ -71,7 +71,7 @@ export function TeamProgressTable({
 
   return (
     <div className="space-y-6">
-      <div className="overflow-x-auto rounded-lg depth-edge bg-panel">
+      <div className="relative overflow-x-auto rounded-lg depth-edge bg-panel">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">

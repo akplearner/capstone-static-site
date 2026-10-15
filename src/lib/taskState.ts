@@ -51,6 +51,15 @@ export function taskState(task: Task, teamPct: number, youPct: number, doneBy: s
   };
 }
 
+/**
+ * Teammates who finished a task the member has not: their names, "a teammate"
+ * for one with no name. Empty once the member finished it too. One rule for the
+ * task list and the roles board, so both say "Done by Ada" for the same task.
+ */
+export function doneByNames(youPct: number, teammates: readonly { memberId: string; displayName: string; pct: number }[], memberId: string): string[] {
+  return youPct >= 100 ? [] : teammates.filter((p) => p.pct >= 100 && p.memberId !== memberId).map((p) => p.displayName || 'a teammate');
+}
+
 /** The words, written once so a row, a header, a list and a board never drift apart. */
 export const TASK_STATE_COPY = {
   notStarted: 'Not started',

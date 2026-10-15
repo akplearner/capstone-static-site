@@ -162,12 +162,12 @@ export default function CoursePage() {
   }, [tab]);
   const focusMode = useClientStore<boolean>(getFocusMode, false);
 
-  // `/team/<id>` forwards to `#team` (and the role strip links to `#role`)
+  // `/team/<id>` forwards to `#team` (and the role strip links to `#roles`, or `#role` on a one-role course)
   // here; those blocks render only once the member has loaded, so the
   // browser's own hash jump has nothing to land on.
   useEffect(() => {
     const id = window.location.hash.slice(1);
-    if (!member || (id !== 'team' && id !== 'role')) return;
+    if (!member || (id !== 'team' && id !== 'role' && id !== 'roles')) return;
     setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
   }, [member]);
 
@@ -326,11 +326,11 @@ export default function CoursePage() {
               weekStats={weekStats}
               taskStats={taskStats}
               teamWeekStats={teamWeekStats}
+              teamTaskStats={teamTaskStats} teamTaskProgress={progress.teamTaskProgress}
               gateStats={gateStats}
               crew={crew}
               nextTask={nextTask}
-              cohortKey={progress.cohortKey}
-              cohortCal={progress.cohortCal}
+              cohortKey={progress.cohortKey} cohortCal={progress.cohortCal}
               unit={unit}
               onContinue={(t) => { const x = t ?? nextTask; if (x) goToTask(x); }}
               onReadOtherSteps={() => {

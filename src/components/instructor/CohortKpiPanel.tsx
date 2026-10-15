@@ -26,7 +26,7 @@ export function CohortKpiPanel({ report, defs, families, copy }: { report: Cohor
       <h2 id="cohort-kpis" className="text-xl font-semibold tracking-tight text-ink">{copy.cohortTitle}</h2>
       <p className="text-sm text-muted">{copy.cohortLede}</p>
       {groups.map((g) => (
-        <Surface key={g.cohort} padding="none" className="overflow-x-auto">
+        <Surface key={g.cohort} padding="none" className="relative overflow-x-auto">
           <table className="w-full text-sm" data-cohort-kpis={g.cohort}>
             <caption className="px-4 py-2 text-left text-xs font-medium text-body">
               {g.cohort} · {g.members}

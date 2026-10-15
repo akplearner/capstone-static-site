@@ -1,13 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { UserCog, Users } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { Chip } from '@/components/ui/Chip';
 import { ConfirmDialog } from '@/components/ui/Dialog';
 import { Surface } from '@/components/ui/Surface';
 import { toast } from '@/components/ui/Toast';
 import { RoleIcon } from '@/components/team/RoleIcon';
 import { getRoleDef } from '@/lib/course-helpers';
+import { splitRoleName } from '@/lib/docs/roles';
+import { ROLE_BOARD_COPY, roleCoverage } from '@/lib/roleBoard';
 import { moveMember, removeMember } from '@/lib/data/rosterAdmin';
 import type { CohortData } from '@/lib/data/cohortLoader';
 import { parseTeamId, teamLabel } from '@/lib/team';
@@ -18,6 +21,9 @@ import type { Course } from '@/lib/types';
  * face, and the fixes an instructor was missing — move a student to another
  * team or lobby, change their role, remove someone who dropped. Students
  * still enrol only themselves; this panel corrects, it never conscripts.
+ *
+ * R119: above the table, one line per team that has a role nobody holds, so a
+ * gap shows before a document waits on it (teammates may cover it, R117).
  */
 export function RegistrationsPanel({
   course,
@@ -34,6 +40,7 @@ export function RegistrationsPanel({
   const roster = [...data.roster].sort((a, b) => a.teamId.localeCompare(b.teamId) || a.displayName.localeCompare(b.displayName));
   const teams = [...new Set(roster.map((m) => m.teamId))].sort();
   const nameOf = (id: string, fallback: string) => data.profiles[id]?.displayName || fallback || 'Unnamed';
+  const gaps = roleCoverage(course, data.roster).filter((t) => t.open.length > 0);
 
   const confirmRemove = () => {
     if (!pendingRemove) return;
@@ -59,6 +66,26 @@ export function RegistrationsPanel({
           {roster.length} enrolled · {teams.length} team{teams.length === 1 ? '' : 's'}
         </span>
       </div>
+      {roster.length > 0 && (
+        <div className="space-y-1.5" data-role-coverage>
+          {gaps.map((t) => (
+            <p key={t.teamId} className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm" data-team-open={t.teamId}>
+              <span className="font-medium text-ink">{teamLabel(t.teamId)}</span>{' '}
+              <span className="text-muted">
+                · {t.members} member{t.members === 1 ? '' : 's'} · {ROLE_BOARD_COPY.coverage.open}:
+              </span>{' '}
+              {t.open.map((r) => (
+                <Fragment key={r.id}>
+                  <Chip tone="warn" icon={<RoleIcon iconName={r.icon} className="h-3 w-3" color={r.color} />}>
+                    {splitRoleName(r.name).fn}
+                  </Chip>{' '}
+                </Fragment>
+              ))}
+            </p>
+          ))}
+          {gaps.length === 0 && <p className="text-sm text-muted">{ROLE_BOARD_COPY.coverage.none}</p>}
+        </div>
+      )}
       {/* `relative` matters: the header's sr-only span is absolutely
           positioned, and without a positioned scroller it escapes the
           scroll box and widens the whole page on a phone. */}

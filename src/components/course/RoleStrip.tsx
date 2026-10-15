@@ -14,11 +14,11 @@ import { RoleIcon } from '@/components/team/RoleIcon';
 // item in the bar from `sm` up.
 const BASE = 'order-first flex h-8 min-w-0 max-w-full basis-full items-center gap-2 rounded-md px-2.5 text-sm sm:order-none sm:basis-auto';
 
-/** Scroll to the Home role section, retrying while a tab switch mounts it. */
-function goToRole(): void {
+/** Scroll to the Home section named `id`, retrying while a tab switch mounts it. */
+function goTo(id: string): void {
   let tries = 0;
   const go = () => {
-    const el = document.getElementById('role');
+    const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     else if (tries++ < 16) setTimeout(go, 120);
   };
@@ -33,7 +33,9 @@ function goToRole(): void {
  * follows the site header's auto-hide, and survives Focus mode. It says "Your
  * role", the role's icon and name, and the team. Until the member loads it is a
  * grey block of the same size; a visitor with no role sees a way in ("No role
- * yet. Join"), never an empty bar. It links to the role section on Home.
+ * yet. Join"), never an empty bar. It lands on the team's roles board on Home
+ * (R119), where the member's own role is first; a one-role course has no board,
+ * so it lands on the role section instead.
  */
 export function RoleStrip({ courseId, onSelectHome }: { courseId: string; onSelectHome?: () => void }) {
   const course = useContext(CourseContext);
@@ -50,6 +52,7 @@ export function RoleStrip({ courseId, onSelectHome }: { courseId: string; onSele
     );
   }
   const role = getRoleDef(course, member.role);
+  const target = course.roles.length > 1 ? 'roles' : 'role';
   const name = role?.name ?? member.role;
   const { fn, tag } = splitRoleName(name);
   const team = teamLabel(member.teamId);
@@ -75,7 +78,7 @@ export function RoleStrip({ courseId, onSelectHome }: { courseId: string; onSele
         className={`${cls} text-left`}
         onClick={() => {
           onSelectHome();
-          goToRole();
+          goTo(target);
         }}
       >
         {body}
@@ -83,7 +86,7 @@ export function RoleStrip({ courseId, onSelectHome }: { courseId: string; onSele
     );
   }
   return (
-    <Link href={`/courses/${courseId}#role`} data-role-strip="member" aria-label={label} className={cls}>
+    <Link href={`/courses/${courseId}#${target}`} data-role-strip="member" aria-label={label} className={cls}>
       {body}
     </Link>
   );

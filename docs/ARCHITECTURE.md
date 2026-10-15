@@ -590,6 +590,26 @@ documents the member is waiting on others for, and that any member may cover an 
 late joiner on a finished team sees "Done for the team. Your own record: n of m steps." with their
 first open step as the way in, instead of a dead end.
 
+### The team's roles board (R119)
+
+A role says who a task is FOR, never who may do it (R98), so a student needs to see the whole team
+at once: which roles exist, who holds each, and what each is doing this week. `roleBoard`
+(`src/lib/roleBoard.ts`, pure) builds it from the course, the week, the roster and the progress
+Tasks already reads: the shared build first, then the viewer's own role marked "You", then the other
+roles in the course's order, each with the display names of the holders on the viewer's OWN team (never
+a member id) and this week's tasks, every task with its `taskOwnership` (R116) and `taskState` (R118).
+`RoleBoard` (`src/components/course/RoleBoard.tsx`, props only) replaces Home's titles-only list:
+each task opens in Tasks, another role's reads "{Role} · open to anyone", never locked. A role nobody
+on the team holds is **open**, by the same `isVacant` that lets any member cover its documents (R117);
+its card says so, and **Take this role** moves the member there. That is the join panel's own call
+(`takeRole` in `src/lib/takeRole.ts`: `progressRepo.joinTeam` with only the role replaced), behind a
+short confirm; ticks, evidence and notes are keyed by the member, so they stay, and a role change on
+the team the member is already on is never refused as "full" (it leaves the team's size as it was).
+The role strip on every course page now lands on this board (`#roles`; a one-role course has no board
+and lands on the role section). `roleCoverage` gives the instructor the same rule per team: the
+registrations panel names, for each team with a gap, the roles nobody holds. No migration: cover and
+role changes use what R117 and the join panel already write.
+
 ## 7. The MSP / business bridge (dual-use is the unlock)
 
 The same primitives serve training *and* commercial implementation:
