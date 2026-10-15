@@ -159,6 +159,37 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('content integrity — %s'
   });
 
   /**
+   * R117: a gate waits on something a team can actually do.
+   *
+   * Gates are advisory notes, but a note that names a task with no required
+   * step names nothing to finish, and a gate whose tasks have none reads as
+   * asking for nothing. Every gate therefore needs at least one required step
+   * somewhere in its tasks.
+   */
+  it('R117: every gate waits on at least one required step', () => {
+    const byId = new Map(course.tasks.map((t) => [t.id, t]));
+    for (const gate of course.gates) {
+      const steps = gate.requiredTasks.flatMap((id) => (byId.get(id)?.steps ?? []).filter((s) => !s.optional));
+      expect(steps.length, `gate ${gate.id} ("${gate.title}") has no required step to finish`).toBeGreaterThan(0);
+    }
+  });
+
+  /**
+   * R117: a task belongs to a role the course has, or to everyone.
+   *
+   * A task whose role id is not one of the course's roles is nobody's: its
+   * owner chip names a role that does not exist, and a member could never be
+   * the role it is for. (Anyone may still do it, but the label would lie.)
+   */
+  it('R117: every task is shared or belongs to a role of the course', () => {
+    const roles = new Set(course.roles.map((r) => r.id));
+    for (const t of course.tasks) {
+      if (t.shared) continue;
+      expect(roles.has(t.role), `${courseId}: task ${t.id} belongs to "${t.role}", which is not a role of the course`).toBe(true);
+    }
+  });
+
+  /**
    * A gate holds the team, so it has to ask something of everyone on it.
    *
    * `deriveGateStatus` is per-role: it takes the required tasks that belong to

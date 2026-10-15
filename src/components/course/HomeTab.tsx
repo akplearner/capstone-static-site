@@ -246,7 +246,7 @@ export function HomeTab({
           is actually waiting. */}
       {joined && member && <ReviewInboxCard courseId={course.id} />}
       {/* R103: the team's own documents waiting on this member's review or issue. */}
-      {joined && member && <TeamReviewQueueCard courseId={course.id} teamId={member.teamId} role={member.role} />}
+      {joined && member && <TeamReviewQueueCard courseId={course.id} teamId={member.teamId} role={member.role} memberId={member.memberId} />}
 
       {/* The stone — the one glow on the page: the artefact being cut is the
           point of the whole thing. */}

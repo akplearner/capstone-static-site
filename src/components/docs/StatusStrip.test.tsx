@@ -5,6 +5,7 @@ import { WaitingOnNotice } from './WaitingOnNotice';
 import { SECURITY_PLUS } from '@/lib/data/seed/securityPlus';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { statusRepo } from '@/lib/data';
+import { KEYS } from '@/lib/data/keys';
 
 /**
  * R103 — the status strip shows where a form stands and offers the viewer's
@@ -65,5 +66,57 @@ describe('StatusStrip', () => {
     statusRepo.save({ courseId, teamId, deliverableId: 'vm_sop', status: 'approved', changedBy: 'm-blue', role: 'blue', at: 3, version: 1 });
     const again = render(<WaitingOnNotice def={pentest} courseId={courseId} teamId={teamId} />);
     expect(again.container.querySelector('[data-waiting-on="vm_sop"]')).toBeNull();
+  });
+
+  describe('R117 — cover for an empty role', () => {
+    const seat = (...members: [string, string][]) =>
+      localStorage.setItem(KEYS.roster(courseId), JSON.stringify(members.map(([memberId, role]) => ({ memberId, teamId, role, displayName: memberId.replace('m-', ''), cohort: '2026-01', joinedAt: 1 }))));
+    const submitted = () => statusRepo.save({ courseId, teamId, deliverableId: pentest.id, status: 'in_review', changedBy: 'm-red', role: 'red', at: 1, version: 1 });
+
+    it('with no reviewing role on the team, another member may approve, and the history says it was cover', () => {
+      seat(['m-red', 'red'], ['m-grc', 'grc']);
+      submitted();
+      render(<StatusStrip def={pentest} courseId={courseId} teamId={teamId} member={{ memberId: 'm-grc', role: 'grc' }} dodOk />);
+      const approve = screen.getByRole('button', { name: /Approve/ });
+      expect(approve.textContent).toContain('covering for Defensive Operations');
+      fireEvent.click(approve);
+      const row = statusRepo.list(courseId, teamId).at(-1)!;
+      expect(row.status).toBe('approved');
+      expect(row.role).toBe('grc');
+      expect(row.note).toBe('Covering for blue.');
+    });
+
+    it('the history line shows the cover by role name, not id', () => {
+      seat(['m-red', 'red'], ['m-grc', 'grc']);
+      submitted();
+      statusRepo.save({ courseId, teamId, deliverableId: pentest.id, status: 'approved', changedBy: 'm-grc', role: 'grc', at: 2, version: 1, note: 'Covering for blue.' });
+      const { container } = render(<StatusStrip def={pentest} courseId={courseId} teamId={teamId} member={{ memberId: 'm-red', role: 'red' }} dodOk />);
+      expect(container.querySelector('[data-status-note]')?.textContent).toContain('Covering for Defensive Operations');
+    });
+
+    it('the submitter, who may not approve their own work, is told nobody holds the role and that any member may cover', () => {
+      seat(['m-red', 'red'], ['m-grc', 'grc']);
+      submitted();
+      const { container } = render(<StatusStrip def={pentest} courseId={courseId} teamId={teamId} member={{ memberId: 'm-red', role: 'red' }} dodOk />);
+      expect(screen.queryByRole('button', { name: /Approve/ })).toBeNull();
+      const note = container.querySelector('[data-cover-note="reviews"]')!;
+      expect(note.textContent).toContain('Nobody on the team holds Defensive Operations');
+      expect(note.textContent).toContain('any member may cover');
+    });
+
+    it('with the role held, nothing changes: a non-holder has no button and no cover note', () => {
+      seat(['m-red', 'red'], ['m-blue', 'blue'], ['m-grc', 'grc']);
+      submitted();
+      const { container } = render(<StatusStrip def={pentest} courseId={courseId} teamId={teamId} member={{ memberId: 'm-grc', role: 'grc' }} dodOk />);
+      expect(screen.queryByRole('button', { name: /Approve/ })).toBeNull();
+      expect(container.querySelector('[data-cover-note]')).toBeNull();
+      expect(container.textContent).toContain('Waiting for Defensive Operations (Blue Team) to review.');
+    });
+
+    it('a draft whose drafting role is empty tells the others they may submit it', () => {
+      seat(['m-blue', 'blue'], ['m-grc', 'grc']);
+      const { container } = render(<StatusStrip def={pentest} courseId={courseId} teamId={teamId} member={{ memberId: 'm-blue', role: 'blue' }} dodOk />);
+      expect(container.querySelector('[data-cover-note="drafts"]')?.textContent).toContain('any member may cover');
+    });
   });
 });

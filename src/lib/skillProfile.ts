@@ -7,7 +7,7 @@ import type { Dimension } from './docs/metricCatalogue';
 import type { SkillLevel } from './docs/skillsCopy';
 import { getTasksByRole, isGradedWeek, isSetupWeek } from './course-helpers';
 import { latestRehashes, verifiableSteps } from './evidenceLedger';
-import { latestStatus } from './docs/lifecycle';
+import { coverOf, latestStatus } from './docs/lifecycle';
 import { dodProgress } from './docs/dod';
 import { domainOf } from './docs/certs';
 import { localDay } from './localDate';
@@ -511,7 +511,8 @@ function abilityIndicators(input: SkillProfileInput, own: Task[], facts: Map<str
     docControl: teamOr(() => ({ ...controlOver(roleForms), loaded: true, own: controlOver(draftForms) })),
     instructorApproved: teamOr(() => ({ ...approvedOver(roleForms), loaded: true, own: approvedOver(draftForms) })),
     raciRespected: teamOr(() => {
-      const moves = team!.status.filter((r) => r.changedBy === memberId && raciOf.has(r.deliverableId));
+      // R117: a move made as cover for an empty role is neither respected nor broken, so it is not counted.
+      const moves = team!.status.filter((r) => r.changedBy === memberId && raciOf.has(r.deliverableId) && coverOf(r.note) === null);
       return { value: moves.filter((r) => expectedRoles(r.status, raciOf.get(r.deliverableId)!).includes(r.role)).length, of: moves.length, loaded: true };
     }),
     receipted: input.receipts ? { value: receipted, of: verified, loaded: true } : EMPTY_INDICATOR,

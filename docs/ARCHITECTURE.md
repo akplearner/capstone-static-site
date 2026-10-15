@@ -552,6 +552,25 @@ scope sign-off is an amber note above a form that is always open. `FlowDiagram` 
 No padlock is drawn on a task, a week or a form; the instructor's explicit course lock and sign-in are
 the only doors left.
 
+### Empty roles and failures never strand a team (R117)
+
+A document's steps belong to the RACI roles of its form, but a team can be smaller than the role list
+or lose a member. A role is vacant when the team has members and none holds it (`isVacant`,
+`src/lib/docs/lifecycle.ts`); then `allowedActions` lets any member do that role's step, and the
+separation rule still holds (a submitter cannot approve their own work while another member could). The
+transition records the cover in its note, which starts "Covering for <role id>." (`COVER_PREFIX`,
+`coverOf`, `noteText`), so there is no migration: the database never decided who may make a transition,
+only that the row is the caller's own, on their team, and never rewritten. An empty team array means the
+team is unknown and gives no cover. `raciRespected` skips covering rows (neither respected nor broken);
+the status strip, the submit bar and the review queue say "any member may cover" and "covering for
+{Role}". The first load of a course that fails on the membership query is recorded
+(`courseHydrateFailed`, `useMember().failed`) instead of marking the course loaded with nobody in it, so
+an enrolled student sees "Couldn't load your team" with a retry, never the Join panel (which would let
+them overwrite their own team and role); the import prompt stays quiet then. A member whose role was
+removed from the course is asked for a new role with the picker open and their progress kept; a full
+house says so and points at an online lobby. Content tests pin that every gate waits on a required step
+and every task is shared or belongs to a role of its course.
+
 ## 7. The MSP / business bridge (dual-use is the unlock)
 
 The same primitives serve training *and* commercial implementation:

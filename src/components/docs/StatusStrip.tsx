@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Check, CornerUpLeft, RotateCcw, Send, Stamp } from 'lucide-react';
 import type { DeliverableDef } from '@/lib/docs/types';
-import { ACTION_LABEL, STATUS_LABEL, STATUS_ORDER, allowedActions, latestStatus, raciLine, statusOf, transition, type Actor, type LifecycleAction } from '@/lib/docs/lifecycle';
+import { ACTION_LABEL, STATUS_LABEL, STATUS_ORDER, allowedActions, isVacant, latestStatus, noteText, raciLine, roleForAction, statusOf, transition, type Actor, type LifecycleAction } from '@/lib/docs/lifecycle';
 import { progressRepo, statusRepo, submissionsRepo } from '@/lib/data';
 import { useClientStore, EMPTY_ARRAY } from '@/lib/useClientStore';
 import { useCourse } from '@/lib/useCourse';
@@ -35,6 +35,9 @@ export function StatusStrip({ def, courseId, teamId, member, dodOk }: { def: Del
   const actions = allowedActions(def, rows, member, team, dodOk).filter((a) => a !== 'submit');
   const roleName = (id: string) => getRoleDef(course, id)?.name ?? id;
   const who = (id: string) => roster.find((r) => r.memberId === id)?.displayName ?? 'a teammate';
+  // R117: a role nobody on the team holds is covered by any member, on record.
+  const coverNote = (role: string) => (isVacant(team, role) ? ` Nobody on the team holds ${roleName(role)}: any member may cover.` : '');
+  const coverBadge = (a: LifecycleAction) => (member.role !== roleForAction(def.raci!, a) ? ` (covering for ${roleName(roleForAction(def.raci!, a))})` : '');
 
   const act = (action: LifecycleAction, reason?: string) =>
     guard('record where this document stands', () => {
@@ -74,15 +77,27 @@ export function StatusStrip({ def, courseId, teamId, member, dodOk }: { def: Del
         <span className="min-w-0 text-2xs text-muted">
           {latest ? `${STATUS_LABEL[latest.status]} by ${who(latest.changedBy)} (${roleName(latest.role)}) on ${new Date(latest.at).toLocaleDateString()}` : 'Not yet submitted'}
           {version > 0 && ` · v${version}`}
-          {latest?.note && <span className="italic"> · “{latest.note}”</span>}
+          {latest?.note && <span className="italic" data-status-note> · “{noteText(latest.note, roleName)}”</span>}
         </span>
         <div className="ml-auto flex flex-wrap items-center gap-1.5">
           {current === 'draft' && member.role === def.raci.drafts && (
             <span className="text-2xs text-muted">{dodOk ? 'Submit from the Expectations panel below' : 'Finish the definition of done, then submit below'}</span>
           )}
-          {current === 'draft' && member.role !== def.raci.drafts && <span className="text-2xs text-muted">{roleName(def.raci.drafts)} submits this document</span>}
-          {current === 'in_review' && !actions.length && <span className="text-2xs text-muted">Waiting for {roleName(def.raci.reviews)} to review</span>}
-          {current === 'approved' && !actions.length && <span className="text-2xs text-muted">Waiting for {roleName(def.raci.approves)} to issue</span>}
+          {current === 'draft' && member.role !== def.raci.drafts && (
+            <span className="text-2xs text-muted" data-cover-note={isVacant(team, def.raci.drafts) ? 'drafts' : undefined}>
+              {roleName(def.raci.drafts)} submits this document.{coverNote(def.raci.drafts)}
+            </span>
+          )}
+          {current === 'in_review' && !actions.length && (
+            <span className="text-2xs text-muted" data-cover-note={isVacant(team, def.raci.reviews) ? 'reviews' : undefined}>
+              Waiting for {roleName(def.raci.reviews)} to review.{coverNote(def.raci.reviews)}
+            </span>
+          )}
+          {current === 'approved' && !actions.length && (
+            <span className="text-2xs text-muted" data-cover-note={isVacant(team, def.raci.approves) ? 'approves' : undefined}>
+              Waiting for {roleName(def.raci.approves)} to issue.{coverNote(def.raci.approves)}
+            </span>
+          )}
           {actions.map((a) => (
             <button
               key={a}
@@ -91,6 +106,7 @@ export function StatusStrip({ def, courseId, teamId, member, dodOk }: { def: Del
               className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium ${a === 'return' || a === 'reopen' ? 'depth-edge bg-panel text-ink hover:bg-panel-2' : 'bg-accent text-accent-contrast hover:bg-accent-strong'}`}
             >
               {icon(a)} {ACTION_LABEL[a]}
+              {coverBadge(a) && <span className="font-normal" data-covering>{coverBadge(a)}</span>}
             </button>
           ))}
         </div>

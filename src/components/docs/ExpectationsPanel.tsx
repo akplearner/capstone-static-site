@@ -6,7 +6,7 @@ import type { DeliverableData, DeliverableDef } from '@/lib/docs/types';
 import type { StepEvidence, SubmissionProgress, SubmissionSnapshot } from '@/lib/data/types';
 import { RUBRIC_CATEGORIES, evaluateBundle, stepsProducing, verdictOf, type BundleResult } from '@/lib/docs/deliverableRubric';
 import { evidenceRepo, progressRepo, statusRepo, submissionsRepo } from '@/lib/data';
-import { allowedActions, transition } from '@/lib/docs/lifecycle';
+import { allowedActions, isVacant, transition } from '@/lib/docs/lifecycle';
 import { withoutSeedRows } from '@/lib/docs/definitions';
 import { sha256Text } from '@/lib/evidenceLedger';
 import { useClientStore, notifyStore, EMPTY_OBJECT, EMPTY_ARRAY } from '@/lib/useClientStore';
@@ -157,6 +157,9 @@ function SubmitBar({
     () => submissionsRepo.list(course.id, teamId),
     EMPTY_ARRAY
   );
+  // R117: when no one on the team holds the drafting role, any member submits for it, on record.
+  const roster = useClientStore(() => progressRepo.getRoster(course.id), EMPTY_ARRAY);
+  const draftsCovered = !!def.raci && !!role && role !== def.raci.drafts && isVacant(roster.filter((r) => r.teamId === teamId).map((r) => ({ memberId: r.memberId, role: r.role })), def.raci.drafts);
   const mine = submissions
     .filter((s) => s.deliverableId === def.id && s.week === week)
     .sort((a, b) => a.version - b.version);
@@ -270,7 +273,7 @@ function SubmitBar({
             <>Nothing submitted yet — green all four categories, then freeze it for review.</>
           )}
         </div>
-        {def.raci && role && role !== def.raci.drafts ? (
+        {def.raci && role && role !== def.raci.drafts && !draftsCovered ? (
           <span className="text-2xs text-muted">Submitted by the {course.roles.find((r) => r.id === def.raci!.drafts)?.name ?? def.raci.drafts} role</span>
         ) : (
         <button
@@ -286,6 +289,7 @@ function SubmitBar({
         >
           {result.allGreen ? <Send className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
           {busy ? 'Freezing…' : latest ? `Submit v${latest.version + 1}` : 'Submit for review'}
+          {draftsCovered && <span className="font-normal" data-covering>(covering for {course.roles.find((r) => r.id === def.raci!.drafts)?.name ?? def.raci!.drafts})</span>}
         </button>
         )}
       </div>

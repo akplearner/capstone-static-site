@@ -40,7 +40,7 @@ function readLocal<T>(key: string): T | null {
 
 export function ImportPrompt({ course }: { course: Course }) {
   const { user } = useAuth();
-  const { member: cloudMember, loading: memberLoading } = useMember(course.id);
+  const { member: cloudMember, loading: memberLoading, failed: memberFailed } = useMember(course.id);
   const [dismissed, setDismissed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
@@ -59,6 +59,7 @@ export function ImportPrompt({ course }: { course: Course }) {
     !isSupabaseConfigured() ||
     !user ||
     memberLoading || // cloud rows still hydrating: don't flash an offer that may not apply (R82)
+    memberFailed || // R117: the membership could not be read, so an import must not run over it
     cloudMember || // already set up in the cloud
     !localCtx ||
     dismissed ||

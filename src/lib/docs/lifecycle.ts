@@ -60,6 +60,49 @@ export interface Actor {
   role: Role;
 }
 
+/**
+ * R117 — an empty role never strands a document.
+ *
+ * A step belongs to a role (the drafting, reviewing or approving role of the
+ * form's RACI), but a team can be smaller than the role list, or a member can
+ * leave. A role is VACANT when the team has members and none holds it; then
+ * any member may do its step, and the history says so ("Covering for …"). The
+ * rule is about the team the app is handed: an empty `team` means unknown, so
+ * a caller that forgets it never opens everything.
+ */
+export function isVacant(team: readonly Actor[], role: Role): boolean {
+  return team.length > 0 && !team.some((m) => m.role === role);
+}
+
+/** May `actor` do the step this role is named for: the role's holder, or anyone while the role is vacant. */
+function mayAct(actor: Actor, role: Role, team: readonly Actor[]): boolean {
+  return actor.role === role || isVacant(team, role);
+}
+
+/** The RACI role a step belongs to. */
+export function roleForAction(raci: Raci, action: LifecycleAction): Role {
+  return action === 'submit' || action === 'reopen' ? raci.drafts : action === 'approve' || action === 'return' ? raci.reviews : raci.approves;
+}
+
+/** A covering transition's note starts with this, then the covered role's id and a full stop. */
+export const COVER_PREFIX = 'Covering for ';
+
+/** The role a covering member did the step for, or null when the row is an ordinary one. */
+export function coverOf(note: string | undefined): Role | null {
+  if (!note || !note.startsWith(COVER_PREFIX)) return null;
+  const m = /^([^\s.]+)\./.exec(note.slice(COVER_PREFIX.length));
+  return m ? m[1] : null;
+}
+
+/** A note as a person reads it: the cover marker named by role, then the member's own words. */
+export function noteText(note: string | undefined, roleName: (role: Role) => string): string {
+  if (!note) return '';
+  const covered = coverOf(note);
+  if (!covered) return note;
+  const rest = note.slice(COVER_PREFIX.length + covered.length + 1).trim();
+  return `${COVER_PREFIX}${roleName(covered)}.${rest ? ` ${rest}` : ''}`;
+}
+
 /** The latest transition of a form, or none. */
 export function latestStatus(rows: DeliverableStatus[], deliverableId: string): DeliverableStatus | undefined {
   let best: DeliverableStatus | undefined;
@@ -84,9 +127,12 @@ export function submitterOf(rows: DeliverableStatus[], deliverableId: string): s
  * - submit: the drafting role, from draft, once the definition of done due by
  *   this week passes;
  * - approve / return: the reviewing role, from in review — and not the person
- *   who submitted it when another member holds that role;
+ *   who submitted it when another member could do it;
  * - issue: the approving role, from approved;
  * - reopen: the drafting role, from approved or issued.
+ *
+ * R117: where no one on the team holds a step's role, any member may do it
+ * (`isVacant`), and the transition records that it was cover.
  */
 export function allowedActions(
   def: Pick<DeliverableDef, 'id' | 'raci'>,
@@ -99,14 +145,14 @@ export function allowedActions(
   if (!raci) return [];
   const current = statusOf(rows, def.id);
   const out: LifecycleAction[] = [];
-  if (current === 'draft' && actor.role === raci.drafts && dodOk) out.push('submit');
-  if (current === 'in_review' && actor.role === raci.reviews) {
+  if (current === 'draft' && mayAct(actor, raci.drafts, team) && dodOk) out.push('submit');
+  if (current === 'in_review' && mayAct(actor, raci.reviews, team)) {
     const submitter = submitterOf(rows, def.id);
-    const otherReviewer = team.some((m) => m.role === raci.reviews && m.memberId !== actor.memberId);
+    const otherReviewer = team.some((m) => m.memberId !== actor.memberId && mayAct(m, raci.reviews, team));
     if (!(submitter === actor.memberId && otherReviewer)) out.push('approve', 'return');
   }
-  if (current === 'approved' && actor.role === raci.approves) out.push('issue');
-  if ((current === 'approved' || current === 'issued') && actor.role === raci.drafts) out.push('reopen');
+  if (current === 'approved' && mayAct(actor, raci.approves, team)) out.push('issue');
+  if ((current === 'approved' || current === 'issued') && mayAct(actor, raci.drafts, team)) out.push('reopen');
   return out;
 }
 
@@ -121,6 +167,10 @@ export function transition(
   const allowed = allowedActions(def, rows, actor, opts.team ?? [], opts.dodOk ?? true);
   if (!allowed.includes(action)) throw new Error(`${action} is not allowed on ${def.id} for ${actor.role} (now ${statusOf(rows, def.id)})`);
   if (action === 'return' && !opts.note?.trim()) throw new Error('a returned form needs a reason');
+  // Allowed by someone who does not hold the step's role: that is cover, and it is written down.
+  const stepRole = def.raci ? roleForAction(def.raci, action) : actor.role;
+  const own = opts.note?.trim() ?? '';
+  const note = actor.role === stepRole ? own : `${COVER_PREFIX}${stepRole}.${own ? ` ${own}` : ''}`;
   return {
     courseId: opts.courseId,
     teamId: opts.teamId,
@@ -129,7 +179,7 @@ export function transition(
     changedBy: actor.memberId,
     role: actor.role,
     at: opts.at ?? Date.now(),
-    note: opts.note?.trim() || undefined,
+    note: note || undefined,
     version: opts.version ?? latestStatus(rows, def.id)?.version ?? 0,
   };
 }

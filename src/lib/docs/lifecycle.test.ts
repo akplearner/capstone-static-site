@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { allowedActions, latestStatus, statusOf, transition, waitingOn, type DeliverableStatus } from './lifecycle';
+import { COVER_PREFIX, allowedActions, coverOf, isVacant, latestStatus, noteText, roleForAction, statusOf, transition, waitingOn, type DeliverableStatus } from './lifecycle';
 import type { DeliverableDef } from './types';
 
 /**
@@ -75,5 +75,86 @@ describe('R103 — the deliverable lifecycle', () => {
     ] as DeliverableDef[];
     const rows: DeliverableStatus[] = [{ ...row('approved', grc), deliverableId: 'scope_roe' }];
     expect(waitingOn(defs, rows, def)).toEqual([{ id: 'vm_sop', title: 'VM SOP', status: 'draft', role: 'grc' }]);
+  });
+});
+
+/**
+ * R117 — an empty role never strands a document. Where no one on the team
+ * holds a step's role, any member may do it, and the history says it was cover.
+ */
+describe('R117 — cover for an empty role', () => {
+  const noBlue = [red, grc];
+  const noRed = [blue, grc];
+  const inReview = [row('in_review')];
+  const name = (r: string) => ({ red: 'Offensive Security', blue: 'Defensive Operations', grc: 'Governance' })[r] ?? r;
+
+  it('a role is vacant only when the team has members and none holds it; an unknown (empty) team is never vacant', () => {
+    expect(isVacant(team, 'blue')).toBe(false);
+    expect(isVacant(noBlue, 'blue')).toBe(true);
+    expect(isVacant([], 'blue')).toBe(false);
+    expect(isVacant(noBlue, 'red')).toBe(false);
+  });
+
+  it('with no reviewer on the team, another member approves or returns an in-review form', () => {
+    expect(allowedActions(def, inReview, grc, noBlue, true)).toEqual(['approve', 'return']);
+    // The drafter submitted it, and a second pair of eyes exists, so the drafter may not approve it.
+    expect(allowedActions(def, inReview, red, noBlue, true)).toEqual([]);
+  });
+
+  it('a one-person team can still move its own form on: there is no one else to review it', () => {
+    expect(allowedActions(def, [row('in_review', red)], red, [red], true)).toEqual(['approve', 'return']);
+    const solo = [red];
+    expect(allowedActions(def, [], red, solo, true)).toEqual(['submit']);
+    expect(allowedActions(def, [row('in_review'), row('approved', red, 2)], red, solo, true)).toEqual(['issue', 'reopen']);
+  });
+
+  it('with no drafter, another member submits and reopens; with no approver, another member issues', () => {
+    expect(allowedActions(def, [], blue, noRed, true)).toEqual(['submit']);
+    expect(allowedActions(def, [], blue, noRed, false)).toEqual([]);
+    const approved = [row('in_review', blue, 1), row('approved', blue, 2)];
+    expect(allowedActions(def, approved, blue, noRed, true).sort()).toEqual(['reopen']);
+    const noGrc = [red, blue];
+    expect(allowedActions(def, approved, red, noGrc, true).sort()).toEqual(['issue', 'reopen']);
+  });
+
+  it('a held role is unchanged: a member who is not its holder cannot act while someone is', () => {
+    expect(allowedActions(def, [], blue, team, true)).toEqual([]);
+    expect(allowedActions(def, inReview, grc, team, true)).toEqual([]);
+    expect(allowedActions(def, [row('in_review'), row('approved', blue, 2)], red, team, true)).toEqual(['reopen']);
+  });
+
+  it('a covering transition says so in its note, keeps the actor’s own role, and an ordinary one carries no marker', () => {
+    const covered = transition(def, inReview, 'approve', grc, { ...opts, team: noBlue, at: 5 });
+    expect(covered.role).toBe('grc');
+    expect(covered.note).toBe(`${COVER_PREFIX}blue.`);
+    expect(coverOf(covered.note)).toBe('blue');
+    const returned = transition(def, inReview, 'return', grc, { ...opts, team: noBlue, note: 'Scope says no RDP', at: 6 });
+    expect(returned.note).toBe('Covering for blue. Scope says no RDP');
+    expect(coverOf(returned.note)).toBe('blue');
+    const own = transition(def, inReview, 'approve', blue, { ...opts, at: 7 });
+    expect(own.note).toBeUndefined();
+    expect(coverOf(own.note)).toBeNull();
+    expect(coverOf('Covering for')).toBeNull();
+    expect(coverOf(undefined)).toBeNull();
+  });
+
+  it('a covering member still has to say why when returning, and the rules still refuse what they refuse', () => {
+    expect(() => transition(def, inReview, 'return', grc, { ...opts, team: noBlue })).toThrow(/reason/);
+    expect(() => transition(def, [row('in_review'), row('approved', blue, 2)], 'issue', red, { ...opts, team })).toThrow(/not allowed/);
+    expect(() => transition(def, inReview, 'approve', red, { ...opts, team: noBlue })).toThrow(/not allowed/);
+  });
+
+  it('notes read as a person would say them, with the role named', () => {
+    expect(noteText('Covering for blue.', name)).toBe('Covering for Defensive Operations.');
+    expect(noteText('Covering for blue. Scope says no RDP', name)).toBe('Covering for Defensive Operations. Scope says no RDP');
+    expect(noteText('Scope says no RDP', name)).toBe('Scope says no RDP');
+    expect(noteText(undefined, name)).toBe('');
+  });
+
+  it('each action belongs to one RACI role', () => {
+    const raci = { drafts: 'red', reviews: 'blue', approves: 'grc' };
+    expect(['submit', 'reopen'].map((a) => roleForAction(raci, a as 'submit' | 'reopen'))).toEqual(['red', 'red']);
+    expect(['approve', 'return'].map((a) => roleForAction(raci, a as 'approve' | 'return'))).toEqual(['blue', 'blue']);
+    expect(roleForAction(raci, 'issue')).toBe('grc');
   });
 });

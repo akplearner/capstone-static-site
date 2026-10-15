@@ -46,7 +46,7 @@ import { localDay } from '@/lib/localDate';
 import { ReviewBanner } from '@/components/docs/ReviewBanner';
 import { StatusStrip } from '@/components/docs/StatusStrip';
 import { WaitingOnNotice } from '@/components/docs/WaitingOnNotice';
-import { STATUS_LABEL, latestStatus, statusOf } from '@/lib/docs/lifecycle';
+import { STATUS_LABEL, latestStatus, noteText, statusOf } from '@/lib/docs/lifecycle';
 import type { DeliverableReview } from '@/lib/data/types';
 
 type DocsMap = Record<string, DeliverableData>;
@@ -720,7 +720,7 @@ function FormSection({
           approves: roleName(def.raci.approves),
           lastBy: latest ? `${roster.find((r) => r.memberId === latest.changedBy)?.displayName ?? 'a teammate'} (${roleName(latest.role)})` : undefined,
           lastAt: latest ? new Date(latest.at).toLocaleDateString() : undefined,
-          note: latest?.note,
+          note: latest?.note ? noteText(latest.note, roleName) : undefined,
         },
       }
     : meta;

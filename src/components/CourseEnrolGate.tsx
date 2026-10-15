@@ -1,8 +1,13 @@
 'use client';
 
+import { useContext } from 'react';
 import { EmptyState } from './EmptyState';
 import { SignInPanel } from './auth/SignInPanel';
+import { CourseLoadFailed } from './course/CourseLoadFailed';
 import { useAuth } from '@/lib/useAuth';
+import { useMember } from '@/lib/useMember';
+import { CourseContext } from '@/lib/useCourse';
+import { getRoleDef } from '@/lib/course-helpers';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 
 /**
@@ -30,6 +35,8 @@ import { isSupabaseConfigured } from '@/lib/supabase/config';
  */
 export function CourseEnrolGate({ courseId, what }: { courseId: string; what: string }) {
   const { user, loading } = useAuth();
+  const { member, failed } = useMember(courseId);
+  const course = useContext(CourseContext);
   // R81: with accounts on, a signed-out visitor is asked for the account first —
   // "enrol" is not something they can do yet, and the sign-in panel returns
   // them here. (The proxy already sends most deep links to /login; this is the
@@ -42,6 +49,20 @@ export function CourseEnrolGate({ courseId, what }: { courseId: string; what: st
           subtitle={`Your progress, gems and team are saved to your account. Sign in to open ${what}.`}
         />
       </div>
+    );
+  }
+  // R117: the load failed, so "not enrolled" would be a lie; offer the retry.
+  if (failed && !member) return <CourseLoadFailed courseId={courseId} />;
+  // R117: enrolled, but the role was removed from the course: the way forward is a new role, not a new enrolment.
+  if (member && course && !getRoleDef(course, member.role)) {
+    return (
+      <EmptyState
+        title="Pick a role"
+        message={`Your role in this course has changed, so ${what} cannot open yet. Pick a new role on the course page: your progress stays.`}
+        miner="idle"
+        href={`/courses/${courseId}`}
+        cta="Choose a role"
+      />
     );
   }
   return (

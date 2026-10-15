@@ -305,6 +305,10 @@ describe('skillProfile — rows and levels', () => {
     expect(p.abilities.docControl.own).toEqual({ value: 1, of: 1 });
     expect(p.abilities.docControl.of).toBe(2);
     expect(p.abilities.raciRespected).toEqual({ value: 3, of: 4, loaded: true });
+    // R117: a move made as cover for an empty role is neither respected nor broken, so it leaves the count as it was.
+    const covered = [...status, { ...move('form', 'approved', 'blue'), note: 'Covering for red.' }, { ...move('shared', 'issued', 'blue'), note: 'Covering for blue. Scope says no RDP' }];
+    const withCover = skillProfile(input({ deliverables: [RACI_FORM, SHARED], team: { docs: { form: filled, shared: filled }, status: covered, submissions: [], reviews: [], currentWeek: 1 } }));
+    expect(withCover.abilities.raciRespected).toEqual({ value: 3, of: 4, loaded: true });
     const alone = skillProfile(input({ deliverables: [RACI_FORM, SHARED] }));
     expect(alone.abilities.raciRespected.loaded, 'a team fact').toBe(false);
     expect(alone.abilities.dodMet.own, 'nothing attributed when the team was not handed in').toBeUndefined();

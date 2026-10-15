@@ -51,7 +51,9 @@ export function JoinPanel({
 
   const roles = rolesOf(useCourseDocument());
   const roleMotion = resolveRoleMotion(roles.MOTION, useReducedMotionSafe());
-  const [editing, setEditing] = useState(!member);
+  // R117: a member whose role was removed from the course is asked for a new one, with the picker open.
+  const roleGone = !!member && !getRoleDef(course, member.role);
+  const [editing, setEditing] = useState(!member || roleGone);
   const counts = useClientStore<Record<string, number>>(
     () => progressRepo.getTeamCounts(course.id),
     EMPTY_OBJECT
@@ -68,7 +70,7 @@ export function JoinPanel({
   // submit (see src/lib/team.ts — Team 1 of one class session must never share
   // stores with Team 1 of another, and lobbies never mix with local teams).
   const [team, setTeam] = useState(member ? parseTeamId(member.teamId).num : teamIds[0]);
-  const [role, setRole] = useState(member?.role ?? course.roles[0]?.id ?? '');
+  const [role, setRole] = useState(member && !roleGone ? member.role : (course.roles[0]?.id ?? ''));
   const [error, setError] = useState<string | null>(null);
 
   // Counts are keyed by the scoped id, so capacity fills per class session and per mode.
@@ -179,9 +181,11 @@ export function JoinPanel({
   return (
     <div className="depth-lift space-y-5 rounded-[var(--radius-card)] bg-accent-soft/50 p-6">
       <div>
-        <h2 className="text-xl font-bold text-ink">Join this course</h2>
+        <h2 className="text-xl font-bold text-ink">{roleGone ? 'Pick a role' : 'Join this course'}</h2>
         <p className="mt-1 text-sm text-muted">
-          Pick a team and a role to unlock the weekly tasks below.
+          {roleGone
+            ? 'Your role is not part of this course any more. Pick one to carry on; your progress stays.'
+            : 'Pick a team and a role to unlock the weekly tasks below.'}
         </p>
       </div>
 
@@ -280,6 +284,15 @@ export function JoinPanel({
               );
             })}
           </div>
+          {cap > 0 && teamIds.length > 0 && teamIds.every((t) => isFull(t)) && (
+            <p className="mt-2 text-sm text-warn" role="status" data-all-full>
+              Every team is full.{' '}
+              <button type="button" onClick={() => setMode('online')} className="font-medium text-accent underline-offset-2 hover:underline">
+                Start or join an online lobby
+              </button>
+              , or ask your instructor to open another team.
+            </p>
+          )}
         </div>
       ) : (
         <div>

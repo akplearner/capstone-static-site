@@ -89,6 +89,9 @@ const courseDocumentsById = new Map<string, CourseDto>();
 let courseDocumentsVersion = 0;
 
 const hydratedCourses = new Set<string>();
+// R117: courses whose FIRST hydrate failed on the membership query. "Not enrolled"
+// would be a lie there (offline, an expired token), so the UI says the load failed.
+const failedCourses = new Set<string>();
 const channels = new Map<string, RealtimeChannel>();
 
 // R82 — three small pieces of hydrate discipline:
@@ -110,6 +113,11 @@ export function clearDocPending(courseId: string, teamId: string, deliverableId:
 /** True once `hydrateCourse` has applied at least once for this course. */
 export function isCourseHydrated(courseId: string): boolean {
   return hydratedCourses.has(courseId);
+}
+
+/** True when the first load of this course failed, so who the member is could not be read. */
+export function courseHydrateFailed(courseId: string): boolean {
+  return failedCourses.has(courseId);
 }
 
 /** Debounced hydrate — what every realtime event goes through. */
@@ -148,6 +156,7 @@ export function setCurrentUserId(id: string | null) {
     artifactsByHash.clear();
     chosenPath = null;
     hydratedCourses.clear();
+    failedCourses.clear();
     channels.forEach((ch) => ch.unsubscribe());
     channels.clear();
     reviewsByTeam.clear();
@@ -468,6 +477,20 @@ export async function hydrateCourse(courseId: string): Promise<void> {
   // A newer hydrate started while this one was on the wire: its data is
   // fresher, let it apply instead.
   if (hydrateGen.get(courseId) !== gen) return;
+
+  // R117: the membership query says whether this person is enrolled. If it failed
+  // before the course was ever loaded, do not mark the course loaded with nobody in
+  // it (an enrolled student would see the Join panel, and joining again overwrites
+  // their team and role): record the failure so the page offers a retry. A failed
+  // refresh of a course already loaded keeps what the cache holds.
+  if (memberships.error) {
+    if (!hydratedCourses.has(courseId)) {
+      failedCourses.add(courseId);
+      notifyStore();
+    }
+    return;
+  }
+  failedCourses.delete(courseId);
 
   if (memberships.data) {
     const avatars = new Map<string, string>();

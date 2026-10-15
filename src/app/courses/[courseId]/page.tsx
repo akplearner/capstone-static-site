@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ConfirmDialog } from '@/components/ui/Dialog';
 import { CourseSubNav } from '@/components/CourseSubNav';
 import { CoursePageSkeleton } from '@/components/ui/Skeletons';
+import { CourseLoadFailed } from '@/components/course/CourseLoadFailed';
 import { CourseHero } from '@/components/course/CourseHero';
 import { CourseSubNavActions } from '@/components/course/CourseSubNavActions';
 import { HomeTab } from '@/components/course/HomeTab';
@@ -43,7 +44,7 @@ const resolveScroll = (id: string) => (id.startsWith('task-') && document.getEle
 
 export default function CoursePage() {
   const course = useCourse();
-  const { member, loading, setMember } = useMember(course.id);
+  const { member, loading, failed, setMember } = useMember(course.id);
   const { user } = useAuth();
   const { unlocked: instructorOverride } = useInstructorAuth();
   const requireAuth = isSupabaseConfigured();
@@ -171,6 +172,7 @@ export default function CoursePage() {
   }, [member]);
 
   if (loading) return <CoursePageSkeleton />;
+  if (failed && !member) return <CourseLoadFailed courseId={course.id} />;
 
   const joined = !!member;
   const ownRole = member ? getRoleDef(course, member.role) : undefined;

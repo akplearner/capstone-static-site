@@ -127,6 +127,14 @@ has failed silently in some deployment of some product; none takes more than a m
   `content/profiles/sample-mssp.json` with a new id on `/instructor/profiles`; the Skill board picker
   lists it; Create link there records "measured against" it. Without the consent the dialog points to
   the account page; without the functions it says links are not set up.
+- [ ] **Empty roles and failed loads (R117):** on a team where nobody holds a document's reviewing role,
+  submit the form as its drafter: another member sees "Approve (covering for {Role})", the submitter does
+  not, the status strip says "any member may cover", approving writes "Covering for {Role}." into the
+  history, and the review queue on Home lists it as "yours to review (covering for …)". With the role
+  held, a non-holder has no button. Cloud: with the network off, reload a course page: it says "Couldn't
+  load your team" with Try again (never the Join panel), and Try again loads it once back online. Remove
+  a role id from a course the member joined: Home asks "Pick a role" with the picker open and Tasks says
+  the same. With every local team full the Join panel says "Every team is full" and offers the online lobby.
 - [ ] **The role on top and whose task is whose (R116):** on a role-split course, join as one role;
   the first thing in the sticky bar on Home, Tasks, Guide, Deliverables, Ledger, Review and Skills is
   "Your role", the icon, the name and the team, and it is still there after a long scroll, with Focus

@@ -3082,3 +3082,51 @@ describe('R116 — the role on top, whose task is whose, no week locked', () => 
     expect(read('docs/OPERATIONS.md')).toContain('(R116)');
   });
 });
+
+/**
+ * R117 — empty roles and failed loads never strand a team.
+ *
+ * A document a team cannot move because nobody holds a role, and an enrolled
+ * student shown the Join panel because a request failed, are both dead ends
+ * with no explanation. These pins keep the cover rule pure and recorded, and
+ * keep a failed load from ever reading as "not enrolled".
+ */
+describe('R117 — empty roles and failures never strand a team', () => {
+  it('the cover rule is pure, recorded in the note (no migration), and every surface that offers a step asks the same rule', () => {
+    const life = code('src/lib/docs/lifecycle.ts');
+    for (const n of ['export function isVacant(', 'export function coverOf(', 'export function noteText(', "export const COVER_PREFIX = 'Covering for '", 'export function roleForAction(', 'team.length > 0 &&']) expect(life, n).toContain(n);
+    for (const bad of ['Date.now', 'localStorage', 'Math.random', "from '../data"]) expect(life.replace(/at: opts\.at \?\? Date\.now\(\)/, ''), `pure: ${bad}`).not.toContain(bad);
+    expect(code('src/components/docs/StatusStrip.tsx')).toContain('isVacant(team,');
+    expect(code('src/components/docs/ExpectationsPanel.tsx')).toContain('isVacant(');
+    const queue = code('src/components/docs/TeamReviewQueueCard.tsx');
+    expect(queue, 'the queue asks the same rule as the buttons').toContain('allowedActions(');
+    expect(queue).not.toMatch(/raci!?\.(reviews|approves) === role/);
+    expect(code('src/lib/skillProfile.ts'), 'cover rows are neither respected nor broken').toContain('coverOf(r.note) === null');
+    expect(readdirSync(root('supabase/migrations')).filter((f) => f.startsWith('0016')), 'cover needs no migration').toEqual([]);
+  });
+
+  it('a failed first load is recorded and offered a retry, never shown as not enrolled', () => {
+    const cache = code('src/lib/data/supabaseCache.ts');
+    for (const n of ['const failedCourses = new Set<string>();', 'export function courseHydrateFailed(', 'if (memberships.error) {', 'failedCourses.delete(courseId);', 'failedCourses.clear();']) expect(cache, n).toContain(n);
+    expect(code('src/lib/useMember.ts')).toContain('courseHydrateFailed(courseId)');
+    expect(code('src/components/CourseEnrolGate.tsx')).toContain('<CourseLoadFailed courseId={courseId} />');
+    expect(code('src/app/courses/[courseId]/page.tsx')).toContain('if (failed && !member) return <CourseLoadFailed');
+    expect(code('src/components/auth/ImportPrompt.tsx'), 'no import over a membership that could not be read').toContain('memberFailed ||');
+    const failed = code('src/components/course/CourseLoadFailed.tsx');
+    for (const n of ['role="alert"', 'Try again', 'hydrateCourse(courseId)']) expect(failed, n).toContain(n);
+  });
+
+  it('a removed role is asked for again with the picker open, and a full house says so', () => {
+    const join = code('src/components/course/JoinPanel.tsx');
+    for (const n of ['const roleGone = !!member && !getRoleDef(course, member.role);', "roleGone ? 'Pick a role' : 'Join this course'", 'data-all-full', 'Every team is full.']) expect(join, n).toContain(n);
+    const gate = code('src/components/CourseEnrolGate.tsx');
+    expect(gate).toContain('title="Pick a role"');
+    expect(gate).toContain('!getRoleDef(course, member.role)');
+  });
+
+  it('the docs say it', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### Empty roles and failures never strand a team (R117)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| Cover for an empty role |');
+    expect(read('docs/OPERATIONS.md')).toContain('(R117)');
+  });
+});

@@ -2,7 +2,7 @@
 
 import { Member } from './types';
 import { progressRepo } from './data';
-import { isCourseHydrated } from './data/supabaseCache';
+import { courseHydrateFailed, isCourseHydrated } from './data/supabaseCache';
 import { isSupabaseConfigured } from './supabase/config';
 import { useAuth } from './useAuth';
 import { useClientStore, useHydrated, notifyStore } from './useClientStore';
@@ -23,9 +23,13 @@ export function useMember(courseId: string) {
     false
   );
 
+  // R117: the first load failed, so "no member" means "could not tell", never "not enrolled".
+  const failed = useClientStore<boolean>(() => cloud && !!user && courseHydrateFailed(courseId), false);
+
   return {
     member,
-    loading: !hydrated || authLoading || !cloudReady,
+    failed,
+    loading: !hydrated || authLoading || (!cloudReady && !failed),
     setMember: (m: Member) => {
       progressRepo.setContext(m);
       notifyStore();
