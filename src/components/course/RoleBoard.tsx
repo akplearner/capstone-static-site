@@ -49,6 +49,8 @@ export function RoleBoard({
   const [error, setError] = useState<string | null>(null);
   const taking = board.roles.find((r) => r.id === takingId);
   const mine = board.roles.find((r) => r.you);
+  // A week of shared work only (a shared-track course) gives no role a task of its own: say so once, in the shared group, not on every card.
+  const sharedWeek = board.roles.every((r) => r.tasks.length === 0);
 
   const close = () => {
     setTakingId(null);
@@ -98,7 +100,7 @@ export function RoleBoard({
 
       <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {board.roles.map((role) => (
-          <RoleCard key={role.id} role={role} unit={unit} onOpenTask={onOpenTask} onTake={() => setTakingId(role.id)} />
+          <RoleCard key={role.id} role={role} unit={unit} quiet={sharedWeek} onOpenTask={onOpenTask} onTake={() => setTakingId(role.id)} />
         ))}
       </ul>
 
@@ -126,7 +128,7 @@ export function RoleBoard({
   );
 }
 
-function RoleCard({ role, unit, onOpenTask, onTake }: { role: BoardRole; unit: string; onOpenTask: (task: Task) => void; onTake: () => void }) {
+function RoleCard({ role, unit, quiet, onOpenTask, onTake }: { role: BoardRole; unit: string; quiet: boolean; onOpenTask: (task: Task) => void; onTake: () => void }) {
   const { fn, tag } = splitRoleName(role.name);
   const owner = { name: role.name, icon: role.icon, color: role.color };
   return (
@@ -173,7 +175,7 @@ function RoleCard({ role, unit, onOpenTask, onTake }: { role: BoardRole; unit: s
           ))}
         </ul>
       ) : (
-        <p className="mt-3 border-t border-line pt-3 text-xs text-muted">{fill(COPY.noTasks, { unit })}</p>
+        !quiet && <p className="mt-3 border-t border-line pt-3 text-xs text-muted">{fill(COPY.noTasks, { unit })}</p>
       )}
     </li>
   );
