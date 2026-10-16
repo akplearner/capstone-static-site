@@ -5,6 +5,7 @@ import { isGradedWeek, weekTasksOrdered } from '@/lib/course-helpers';
 import { openGateSteps, stepKey, teamGateStatus, teamStepCompletions, teamTaskPercent, teamWeekCompletion, type OpenGateStep } from '@/lib/teamProgress';
 import { readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
 import { parseTeamId } from '@/lib/team';
+import { isPendingReport } from '@/lib/reportKinds';
 import type { Course, GateStatus, Member, Task } from '@/lib/types';
 
 type CourseStats = {
@@ -176,7 +177,7 @@ export function useCourseProgress(course: Course, member: Member | null) {
     if (!member) return EMPTY_OBJECT;
     const out: Record<string, number> = {};
     for (const r of taskReportsRepo.list(course.id)) {
-      if (r.status === 'open' && r.teamId === member.teamId) out[r.taskId] = (out[r.taskId] ?? 0) + 1;
+      if (isPendingReport(r.status) && r.teamId === member.teamId) out[r.taskId] = (out[r.taskId] ?? 0) + 1;
     }
     return out;
   }, EMPTY_OBJECT);

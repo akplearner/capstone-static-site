@@ -222,12 +222,20 @@ Each account signs in once first (that creates the profile), then Supabase →
 ```sql
 -- the teaching account
 update public.profiles set is_instructor = true
-where id = (select id from auth.users where email = 'teacher@example.com');
+where id = (select id from auth.users where email = 'teacher@example.com')
+returning id;
 
--- the content/admin account
-update public.profiles set is_admin = true
-where id = (select id from auth.users where email = 'admin@example.com');
+-- the content/admin account (an admin is also an instructor, so set both for yourself)
+update public.profiles set is_admin = true, is_instructor = true
+where id = (select id from auth.users where email = 'admin@example.com')
+returning id;
 ```
+
+`returning id` makes a miss visible: the result shows one row when the account was
+found and says **Success. No rows returned** when it was not (a different email from
+the one you signed in with, GitHub's primary email, or a sign-in made before step 2).
+Check the exact address under **Authentication → Users**. Then reload `/instructor`:
+no new sign-in is needed, and an **Instructor** link appears in the header.
 
 Students cannot set either flag on themselves — the database only lets them
 change their own display name and picture.
@@ -365,9 +373,14 @@ Prefer the command line? `supabase functions deploy <name>` deploys straight fro
 
 ## Get an email when a student reports an issue
 
-Every task has a **Report an issue** button. Reports always land on your cohort
-dashboard (`/instructor/<course>/cohort`, "Reported issues") and mark the task
-for the reporter's teammates — no email needed. To ALSO get an email per
+Every task has a **Report an issue** button. Reports always land in the **issues
+inbox** (`/instructor/issues`: every course, newest first; who reported it, when, in
+which course, week, task and step, in what role, on which version of the course, and
+where it stands) and in the course's cohort dashboard (`/instructor/<course>/cohort`,
+"Reported issues"), and they mark the task for the reporter's teammates — no email
+needed. Reports filed before **migration 0016** carry no step, role or version; after
+an app update that adds columns, re-run `supabase/setup.sql` (every statement is safe to
+repeat) and the inbox's "Database update needed" notice goes away. To ALSO get an email per
 report, deploy `report-notify` ([from your browser](#deploy-the-server-functions-from-your-browser),
 or `supabase functions deploy report-notify`) and give it two secrets from a free
 [Resend](https://resend.com) account, on the dashboard's **Edge Functions →

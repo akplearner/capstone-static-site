@@ -15,8 +15,8 @@ import { isMethodEnabled, needsEmailField } from '@/lib/supabase/config';
  *
  * Four ways in are implemented — Google, GitHub, magic link, email + password —
  * but which ones appear is `NEXT_PUBLIC_AUTH_METHODS` (see supabase/config.ts).
- * The default is **Google only**, because it is the one method needing no email
- * delivery, so a deployment can exist with no SMTP at all. Nothing here is
+ * The default is **Google and GitHub**, because they are the methods needing no
+ * email delivery, so a deployment can exist with no SMTP at all. Nothing here is
  * deleted when a method is off; it is just not rendered, so widening the list is
  * an env change rather than a code change.
  *

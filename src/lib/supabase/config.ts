@@ -44,17 +44,17 @@ export function isSupabaseConfigured(): boolean {
  *
  * ONE variable, because the alternative was four booleans that all had to be set
  * to `false` to reach the intended setup — more configuration to get less. The
- * default (`google`) is the shipped setup, so the happy path needs no env var at
- * all:
+ * default (`google,github`) is the shipped setup, so the happy path needs no env
+ * var at all:
  *
- *   NEXT_PUBLIC_AUTH_METHODS=google              # default — Google SSO only
- *   NEXT_PUBLIC_AUTH_METHODS=google,magic        # add emailed sign-in links
+ *   NEXT_PUBLIC_AUTH_METHODS=google,github       # default — Google and GitHub
+ *   NEXT_PUBLIC_AUTH_METHODS=google              # Google only
  *   NEXT_PUBLIC_AUTH_METHODS=google,github,magic,password
  *
- * Google is the default because it is the only method that needs no email
- * delivery at all: Google authenticates the user and hands back a verified
- * address, so there is no SMTP, no confirmation step and no rate limit anywhere
- * in the system. `magic` and `password` both depend on Supabase sending mail.
+ * Google and GitHub are the default because they need no email delivery at all:
+ * the provider authenticates the user and hands back a verified address, so there
+ * is no SMTP, no confirmation step and no rate limit anywhere in the system.
+ * `magic` and `password` both depend on Supabase sending mail.
  *
  * ⚠️ This controls what is OFFERED, not what is POSSIBLE. Supabase's Email
  * provider stays live in the API until you switch it off in the dashboard — so

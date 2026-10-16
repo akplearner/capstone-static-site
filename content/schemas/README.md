@@ -20,6 +20,7 @@ consumer with any validator and the platform with its own get the same answer.
 | `environment-profile.schema.json` | what a company publishes to be measured against (`capstone-environment-profile/1`): infrastructure, tools, methodology, policies, ticket taxonomy, required competencies per work role (R108); the sample is `content/profiles/sample-mssp.json` | `src/lib/docs/environmentProfile.ts` → `scripts/export-profiles.ts`; a company, by file |
 | `credential.schema.json` | the Open Badges 3.0 `AchievementCredential` envelope `/portfolio` exports around the member profile; it admits no `proof`, so it is unsigned by construction (R108) | `/portfolio` → Export credential |
 | `event.schema.json` | the xAPI-shaped platform event of `docs/EVENTS.md`: actor type, verb, object, result, competencies, assist level, consent scope; a contract only, nothing is emitted (R108) | — |
+| `issue.schema.json` | one student report joined to its course (`capstone-issue/1`, R120): who filed it, when, course, week, task, step, role, the version of the course they saw, status and resolution; names a person, never an account | `src/lib/issueInbox.ts`; the issues inbox's CSV and JSON export |
 
 `src/lib/schema/schemas.test.ts` validates a fixture of each shape against its schema and refuses a
 schema outside the subset. The schemas are hand-written and versioned with the shapes they describe:

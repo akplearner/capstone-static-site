@@ -1,5 +1,6 @@
 'use client';
 
+import { isMissingSchema } from './schemaErrors';
 import { getBrowserClient } from '../supabase/client';
 import { notifyStore } from '../useClientStore';
 import type {
@@ -20,6 +21,7 @@ import type {
   SubmissionsRepository,
   TaskReport,
   TaskReportsRepository,
+  TaskReportUpdate,
 } from './types';
 import { cache, getCurrentUserId } from './supabaseCache';
 import { toast } from '@/lib/toastBus';
@@ -187,44 +189,91 @@ export const supabaseTaskReportsRepo: TaskReportsRepository = {
     if (!supabase) return;
     const user_id = getCurrentUserId();
     if (!user_id) return;
-    void supabase
-      .from('task_reports')
-      .insert({
-        id: report.id,
-        user_id,
-        course_id: report.courseId,
-        task_id: report.taskId,
-        team_id: report.teamId,
-        kind: report.kind,
-        note: report.note,
-        status: 'open',
-        created_at: new Date(report.at).toISOString(),
-      })
-      .then(({ error }) => {
-        if (error) {
-          console.error('task report save failed', error.message);
-          toast({ message: 'Couldn’t file the report — check your connection and send it again.', variant: 'warning', duration: 6000 });
-          return;
-        }
-        void supabase.functions
-          .invoke('report-notify', { body: { courseId: report.courseId, taskId: report.taskId, kind: report.kind, note: report.note } })
-          .catch(() => {});
-      });
+    const legacy = {
+      id: report.id,
+      user_id,
+      course_id: report.courseId,
+      task_id: report.taskId,
+      team_id: report.teamId,
+      kind: report.kind,
+      note: report.note,
+      status: 'open',
+      created_at: new Date(report.at).toISOString(),
+    };
+    // R120: where, who and which version, as filed.
+    const full = {
+      ...legacy,
+      step_id: report.stepId ?? null,
+      week: report.week ?? null,
+      reporter_name: report.reporterName ?? '',
+      reporter_role: report.reporterRole ?? '',
+      content_version: report.contentVersion ?? '',
+    };
+    void (async () => {
+      let { error } = await supabase.from('task_reports').insert(full);
+      if (error && isMissingSchema(error)) {
+        // The database has not had 0016 yet: file the report with the columns it holds.
+        console.warn('task report filed without its context: re-run supabase/setup.sql to record the step, role and version');
+        ({ error } = await supabase.from('task_reports').insert(legacy));
+      }
+      if (error) {
+        console.error('task report save failed', error.message);
+        toast({ message: 'Couldn’t file the report — check your connection and send it again.', variant: 'warning', duration: 6000 });
+        return;
+      }
+      void supabase.functions
+        .invoke('report-notify', { body: { courseId: report.courseId, taskId: report.taskId, kind: report.kind, note: report.note, displayName: report.reporterName } })
+        .catch(() => {});
+    })();
   },
 
   resolve(courseId: string, id: string): void {
-    cache.resolveTaskReport(courseId, id);
-    notifyStore();
+    void supabaseTaskReportsRepo.update(courseId, id, { status: 'resolved' });
+  },
+
+  // R120: the instructor's move. Optimistic into the cache, awaited over the wire so the
+  // inbox can say when it did not land; who, what, when and which version are frozen by 0016.
+  async update(courseId: string, id: string, patch: TaskReportUpdate): Promise<boolean> {
     const supabase = getBrowserClient();
-    if (!supabase) return;
-    void supabase
+    if (!supabase) return false;
+    const closed = patch.status === 'resolved' || patch.status === 'wont_fix';
+    const me = getCurrentUserId();
+    const before = cache.taskReports(courseId).find((r) => r.id === id);
+    cache.updateTaskReport(courseId, id, {
+      status: patch.status,
+      ...(patch.note !== undefined ? { resolutionNote: patch.note } : {}),
+      ...(patch.fixRevision !== undefined ? { fixRevision: patch.fixRevision } : {}),
+      resolvedAt: closed ? Date.now() : undefined,
+      resolvedBy: closed ? (me ?? undefined) : undefined,
+    });
+    notifyStore();
+    const resolved_at = closed ? new Date().toISOString() : null;
+    const resolved_by = closed ? me : null;
+    const { error } = await supabase
       .from('task_reports')
-      .update({ status: 'resolved', resolved_at: new Date().toISOString(), resolved_by: getCurrentUserId() })
-      .eq('id', id)
-      .then(({ error }) => {
-        if (error) console.error('task report resolve failed', error.message);
-        else notifyStore();
-      });
+      .update({
+        status: patch.status,
+        resolved_at,
+        resolved_by,
+        ...(patch.note !== undefined ? { resolution_note: patch.note } : {}),
+        ...(patch.fixRevision !== undefined ? { fix_revision: patch.fixRevision } : {}),
+      })
+      .eq('id', id);
+    if (!error) {
+      notifyStore();
+      return true;
+    }
+    console.error('task report update failed', error.message);
+    if (before) cache.updateTaskReport(courseId, id, before);
+    notifyStore();
+    // 0016 not applied yet: the new columns and the two new statuses do not exist.
+    const old = isMissingSchema(error) || error.code === '23514';
+    toast({
+      message: old ? 'The database needs its latest update (re-run supabase/setup.sql) before this can be saved.' : 'Couldn’t save the change — check your access and connection.',
+      variant: 'warning',
+      duration: 6000,
+    });
+    return false;
   },
 };
 

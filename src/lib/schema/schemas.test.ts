@@ -15,6 +15,7 @@ import { ONTOLOGY_VERSION } from '../docs/ontology';
 import { buildMemberProfile } from '../memberExport';
 import { WORK_ROLES } from '../docs/workRoles';
 import { sampleProfiles } from '../content/profiles';
+import { buildIssues } from '../issueInbox';
 
 const DIR = resolve(process.cwd(), 'content', 'schemas');
 const schema = (name: string) => JSON.parse(readFileSync(resolve(DIR, `${name}.schema.json`), 'utf8')) as JsonSchema;
@@ -28,7 +29,7 @@ const schema = (name: string) => JSON.parse(readFileSync(resolve(DIR, `${name}.s
 describe('content/schemas — the published shapes validate', () => {
   it('every schema file is draft 2020-12 and inside the subset', () => {
     const files = readdirSync(DIR).filter((f) => f.endsWith('.schema.json'));
-    expect(files.sort()).toEqual(['competency-node', 'course-index-entry', 'credential', 'environment-profile', 'event', 'kpi-board', 'member-profile', 'skill-profile', 'sop', 'standard', 'tool', 'work-role', 'xapi-statement'].map((n) => `${n}.schema.json`));
+    expect(files.sort()).toEqual(['competency-node', 'course-index-entry', 'credential', 'environment-profile', 'event', 'issue', 'kpi-board', 'member-profile', 'skill-profile', 'sop', 'standard', 'tool', 'work-role', 'xapi-statement'].map((n) => `${n}.schema.json`));
     for (const f of files) {
       const s = schema(f.replace('.schema.json', ''));
       expect(s.$schema, f).toBe('https://json-schema.org/draft/2020-12/schema');
@@ -43,6 +44,27 @@ describe('content/schemas — the published shapes validate', () => {
     for (const s of (files.standards as { standards: unknown[] }).standards) expect(validate(s, schema('standard')), JSON.stringify(s).slice(0, 40)).toEqual([]);
     for (const s of SOPS) expect(validate(s, schema('sop')), s.id).toEqual([]);
     expect(validate({ id: 'tool.x', label: 'X', kind: 'cli', aliases: [], tone: 'info' }, schema('tool'))).not.toEqual([]);
+  });
+
+  it('an issue built by the inbox validates, whether filed with its context or before it was recorded, and a malformed one does not', () => {
+    const course = SEED_COURSES[0];
+    const task = course.tasks[0];
+    const people = { nameOf: () => 'Ada', roleOf: () => undefined, resolverName: () => 'Ivy' };
+    const base = { courseId: course.id, taskId: task.id, teamId: '2026-10-t1', memberId: 'm', kind: 'broken' as const, note: 'x', at: Date.parse('2026-10-12T14:05:00Z') };
+    const rows = buildIssues(
+      SEED_COURSES,
+      [
+        { ...base, id: 'old', status: 'open' },
+        { ...base, id: 'new', status: 'resolved', stepId: task.steps[0].id, week: task.week, reporterName: 'Ada L.', reporterRole: task.role, contentVersion: '1.7', resolutionNote: 'Fixed', resolvedAt: Date.parse('2026-10-13T00:00:00Z'), fixRevision: 3 },
+        { ...base, id: 'gone', taskId: 'removed-task', status: 'wont_fix' },
+      ],
+      people
+    );
+    expect(rows).toHaveLength(3);
+    for (const r of rows) expect(validate(r, schema('issue')), r.id).toEqual([]);
+    expect(validate({ ...rows[0], status: 'closed' }, schema('issue'))).not.toEqual([]);
+    expect(validate({ ...rows[0], contentVersion: 'v1.7' }, schema('issue'))).not.toEqual([]);
+    expect(validate({ ...rows[0], reporter: { ...rows[0].reporter, memberId: 'm' } }, schema('issue')), 'no account id in a report').not.toEqual([]);
   });
 
   it('every row of the course index validates', () => {

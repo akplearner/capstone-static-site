@@ -410,7 +410,7 @@ export interface Course {
   /** The built-in course this one was duplicated from. Its document supplies
    *  the reference content and forms this course renders (R78-D3). */
   basedOn?: string;
-  version?: number;      // export/import schema version
+  version?: number;      // the course document's content version (R120): a built-in's from code, an edited copy's bumped on every save (R122)
   updatedAt?: number;
   // Enrollment configuration (instructor-controlled, per course/class):
   locked?: boolean;      // when true, students can't enter the course

@@ -1,4 +1,5 @@
 import { Course, Gate, GateStatus, Member, RosterEntry, Task, TaskCompletion } from '../types';
+import type { ReportStatus } from '../reportKinds';
 import type { DeliverableData, DeliverableDef } from '../docs/types';
 
 import type { DeliverableStatus } from '../docs/lifecycle';
@@ -315,16 +316,39 @@ export interface TaskReport {
   memberId: string;
   kind: 'unclear' | 'broken' | 'environment' | 'question' | 'outdated';
   note: string;
-  status: 'open' | 'resolved';
+  status: ReportStatus;
   at: number;
+  /** R120: the step the reporter named, when they named one. */
+  stepId?: string;
+  /** R120: the week of the task when it was reported. */
+  week?: number;
+  /** R120: who filed it and in what role, as filed: a roster can move later, the record does not. */
+  reporterName?: string;
+  reporterRole?: string;
+  /** R120: the course content version the reporter saw, e.g. "1.7". */
+  contentVersion?: string;
+  /** R120: what the instructor told the reporter, when it was closed, by whom, and the content fix that resolved it (R121). */
+  resolutionNote?: string;
+  resolvedAt?: number;
+  resolvedBy?: string;
+  fixRevision?: number;
+}
+
+/** What an instructor may change on a report (RLS-enforced in cloud mode); who, what, when and which version are frozen. */
+export interface TaskReportUpdate {
+  status: ReportStatus;
+  note?: string;
+  fixRevision?: number;
 }
 
 export interface TaskReportsRepository {
   /** Every report the caller may see for a course (RLS: own + team; instructor: all). */
   list(courseId: string): TaskReport[];
   save(report: TaskReport): void;
-  /** Instructor only (RLS-enforced in cloud mode). */
+  /** Instructor only (RLS-enforced in cloud mode). Closes the report as resolved. */
   resolve(courseId: string, id: string): void;
+  /** Instructor only. Resolves true once the change is stored (the cloud write is awaited). */
+  update(courseId: string, id: string, patch: TaskReportUpdate): Promise<boolean>;
 }
 
 /** What a submission freezes (R84): the form as submitted, the four category

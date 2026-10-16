@@ -95,8 +95,12 @@ Open **/instructor** (gated) to:
 - **Export/Import** a course as JSON to share or back up
 - **Preview as student** to test the flow
 
-> Access: with Supabase connected, instructor access comes from the account's
-> `profiles.is_instructor` flag. Offline, set `NEXT_PUBLIC_INSTRUCTOR_PASSCODE`
+> Access: with Supabase connected, access comes from two flags on the account's
+> `profiles` row: `is_instructor` (the cohort dashboard, reported issues, roster
+> fixes) and `is_admin` (also the course editor and platform metrics; an admin
+> counts as an instructor). Nothing in the app grants them: sign in once, then set
+> the flag in the Supabase SQL Editor (`SUPABASE_SETUP.md`, step 4 "Grant the staff
+> roles"). Offline, set `NEXT_PUBLIC_INSTRUCTOR_PASSCODE`
 > to a non-obvious value to enable the local passcode gate — there is **no
 > default**, so an unset passcode leaves the studio locked and its nav link
 > hidden. The passcode path is a local convenience, not a security control.

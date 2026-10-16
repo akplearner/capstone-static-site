@@ -127,13 +127,16 @@ has failed silently in some deployment of some product; none takes more than a m
   `content/profiles/sample-mssp.json` with a new id on `/instructor/profiles`; the Skill board picker
   lists it; Create link there records "measured against" it. Without the consent the dialog points to
   the account page; without the functions it says links are not set up.
-- [ ] **One word for done (R118):** on Tasks every row says Not started, In progress · n of m steps,
-  Done, or Done by {name}; a task a teammate finished also shows "You: 0 of n steps" until the member
-  does it; the opened task repeats the state with "Checks verified n of m"; the week header's bar says
-  "team" and shows "You n%" when that differs; hovering the rail's tick says what it means. On a team
-  where every task is done and the member joined late, Home says "Done for the team" with the member's
-  own record and a button to their first open step. A form sent for review shows on Home as waiting on
-  the reviewing role. The instructor's verdict reads "Instructor: …" on the form and the cohort table.
+- [ ] **The issues inbox (R120):** as a student, open any task → **Report an issue**: pick a step (or "The whole
+  task"), a kind and a note; the dialog says it is sent with your name, your role and the course version.
+  As an instructor (or admin), open `/instructor/issues` (the **Reported issues** button on the instructor
+  home, or ⌘K): the report is on the **Pending** tab with who, when, `Course › Week › Task › Step`, the
+  reporter's role, "saw v1.0" and its kind. Filter by course, week, either role, kind and reporter; search a
+  word from the note; tick **Group by task** off and on. Set the status to **In progress**, then **Resolved**
+  with a note for the reporter, and Save: the card moves to **Complete** and shows who closed it and when.
+  **Won't fix** closes it without a change. Download the CSV and the JSON. The instructor home shows the course's
+  "n pending issues"; the cohort page's panel links "Open in the inbox →". If the page says "Database update
+  needed", paste `supabase/setup.sql` into the SQL Editor and Run, then Refresh.
 - [ ] **The team's roles board (R119):** on Home, below the role section, "Your team's roles this week"
   lists every role: yours first with a "You" chip, the others with "Held by {names}" from your own
   team only. Each task shows whose it is (Your task, Everyone, or {Role} · open to anyone) and where it
@@ -142,6 +145,13 @@ has failed silently in some deployment of some product; none takes more than a m
   the board and the Tasks tab all change, and what you ticked is still ticked. The strip's link lands
   on the board. As an instructor, the cohort page's Registrations panel lists each team that has a role
   nobody holds ("Team 2 · 2 members · Open roles: …").
+- [ ] **One word for done (R118):** on Tasks every row says Not started, In progress · n of m steps,
+  Done, or Done by {name}; a task a teammate finished also shows "You: 0 of n steps" until the member
+  does it; the opened task repeats the state with "Checks verified n of m"; the week header's bar says
+  "team" and shows "You n%" when that differs; hovering the rail's tick says what it means. On a team
+  where every task is done and the member joined late, Home says "Done for the team" with the member's
+  own record and a button to their first open step. A form sent for review shows on Home as waiting on
+  the reviewing role. The instructor's verdict reads "Instructor: …" on the form and the cohort table.
 - [ ] **Empty roles and failed loads (R117):** on a team where nobody holds a document's reviewing role,
   submit the form as its drafter: another member sees "Approve (covering for {Role})", the submitter does
   not, the status strip says "any member may cover", approving writes "Covering for {Role}." into the
@@ -212,8 +222,11 @@ has failed silently in some deployment of some product; none takes more than a m
    registrations.
 3. **A support contact.** Both legal pages tell users to contact "the address published on the site".
    Publish one.
-4. **Instructor accounts.** Set `profiles.is_instructor = true` by SQL for whoever should reach the
-   studio.
+4. **Staff accounts.** Sign in once, then set `profiles.is_instructor = true` (cohort dashboard, reported
+   issues, roster fixes) or `profiles.is_admin = true` (also the course editor and metrics; counts as an
+   instructor) by SQL for whoever should reach `/instructor`. End the statement with `returning id;`: zero
+   rows back means the email did not match (GitHub's primary email can differ) or the account signed in
+   before `setup.sql` ran. `SUPABASE_SETUP.md` step 4 has the statements.
 5. **Content roadmap.** 21 of 24 catalog entries are "coming soon". Which cert gets authored next?
 
 ## Where the rest of the roadmap lives

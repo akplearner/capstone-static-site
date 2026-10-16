@@ -610,6 +610,31 @@ and lands on the role section). `roleCoverage` gives the instructor the same rul
 registrations panel names, for each team with a gap, the roles nobody holds. No migration: cover and
 role changes use what R117 and the join panel already write.
 
+### The issues inbox (R120)
+
+A student's report was a task and a kind on a per-course list. The admin working the queue needs the
+whole picture, so a report now records, as filed, **where** (the week and the optional step), **who** (the
+name and the role at the time, so a student moved later does not rewrite what they said), **when**, and
+**which version of the course they saw** (`contentVersion`, `src/lib/contentVersion.ts`: `{document
+version}.{revision}`, e.g. `1.7`; the revision half is the content-fix ledger of R121). Migration
+`0016_report_context.sql` adds the columns (all nullable or defaulted, so an older row reads as before),
+widens the status to `open | in_progress | resolved | wont_fix` (`REPORT_STATUSES`,
+`src/lib/reportKinds.ts`), lets a student file only an **open** report, and **freezes** who, what, when and
+which version with a trigger: afterwards only the status and the resolution may change, for staff too.
+`/instructor/issues` (any instructor; the instructor layout is the gate) is the one place that reads every
+report across every course (`src/lib/data/issuesLoader.ts`; offline it reads this device). The pure core
+`src/lib/issueInbox.ts` joins a report to its course (`IssueDto`, the published `capstone-issue/1`, which
+names a person and never an account) and answers the inbox's questions: the four tabs (**Pending** is open
+plus in progress, **Complete** is resolved, **Won't fix** is closed without a change, **All**), the filters
+(course, week, the reporter's role, the task's role, kind, reporter, words), the **group by task** view that
+puts the tasks with the most pending reports first (where content needs fixing), counts, and the CSV and JSON
+exports. The instructor's move on a card is a status and a note for the reporter. The cohort page's panel
+stays as the per-course glance and links to the inbox; the instructor home shows pending counts per course.
+The admin applies SQL by hand and the app can reach production first, so every new column is feature-detected
+(`isMissingSchema`, `src/lib/data/schemaErrors.ts`): a report is filed with the columns the database has, a
+status the old constraint refuses says so, and the inbox shows a "Database update needed" notice until
+`supabase/setup.sql` is re-run.
+
 ## 7. The MSP / business bridge (dual-use is the unlock)
 
 The same primitives serve training *and* commercial implementation:

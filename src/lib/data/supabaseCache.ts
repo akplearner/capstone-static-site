@@ -1,5 +1,6 @@
 'use client';
 
+import { asReportStatus } from '../reportKinds';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { Member, RosterEntry } from '../types';
 import type { DeliverableData } from '../docs/types';
@@ -325,10 +326,10 @@ export const cache = {
     list.push(report);
     taskReportsByCourse.set(report.courseId, list);
   },
-  resolveTaskReport(courseId: string, id: string) {
+  updateTaskReport(courseId: string, id: string, patch: Partial<TaskReport>) {
     taskReportsByCourse.set(
       courseId,
-      (taskReportsByCourse.get(courseId) ?? []).map((r) => (r.id === id ? { ...r, status: 'resolved' as const } : r))
+      (taskReportsByCourse.get(courseId) ?? []).map((r) => (r.id === id ? { ...r, ...patch } : r))
     );
   },
   submissions(courseId: string, teamId: string): DeliverableSubmission[] {
@@ -631,6 +632,9 @@ export function reviewFromRow(r: Record<string, unknown>): DeliverableReview {
 }
 
 export function taskReportFromRow(r: Record<string, unknown>): TaskReport {
+  const text = (v: unknown) => (v == null || v === '' ? undefined : String(v));
+  const num = (v: unknown) => (v == null || v === '' ? undefined : Number(v));
+  const when = (v: unknown) => (v ? Date.parse(String(v)) : undefined);
   return {
     id: String(r.id),
     courseId: String(r.course_id),
@@ -639,8 +643,18 @@ export function taskReportFromRow(r: Record<string, unknown>): TaskReport {
     memberId: String(r.user_id),
     kind: (r.kind as TaskReport['kind']) ?? 'question',
     note: String(r.note ?? ''),
-    status: (r.status as TaskReport['status']) ?? 'open',
+    status: asReportStatus(r.status),
     at: r.created_at ? Date.parse(String(r.created_at)) : 0,
+    // R120: every field below is absent on a report filed before 0016.
+    stepId: text(r.step_id),
+    week: num(r.week),
+    reporterName: text(r.reporter_name),
+    reporterRole: text(r.reporter_role),
+    contentVersion: text(r.content_version),
+    resolutionNote: text(r.resolution_note),
+    resolvedAt: when(r.resolved_at),
+    resolvedBy: text(r.resolved_by),
+    fixRevision: num(r.fix_revision),
   };
 }
 

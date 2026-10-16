@@ -120,6 +120,7 @@ export function buildIndex({ courses, signedIn, isInstructor, hasTeam }: IndexIn
   }
   if (isInstructor) {
     items.push({ id: 'page:instructor', kind: 'page', title: 'Instructor Studio', href: '/instructor' });
+    items.push({ id: 'page:issues', kind: 'page', title: 'Reported issues', subtitle: 'Instructor view', href: '/instructor/issues' });
   }
 
   for (const course of courses) {

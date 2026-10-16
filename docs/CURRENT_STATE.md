@@ -74,7 +74,7 @@ additive, none requiring a rewrite.
 
 ### 6. Identity / tenancy
 - **Today:** optional Supabase **OIDC** (Google/GitHub/magic-link), **humans only**, `profiles.is_instructor`
-  flag. Multi-tenancy is **soft**: scoped by `course_id` + `team_id` (no `tenant_id`); RLS uses
+  and `is_admin` flags (set by SQL; no screen grants them). Multi-tenancy is **soft**: scoped by `course_id` + `team_id` (no `tenant_id`); RLS uses
   `(course_id, team_id)` JOINs (`supabase/migrations/`).
 - **Target:** `tenant_id` on every row + RLS; `actor.type: human|agent`.
 - **Seed:** RLS is already in place and the auth layer is OIDC — adding `tenant_id` and an actor type is
@@ -152,6 +152,8 @@ additive, none requiring a rewrite.
 | One word for done | `src/lib/taskState.ts`, `TaskStateChip`, `TaskRow`, the opened task's header, `WeekHeader`, `WeekRail` tick labels, `REVIEW_VERDICT_LABEL` | **Present** (R118; the team's state and the member's own count, in words and an icon; the instructor's verdict is always named) |
 | What a member waits on | `MyWaitingCard` on Home; the late joiner's "Done for the team. Your own record" on Home | **Present** (R118) |
 | The team's roles board | `src/lib/roleBoard.ts`, `RoleBoard` on Home (`#roles`), `takeRole`, the role strip's target, `roleCoverage` in `RegistrationsPanel` | **Present** (R119; every role with its holders and this week's tasks, an open role is one click to take, ticks stay; staff see each team's open roles) |
+| Reported issues inbox | `/instructor/issues`, `src/lib/issueInbox.ts` (pure), `issuesLoader.ts`, `IssuesBoard`, `IssueCard`, migration `0016_report_context.sql`, `content/schemas/issue.schema.json` | **Present** (R120; every report across every course with who, when, course, week, task, step, role and the version seen; four statuses and a note for the reporter; tabs, filters, group by task, CSV and JSON) |
+| Reports record their context, for good | `task_reports.step_id, week, reporter_name, reporter_role, content_version`; the `task_reports_frozen` trigger; `contentVersion()` | **Present** (R120; a student files only an open report; who, what, when and which version are frozen, for staff too) |
 | Acceptance gate (agreements v2, AUP page) | `src/lib/legal/agreements.ts`, `/legal/aup`, `LegalGateOverlay`, `agreement_acceptances.text_sha256` | **Present** (R110; sandbox-only and liability wording drafted, counsel review pending; re-asked at the next sign-in on a version bump) |
 | Event / Attestation | — | **Absent** |
 | `tenant_id` | `course_id`+`team_id` soft scope | **Absent** (column) |

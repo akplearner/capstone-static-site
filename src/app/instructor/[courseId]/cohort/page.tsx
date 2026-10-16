@@ -16,7 +16,8 @@ import { CohortCalendar } from '@/components/instructor/CohortCalendar';
 import { RegistrationsPanel } from '@/components/instructor/RegistrationsPanel';
 import { SubmissionSummary, SubmissionVerdictLine } from '@/components/instructor/SubmissionVerdicts';
 import { taskReportsRepo } from '@/lib/data';
-import { reportKindLabel } from '@/lib/reportKinds';
+import { isPendingReport, reportKindLabel } from '@/lib/reportKinds';
+import { splitRoleName } from '@/lib/docs/roles';
 import { courseRepo } from '@/lib/data';
 import { loadCohort, isStepDoneIn, type CohortData } from '@/lib/data/cohortLoader';
 import { useClientStore, subscribeStore } from '@/lib/useClientStore';
@@ -230,19 +231,30 @@ export default function CohortPage() {
       )}
 
       {(() => {
-        // Reported issues (R83): every open report, grouped by task, with the
-        // reporter, the kind and a one-click resolve. Same inset treatment as
-        // the stuck panel above — these are the two "look here first" lists.
-        const open = data.reports.filter((r) => r.status === 'open');
+        // Reported issues (R83): every pending report on this course, grouped by task,
+        // with who, in what role, which step and when, and a one-click resolve. Same
+        // inset treatment as the stuck panel above: these are the two "look here first"
+        // lists. R120: the inbox (all courses, filters, notes, history) is one link away.
+        const open = data.reports.filter((r) => isPendingReport(r.status));
         if (open.length === 0) return null;
-        const nameOf = (id: string) => data.roster.find((m) => m.memberId === id)?.displayName || 'Unknown';
+        const nameOf = (r: (typeof open)[number]) => r.reporterName || data.profiles[r.memberId]?.displayName || data.roster.find((m) => m.memberId === r.memberId)?.displayName || 'Unknown';
+        const roleOf = (r: (typeof open)[number]) => {
+          const id = r.reporterRole || data.roster.find((m) => m.memberId === r.memberId)?.role;
+          const name = id ? (course.roles.find((x) => x.id === id)?.name ?? id) : '';
+          return name ? splitRoleName(name).fn : '';
+        };
         const byTask = new Map<string, typeof open>();
         for (const r of open) (byTask.get(r.taskId) ?? byTask.set(r.taskId, []).get(r.taskId))!.push(r);
         return (
           <Surface as="section" variant="inset" className="space-y-2" aria-labelledby="cohort-reports">
-            <h2 id="cohort-reports" className="text-base font-semibold text-ink">
-              Reported issues
-            </h2>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 id="cohort-reports" className="text-base font-semibold text-ink">
+                Reported issues
+              </h2>
+              <Link href={`/instructor/issues?course=${course.id}`} className="text-sm font-medium text-accent hover:underline" data-open-inbox>
+                Open in the inbox →
+              </Link>
+            </div>
             <ul className="space-y-2 text-sm">
               {[...byTask.entries()].map(([taskId, list]) => {
                 const task = getTaskById(course, taskId);
@@ -255,23 +267,33 @@ export default function CohortPage() {
                       {task?.title ?? taskId}
                     </Link>
                     <ul className="space-y-1">
-                      {list.map((r) => (
-                        <li key={r.id} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                          <span className="rounded-full bg-warn-soft px-2 py-0.5 text-2xs font-semibold text-warn">{reportKindLabel(r.kind)}</span>
-                          <span className="text-muted">{nameOf(r.memberId)} · {r.teamId ? teamLabel(r.teamId) : ''}</span>
-                          {r.note && <span className="min-w-0 flex-1 text-body">{r.note}</span>}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              taskReportsRepo.resolve(course.id, r.id);
-                              reload();
-                            }}
-                            className="rounded-md px-2 py-0.5 text-xs font-medium text-accent hover:bg-panel-2 hover:underline"
-                          >
-                            Resolve
-                          </button>
-                        </li>
-                      ))}
+                      {list.map((r) => {
+                        const step = r.stepId ? task?.steps.findIndex((x) => x.id === r.stepId) : -1;
+                        return (
+                          <li key={r.id} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                            <span className="rounded-full bg-warn-soft px-2 py-0.5 text-2xs font-semibold text-warn">{reportKindLabel(r.kind)}</span>
+                            {r.status === 'in_progress' && <span className="rounded-full bg-info-soft px-2 py-0.5 text-2xs font-semibold text-info">In progress</span>}
+                            <span className="text-muted">
+                              {nameOf(r)}
+                              {roleOf(r) && ` · ${roleOf(r)}`}
+                              {r.teamId ? ` · ${teamLabel(r.teamId)}` : ''}
+                              {step !== undefined && step >= 0 ? ` · step ${step + 1}` : ''}
+                              {r.at ? ` · ${new Date(r.at).toLocaleDateString()}` : ''}
+                            </span>
+                            {r.note && <span className="min-w-0 flex-1 text-body">{r.note}</span>}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                taskReportsRepo.resolve(course.id, r.id);
+                                reload();
+                              }}
+                              className="rounded-md px-2 py-0.5 text-xs font-medium text-accent hover:bg-panel-2 hover:underline"
+                            >
+                              Resolve
+                            </button>
+                          </li>
+                        );
+                      })}
                     </ul>
                   </li>
                 );

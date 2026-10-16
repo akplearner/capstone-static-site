@@ -1,14 +1,15 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useInstructorAuth } from '@/lib/useInstructorAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Plus, Upload, Copy, Download, Trash2, Pencil, Layers, Users, BarChart3, Building2 } from 'lucide-react';
+import { Plus, Upload, Copy, Download, Trash2, Pencil, Layers, Users, BarChart3, Building2, Flag } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ui/Dialog';
 import { toast } from '@/components/ui/Toast';
 import { courseRepo } from '@/lib/data';
+import { loadPendingCounts } from '@/lib/data/issuesLoader';
 import { useClientStore, EMPTY_ARRAY, notifyStore } from '@/lib/useClientStore';
 import { Course } from '@/lib/types';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -34,6 +35,15 @@ export default function InstructorHomePage() {
   const [pendingDelete, setPendingDelete] = useState<Course | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  // R120: pending reports per course, so the cards say where students are stuck.
+  const [pending, setPending] = useState<Record<string, number>>({});
+  useEffect(() => {
+    let on = true;
+    void loadPendingCounts(courses).then((c) => on && setPending(c));
+    return () => {
+      on = false;
+    };
+  }, [courses]);
 
   const handleCreate = () => {
     const title = newTitle.trim();
@@ -124,6 +134,15 @@ export default function InstructorHomePage() {
         lede="Create and maintain courses and lab content."
         trailing={
           <>
+            {/* R120: every report from every course, in one place. */}
+            <Link href="/instructor/issues">
+              <Button variant="secondary" className="flex items-center gap-1">
+                <Flag className="h-4 w-4" /> Reported issues
+                {Object.values(pending).reduce((a, b) => a + b, 0) > 0 && (
+                  <span className="rounded-full bg-warn-soft px-1.5 text-2xs font-semibold text-warn" data-issues-total>{Object.values(pending).reduce((a, b) => a + b, 0)}</span>
+                )}
+              </Button>
+            </Link>
             {/* R114: every instructor publishes employer profiles; the authoring verbs stay the admin's. */}
             <Link href="/instructor/profiles">
               <Button variant="secondary" className="flex items-center gap-1">
@@ -214,6 +233,11 @@ export default function InstructorHomePage() {
               <span className="inline-flex items-center gap-1"><Layers className="h-3.5 w-3.5" /> {course.weeks.length} weeks</span>
               <span className="inline-flex items-center gap-1"><Users className="h-3.5 w-3.5" /> {course.roles.length} roles</span>
               <span>{course.tasks.length} tasks</span>
+              {(pending[course.id] ?? 0) > 0 && (
+                <Link href={`/instructor/issues?course=${course.id}`} className="inline-flex items-center gap-1 rounded-full bg-warn-soft px-2 py-0.5 font-semibold text-warn hover:underline" data-pending-issues={course.id}>
+                  <Flag className="h-3 w-3" aria-hidden /> {pending[course.id]} pending issue{pending[course.id] === 1 ? '' : 's'}
+                </Link>
+              )}
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               {isAdmin &&

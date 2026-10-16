@@ -517,6 +517,8 @@ describe('design tokens — palette classes do not come back', () => {
       'src/lib/legal/acceptances.ts',
       // R114: the shared copy's generatedAt, machine metadata like the exports above.
       'src/app/courses/[courseId]/skills/page.tsx',
+      // R120: an issue's timestamps are fields of the published capstone-issue/1 (ISO 8601); the inbox prints them with toLocaleString.
+      'src/lib/issueInbox.ts',
     ]);
     const offenders = collectSourceFiles('src').filter(
       (f) => !WIRE.test(f) && !ALLOWED.has(f) && /toISOString\(\)/.test(code(f))
@@ -3102,7 +3104,7 @@ describe('R117 — empty roles and failures never strand a team', () => {
     expect(queue, 'the queue asks the same rule as the buttons').toContain('allowedActions(');
     expect(queue).not.toMatch(/raci!?\.(reviews|approves) === role/);
     expect(code('src/lib/skillProfile.ts'), 'cover rows are neither respected nor broken').toContain('coverOf(r.note) === null');
-    expect(readdirSync(root('supabase/migrations')).filter((f) => f.startsWith('0016')), 'cover needs no migration').toEqual([]);
+    expect(readdirSync(root('supabase/migrations')).filter((f) => read(`supabase/migrations/${f}`).includes('Covering for')), 'cover needs no migration: it is a note prefix on rows the database already takes').toEqual([]);
   });
 
   it('a failed first load is recorded and offered a retry, never shown as not enrolled', () => {
@@ -3263,3 +3265,86 @@ describe('R119 — the team’s roles board', () => {
     expect(read('docs/OPERATIONS.md')).toContain('(R119)');
   });
 });
+
+/**
+ * R120 — the issues inbox.
+ *
+ * A report says where, who and which version, as filed, and says it for good; the
+ * inbox is the one place an instructor reads every report across every course,
+ * with the four statuses and a note for the reporter. These pins keep the core
+ * pure, the board props-only, the identity of a report frozen in the database, the
+ * statuses one list shared with the CHECK constraint, and the app safe to reach
+ * production before the SQL does.
+ */
+describe('R120 — the issues inbox', () => {
+  it('the core is pure, joins reports to courses, and carries no account id', () => {
+    const pure = code('src/lib/issueInbox.ts');
+    for (const bad of ['Date.now', 'Math.random', 'localStorage', 'useClientStore']) expect(pure, `pure: ${bad}`).not.toContain(bad);
+    expect(pure, 'only types come from the data layer').not.toMatch(/^import (?!type )[^\n]*from '\.\/data/m);
+    for (const n of ['export function buildIssues(', 'export function filterIssues(', 'export function groupByTask(', 'export function issueCounts(', 'export function issueFacets(', 'export function issuesCsv(', "ISSUE_SCHEMA = 'capstone-issue/1'"]) expect(pure, n).toContain(n);
+    const dto = pure.match(/export interface IssueDto \{[\s\S]*?\n\}/)![0];
+    expect(dto, 'an issue names a person, never an account').not.toMatch(/memberId|userId|user_id/);
+    const schema = JSON.parse(read('content/schemas/issue.schema.json')) as { properties: { reporter: { properties: Record<string, unknown> } } };
+    expect(Object.keys(schema.properties.reporter.properties).sort()).toEqual(['name', 'role', 'roleName', 'teamId']);
+  });
+
+  it('the board and the card are props only, and the page is the one that loads and stores', () => {
+    for (const f of ['src/components/instructor/IssuesBoard.tsx', 'src/components/instructor/IssueCard.tsx']) {
+      const src = code(f);
+      for (const bad of ['taskReportsRepo', 'loadIssues', 'localStorage', 'useClientStore', 'progressRepo', 'courseRepo']) expect(src, `${f}: ${bad}`).not.toContain(bad);
+    }
+    const board = code('src/components/instructor/IssuesBoard.tsx');
+    for (const n of ['role="tablist"', 'data-issues-tab', 'data-issues-csv', 'data-issues-json', 'data-issues-group', 'issueFacets(', 'groupByTask(']) expect(board, n).toContain(n);
+    const card = code('src/components/instructor/IssueCard.tsx');
+    expect(card, 'a status is an icon and a word').toContain('STATUS_LOOK');
+    expect(card).toContain('data-issue-where');
+    const page = code('src/app/instructor/issues/page.tsx');
+    for (const n of ['loadIssues(', 'taskReportsRepo.update(', "label: 'Reported issues'"]) expect(page, n).toContain(n);
+    expect(code('src/app/instructor/layout.tsx'), 'the inbox sits under the instructor gate').toContain('<InstructorGate>');
+  });
+
+  it('the statuses are one list shared with the CHECK constraint, and a student files only an open report', () => {
+    const kinds = code('src/lib/reportKinds.ts');
+    const sql = read('supabase/migrations/0016_report_context.sql');
+    for (const st of ['open', 'in_progress', 'resolved', 'wont_fix']) {
+      expect(kinds, st).toContain(`'${st}'`);
+      expect(sql, st).toContain(`'${st}'`);
+    }
+    expect(sql).toContain("and status = 'open'");
+    expect(sql).toContain('create trigger task_reports_frozen');
+    expect(sql).toContain('raise exception \'task_reports identity is frozen');
+    for (const col of ['step_id', 'week', 'reporter_name', 'reporter_role', 'content_version', 'resolution_note', 'fix_revision']) expect(sql, col).toContain(`add column if not exists ${col}`);
+    expect(sql, 'the 0006 helpers, never a subquery on memberships/profiles').not.toMatch(/from public\.(memberships|profiles)/);
+    expect(read('supabase/tests/rls.sql')).toContain('ivy rewrote who filed the report');
+  });
+
+  it('a report is filed with its context, and the app degrades when the database has not had 0016', () => {
+    const dialog = code('src/components/task/ReportIssueDialog.tsx');
+    for (const n of ['data-report-step', 'data-report-stamp', 'contentVersion(', 'reporterName: member.displayName', 'reporterRole: member.role', 'week: task.week']) expect(dialog, n).toContain(n);
+    const repo = code('src/lib/data/supabaseFeatureRepos.ts');
+    expect(repo.match(/isMissingSchema\(/g)?.length, 'the insert falls back and the update says what to do').toBeGreaterThanOrEqual(2);
+    const errors = code('src/lib/data/schemaErrors.ts');
+    for (const c of ['42703', 'PGRST204', '42P01', 'PGRST205']) expect(errors, c).toContain(c);
+    expect(code('src/lib/data/issuesLoader.ts'), 'the inbox probes for the new column').toContain("select('step_id')");
+    expect(code('src/components/course/useCourseProgress.ts'), 'the team marker counts in-progress reports too').toContain('isPendingReport(r.status)');
+  });
+
+  it('the inbox is reachable from the instructor home, the cohort page and the command palette', () => {
+    const home = code('src/app/instructor/page.tsx');
+    for (const n of ['loadPendingCounts(', 'href="/instructor/issues"', 'data-pending-issues']) expect(home, n).toContain(n);
+    const cohort = code('src/app/instructor/[courseId]/cohort/page.tsx');
+    for (const n of ['data-open-inbox', '/instructor/issues?course=', 'isPendingReport(r.status)', 'taskReportsRepo.resolve(']) expect(cohort, n).toContain(n);
+    expect(code('src/lib/search.ts')).toContain("id: 'page:issues'");
+  });
+
+  it('the docs say it, and the admin login is described the way it works', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### The issues inbox (R120)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| Reported issues inbox |');
+    expect(read('docs/OPERATIONS.md')).toContain('**The issues inbox (R120):**');
+    expect(read('SUPABASE_SETUP.md')).toContain('/instructor/issues');
+    for (const f of ['README.md', 'docs/OPERATIONS.md', 'SUPABASE_SETUP.md']) expect(read(f), `${f} names both staff flags`).toContain('is_admin');
+    expect(read('SUPABASE_SETUP.md'), 'a miss in the grant statement is visible').toMatch(/where id = \(select id from auth\.users where email = 'admin@example\.com'\)\s+returning id;/);
+    expect(read('docs/CURRENT_STATE.md')).not.toMatch(/`profiles\.is_instructor`\s+flag\./);
+  });
+});
+

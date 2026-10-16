@@ -20,6 +20,7 @@ import type {
   SubmissionsRepository,
   TaskReport,
   TaskReportsRepository,
+  TaskReportUpdate,
 } from './types';
 
 // localStorage implementations of the three R68 stores, used when Supabase is
@@ -151,11 +152,28 @@ export const localStorageTaskReportsRepo: TaskReportsRepository = {
     safeSetItem(KEYS.taskReports(report.courseId), JSON.stringify(all));
   },
   resolve(courseId: string, id: string): void {
-    if (!hasWindow()) return;
+    void localStorageTaskReportsRepo.update(courseId, id, { status: 'resolved' });
+  },
+  // R120: the instructor's move — status, the note the reporter reads, the fix that resolved it.
+  // Who, what, when and which version stay as filed, as the database trigger keeps them.
+  async update(courseId: string, id: string, patch: TaskReportUpdate): Promise<boolean> {
+    if (!hasWindow()) return false;
+    const closed = patch.status === 'resolved' || patch.status === 'wont_fix';
     const all = localStorageTaskReportsRepo.list(courseId).map((r) =>
-      r.id === id ? { ...r, status: 'resolved' as const } : r
+      r.id === id
+        ? {
+            ...r,
+            status: patch.status,
+            ...(patch.note !== undefined ? { resolutionNote: patch.note } : {}),
+            ...(patch.fixRevision !== undefined ? { fixRevision: patch.fixRevision } : {}),
+            resolvedAt: closed ? Date.now() : undefined,
+            resolvedBy: closed ? 'instructor' : undefined,
+          }
+        : r
     );
     safeSetItem(KEYS.taskReports(courseId), JSON.stringify(all));
+    notifyStore();
+    return true;
   },
 };
 

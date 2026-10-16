@@ -905,6 +905,86 @@ begin
 end $$;
 reset role;
 
+-- ── R120: a report says where, who and which version — and says it for good ──
+-- Ada files a report that names a step, her role and the version she saw.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+insert into public.task_reports (id, user_id, course_id, task_id, team_id, kind, note, step_id, week, reporter_name, reporter_role, content_version)
+  values ('00000000-0000-4000-9000-000000000002', '00000000-0000-4000-8000-00000000000a',
+          'security-plus', 't1', '2026-01-T01', 'unclear', 'which flag?', 's2', 3, 'Ada Lovelace', 'net', '1.0');
+do $$ begin
+  assert (select step_id from public.task_reports where id = '00000000-0000-4000-9000-000000000002') = 's2', 'ada: the step she named is kept';
+  assert (select reporter_name from public.task_reports where id = '00000000-0000-4000-9000-000000000002') = 'Ada Lovelace', 'ada: who filed it, as filed';
+  assert (select content_version from public.task_reports where id = '00000000-0000-4000-9000-000000000002') = '1.0', 'ada: the version she saw';
+  -- A student files an OPEN report: closing one is the instructor's act.
+  begin
+    insert into public.task_reports (user_id, course_id, task_id, team_id, kind, status)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', 't1', '2026-01-T01', 'question', 'resolved');
+    raise exception 'ada filed a report that was already resolved';
+  exception when insufficient_privilege then null; end;
+  begin
+    insert into public.task_reports (user_id, course_id, task_id, team_id, kind, status)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', 't1', '2026-01-T01', 'question', 'in_progress');
+    raise exception 'ada filed a report that was already taken';
+  exception when insufficient_privilege then null; end;
+  begin
+    insert into public.task_reports (user_id, course_id, task_id, team_id, kind, resolution_note)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', 't1', '2026-01-T01', 'question', 'already answered');
+    raise exception 'ada wrote the instructor''s resolution note';
+  exception when insufficient_privilege then null; end;
+  begin
+    insert into public.task_reports (user_id, course_id, task_id, team_id, kind, fix_revision)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', 't1', '2026-01-T01', 'question', 3);
+    raise exception 'ada named the fix that resolved her own report';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+
+-- Ivy takes it, then closes it with a reason; every status the app knows is allowed, no other.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000d';
+update public.task_reports set status = 'in_progress' where id = '00000000-0000-4000-9000-000000000002';
+do $$ begin
+  assert (select status from public.task_reports where id = '00000000-0000-4000-9000-000000000002') = 'in_progress', 'ivy: takes the report';
+end $$;
+update public.task_reports
+  set status = 'wont_fix', resolution_note = 'Works as written: the flag is in step 1.',
+      resolved_at = now(), resolved_by = '00000000-0000-4000-8000-00000000000d'
+  where id = '00000000-0000-4000-9000-000000000002';
+do $$ begin
+  assert (select resolution_note from public.task_reports where id = '00000000-0000-4000-9000-000000000002') like 'Works as written%', 'ivy: tells the reporter why';
+  begin
+    update public.task_reports set status = 'closed' where id = '00000000-0000-4000-9000-000000000002';
+    raise exception 'ivy set a status that does not exist';
+  exception when check_violation then null; end;
+  -- Who, what, when and which version are frozen, for staff as for anyone.
+  begin
+    update public.task_reports set reporter_name = 'Someone Else' where id = '00000000-0000-4000-9000-000000000002';
+    raise exception 'ivy rewrote who filed the report';
+  exception when others then
+    if sqlerrm not like '%frozen%' then raise; end if;
+  end;
+  begin
+    update public.task_reports set content_version = '9.9' where id = '00000000-0000-4000-9000-000000000002';
+    raise exception 'ivy rewrote the version the reporter saw';
+  exception when others then
+    if sqlerrm not like '%frozen%' then raise; end if;
+  end;
+  begin
+    update public.task_reports set note = 'edited by staff' where id = '00000000-0000-4000-9000-000000000002';
+    raise exception 'ivy rewrote what the student wrote';
+  exception when others then
+    if sqlerrm not like '%frozen%' then raise; end if;
+  end;
+  begin
+    update public.task_reports set step_id = 's9' where id = '00000000-0000-4000-9000-000000000002';
+    raise exception 'ivy moved the report to another step';
+  exception when others then
+    if sqlerrm not like '%frozen%' then raise; end if;
+  end;
+end $$;
+reset role;
+
 -- ── Signed out (anon key, no session) ───────────────────────────────────────
 set local role anon;
 set local request.jwt.claim.sub = '';  -- no session: auth.uid() is null
