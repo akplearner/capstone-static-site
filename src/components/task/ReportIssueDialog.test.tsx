@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { ReportIssueDialog } from './ReportIssueDialog';
 import { AZURE_FUNDAMENTALS } from '@/lib/data/seed/azureCloud';
 import { courseRepo, taskReportsRepo } from '@/lib/data';
@@ -56,6 +57,18 @@ describe('ReportIssueDialog — R120', () => {
       reporterRole: task.role,
       contentVersion: version,
     });
+  });
+
+  it('takes the whole note when it is typed a key at a time (R123: it used to take one character)', async () => {
+    const user = userEvent.setup();
+    open();
+    const field = screen.getByPlaceholderText(/The command in step 3/);
+    const said = 'The command in step 3 returns an error, and the flag is rejected.';
+    await user.type(field, said);
+    expect(field).toHaveValue(said);
+    expect(field, 'focus stayed in the field').toHaveFocus();
+    fireEvent.click(screen.getByRole('button', { name: /Send report/ }));
+    expect(taskReportsRepo.list(C.id)[0].note).toBe(said);
   });
 
   it('files a report on the whole task when no step is picked', () => {

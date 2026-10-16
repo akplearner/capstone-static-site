@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 // R114: the dialog asks for consent first, builds the copy at the click, and
 // shows the URL once, with the token in the fragment.
@@ -48,6 +49,19 @@ describe('ShareLinkDialog (R114)', () => {
     expect((screen.getByLabelText('The link') as HTMLInputElement).value).toBe(`${window.location.origin}/share#${TOKEN}`);
     expect(state.requests[0]).toMatchObject({ kind: 'profile', days: 30, label: 'For Acme' });
     expect(buildProfile).toHaveBeenCalledTimes(1);
+  });
+
+  it('takes the whole label when it is typed a key at a time (R123: it used to take one character)', async () => {
+    state.granted = true;
+    const user = userEvent.setup();
+    render(<ShareLinkDialog open onClose={() => {}} buildProfile={buildProfile} buildCredential={buildCredential} />);
+    const field = screen.getByPlaceholderText(/For Example Ltd/);
+    await waitFor(() => expect(field, 'opens with the label field ready to type in').toHaveFocus());
+    await user.type(field, 'For Acme Ltd, SOC role');
+    expect(field).toHaveValue('For Acme Ltd, SOC role');
+    expect(field).toHaveFocus();
+    fireEvent.click(screen.getByRole('button', { name: /Create link/ }));
+    await waitFor(() => expect(state.requests[0]).toMatchObject({ label: 'For Acme Ltd, SOC role' }));
   });
 
   it('says why a link was refused', async () => {

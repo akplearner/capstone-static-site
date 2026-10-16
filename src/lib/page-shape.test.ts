@@ -3529,3 +3529,34 @@ describe('R122 — versioned course editing', () => {
     expect(read('SUPABASE_SETUP.md')).toContain('course_document_versions');
   });
 });
+
+/**
+ * R123 — a field in a dialog takes every character typed, and the admin's fix list holds every item.
+ *
+ * The dialog's focus effect used to depend on `onClose`, which every caller writes inline, so each
+ * keystroke moved focus out of the field. These pins keep the one focus trap depending on `open`
+ * alone, the dialog using it and carrying no effect of its own, and the fix list from losing an item.
+ */
+describe('R123 — typing in a dialog, and the fix list', () => {
+  it('the focus trap depends on open and reads onClose through a ref', () => {
+    const trap = code('src/lib/useFocusTrap.ts');
+    expect(trap).toContain('onCloseRef.current()');
+    expect(trap).toContain('}, [open, panelRef, autoFocusFirst]);');
+    expect(trap, 'a close handler in the dependency list re-ran the effect on every keystroke').not.toMatch(/\}, \[[^\]]*onClose[^\]]*\]\)/);
+  });
+
+  it('the dialog uses the trap and keeps no focus effect of its own', () => {
+    const dialog = code('src/components/ui/Dialog.tsx');
+    expect(dialog).toContain('useFocusTrap(open, panelRef, onClose)');
+    expect(dialog, 'the focus behaviour lives in useFocusTrap').not.toContain('useEffect');
+    expect(dialog).toContain('data-dialog-close');
+  });
+
+  it('every item on the admin’s list is in the fix list, with the link limit written down', () => {
+    const list = read('docs/FIX_LIST.md');
+    for (const id of ['F1', 'F2', 'F3', 'F4', 'F5', 'F6']) expect(list, id).toContain(`| ${id} |`);
+    expect(list).toContain('256 KB');
+    expect(list).toContain('SHARE_MAX_BYTES');
+    expect(read('docs/OPERATIONS.md')).toContain('**Typing (R123):**');
+  });
+});

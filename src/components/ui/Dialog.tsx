@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
@@ -8,11 +8,15 @@ import { Button } from './Button';
 import { DUR } from '@/lib/motion';
 import { depthTier, surfaceVariants } from './Surface';
 import { useHydrated } from '@/lib/useClientStore';
+import { useFocusTrap } from '@/lib/useFocusTrap';
 
 /**
  * Accessible modal: role="dialog" + aria-modal, Escape to close, backdrop click,
- * focus moved in on open and restored to the trigger on close, and a simple
- * focus trap so Tab stays inside the dialog.
+ * focus moved in on open (to the first text field, so typing starts at once) and
+ * restored to the trigger on close, and a simple focus trap so Tab stays inside
+ * the dialog. The focus behaviour is `useFocusTrap`'s; it does not depend on
+ * `onClose`, so a caller's inline `onClose={() => ...}` cannot pull focus out of a
+ * field on every keystroke (R123).
  */
 export function Dialog({
   open,
@@ -28,50 +32,9 @@ export function Dialog({
   labelledBy?: string;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
-  const restoreRef = useRef<HTMLElement | null>(null);
   // The portal target exists only in the browser; render nothing during SSR.
   const mounted = useHydrated();
-  useEffect(() => {
-    if (!open) return;
-    restoreRef.current = document.activeElement as HTMLElement | null;
-    // Move focus into the panel.
-    const t = setTimeout(() => {
-      const focusable = panelRef.current?.querySelector<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
-      (focusable ?? panelRef.current)?.focus();
-    }, 0);
-
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onClose();
-        return;
-      }
-      if (e.key === 'Tab') {
-        const nodes = panelRef.current?.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        if (!nodes || nodes.length === 0) return;
-        const list = Array.from(nodes).filter((n) => !n.hasAttribute('disabled'));
-        const first = list[0];
-        const last = list[list.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    };
-    document.addEventListener('keydown', onKey);
-    return () => {
-      clearTimeout(t);
-      document.removeEventListener('keydown', onKey);
-      restoreRef.current?.focus?.();
-    };
-  }, [open, onClose]);
+  useFocusTrap(open, panelRef, onClose);
 
   // Portaled to <body> (R82): rendered inline it sat INSIDE <main>, and once
   // main became `isolate` (the fence that keeps the quarry art under the site
@@ -108,6 +71,7 @@ export function Dialog({
                 type="button"
                 onClick={onClose}
                 aria-label="Close dialog"
+                data-dialog-close
                 className="focusable rounded-[var(--radius-sm)] p-1 text-muted transition-colors hover:bg-panel-2 hover:text-ink"
               >
                 <X className="h-4 w-4" />

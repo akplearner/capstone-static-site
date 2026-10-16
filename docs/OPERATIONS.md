@@ -127,6 +127,11 @@ has failed silently in some deployment of some product; none takes more than a m
   `content/profiles/sample-mssp.json` with a new id on `/instructor/profiles`; the Skill board picker
   lists it; Create link there records "measured against" it. Without the consent the dialog points to
   the account page; without the functions it says links are not set up.
+- [ ] **Typing (R123):** open "Report an issue" on a task and type a whole sentence, spaces included, into
+  "What happened?": every character lands, the cursor stays in the box and the dialog does not close. Do the
+  same in "Create a link" (the label), "Return for changes" on a form and the fold note on a fix: the first
+  text field is ready as the dialog opens. Escape still closes, Tab stays inside, and focus goes back to the
+  button that opened it. `docs/FIX_LIST.md` lists what is still open from the admin's list.
 - [ ] **Course versions (R122):** as an admin, open a built-in course in the studio (`/instructor/<id>`): the
   banner says saving forks it (for every student in the cloud, on this device offline), that wording is better
   corrected from a report, and that a course of one's own is a duplicate; the title carries `v1.0`. Change the
