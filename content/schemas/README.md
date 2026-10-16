@@ -21,6 +21,8 @@ consumer with any validator and the platform with its own get the same answer.
 | `credential.schema.json` | the Open Badges 3.0 `AchievementCredential` envelope `/portfolio` exports around the member profile; it admits no `proof`, so it is unsigned by construction (R108) | `/portfolio` → Export credential |
 | `event.schema.json` | the xAPI-shaped platform event of `docs/EVENTS.md`: actor type, verb, object, result, competencies, assist level, consent scope; a contract only, nothing is emitted (R108) | — |
 | `issue.schema.json` | one student report joined to its course (`capstone-issue/1`, R120): who filed it, when, course, week, task, step, role, the version of the course they saw, status and resolution; names a person, never an account | `src/lib/issueInbox.ts`; the issues inbox's CSV and JSON export |
+| `content-fix.schema.json` | one entry of a course's content fix ledger (`capstone-content-fix/1`, R121): a correction to the words (the text was `before`, now `after`), a revert, or a fold; numbered per course by the database; a course's content version is `{docVersion}.{revision}` | `src/lib/contentFix.ts`; the `content_fixes` table |
+| `content-fixes.schema.json` | what the Fixes tab downloads for one course (`capstone-content-fixes/1`, R121): the live fixes with the titles to search for and the file to edit, and the whole ledger | `src/lib/contentFix.ts` → the Fixes tab's Fix bundle |
 
 `src/lib/schema/schemas.test.ts` validates a fixture of each shape against its schema and refuses a
 schema outside the subset. The schemas are hand-written and versioned with the shapes they describe:

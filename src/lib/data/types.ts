@@ -1,5 +1,6 @@
 import { Course, Gate, GateStatus, Member, RosterEntry, Task, TaskCompletion } from '../types';
 import type { ReportStatus } from '../reportKinds';
+import type { ContentFix, FixDraft } from '../contentFix';
 import type { DeliverableData, DeliverableDef } from '../docs/types';
 
 import type { DeliverableStatus } from '../docs/lifecycle';
@@ -349,6 +350,22 @@ export interface TaskReportsRepository {
   resolve(courseId: string, id: string): void;
   /** Instructor only. Resolves true once the change is stored (the cloud write is awaited). */
   update(courseId: string, id: string, patch: TaskReportUpdate): Promise<boolean>;
+}
+
+/**
+ * The content fix ledger (R121): append-only entries laid over a course, which `content/docs.ts`
+ * applies wherever a course or its document is read. Read synchronously off the repo's cache, like
+ * every other repo; `load` fills the cache from the cloud.
+ */
+export interface ContentFixesRepository {
+  /** The course's entries, oldest first. The SAME array until the ledger changes, so a derived course can be cached on it. */
+  list(courseId: string): readonly ContentFix[];
+  /** Changes whenever any course's ledger does, so a catalogue derived from it can be cached on it. */
+  version(): number;
+  /** Load every course's ledger. `needsUpdate`: the database has not had migration 0017 yet. Offline there is nothing to load. */
+  load(): Promise<{ ok: boolean; needsUpdate: boolean }>;
+  /** Append one entry. Admin only (RLS in the cloud). Resolves the stored entry, with the revision the database assigned, or null when it was refused. */
+  add(courseId: string, draft: FixDraft, by: string): Promise<ContentFix | null>;
 }
 
 /** What a submission freezes (R84): the form as submitted, the four category

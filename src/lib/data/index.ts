@@ -8,9 +8,11 @@
 // where authored documents come from, so `courseDocument(id)` and every reader
 // built on it see the same catalogue the repo serves.
 import { isSupabaseConfigured } from '../supabase/config';
-import { registerDocumentSource } from '../content/docs';
+import { registerDocumentSource, registerFixesSource } from '../content/docs';
 import { localStorageCourseRepo, localDocumentSource } from './localStorageCourseRepo';
 import { supabaseCourseRepo, supabaseDocumentSource } from './supabaseCourseRepo';
+import { localStorageContentFixesRepo } from './localStorageContentFixesRepo';
+import { supabaseContentFixesRepo } from './supabaseContentFixesRepo';
 import { localStorageProgressRepo } from './localStorageProgressRepo';
 import { localStorageDocsRepo } from './localStorageDocsRepo';
 import { localStorageUserStateRepo, localStorageLabAccessRepo } from './localStorageUserStateRepo';
@@ -26,6 +28,9 @@ const cloud = isSupabaseConfigured();
 
 export const courseRepo = cloud ? supabaseCourseRepo : localStorageCourseRepo;
 registerDocumentSource(cloud ? supabaseDocumentSource : localDocumentSource);
+// R121: the content fix ledger, laid over every course wherever a course or its document is read.
+export const contentFixesRepo = cloud ? supabaseContentFixesRepo : localStorageContentFixesRepo;
+registerFixesSource((courseId) => contentFixesRepo.list(courseId));
 export const progressRepo = cloud ? supabaseProgressRepo : localStorageProgressRepo;
 export const docsRepo = cloud ? supabaseDocsRepo : localStorageDocsRepo;
 export const userStateRepo = cloud ? supabaseUserStateRepo : localStorageUserStateRepo;
@@ -72,4 +77,5 @@ export type {
   ReviewPacket,
   SubmissionProgress,
   SubmissionsRepository,
+  ContentFixesRepository,
 } from './types';

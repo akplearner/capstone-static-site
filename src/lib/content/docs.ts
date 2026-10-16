@@ -14,6 +14,7 @@
  * (`dto.ts` imports every seed, which import the topology, which …).
  */
 import type { Course } from '@/lib/types';
+import { NO_FIXES, applyFixes, type ContentFix } from '@/lib/contentFix';
 import type { CourseDto } from './dto';
 import { DTO_SCHEMA } from './schema';
 import { courseFromDto } from './load';
@@ -62,9 +63,74 @@ export function registerDocumentSource(source: DocumentSource): void {
   authoredSource = source;
 }
 
-/** The document for a course: authored first, then the built-in file. */
-export function courseDocument(courseId: string): CourseDto | undefined {
+/**
+ * Where a course's content fixes come from (R121) — registered, like the document source, by
+ * whichever fixes repo is live (`data/index.ts`). A call returns the SAME array until that
+ * course's ledger changes, which is what lets the effective course and document below be
+ * memoised and handed back as the same object.
+ */
+export type FixesSource = (courseId: string) => readonly ContentFix[];
+let fixesSource: FixesSource = () => NO_FIXES;
+export function registerFixesSource(source: FixesSource): void {
+  fixesSource = source;
+}
+
+const patchedCourses = new WeakMap<Course, { fixes: readonly ContentFix[]; out: Course }>();
+
+/**
+ * The course with its live content fixes applied (R121): the SAME object while it has none, and
+ * the same object again until its ledger changes. Every reader of a course goes through here —
+ * the catalogue (`courseRepo`) and the document below — so a fix reaches every surface at once.
+ */
+export function effectiveCourse(course: Course): Course {
+  const fixes = fixesSource(course.id);
+  if (fixes.length === 0) return course;
+  const hit = patchedCourses.get(course);
+  if (hit && hit.fixes === fixes) return hit.out;
+  const out = applyFixes(course, fixes).course;
+  patchedCourses.set(course, { fixes, out });
+  return out;
+}
+
+/** A course as it is saved: without the revision, which is the ledger's to say and never a saved copy's. */
+export function storedCourse(course: Course): Course {
+  if (course.revision === undefined) return course;
+  const rest = { ...course };
+  delete rest.revision;
+  return rest;
+}
+
+/** The document as authored or shipped, before any content fix: what the ledger is replayed over. */
+export function baseDocument(courseId: string): CourseDto | undefined {
   return authoredSource(courseId) ?? SEED_DOCUMENTS[courseId];
+}
+
+/** The course as authored or shipped, before any content fix. */
+export function baseCourse(courseId: string): Course | undefined {
+  return baseDocument(courseId)?.course as unknown as Course | undefined;
+}
+
+const patchedDocuments = new WeakMap<CourseDto, { fixes: readonly ContentFix[]; out: CourseDto }>();
+
+function withFixes(doc: CourseDto): CourseDto {
+  const fixes = fixesSource(doc.course.id);
+  if (fixes.length === 0) return doc;
+  const hit = patchedDocuments.get(doc);
+  if (hit && hit.fixes === fixes) return hit.out;
+  const course = effectiveCourse(doc.course as unknown as Course);
+  const out: CourseDto = { ...doc, course: course as CourseDto['course'], revision: course.revision ?? 0, fixes };
+  patchedDocuments.set(doc, { fixes, out });
+  return out;
+}
+
+/**
+ * The document for a course: authored first, then the built-in file, with the course's live
+ * content fixes applied (R121). A course with no fixes returns its document itself; one with
+ * fixes returns the effective document, carrying the revision and the ledger.
+ */
+export function courseDocument(courseId: string): CourseDto | undefined {
+  const base = baseDocument(courseId);
+  return base ? withFixes(base) : undefined;
 }
 
 /**

@@ -635,6 +635,79 @@ The admin applies SQL by hand and the app can reach production first, so every n
 status the old constraint refuses says so, and the inbox shows a "Database update needed" notice until
 `supabase/setup.sql` is re-run.
 
+### Versioned content fixes (R121)
+
+A student reports a typo or a sentence nobody can follow, and the admin should be able to correct it
+without waiting for a deploy and without forking the course (an edited copy stops receiving the built-in
+course's later updates). So a correction is an entry in a **ledger laid over the course**, never an edit
+of it: "in this task, this step, this field, the text was X and is now Y" (`src/lib/contentFix.ts`, pure).
+The code stays the source of truth; a live fix exists so the words are right today, and a developer folds
+it into the course file later.
+
+**The ledger.** One append-only row per entry in `content_fixes` (migration `0017_content_fixes.sql`;
+offline, one localStorage blob per course), published as `capstone-content-fix/1`. Three kinds: a **fix**
+(`changes[] = {taskId, stepId?, field, before, after}`), a **revert** (a new entry carrying the inverse
+changes of an earlier fix, so history is never rewritten) and a **fold** (bookkeeping: these revisions are
+now in the code; it changes no text). Each carries who (a name, never an account), when, the document
+version it was made on, the reports it answers and a one-line why. The database assigns the `revision`
+(1, 2, 3 … per course) under a per-course lock, so no client picks a number; a revert names an existing fix
+once (a unique index) and a fold names existing fixes; nobody updates or deletes a row (no policy, the
+grants revoked, and a trigger that refuses it for the table owner too); erasing an admin's account keeps
+their entries and the name they were signed with. Any signed-in member reads the ledger (the corrected words
+are what they render); only an admin inserts.
+
+**The apply rule**, per change, in revision order: the text now is `before` → set `after`; it is already
+`after` → nothing to do (so a fix already folded into the code is harmless); anything else → skip it
+(**stale**: the text changed underneath it, code wins). A fix is **Live**, **Reverted** (a later revert
+names it), **In code** (a later fold names it) or **Stale** (nothing of it applies). It can be reverted only
+while each `after` is still the current text; when a later fix changed the same text again the ledger says
+which revision to revert first. What a fix may touch is the words: a task's title, objective, definition of
+done and what to have ready; a step's title, description, instruction, actions, command and its
+explanation, each command's text, explanation and sample, the expected output, how to read it and what it
+means. Adding or removing steps, gates, ids and forms stays a code change: progress keys on the ids and the
+structure is what the tests hold.
+
+**The version.** A course's content version is `{document version}.{revision}` (`contentVersion()`,
+`src/lib/contentVersion.ts`): the document's own version, and the ledger's counter, which goes up for every
+fix, revert and fold. A report stamps the version the student was reading (`Course.revision` is set where the
+ledger is applied); the ledger prints `v1.7` beside every entry; the downloads carry both halves.
+
+**Where it is applied: one place.** `courseDocument(id)` (`src/lib/content/docs.ts`) is the document with the
+live fixes applied to its `course`, plus the optional `revision` and `fixes` that `CourseDto` gained (additive:
+the schema id stays `capstone-course-dto/1`, and the committed `content/courses/*.json` do not change).
+`effectiveCourse()` is the same layer for a `Course`, and both repos list through it, so the catalogue, the
+course page, the search and every export read the same words at once. With no fixes nothing is a new object
+(tested); with fixes the result is memoised on the ledger, so a reader's `useMemo` is stable. A saved copy of a
+course never stores the ledger's counter or a copy of the ledger (`storedCourse`, `documentFor`): the ledger
+has its own table, and a copy made from the corrected words simply reads the fix as already applied.
+Students get the ledger with the course's other rows (`hydrateCourse` selects it), so the page never paints
+the old words first.
+
+**Held to what the seeds are held to.** A fix is checked when it is typed, beside the field it is about,
+with the same rules the suite holds the code to: the reading budgets (`src/lib/readingBudget.ts`, which
+`content-integrity.test.ts` imports, so there is one set of numbers; a sentence already past its budget may
+be corrected but not lengthened), every self-check `verify` token must still appear in the output the step
+shows, a lab-access placeholder it adds must be a real token, and "this text changed after the panel opened".
+A fix that is saved cannot fail the suite on the day it is folded into the code.
+
+**The admin's desk** (`/instructor/issues`). Under each report an admin sees **Fix the text**
+(`FixTextPanel`, props only): the words of the step or task the report names, as students read them now, each
+in a box; changed fields are marked, the checks speak beside their field, and Save adds a revision, closes this
+report against it (`fix_revision`, shown on the card) and, if ticked, the other pending reports about the same
+text. The **Fixes** view (`FixesLedger`, admin only) is the course's ledger, newest first: version, kind, state
+(an icon and a word), who, when, the reports it answers, and each change before and after; **Revert** (asked
+first) and **Mark in code** (with where it shipped) are the two moves. A banner counts the live fixes that are
+not in the code yet, and two downloads close the loop: the **fix bundle** (`capstone-content-fixes/1`: the live
+fixes with the task and step titles to search for and the file the course is written in) and the **live course
+document**. To fold: make the same changes in the course file, `npm run content:export`, commit and deploy,
+then mark the revisions In code; from then on the ledger replays them as no-ops.
+
+The app can reach production before the SQL does, so the ledger degrades like the report columns did
+(`isMissingSchema`): a database without `0017` reads as "no fixes", the page says "Database update needed",
+and a save names the step instead of failing quietly. Offline the ledger is this device's, and the same
+suite of tests (`contentFix.test.ts`, the local and cloud repo tests, the page test, `rls.sql`) covers both
+paths.
+
 ## 7. The MSP / business bridge (dual-use is the unlock)
 
 The same primitives serve training *and* commercial implementation:

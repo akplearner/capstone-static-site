@@ -23,6 +23,7 @@
  */
 
 import type { Course } from '@/lib/types';
+import type { ContentFix } from '@/lib/contentFix';
 import { SECURITY_PLUS } from '@/lib/data/seed/securityPlus';
 import { CYSA_PLUS } from '@/lib/data/seed/cysa';
 import { MSSP } from '@/lib/data/seed/mssp';
@@ -122,6 +123,15 @@ export interface CourseDto {
   labAccess?: Record<string, unknown>;
   iacTools?: Record<string, unknown>;
   marking?: { teamWeight: number; focusWeight: number };
+  /**
+   * R121: the effective document only, never a committed file. When a course has content fixes
+   * (`contentFix.ts`), `courseDocument()` returns the document with the live fixes applied to
+   * `course`, the ledger's newest `revision`, and the `fixes` themselves, so everything that
+   * reads a document, or exports one, sees which version of the words it holds. The content
+   * version is `{course.version}.{revision}`. Additive: the schema id stays `capstone-course-dto/1`.
+   */
+  revision?: number;
+  fixes?: readonly ContentFix[];
 }
 
 /**

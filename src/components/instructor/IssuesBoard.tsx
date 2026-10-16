@@ -36,7 +36,8 @@ export const ISSUES_COPY = {
  * puts the tasks with the most pending reports first, which is where content needs
  * fixing. Each card carries who, when, where, in what role and on which version; the
  * instructor's move is a status and a note. `renderExtra` is where the admin's fix panel
- * sits (R121). Props only: the page loads the rows and stores the changes.
+ * sits (R121); it is handed every row, so the panel can offer to close the other reports
+ * about the same text. Props only: the page loads the rows and stores the changes.
  */
 export function IssuesBoard({
   courses,
@@ -51,7 +52,7 @@ export function IssuesBoard({
   onSave: (issue: IssueDto, patch: { status: ReportStatus; note: string }) => Promise<boolean>;
   onRefresh: () => void;
   initial?: Partial<IssueFilter>;
-  renderExtra?: (issue: IssueDto) => ReactNode;
+  renderExtra?: (issue: IssueDto, all: readonly IssueDto[]) => ReactNode;
 }) {
   const [tab, setTab] = useState<IssueTab>(initial?.tab ?? 'pending');
   const [filters, setFilters] = useState<Omit<IssueFilter, 'tab'>>({ courseId: initial?.courseId, q: initial?.q });
@@ -67,7 +68,7 @@ export function IssuesBoard({
   const set = <K extends keyof typeof filters>(k: K, v: (typeof filters)[K]) => setFilters((f) => ({ ...f, [k]: v === '' ? undefined : v }));
 
   const card = (i: IssueDto) => (
-    <IssueCard key={`${i.id}:${i.status}:${i.resolution?.note ?? ''}`} issue={i} onSave={(_id, patch) => onSave(i, patch)} extra={renderExtra?.(i)} />
+    <IssueCard key={`${i.id}:${i.status}:${i.resolution?.note ?? ''}`} issue={i} onSave={(_id, patch) => onSave(i, patch)} extra={renderExtra?.(i, rows)} />
   );
   const stamp = localDay();
 

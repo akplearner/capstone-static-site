@@ -28,11 +28,13 @@ export function CourseProvider({
   // entire in-course subtree. What it does not need is to SERIALISE it on every
   // store broadcast to find out whether it changed. A course changes only when
   // it is authored, and `save()` stamps `updatedAt`, so id + that timestamp is a
-  // sufficient identity; seeds have no `updatedAt` and never change at all.
+  // sufficient identity; seeds have no `updatedAt` and never change at all, except that since
+  // R121 a content fix can change a course's words without saving it: the ledger's `revision`
+  // is the other half of the identity.
   const course = useClientStore<Course | null>(
     () => courseRepo.get(courseId) ?? null,
     null,
-    (c) => (c ? `${c.id}:${c.updatedAt ?? 'seed'}` : 'none')
+    (c) => (c ? `${c.id}:${c.updatedAt ?? 'seed'}:${c.revision ?? 0}` : 'none')
   );
   const ready = useHydrated();
   // The document beside the course: a seed's own file, or a bare one for an

@@ -10,12 +10,17 @@ import serverPlusDoc from '../../../content/courses/server-plus.json';
 type Call = { table: string; op: string; row?: unknown; opts?: unknown; col?: string; v?: unknown };
 const calls: Call[] = [];
 let rows: { course_id: string; doc: unknown }[] = [];
+let fixRows: Record<string, unknown>[] = [];
 
 vi.mock('../supabase/client', () => ({
   getBrowserClient: () => ({
     from(table: string) {
       return {
-        select: () => ({ then: (res: (r: unknown) => void) => res({ data: rows, error: null }) }),
+        // `course_documents` is awaited as it stands; `content_fixes` (R121) is paged: order, order, range.
+        select: () => ({
+          then: (res: (r: unknown) => void) => res({ data: rows, error: null }),
+          order: () => ({ order: () => ({ range: () => Promise.resolve({ data: table === 'content_fixes' ? fixRows : [], error: null }) }) }),
+        }),
         upsert: (row: unknown, opts: unknown) => {
           calls.push({ table, op: 'upsert', row, opts });
           return { then: (cb: (r: { error: null }) => void) => cb({ error: null }) };
@@ -32,8 +37,9 @@ vi.mock('../supabase/client', () => ({
 }));
 
 const { supabaseCourseRepo, supabaseDocumentSource, documentFor } = await import('./supabaseCourseRepo');
-const { cache, hydrateCourseDocuments, setCurrentUserId } = await import('./supabaseCache');
-const { registerDocumentSource } = await import('../content/docs');
+const { cache, hydrateContentFixes, hydrateCourseDocuments, setCurrentUserId } = await import('./supabaseCache');
+const { registerDocumentSource, registerFixesSource } = await import('../content/docs');
+const { NO_FIXES } = await import('../contentFix');
 
 const parent = serverPlusDoc as unknown as CourseDto;
 const authoredDoc = (id: string, title: string): CourseDto => ({
@@ -45,8 +51,11 @@ const authoredDoc = (id: string, title: string): CourseDto => ({
 beforeEach(() => {
   calls.length = 0;
   rows = [];
+  fixRows = [];
   for (const d of cache.courseDocuments()) cache.deleteCourseDocument(d.course.id);
   registerDocumentSource(supabaseDocumentSource);
+  registerFixesSource(() => NO_FIXES);
+  cache.setContentFixes('security-plus', []);
   setCurrentUserId('instructor-1');
 });
 
@@ -128,5 +137,22 @@ describe('the cloud course repo', () => {
     await hydrateCourseDocuments();
     setCurrentUserId(null);
     expect(supabaseCourseRepo.get('kept')?.title).toBe('Kept');
+  });
+
+  it('content fixes in the ledger change the words in the catalogue and its documents (R121), and only the words', async () => {
+    registerFixesSource((id) => cache.contentFixes(id));
+    const before = supabaseCourseRepo.get('security-plus')!;
+    const task = before.tasks[0];
+    const step = task.steps[0];
+    fixRows = [{ id: 'f1', course_id: 'security-plus', revision: 1, kind: 'fix', summary: 'Reword', changes: [{ taskId: task.id, stepId: step.id, field: 'title', before: step.title, after: 'Reworded step' }], issue_ids: [], folds: [], folded_in: '', doc_version: 1, author_name: 'Ana', created_at: '2026-10-16T09:00:00Z' }];
+    expect(await hydrateContentFixes()).toEqual({ ok: true, needsUpdate: false });
+    const after = supabaseCourseRepo.get('security-plus')!;
+    expect(after).not.toBe(before);
+    expect(after.tasks[0].steps[0].title).toBe('Reworded step');
+    expect(after.revision).toBe(1);
+    expect(after.tasks[1], 'what the fix did not touch is the same object').toBe(before.tasks[1]);
+    expect(supabaseCourseRepo.get('security-plus'), 'and the catalogue is cached on the ledger’s version').toBe(after);
+    expect(supabaseCourseRepo.get('ccna')!.revision, 'another course has no revision').toBeUndefined();
+    expect(before.tasks[0].steps[0].title, 'the shipped course was not mutated').toBe(step.title);
   });
 });

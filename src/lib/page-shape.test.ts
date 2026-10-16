@@ -519,6 +519,8 @@ describe('design tokens — palette classes do not come back', () => {
       'src/app/courses/[courseId]/skills/page.tsx',
       // R120: an issue's timestamps are fields of the published capstone-issue/1 (ISO 8601); the inbox prints them with toLocaleString.
       'src/lib/issueInbox.ts',
+      // R121: a ledger entry's time is a field of the published capstone-content-fix/1 (ISO 8601); the offline ledger stamps it as the database would.
+      'src/lib/data/localStorageContentFixesRepo.ts',
     ]);
     const offenders = collectSourceFiles('src').filter(
       (f) => !WIRE.test(f) && !ALLOWED.has(f) && /toISOString\(\)/.test(code(f))
@@ -3345,6 +3347,95 @@ describe('R120 — the issues inbox', () => {
     for (const f of ['README.md', 'docs/OPERATIONS.md', 'SUPABASE_SETUP.md']) expect(read(f), `${f} names both staff flags`).toContain('is_admin');
     expect(read('SUPABASE_SETUP.md'), 'a miss in the grant statement is visible').toMatch(/where id = \(select id from auth\.users where email = 'admin@example\.com'\)\s+returning id;/);
     expect(read('docs/CURRENT_STATE.md')).not.toMatch(/`profiles\.is_instructor`\s+flag\./);
+  });
+});
+
+/**
+ * R121 — versioned content fixes.
+ *
+ * A correction to the words of a course is an entry in an append-only ledger laid over the
+ * course, applied in ONE place, numbered by the database, and held to what the seeds are held
+ * to. These pins keep the core pure, the application single, the admin's desk admin-only, the
+ * ledger append-only in the database, a saved copy free of the ledger, and the budgets one set
+ * of numbers.
+ */
+describe('R121 — versioned content fixes', () => {
+  it('the core is pure, and a fix is applied in one place', () => {
+    const pure = code('src/lib/contentFix.ts');
+    for (const bad of ['Date.now', 'Math.random', 'new Date', 'localStorage', 'useClientStore', 'document.', 'window.']) expect(pure, `pure: ${bad}`).not.toContain(bad);
+    expect(pure, 'types only from the data layer').not.toMatch(/^import (?!type )[^\n]*from '\.\/data/m);
+    for (const n of ['export function applyChange(', 'export function applyFixes(', 'export function ledger(', 'export function validateChanges(', 'export function revertDraft(', 'export function foldDraft(', 'export function fixBundle(', "FIX_SCHEMA = 'capstone-content-fix/1'", "FIX_BUNDLE_SCHEMA = 'capstone-content-fixes/1'"]) expect(pure, n).toContain(n);
+    const appliers = collectSourceFiles('src').filter((f) => !/\.test\.tsx?$/.test(f) && /\b(applyFixes|applyChange)\(/.test(code(f))).sort();
+    expect(appliers, 'the ledger is replayed by contentFix itself and applied by content/docs.ts, nowhere else').toEqual(['src/lib/content/docs.ts', 'src/lib/contentFix.ts']);
+    const dto = code('src/lib/content/dto.ts');
+    expect(dto, 'the effective document carries the ledger, additively').toContain('revision?: number');
+    expect(dto).toContain('fixes?: readonly ContentFix[]');
+    const shipped = JSON.parse(read('content/courses/security-plus.json')) as Record<string, unknown>;
+    expect(Object.keys(shipped), 'a committed file is the course as shipped: no ledger, no revision').not.toEqual(expect.arrayContaining(['fixes']));
+    expect('revision' in shipped).toBe(false);
+  });
+
+  it('every reader of a course sees the fixes: both repos list through effectiveCourse, and a saved copy never stores the ledger', () => {
+    for (const f of ['src/lib/data/localStorageCourseRepo.ts', 'src/lib/data/supabaseCourseRepo.ts']) {
+      const src = code(f);
+      expect(src, `${f}: lists through effectiveCourse`).toContain('.map(effectiveCourse)');
+      expect(src.match(/storedCourse\(/g)?.length ?? 0, `${f}: save, duplicate, import and export strip the revision`).toBeGreaterThanOrEqual(4);
+    }
+    expect(code('src/lib/data/supabaseCourseRepo.ts'), 'a saved document is made from the document BEFORE its fixes').toContain('baseDocument(course.id)');
+    expect(code('src/lib/data/localStorageCourseRepo.ts'), 'the offline document source reads the course as saved, not as listed').toContain('readAuthored().find(');
+    expect(code('src/lib/data/index.ts')).toContain('registerFixesSource(');
+    // read(), not code(): a "/*" inside this file's first line comment (".../[courseId]/* routes") swallows the code below it.
+    expect(read('src/components/CourseProvider.tsx'), 'the page re-renders when a fix changes the words').toContain('${c.revision ?? 0}');
+    expect(code('src/components/task/ReportIssueDialog.tsx'), 'a report stamps the revision it was reading').toContain('contentVersion(course?.version, course?.revision)');
+    expect(code('src/lib/data/supabaseCache.ts'), 'the page never paints the old words first: the course hydrate selects the ledger').toContain("supabase.from('content_fixes').select('*').eq('course_id', courseId)");
+    expect(code('src/lib/types.ts')).toContain('revision?: number');
+  });
+
+  it('the panel and the ledger are props only, and the page is the one that stores, for the admin alone', () => {
+    for (const f of ['src/components/instructor/FixTextPanel.tsx', 'src/components/instructor/FixesLedger.tsx']) {
+      const src = code(f);
+      for (const bad of ['contentFixesRepo', 'taskReportsRepo', 'courseRepo', 'loadIssues', 'localStorage', 'useClientStore', 'progressRepo']) expect(src, `${f}: ${bad}`).not.toContain(bad);
+    }
+    const panel = code('src/components/instructor/FixTextPanel.tsx');
+    for (const n of ['validateFix(', 'patchableFields(', 'data-fix-save', 'data-fix-also', 'data-fix-problem']) expect(panel, n).toContain(n);
+    const ledger = code('src/components/instructor/FixesLedger.tsx');
+    for (const n of ['STATE_LOOK', 'data-fix-revert', 'data-fixes-bundle', 'data-fixes-document', 'LEDGER_COPY.was', 'LEDGER_COPY.now']) expect(ledger, n).toContain(n);
+    const page = code('src/app/instructor/issues/page.tsx');
+    for (const n of ['contentFixesRepo.add(', 'fixBundle(', 'revertDraft(', 'foldDraft(', 'fixRevision: fix.revision', 'renderExtra={isAdmin ? renderFix : undefined}', 'const showFixes = isAdmin && view', '{isAdmin && (']) expect(page, n).toContain(n);
+    expect(page, 'the ledger’s moves are the admin’s').toContain('canEdit={isAdmin}');
+  });
+
+  it('the ledger is append-only and numbered by the database, and only an admin writes it', () => {
+    const sql = read('supabase/migrations/0017_content_fixes.sql');
+    for (const n of ['create table if not exists public.content_fixes', 'pg_advisory_xact_lock', 'create trigger content_fixes_assign', 'create trigger content_fixes_append_only', 'content_fixes_one_revert', 'revoke update, delete, truncate on public.content_fixes from anon, authenticated', 'with check (public.is_admin() and created_by = auth.uid())', 'using (auth.uid() is not null)']) expect(sql, n).toContain(n);
+    expect(sql, 'the 0006 helpers, never a subquery on memberships').not.toMatch(/from public\.memberships/);
+    expect(sql, 'an instructor is not enough').not.toMatch(/with check \(public\.is_instructor\(\)/);
+    for (const kind of ["'fix'", "'revert'", "'fold'"]) expect(sql, kind).toContain(kind);
+    const rls = read('supabase/tests/rls.sql');
+    for (const n of ['ana: the database numbers the first fix 1, whatever she sent', 'ivy, an instructor and not an admin, wrote a fix', 'ana reverted the same fix twice', 'the owner rewrote an entry', 'erasing an account detaches its id from its entries']) expect(rls, n).toContain(n);
+    expect(read('supabase/setup.sql'), 'setup.sql carries it').toContain('content_fixes_append_only');
+    expect(readdirSync(root('supabase/migrations')).filter((f) => f.startsWith('0013')), 'the events migration still does not exist').toEqual(['0013_consent_outcomes.sql']);
+  });
+
+  it('a fix is held to the numbers the seeds are held to', () => {
+    expect(code('src/lib/contentFix.ts')).toContain("from './readingBudget'");
+    expect(code('src/lib/data/content-integrity.test.ts').replace(/\/\/.*$/gm, '')).toContain("from '../readingBudget'");
+    const budget = code('src/lib/readingBudget.ts');
+    for (const n of ['longWords: 40', 'explainProse: 36', 'weekObjectiveProse: 20', 'taskObjectiveProse: 25', 'instructionProse: 30', 'actionProse: 20', 'descriptionProse: 30']) expect(budget, n).toContain(n);
+  });
+
+  it('the published shapes, the schema list and the docs say it', () => {
+    const entry = JSON.parse(read('content/schemas/content-fix.schema.json')) as { properties: Record<string, unknown>; $defs: { change: { properties: Record<string, unknown> } } };
+    expect(Object.keys(entry.properties).sort(), 'an entry names a person and never an account').toEqual(['at', 'by', 'changes', 'courseId', 'docVersion', 'foldedIn', 'folds', 'id', 'issueIds', 'kind', 'reverts', 'revision', 'schema', 'summary']);
+    expect(Object.keys(entry.$defs.change.properties).sort()).toEqual(['after', 'before', 'field', 'stepId', 'taskId']);
+    for (const n of ['content-fix.schema.json', 'content-fixes.schema.json']) expect(read('content/schemas/README.md'), n).toContain(n);
+    expect(read('content/README.md')).toContain('The effective document (R121)');
+    expect(read('docs/ARCHITECTURE.md')).toContain('### Versioned content fixes (R121)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| Versioned content fixes |');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| Content version |');
+    expect(read('docs/OPERATIONS.md')).toContain('**Content fixes (R121):**');
+    expect(read('SUPABASE_SETUP.md')).toContain('content_fixes');
+    expect(read('SUPABASE_SETUP.md')).toContain('## Fix the wording of a course from a report');
   });
 });
 

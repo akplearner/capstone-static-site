@@ -2,7 +2,8 @@ import { Course } from '../types';
 import { CourseContentOverrides, CourseRepository, ImportResult } from './types';
 import { KEYS } from './keys';
 import { safeSetItem } from './safeStorage';
-import { bareDocument, seedCourses } from '../content/docs';
+import { bareDocument, effectiveCourse, seedCourses, storedCourse } from '../content/docs';
+import { localStorageContentFixesRepo } from './localStorageContentFixesRepo';
 import type { CourseDto } from '../content/dto';
 import { SECURITY_PLUS } from './seed/securityPlus';
 import { CYSA_PLUS } from './seed/cysa';
@@ -63,7 +64,7 @@ function readAuthored(): Course[] {
  * Returning the SAME array reference when nothing changed is the second half of
  * the win: it lets callers compare identity instead of re-deriving.
  */
-let listCache: { version: number; value: Course[] } | null = null;
+let listCache: { version: number; fixes: number; value: Course[] } | null = null;
 let version = 0;
 
 function writeAuthored(courses: Course[]): void {
@@ -155,7 +156,8 @@ function applyOverrides(doc: CourseDto, o: CourseContentOverrides): CourseDto {
 }
 
 export function localDocumentSource(courseId: string): CourseDto | undefined {
-  const course = localStorageCourseRepo.list().find((c) => c.id === courseId && c.isSeed === false);
+  // The authored course as saved, not as the catalogue lists it: `courseDocument()` lays the content fixes over this document, once.
+  const course = readAuthored().find((c) => c.id === courseId && c.isSeed === false);
   if (!course) return undefined;
   const stamp = course.updatedAt ?? 0;
   const hit = localDocuments.get(courseId);
@@ -169,13 +171,14 @@ export const localStorageCourseRepo: CourseRepository = {
   list(): Course[] {
     // On the server, return seeds only so pages can prerender.
     if (!hasWindow()) return loadSeeds();
-    if (listCache && listCache.version === version) return listCache.value;
+    const fixes = localStorageContentFixesRepo.version();
+    if (listCache && listCache.version === version && listCache.fixes === fixes) return listCache.value;
     const authored = readAuthored();
     const authoredIds = new Set(authored.map((c) => c.id));
-    // Authored overrides a seed with the same id; otherwise seeds + authored.
+    // Authored overrides a seed with the same id; otherwise seeds + authored. Each with its content fixes laid over it (R121).
     const seedsKept = loadSeeds().filter((s) => !authoredIds.has(s.id));
-    const value = [...seedsKept, ...authored];
-    listCache = { version, value };
+    const value = [...seedsKept, ...authored].map(effectiveCourse);
+    listCache = { version, fixes, value };
     return value;
   },
 
@@ -185,7 +188,7 @@ export const localStorageCourseRepo: CourseRepository = {
 
   save(course: Course): void {
     const authored = readAuthored();
-    const next = { ...course, isSeed: false, updatedAt: Date.now() };
+    const next = { ...storedCourse(course), isSeed: false, updatedAt: Date.now() };
     const idx = authored.findIndex((c) => c.id === course.id);
     if (idx >= 0) authored[idx] = next;
     else authored.push(next);
@@ -208,7 +211,7 @@ export const localStorageCourseRepo: CourseRepository = {
 
   exportJSON(id: string): string {
     const course = this.get(id);
-    return course ? JSON.stringify({ ...course, isSeed: false }, null, 2) : '';
+    return course ? JSON.stringify({ ...storedCourse(course), isSeed: false }, null, 2) : '';
   },
 
   importJSON(json: string): ImportResult {
@@ -226,7 +229,7 @@ export const localStorageCourseRepo: CourseRepository = {
     // Avoid clobbering an existing course id.
     let id = course.id;
     if (this.get(id)) id = `${id}-imported-${Date.now().toString(36)}`;
-    const toSave: Course = { ...course, id, slug: id, isSeed: false };
+    const toSave: Course = { ...storedCourse(course), id, slug: id, isSeed: false };
     this.save(toSave);
     return { ok: true, course: toSave };
   },
@@ -234,7 +237,7 @@ export const localStorageCourseRepo: CourseRepository = {
   duplicate(id: string, newId: string, newTitle: string): Course | undefined {
     const src = this.get(id);
     if (!src) return undefined;
-    const clone: Course = JSON.parse(JSON.stringify(src));
+    const clone: Course = JSON.parse(JSON.stringify(storedCourse(src)));
     clone.id = newId;
     clone.slug = newId;
     clone.title = newTitle;

@@ -3,12 +3,12 @@
 import type { Course } from '../types';
 import type { CourseContentOverrides, CourseRepository, ImportResult } from './types';
 import type { CourseDto } from '../content/dto';
-import { bareDocument, courseDocument, seedCourses } from '../content/docs';
+import { bareDocument, baseDocument, effectiveCourse, seedCourses, storedCourse } from '../content/docs';
 import { courseFromDto } from '../content/load';
 import { getBrowserClient } from '../supabase/client';
 import { notifyStore } from '../useClientStore';
 import { toast } from '@/lib/toastBus';
-import { cache, getCurrentUserId, hydrateCourseDocuments } from './supabaseCache';
+import { cache, getCurrentUserId, hydrateContentFixes, hydrateCourseDocuments } from './supabaseCache';
 import { validateCourse } from './localStorageCourseRepo';
 import { SECURITY_PLUS } from './seed/securityPlus';
 import { CYSA_PLUS } from './seed/cysa';
@@ -61,7 +61,7 @@ function authoredCourses(): Course[] {
   return out;
 }
 
-let listCache: { version: number; value: Course[] } | null = null;
+let listCache: { version: number; fixes: number; value: Course[] } | null = null;
 let kicked = false;
 
 /** The document an authored course renders from — what `data/index.ts`
@@ -71,10 +71,12 @@ export function supabaseDocumentSource(courseId: string): CourseDto | undefined 
 }
 
 /** The document `save(course)` writes: the course's current document (or a
- *  derived one) with the course replaced. Exported for the test. */
+ *  derived one) with the course replaced. The base is the document BEFORE its content
+ *  fixes (R121): the ledger lives in its own table and must not be copied into a saved
+ *  document, where it would go stale. Exported for the test. */
 export function documentFor(course: Course): CourseDto {
-  const base = courseDocument(course.id) ?? bareDocument(course);
-  return { ...base, generatedFrom: [], course: course as CourseDto['course'] };
+  const base = baseDocument(course.id) ?? bareDocument(course);
+  return { ...base, generatedFrom: [], course: storedCourse(course) as CourseDto['course'] };
 }
 
 export const supabaseCourseRepo: CourseRepository = {
@@ -82,13 +84,16 @@ export const supabaseCourseRepo: CourseRepository = {
     if (typeof window !== 'undefined' && !kicked) {
       kicked = true;
       void hydrateCourseDocuments();
+      void hydrateContentFixes();
     }
     const version = cache.courseDocumentsVersion();
-    if (listCache && listCache.version === version) return listCache.value;
+    const fixes = cache.contentFixesVersion();
+    if (listCache && listCache.version === version && listCache.fixes === fixes) return listCache.value;
     const authored = authoredCourses();
     const authoredIds = new Set(authored.map((c) => c.id));
-    const value = [...seedCourses(SEED_MODULES).filter((s) => !authoredIds.has(s.id)), ...authored];
-    listCache = { version, value };
+    // Each with its content fixes laid over it (R121): the same object while it has none.
+    const value = [...seedCourses(SEED_MODULES).filter((s) => !authoredIds.has(s.id)), ...authored].map(effectiveCourse);
+    listCache = { version, fixes, value };
     return value;
   },
 
@@ -103,7 +108,7 @@ export const supabaseCourseRepo: CourseRepository = {
   // R85: the admin studio's content edits ride the same whole-document write
   // the course object always used — one save path, one policy (admin writes).
   saveWithContent(course: Course, content: CourseContentOverrides): void {
-    const next: Course = { ...course, isSeed: false, updatedAt: Date.now() };
+    const next: Course = { ...storedCourse(course), isSeed: false, updatedAt: Date.now() };
     const base = documentFor(next);
     const doc: CourseDto = {
       ...base,
@@ -150,7 +155,7 @@ export const supabaseCourseRepo: CourseRepository = {
 
   exportJSON(id: string): string {
     const course = this.get(id);
-    return course ? JSON.stringify({ ...course, isSeed: false }, null, 2) : '';
+    return course ? JSON.stringify({ ...storedCourse(course), isSeed: false }, null, 2) : '';
   },
 
   importJSON(json: string): ImportResult {
@@ -165,7 +170,7 @@ export const supabaseCourseRepo: CourseRepository = {
     const course = parsed as Course;
     let id = course.id;
     if (this.get(id)) id = `${id}-imported-${Date.now().toString(36)}`;
-    const toSave: Course = { ...course, id, slug: id, isSeed: false };
+    const toSave: Course = { ...storedCourse(course), id, slug: id, isSeed: false };
     this.save(toSave);
     return { ok: true, course: toSave };
   },
@@ -173,7 +178,7 @@ export const supabaseCourseRepo: CourseRepository = {
   duplicate(id: string, newId: string, newTitle: string): Course | undefined {
     const src = this.get(id);
     if (!src) return undefined;
-    const clone: Course = JSON.parse(JSON.stringify(src));
+    const clone: Course = JSON.parse(JSON.stringify(storedCourse(src)));
     clone.id = newId;
     clone.slug = newId;
     clone.title = newTitle;

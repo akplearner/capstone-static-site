@@ -127,6 +127,18 @@ has failed silently in some deployment of some product; none takes more than a m
   `content/profiles/sample-mssp.json` with a new id on `/instructor/profiles`; the Skill board picker
   lists it; Create link there records "measured against" it. Without the consent the dialog points to
   the account page; without the functions it says links are not set up.
+- [ ] **Content fixes (R121):** as an admin, open a pending report on `/instructor/issues`: under it,
+  **Fix the text** opens the words of the step it names. Change one field (the box is marked "Changed"),
+  clear the "what changed and why" line to see Save refuse, put it back, tick "Also resolve the other pending
+  reports here" if there are others, and Save: a toast says "Saved as revision 1 (v1.1)", the report moves to
+  **Complete** with "fixed in revision 1", and the course page (open it as a student) reads the new words.
+  Try to remove a self-check token from the expected output, or make an instruction far longer: the field
+  says why it will not save. Open **Fixes**: the revision is Live with who, when, the reporter it answers and
+  the change as Was and Now. **Fix bundle** downloads the file to fold it from and **Live course document**
+  the course as students read it. **Revert** (asked first) saves a new revision and the old words are back;
+  a fix whose text was changed again says which revision to revert first. Tick a live fix and **Mark in
+  code**, naming the deploy: it leaves the "not in the code yet" banner. A student's new report now says
+  "saw v1.N". If the page says "Database update needed", paste `supabase/setup.sql` into the SQL Editor and Run.
 - [ ] **The issues inbox (R120):** as a student, open any task → **Report an issue**: pick a step (or "The whole
   task"), a kind and a note; the dialog says it is sent with your name, your role and the course version.
   As an instructor (or admin), open `/instructor/issues` (the **Reported issues** button on the instructor

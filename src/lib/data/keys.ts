@@ -66,6 +66,9 @@ export const KEYS = {
   // Task issue reports (R83): one blob per course — on a shared offline device
   // the reports are as shared as the problem they describe.
   taskReports: (courseId: string) => `${STORAGE_PREFIX}${courseId}_task_reports`,
+  // Content fixes (R121): the course's ledger, one blob per course, oldest first. Content, not a
+  // student's state: on a shared offline device it is as shared as the course it corrects.
+  contentFixes: (courseId: string) => `${STORAGE_PREFIX}${courseId}_content_fixes`,
   // Admin content overrides for a course document (R85, offline mode): the
   // deliverables/glossary/content the studio replaced, merged over the base
   // document by localDocumentSource.

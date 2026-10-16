@@ -5,6 +5,7 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 import { Member, RosterEntry } from '../types';
 import type { DeliverableData } from '../docs/types';
 import type { CourseDto } from '../content/dto';
+import { FIX_SCHEMA, NO_FIXES, asFixChange, sortedFixes, type ContentFix, type FixChange, type FixKind } from '../contentFix';
 import type {
   DeliverableStatus,
   EvidenceArtifact,
@@ -25,6 +26,8 @@ import type {
 import { getBrowserClient } from '../supabase/client';
 import { notifyStore } from '../useClientStore';
 import { KEYS } from './keys';
+import { isMissingSchema } from './schemaErrors';
+import { PAGE_ROWS } from './selectAll';
 
 // In-memory mirror of the user's cloud data so the synchronous repo interfaces
 // (ProgressRepository/DocsRepository) keep working unchanged. The cache is hydrated
@@ -88,6 +91,11 @@ const rehashesByKey = new Map<string, RehashCheck[]>(); // `${userId}::${courseI
 // cleared on sign-out. `version` lets the course repo memoise its catalogue.
 const courseDocumentsById = new Map<string, CourseDto>();
 let courseDocumentsVersion = 0;
+// R121: the content fix ledger, per course — content too, so it is neither the current user's nor
+// cleared on sign-out. Each course's list is replaced, never mutated, so a derived course can be
+// cached on the array's identity; `version` lets the course repo memoise its catalogue.
+const contentFixesByCourse = new Map<string, readonly ContentFix[]>();
+let contentFixesVersion = 0;
 
 const hydratedCourses = new Set<string>();
 // R117: courses whose FIRST hydrate failed on the membership query. "Not enrolled"
@@ -386,6 +394,25 @@ export const cache = {
   deleteCourseDocument(courseId: string) {
     if (courseDocumentsById.delete(courseId)) courseDocumentsVersion++;
   },
+  contentFixes(courseId: string): readonly ContentFix[] {
+    return contentFixesByCourse.get(courseId) ?? NO_FIXES;
+  },
+  contentFixesVersion(): number {
+    return contentFixesVersion;
+  },
+  /** Replace one course's ledger with what the server holds. Unchanged lists keep their identity. */
+  setContentFixes(courseId: string, list: readonly ContentFix[]) {
+    const prev = contentFixesByCourse.get(courseId) ?? NO_FIXES;
+    const next = list.length === 0 ? NO_FIXES : sortedFixes(list);
+    if (prev.length === next.length && prev.every((f, i) => f.id === next[i].id)) return;
+    contentFixesByCourse.set(courseId, next);
+    contentFixesVersion++;
+  },
+  /** An entry the caller just wrote: merged by revision, so a later hydrate that holds it too changes nothing. */
+  addContentFix(fix: ContentFix) {
+    const prev = contentFixesByCourse.get(fix.courseId) ?? NO_FIXES;
+    this.setContentFixes(fix.courseId, [...prev.filter((f) => f.id !== fix.id && f.revision !== fix.revision), fix]);
+  },
 };
 
 /**
@@ -414,6 +441,70 @@ export async function hydrateCourseDocuments(): Promise<void> {
   notifyStore();
 }
 
+/**
+ * The content fix ledger of every course (R121). The course repo kicks it with the course documents
+ * and the issues page asks for it before it offers a fix: students need it to read the corrected
+ * text, the admin to read the ledger. A database that has not had migration 0017 has no table, which
+ * is `needsUpdate` and an empty ledger, never an error on a page a student is reading.
+ */
+export async function hydrateContentFixes(): Promise<{ ok: boolean; needsUpdate: boolean }> {
+  const supabase = getBrowserClient();
+  if (!supabase) return { ok: false, needsUpdate: false };
+  try {
+    const rows: Record<string, unknown>[] = [];
+    for (let from = 0; ; from += PAGE_ROWS) {
+      const { data, error } = await supabase
+        .from('content_fixes')
+        .select('*')
+        .order('course_id')
+        .order('revision')
+        .range(from, from + PAGE_ROWS - 1);
+      if (error) {
+        const needsUpdate = isMissingSchema(error);
+        if (!needsUpdate) console.error('[content] content_fixes load failed:', error.message);
+        return { ok: false, needsUpdate };
+      }
+      rows.push(...(data ?? []));
+      if (!data || data.length < PAGE_ROWS) break;
+    }
+    const byCourse = new Map<string, ContentFix[]>();
+    for (const r of rows) {
+      const fix = contentFixFromRow(r);
+      byCourse.set(fix.courseId, [...(byCourse.get(fix.courseId) ?? []), fix]);
+    }
+    const before = contentFixesVersion;
+    byCourse.forEach((list, courseId) => cache.setContentFixes(courseId, list));
+    if (contentFixesVersion !== before) notifyStore();
+    return { ok: true, needsUpdate: false };
+  } catch (e) {
+    // A kick that nobody awaits: it must never become an unhandled rejection on a student's page.
+    console.error('[content] content_fixes load failed:', e);
+    return { ok: false, needsUpdate: false };
+  }
+}
+
+export function contentFixFromRow(r: Record<string, unknown>): ContentFix {
+  const kind: FixKind = r.kind === 'revert' || r.kind === 'fold' ? r.kind : 'fix';
+  const nums = (v: unknown) => (Array.isArray(v) ? v.map(Number).filter((n) => Number.isInteger(n)) : []);
+  const reverts = Number(r.reverts);
+  return {
+    schema: FIX_SCHEMA,
+    id: String(r.id),
+    courseId: String(r.course_id),
+    revision: Number(r.revision),
+    kind,
+    summary: String(r.summary ?? ''),
+    changes: (Array.isArray(r.changes) ? r.changes : []).map(asFixChange).filter((c): c is FixChange => c !== null),
+    issueIds: Array.isArray(r.issue_ids) ? r.issue_ids.map(String) : [],
+    reverts: r.reverts == null || !Number.isInteger(reverts) ? null : reverts,
+    folds: nums(r.folds),
+    foldedIn: String(r.folded_in ?? ''),
+    docVersion: Number(r.doc_version) > 0 ? Number(r.doc_version) : 1,
+    by: String(r.author_name ?? ''),
+    at: r.created_at ? new Date(String(r.created_at)).toISOString() : '',
+  };
+}
+
 // ---- hydration -------------------------------------------------------------
 
 export function rosterFromRow(r: Record<string, unknown>, avatarUrl?: string): RosterEntry {
@@ -435,7 +526,7 @@ export async function hydrateCourse(courseId: string): Promise<void> {
   const gen = (hydrateGen.get(courseId) ?? 0) + 1;
   hydrateGen.set(courseId, gen);
 
-  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts, reviews, cohorts, notes, flags, profiles, reports, submissions, peerReviews, docStatus, receipts, rehashes] =
+  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts, reviews, cohorts, notes, flags, profiles, reports, submissions, peerReviews, docStatus, receipts, rehashes, fixes] =
     await Promise.all([
       supabase.from('memberships').select('*').eq('course_id', courseId),
       supabase.from('step_completions').select('*').eq('course_id', courseId),
@@ -473,6 +564,9 @@ export async function hydrateCourse(courseId: string): Promise<void> {
       // nobody but the platform reads those.
       supabase.from('verification_receipts').select('course_id, user_id, task_id, step_id, output_sha256, receipted_at').eq('course_id', courseId),
       supabase.from('rehash_checks').select('*').eq('course_id', courseId),
+      // R121: the course's content fixes, so the page never paints the old words first. A database
+      // without 0017 answers with an error here, which reads as no fixes.
+      supabase.from('content_fixes').select('*').eq('course_id', courseId).order('revision'),
     ]);
 
   // A newer hydrate started while this one was on the wire: its data is
@@ -607,6 +701,8 @@ export async function hydrateCourse(courseId: string): Promise<void> {
     [...rehashesByKey.keys()].filter((k) => k.endsWith(`::${courseId}`)).forEach((k) => rehashesByKey.delete(k));
     rehashes.data.forEach((r) => cache.addRehash(rehashFromRow(r), String(r.user_id)));
   }
+
+  if (fixes.data) cache.setContentFixes(courseId, fixes.data.map(contentFixFromRow));
 
   hydratedCourses.add(courseId);
   notifyStore();

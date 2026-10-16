@@ -28,7 +28,9 @@ export function ReportIssueDialog({ courseId, task, member }: { courseId: string
   // R120: '' = the whole task.
   const [stepId, setStepId] = useState('');
   const { guard } = useRequireAuth();
-  const version = contentVersion(courseRepo.get(courseId)?.version);
+  // The words the student is reading: the document's version and the fix ledger's revision (R121).
+  const course = courseRepo.get(courseId);
+  const version = contentVersion(course?.version, course?.revision);
 
   const submit = () => {
     const ok = guard('report an issue', () => {

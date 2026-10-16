@@ -23,6 +23,7 @@ import { CONTROL_EXCEPTIONS, STANDARDS, parseStandard, standardOf } from '../doc
 import { DELIVERABLE_SOPS, SOPS, TASK_SOPS, sopOf } from '../docs/sops';
 import { PRACTICES, TASK_PRACTICES, TASK_TACTICS, practiceOf, tacticOf } from '../docs/tactics';
 import { SKILLS_COPY } from '../docs/skillsCopy';
+import { READING_BUDGET, prose, words } from '../readingBudget';
 
 // Guards the "sometimes a step just doesn't work" class of bug: a step that names
 // a form (`usesForm`) or an evidence file (`producesDeliverable`) that no
@@ -458,8 +459,8 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('content integrity — %s'
 // single biggest readability problem a step can have — and every one of them was
 // really a hidden list. `instructionList` and `fixes` exist to carry that shape.
 // This guard keeps the long-paragraph habit from creeping back, in every course.
-const WORD_BUDGET = 40;
-const words = (s: string) => s.split(/\s+/).filter(Boolean).length;
+// The numbers live in `readingBudget.ts`: a content fix (R121) is held to the same ones when it is saved.
+const WORD_BUDGET = READING_BUDGET.longWords;
 
 describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (_id, course) => {
   it('no `instruction` runs long without an `instructionList` to carry the list', () => {
@@ -482,7 +483,6 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (
   // Weeks 0–4 are the base build every student must finish, so they carry the
   // tighter budgets; the advanced weeks keep the general guard above. Only
   // tokens with a letter or digit count, so a dash is not a word.
-  const prose = (s: string) => s.split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;
   // R76: this was `course.id === 'server-plus' && task.week <= 4`. The budgets are
   // the lesson Server+ learned when students said the course was too much to
   // follow — so a NEW course should inherit the discipline rather than be exempt
@@ -493,8 +493,8 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (
   it('graded-week command explanations stay one line each', () => {
     const over = allSteps(course)
       .filter(baseBuild)
-      .flatMap(({ step }) => (step.commands ?? []).filter((c) => prose(c.explain ?? '') >= 36).map((c) => `${step.id}: ${c.cmd.slice(0, 40)} (${prose(c.explain ?? '')}w)`));
-    expect(over, `cut these explains under 36 words: ${over.join(', ')}`).toHaveLength(0);
+      .flatMap(({ step }) => (step.commands ?? []).filter((c) => prose(c.explain ?? '') >= READING_BUDGET.explainProse).map((c) => `${step.id}: ${c.cmd.slice(0, 40)} (${prose(c.explain ?? '')}w)`));
+    expect(over, `cut these explains under ${READING_BUDGET.explainProse} words: ${over.join(', ')}`).toHaveLength(0);
   });
 
   // R79: the reading budget. Students said the platform showed too much at
@@ -506,14 +506,14 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (
   it('R79 — the words a student meets before expanding anything are budgeted', () => {
     const over: string[] = [];
     for (const w of course.weeks) {
-      if (prose(w.objective) > 20) over.push(`week ${w.number} objective (${prose(w.objective)}w > 20)`);
+      if (prose(w.objective) > READING_BUDGET.weekObjectiveProse) over.push(`week ${w.number} objective (${prose(w.objective)}w > ${READING_BUDGET.weekObjectiveProse})`);
     }
     for (const t of course.tasks) {
-      if (prose(t.objective) > 25) over.push(`${t.id} objective (${prose(t.objective)}w > 25)`);
+      if (prose(t.objective) > READING_BUDGET.taskObjectiveProse) over.push(`${t.id} objective (${prose(t.objective)}w > ${READING_BUDGET.taskObjectiveProse})`);
       for (const s of t.steps) {
-        if (prose(s.instruction ?? '') > 30) over.push(`${s.id} instruction (${prose(s.instruction ?? '')}w > 30)`);
+        if (prose(s.instruction ?? '') > READING_BUDGET.instructionProse) over.push(`${s.id} instruction (${prose(s.instruction ?? '')}w > ${READING_BUDGET.instructionProse})`);
         (s.instructionList ?? []).forEach((item, i) => {
-          if (prose(item) > 20) over.push(`${s.id} action ${i + 1} (${prose(item)}w > 20)`);
+          if (prose(item) > READING_BUDGET.actionProse) over.push(`${s.id} action ${i + 1} (${prose(item)}w > ${READING_BUDGET.actionProse})`);
         });
       }
     }
@@ -523,9 +523,9 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (
   it('graded-week step descriptions stay a subtitle', () => {
     const over = allSteps(course)
       .filter(baseBuild)
-      .filter(({ step }) => prose(step.description ?? '') >= 30)
+      .filter(({ step }) => prose(step.description ?? '') >= READING_BUDGET.descriptionProse)
       .map(({ step }) => `${step.id} (${prose(step.description ?? '')}w)`);
-    expect(over, `cut these descriptions under 30 words: ${over.join(', ')}`).toHaveLength(0);
+    expect(over, `cut these descriptions under ${READING_BUDGET.descriptionProse} words: ${over.join(', ')}`).toHaveLength(0);
   });
 
   // R72: students could not tell which machine a line belonged to, and a

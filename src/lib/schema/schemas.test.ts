@@ -16,6 +16,7 @@ import { buildMemberProfile } from '../memberExport';
 import { WORK_ROLES } from '../docs/workRoles';
 import { sampleProfiles } from '../content/profiles';
 import { buildIssues } from '../issueInbox';
+import { changesFrom, fixBundle, fixDraft, foldDraft, newFix, revertDraft, type ContentFix } from '../contentFix';
 
 const DIR = resolve(process.cwd(), 'content', 'schemas');
 const schema = (name: string) => JSON.parse(readFileSync(resolve(DIR, `${name}.schema.json`), 'utf8')) as JsonSchema;
@@ -29,7 +30,7 @@ const schema = (name: string) => JSON.parse(readFileSync(resolve(DIR, `${name}.s
 describe('content/schemas — the published shapes validate', () => {
   it('every schema file is draft 2020-12 and inside the subset', () => {
     const files = readdirSync(DIR).filter((f) => f.endsWith('.schema.json'));
-    expect(files.sort()).toEqual(['competency-node', 'course-index-entry', 'credential', 'environment-profile', 'event', 'issue', 'kpi-board', 'member-profile', 'skill-profile', 'sop', 'standard', 'tool', 'work-role', 'xapi-statement'].map((n) => `${n}.schema.json`));
+    expect(files.sort()).toEqual(['competency-node', 'content-fix', 'content-fixes', 'course-index-entry', 'credential', 'environment-profile', 'event', 'issue', 'kpi-board', 'member-profile', 'skill-profile', 'sop', 'standard', 'tool', 'work-role', 'xapi-statement'].map((n) => `${n}.schema.json`));
     for (const f of files) {
       const s = schema(f.replace('.schema.json', ''));
       expect(s.$schema, f).toBe('https://json-schema.org/draft/2020-12/schema');
@@ -65,6 +66,33 @@ describe('content/schemas — the published shapes validate', () => {
     expect(validate({ ...rows[0], status: 'closed' }, schema('issue'))).not.toEqual([]);
     expect(validate({ ...rows[0], contentVersion: 'v1.7' }, schema('issue'))).not.toEqual([]);
     expect(validate({ ...rows[0], reporter: { ...rows[0].reporter, memberId: 'm' } }, schema('issue')), 'no account id in a report').not.toEqual([]);
+  });
+
+  it('a content fix ledger and its bundle validate, and a malformed or over-reaching one does not', () => {
+    const course = SEED_COURSES[0];
+    const task = course.tasks[0];
+    const step = task.steps[0];
+    const at = '2026-10-16T09:00:00.000Z';
+    const fix = newFix(course.id, fixDraft('Reword the step', changesFrom(course, { taskId: task.id, stepId: step.id }, { title: `${step.title} (edited)` }), ['r1']), { id: 'f1', revision: 1, docVersion: 1, by: 'Ana Admin', at });
+    const revert = newFix(course.id, revertDraft(fix), { id: 'f2', revision: 2, docVersion: 1, by: 'Ana Admin', at });
+    const fold = newFix(course.id, foldDraft([1], 'deploy 2026-10-20'), { id: 'f3', revision: 3, docVersion: 1, by: 'Ana Admin', at });
+    const taskFix = newFix(course.id, fixDraft('Reword the task', changesFrom(course, { taskId: task.id }, { objective: `${task.objective} Now.` }), []), { id: 'f4', revision: 4, docVersion: 2, by: '', at: '' });
+    const ledger: ContentFix[] = [fix, revert, fold, taskFix];
+    for (const f of ledger) expect(validate(f, schema('content-fix')), `${f.kind} ${f.revision}`).toEqual([]);
+    const bundle = fixBundle(course, ledger, { seedFile: 'src/lib/data/seed/securityPlus.ts' });
+    expect(validate(bundle, schema('content-fixes'))).toEqual([]);
+    expect(bundle.live.length, 'the task fix is live').toBeGreaterThan(0);
+    expect(validate(fixBundle(course, [], {}), schema('content-fixes')), 'a course nobody has fixed').toEqual([]);
+
+    expect(validate({ ...fix, kind: 'edit' }, schema('content-fix'))).not.toEqual([]);
+    expect(validate({ ...fix, revision: 0 }, schema('content-fix'))).not.toEqual([]);
+    expect(validate({ ...fix, at: 'yesterday' }, schema('content-fix'))).not.toEqual([]);
+    expect(validate({ ...fix, createdBy: 'account-id' }, schema('content-fix')), 'no account id in an entry').not.toEqual([]);
+    const reach = (field: string) => ({ ...fix, changes: [{ taskId: task.id, field, before: 'a', after: 'b' }] });
+    expect(validate(reach('commands.0.explain'), schema('content-fix'))).toEqual([]);
+    for (const field of ['verify', 'id', 'role', 'steps', 'commands', 'deliverables']) expect(validate(reach(field), schema('content-fix')), `${field} is a code change`).not.toEqual([]);
+    expect(validate({ ...bundle, version: 'v1.0' }, schema('content-fixes'))).not.toEqual([]);
+    expect(validate({ ...bundle, fixes: [{ ...fix, kind: 'edit' }] }, schema('content-fixes'))).not.toEqual([]);
   });
 
   it('every row of the course index validates', () => {

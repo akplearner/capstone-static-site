@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://capstone.example/schemas/content-fix.schema.json",
+  "title": "Content fix",
+  "description": "One entry of a course's content fix ledger (R121): a correction to the words of a course, laid over it and numbered by the database. A fix carries changes (the text was `before` and is now `after`, for one field of one task or step); a revert is a new entry carrying the inverse changes of an earlier fix; a fold names the fixes now in the code and changes no text. `revision` counts per course and is assigned by the database; a course's content version is '{docVersion}.{revision}'. It names a person and never an account.",
+  "type": "object",
+  "required": ["schema", "id", "courseId", "revision", "kind", "summary", "changes", "issueIds", "reverts", "folds", "foldedIn", "docVersion", "by", "at"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "type": "string", "const": "capstone-content-fix/1" },
+    "id": { "type": "string", "minLength": 1 },
+    "courseId": { "type": "string", "minLength": 1 },
+    "revision": { "type": "integer", "minimum": 1 },
+    "kind": { "type": "string", "enum": ["fix", "revert", "fold"] },
+    "summary": { "type": "string", "minLength": 1 },
+    "changes": { "type": "array", "items": { "$ref": "#/$defs/change" } },
+    "issueIds": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "reverts": { "type": ["integer", "null"], "minimum": 1 },
+    "folds": { "type": "array", "items": { "type": "integer", "minimum": 1 } },
+    "foldedIn": { "type": "string" },
+    "docVersion": { "type": "integer", "minimum": 1 },
+    "by": { "type": "string" },
+    "at": { "type": "string", "pattern": "^$|^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$" }
+  },
+  "$defs": {
+    "change": {
+      "type": "object",
+      "required": ["taskId", "field", "before", "after"],
+      "additionalProperties": false,
+      "properties": {
+        "taskId": { "type": "string", "minLength": 1 },
+        "stepId": { "type": "string", "minLength": 1 },
+        "field": { "type": "string", "pattern": "^(title|objective|definitionOfDone|prerequisites|description|instruction|instructionList|command|commandExplanation|expectedOutput|outputExplanation|whatItMeans|commands\\.\\d+\\.(cmd|explain|sample))$" },
+        "before": { "type": "string" },
+        "after": { "type": "string" }
+      }
+    }
+  }
+}

@@ -985,6 +985,199 @@ do $$ begin
 end $$;
 reset role;
 
+-- ── R121: content fixes — an admin corrects the words, the ledger is numbered by the database and never rewritten ──
+-- Zoe is a second admin, used to prove that erasing an account keeps what it signed.
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-4000-8000-000000000010', 'zoe@example.com', '{"name":"Zoe Admin"}');
+update public.profiles set is_admin = true, is_instructor = true where id = '00000000-0000-4000-8000-000000000010';
+
+-- Ana (admin) fixes a step. The revision is the database's: she asked for 99 and got 1.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000f';
+insert into public.content_fixes (id, course_id, revision, kind, summary, changes, issue_ids, doc_version, author_name, created_by, created_at)
+  values ('00000000-0000-4000-a000-000000000001', 'security-plus', 99, 'fix', 'Reword the first step',
+          '[{"taskId":"t1","stepId":"s1","field":"title","before":"Open a shell","after":"Open a terminal"}]',
+          '{00000000-0000-4000-9000-000000000002}', 2, 'Ana Admin', '00000000-0000-4000-8000-00000000000f', '2000-01-01');
+insert into public.content_fixes (id, course_id, kind, summary, changes, created_by)
+  values ('00000000-0000-4000-a000-000000000002', 'security-plus', 'fix', 'Reword the second step',
+          '[{"taskId":"t1","stepId":"s2","field":"whatItMeans","before":"A","after":"B"}]', '00000000-0000-4000-8000-00000000000f');
+insert into public.content_fixes (id, course_id, kind, summary, changes, created_by)
+  values ('00000000-0000-4000-a000-000000000003', 'ccna', 'fix', 'Another course counts on its own',
+          '[{"taskId":"t1","field":"title","before":"A","after":"B"}]', '00000000-0000-4000-8000-00000000000f');
+do $$ begin
+  assert (select revision from public.content_fixes where id = '00000000-0000-4000-a000-000000000001') = 1, 'ana: the database numbers the first fix 1, whatever she sent';
+  assert (select revision from public.content_fixes where id = '00000000-0000-4000-a000-000000000002') = 2, 'ana: the next is 2';
+  assert (select revision from public.content_fixes where id = '00000000-0000-4000-a000-000000000003') = 1, 'ana: another course counts from 1 on its own';
+  assert (select created_at from public.content_fixes where id = '00000000-0000-4000-a000-000000000001') > '2020-01-01', 'ana: the time is the database''s, not a backdated one';
+  assert (select author_name from public.content_fixes where id = '00000000-0000-4000-a000-000000000002') = 'Ana Admin', 'ana: an entry sent without a name is signed with her profile name';
+  assert (select doc_version from public.content_fixes where id = '00000000-0000-4000-a000-000000000001') = 2, 'ana: the document version it was made on is kept';
+  assert (select issue_ids from public.content_fixes where id = '00000000-0000-4000-a000-000000000001') = '{00000000-0000-4000-9000-000000000002}', 'ana: the report it answers is kept';
+
+  -- She cannot sign as someone else, or send an entry the database cannot make sense of.
+  begin
+    insert into public.content_fixes (course_id, kind, summary, changes, created_by)
+      values ('security-plus', 'fix', 'as Ivy', '[{"taskId":"t1","field":"title","before":"A","after":"B"}]', '00000000-0000-4000-8000-00000000000d');
+    raise exception 'ana wrote a fix as someone else';
+  exception when insufficient_privilege then null; end;
+  begin
+    insert into public.content_fixes (course_id, kind, summary, changes, created_by)
+      values ('security-plus', 'fix', 'no changes', '[]', '00000000-0000-4000-8000-00000000000f');
+    raise exception 'ana saved a fix that changes nothing';
+  exception when check_violation then null; end;
+  begin
+    insert into public.content_fixes (course_id, kind, summary, changes, created_by)
+      values ('security-plus', 'fix', '', '[{"taskId":"t1","field":"title","before":"A","after":"B"}]', '00000000-0000-4000-8000-00000000000f');
+    raise exception 'ana saved a fix with no summary';
+  exception when check_violation then null; end;
+  begin
+    insert into public.content_fixes (course_id, kind, summary, changes, created_by)
+      values ('security-plus', 'bogus', 'x', '[{"taskId":"t1","field":"title","before":"A","after":"B"}]', '00000000-0000-4000-8000-00000000000f');
+    raise exception 'ana saved a kind that does not exist';
+  exception when check_violation then null; end;
+
+  -- A revert names an existing fix of this course, and a fix is undone once.
+  begin
+    insert into public.content_fixes (course_id, kind, summary, changes, reverts, created_by)
+      values ('security-plus', 'revert', 'undo nothing', '[{"taskId":"t1","field":"title","before":"B","after":"A"}]', 7, '00000000-0000-4000-8000-00000000000f');
+    raise exception 'ana reverted a fix that does not exist';
+  exception when others then
+    if sqlerrm not like '%existing fix%' then raise; end if;
+  end;
+  begin
+    insert into public.content_fixes (course_id, kind, summary, changes, reverts, created_by)
+      values ('ccna', 'revert', 'undo a fix of another course', '[{"taskId":"t1","field":"title","before":"B","after":"A"}]', 2, '00000000-0000-4000-8000-00000000000f');
+    raise exception 'ana reverted another course''s fix';
+  exception when others then
+    if sqlerrm not like '%existing fix%' then raise; end if;
+  end;
+end $$;
+insert into public.content_fixes (id, course_id, kind, summary, changes, reverts, created_by)
+  values ('00000000-0000-4000-a000-000000000004', 'security-plus', 'revert', 'Revert revision 2',
+          '[{"taskId":"t1","stepId":"s2","field":"whatItMeans","before":"B","after":"A"}]', 2, '00000000-0000-4000-8000-00000000000f');
+do $$ begin
+  assert (select revision from public.content_fixes where id = '00000000-0000-4000-a000-000000000004') = 3, 'ana: a revert is a revision of its own';
+  begin
+    insert into public.content_fixes (course_id, kind, summary, changes, reverts, created_by)
+      values ('security-plus', 'revert', 'undo it twice', '[{"taskId":"t1","stepId":"s2","field":"whatItMeans","before":"B","after":"A"}]', 2, '00000000-0000-4000-8000-00000000000f');
+    raise exception 'ana reverted the same fix twice';
+  exception when unique_violation then null; end;
+  begin
+    insert into public.content_fixes (course_id, kind, summary, changes, reverts, created_by)
+      values ('security-plus', 'revert', 'a revert with nothing to restore', '[]', 1, '00000000-0000-4000-8000-00000000000f');
+    raise exception 'ana saved a revert that restores nothing';
+  exception when check_violation then null; end;
+
+  -- A fold names existing fixes, and changes no text.
+  begin
+    insert into public.content_fixes (course_id, kind, summary, folds, created_by)
+      values ('security-plus', 'fold', 'in code', '{1,42}', '00000000-0000-4000-8000-00000000000f');
+    raise exception 'ana folded a fix that does not exist';
+  exception when others then
+    if sqlerrm not like '%existing fixes%' then raise; end if;
+  end;
+  begin
+    insert into public.content_fixes (course_id, kind, summary, folds, created_by)
+      values ('security-plus', 'fold', 'in code', '{}', '00000000-0000-4000-8000-00000000000f');
+    raise exception 'ana folded nothing';
+  exception when check_violation then null; end;
+  begin
+    insert into public.content_fixes (course_id, kind, summary, changes, folds, created_by)
+      values ('security-plus', 'fold', 'a fold that edits text', '[{"taskId":"t1","field":"title","before":"A","after":"B"}]', '{1}', '00000000-0000-4000-8000-00000000000f');
+    raise exception 'ana folded and edited in one entry';
+  exception when check_violation then null; end;
+end $$;
+insert into public.content_fixes (id, course_id, kind, summary, folds, folded_in, created_by)
+  values ('00000000-0000-4000-a000-000000000005', 'security-plus', 'fold', 'In code: revision 1', '{1}', 'deploy 2026-10-20', '00000000-0000-4000-8000-00000000000f');
+do $$ begin
+  assert (select revision from public.content_fixes where id = '00000000-0000-4000-a000-000000000005') = 4, 'ana: a fold counts in the version too';
+  -- Nobody rewrites the ledger from a request, not even its author: the grant is revoked, not just unpolicied.
+  begin
+    update public.content_fixes set summary = 'rewritten' where id = '00000000-0000-4000-a000-000000000001';
+    raise exception 'ana rewrote an entry';
+  exception when insufficient_privilege then null; end;
+  begin
+    delete from public.content_fixes where id = '00000000-0000-4000-a000-000000000001';
+    raise exception 'ana deleted an entry';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+
+-- Not an admin, not an author: Ivy (instructor), Ada (student) and Zed (joined nothing) read, and cannot write.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000d';
+do $$ begin
+  assert (select count(*) from public.content_fixes where course_id = 'security-plus') = 4, 'ivy: reads the ledger';
+  begin
+    insert into public.content_fixes (course_id, kind, summary, changes, created_by)
+      values ('security-plus', 'fix', 'an instructor''s fix', '[{"taskId":"t1","field":"title","before":"A","after":"B"}]', '00000000-0000-4000-8000-00000000000d');
+    raise exception 'ivy, an instructor and not an admin, wrote a fix';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+do $$ begin
+  assert (select count(*) from public.content_fixes) = 5, 'ada: a student reads every course''s ledger: it is the corrected words they render';
+  begin
+    insert into public.content_fixes (course_id, kind, summary, changes, created_by)
+      values ('security-plus', 'fix', 'a student''s fix', '[{"taskId":"t1","field":"title","before":"A","after":"B"}]', '00000000-0000-4000-8000-00000000000a');
+    raise exception 'ada, a student, wrote a fix';
+  exception when insufficient_privilege then null; end;
+  begin
+    delete from public.content_fixes where id = '00000000-0000-4000-a000-000000000001';
+    raise exception 'ada deleted a fix';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000e';
+do $$ begin
+  assert (select count(*) from public.content_fixes) = 5, 'zed: signed in, reads the ledger';
+end $$;
+reset role;
+set local role anon;
+set local request.jwt.claim.sub = '';
+do $$ begin
+  assert (select count(*) from public.content_fixes) = 0, 'anon: not even the ledger (signed-in read)';
+  begin
+    insert into public.content_fixes (course_id, kind, summary, changes)
+      values ('security-plus', 'fix', 'an anonymous fix', '[{"taskId":"t1","field":"title","before":"A","after":"B"}]');
+    raise exception 'anon wrote a fix';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+
+-- The table owner is held to it too, and erasing an account keeps what it signed.
+do $$ begin
+  begin
+    update public.content_fixes set summary = 'rewritten' where id = '00000000-0000-4000-a000-000000000001';
+    raise exception 'the owner rewrote an entry';
+  exception when others then
+    if sqlerrm not like '%append-only%' then raise; end if;
+  end;
+  begin
+    delete from public.content_fixes where id = '00000000-0000-4000-a000-000000000001';
+    raise exception 'the owner deleted an entry';
+  exception when others then
+    if sqlerrm not like '%append-only%' then raise; end if;
+  end;
+end $$;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-000000000010';
+insert into public.content_fixes (id, course_id, kind, summary, changes, created_by)
+  values ('00000000-0000-4000-a000-000000000006', 'aws-devops', 'fix', 'Zoe''s fix',
+          '[{"taskId":"t1","field":"title","before":"A","after":"B"}]', '00000000-0000-4000-8000-000000000010');
+reset role;
+do $$ begin
+  assert (select author_name from public.content_fixes where id = '00000000-0000-4000-a000-000000000006') = 'Zoe Admin', 'zoe: signed with her profile name';
+end $$;
+delete from auth.users where id = '00000000-0000-4000-8000-000000000010';
+do $$ begin
+  assert (select created_by from public.content_fixes where id = '00000000-0000-4000-a000-000000000006') is null, 'erasing an account detaches its id from its entries';
+  assert (select author_name from public.content_fixes where id = '00000000-0000-4000-a000-000000000006') = 'Zoe Admin', 'and keeps the name the entry was signed with';
+  assert (select summary from public.content_fixes where id = '00000000-0000-4000-a000-000000000006') = 'Zoe''s fix', 'and the entry itself';
+end $$;
+
 -- ── Signed out (anon key, no session) ───────────────────────────────────────
 set local role anon;
 set local request.jwt.claim.sub = '';  -- no session: auth.uid() is null

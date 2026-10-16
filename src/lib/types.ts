@@ -411,6 +411,9 @@ export interface Course {
    *  the reference content and forms this course renders (R78-D3). */
   basedOn?: string;
   version?: number;      // the course document's content version (R120): a built-in's from code, an edited copy's bumped on every save (R122)
+  /** R121: the fix ledger's counter, set where the live content fixes are applied (`contentFix.ts`); absent on a course nobody has fixed.
+   *  The course's content version is `{version}.{revision}`. */
+  revision?: number;
   updatedAt?: number;
   // Enrollment configuration (instructor-controlled, per course/class):
   locked?: boolean;      // when true, students can't enter the course

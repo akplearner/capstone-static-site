@@ -27,7 +27,7 @@ export function StatusChip({ status }: { status: ReportStatus }) {
   );
 }
 
-const when = (iso: string) => (iso ? new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : 'Time not recorded');
+export const when = (iso: string) => (iso ? new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : 'Time not recorded');
 
 /** Where the student saw it, as a link a staff member can follow. Not offered once the task is gone. */
 export function taskHref(i: IssueDto): string | null {

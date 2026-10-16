@@ -85,6 +85,23 @@ a seed changed without regenerating; CI runs the export and diffs this folder.
 }
 ```
 
+**The effective document (R121).** A committed file is the course as shipped. What the app reads is
+`courseDocument(id)` (`src/lib/content/docs.ts`): the same document with the course's live **content
+fixes** applied to `course`, plus two optional fields that never appear in a committed file:
+
+```
+  "revision": 7,                      // the fix ledger's newest revision; the content version is "{course.version}.{revision}"
+  "fixes":    [ { schema: "capstone-content-fix/1", revision, kind: fix | revert | fold, changes[ {taskId, stepId?, field, before, after} ], … } ]
+```
+
+A fix is a correction to the words, laid over the course and numbered by the database (`content_fixes`,
+migration 0017; `docs/ARCHITECTURE.md` "Versioned content fixes"). The schema id stays
+`capstone-course-dto/1`, so nothing that reads a document changes. To fold a live fix into the code, make the
+same change in the seed file the document lists first in `generatedFrom`, run `npm run content:export`, and
+mark the fix In code on `/instructor/issues` (Fixes). The downloadable **fix bundle**
+(`capstone-content-fixes/1`, `content/schemas/content-fixes.schema.json`) names the file and the task and
+step titles to search for.
+
 Components never import these tables: they call `useCourseDocument()` and an accessor in
 `src/lib/content/read.ts` (`rolesOf`, `archOf`, `weekVisualsOf`, `deliverablesOf` …), and
 `src/lib/page-shape.test.ts` fails a component that imports a table from `src/lib/docs/`.
