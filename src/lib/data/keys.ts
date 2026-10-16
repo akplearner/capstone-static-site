@@ -73,6 +73,8 @@ export const KEYS = {
   // deliverables/glossary/content the studio replaced, merged over the base
   // document by localDocumentSource.
   courseContent: (courseId: string) => `${STORAGE_PREFIX}${courseId}_content_overrides`,
+  // The last few studio saves of a course, offline (R122): what the History tab lists and restores.
+  courseVersions: (courseId: string) => `${STORAGE_PREFIX}${courseId}_course_versions`,
   // Frozen deliverable submissions (R84): team-scoped like the forms they freeze.
   submissions: (courseId: string, teamId: string) =>
     `${STORAGE_PREFIX}${courseId}_submissions_${teamId}`,

@@ -3439,3 +3439,93 @@ describe('R121 — versioned content fixes', () => {
   });
 });
 
+/**
+ * R122 — versioned course editing.
+ *
+ * Every save of a course in the studio is a numbered, restorable version (the database counts and keeps
+ * them; the clients count the same way), a built-in course is not forked without asking, and the ids
+ * that progress is recorded against stop being editable. These pins keep the history written only by
+ * the trigger, admin-read, append-only; the clients counting one way; the panel props-only; the fork
+ * asking first; the id locks in place; and the docs saying it.
+ */
+describe('R122 — versioned course editing', () => {
+  it('the database numbers and keeps every save, and only an admin reads the history', () => {
+    const sql = read('supabase/migrations/0018_course_document_versions.sql');
+    for (const n of [
+      'create table if not exists public.course_document_versions',
+      'create trigger course_documents_save',
+      'before insert or update on public.course_documents',
+      'pg_advisory_xact_lock',
+      'greatest(',
+      "jsonb_set(new.doc, '{course,version}'",
+      'create trigger course_document_versions_append_only',
+      'revoke insert, update, delete, truncate on public.course_document_versions from anon, authenticated',
+      'using (public.is_admin())',
+      'course_documents_updated_by_fkey',
+      'on delete set null',
+      'on conflict (course_id, version) do nothing',
+    ]) expect(sql, n).toContain(n);
+    expect(sql, 'the 0006 helpers, never a subquery on memberships').not.toMatch(/from public\.memberships/);
+    expect(sql, 'an instructor is not enough to read a whole document').not.toMatch(/using \(public\.is_instructor\(\)\)/);
+    const rls = read('supabase/tests/rls.sql');
+    for (const n of ['ana: the database counts the saves, whatever number the client sent', 'ivy: an instructor is not an admin; no history', 'ana rewrote a snapshot', 'the owner rewrote a snapshot', 'a deleted course keeps its history', 'erasing the admin who saved a course does not erase the course', 'ana: a restore is the next version']) expect(rls, n).toContain(n);
+    expect(read('supabase/setup.sql'), 'setup.sql carries it').toContain('course_document_versions_append_only');
+  });
+
+  it('both repos count a save the way the database does, and a copy starts again at 1', () => {
+    const local = code('src/lib/data/localStorageCourseRepo.ts');
+    expect(local).toContain('version: prior + 1');
+    expect(local).toContain('recordVersion(next)');
+    expect(local, 'a copy is a new course').toContain('delete clone.version');
+    expect(local, 'the offline history keeps a few saves and never alarms').toContain('KEEP_VERSIONS = 8');
+    expect(local, 'epoch milliseconds, never toISOString').not.toContain('toISOString');
+    const cloud = code('src/lib/data/supabaseCourseRepo.ts');
+    expect(cloud).toContain('version: prior + 1');
+    expect(cloud).toContain('delete clone.version');
+    const history = code('src/lib/data/supabaseCourseHistoryRepo.ts');
+    expect(history, 'the list asks for what describes a version, never the documents').toContain("select('version, saved_by_name, saved_at, title, bytes')");
+    expect(history).toContain("onConflict: 'course_id'");
+    expect(code('src/lib/data/index.ts')).toContain('export const courseHistoryRepo = cloud ? supabaseCourseHistoryRepo : localStorageCourseHistoryRepo');
+  });
+
+  it('the history panel is props only, and the studio does the loading, the restoring and the asking', () => {
+    const panel = code('src/components/instructor/HistoryPanel.tsx');
+    for (const bad of ['courseHistoryRepo', 'courseRepo', 'localStorage', 'useClientStore', 'progressRepo', 'getBrowserClient']) expect(panel, `HistoryPanel: ${bad}`).not.toContain(bad);
+    expect(panel, 'only types come from the data layer').not.toMatch(/^import (?!type )[^\n]*from '@\/lib\/data/m);
+    for (const n of ['data-history-restore', 'data-history-download', 'data-history-current', 'HISTORY_COPY.restoreBody']) expect(panel, n).toContain(n);
+    const studio = code('src/app/instructor/[courseId]/page.tsx');
+    for (const n of ['courseHistoryRepo.list(', 'courseHistoryRepo.restore(', 'courseHistoryRepo.get(', 'setSeededId(null)', "{ id: 'history', label: 'History' }", 'data-studio-version', 'data-studio-save']) expect(studio, n).toContain(n);
+    expect(studio, 'a built-in course asks before its first save forks it').toContain('if (builtIn) setForking(true);');
+    expect(studio, 'what the course is comes from what is saved, not from the draft').toContain('const builtIn = source?.isSeed === true;');
+    expect(studio).toContain('data-studio-fork-confirm');
+    expect(studio, 'no claim that a cloud save is this device’s').toContain('isSupabaseConfigured() ? HISTORY_COPY.forkCloud : HISTORY_COPY.forkLocal');
+    expect(studio).toContain('HISTORY_COPY.confirmTitle');
+  });
+
+  it('saved ids cannot be changed, for tasks, steps, roles and gates; new ones can until they are saved', () => {
+    const studio = code('src/app/instructor/[courseId]/page.tsx');
+    expect(studio).toContain('const lockedIds = useMemo(');
+    for (const n of ['locked={lockedIds.roles}', 'locked={lockedIds.gates}', 'tasks: lockedIds.tasks', 'steps: lockedIds.steps']) expect(studio, n).toContain(n);
+    const fields = code('src/components/instructor/fields.tsx');
+    expect(fields).toContain('export const ID_LOCKED_HINT');
+    expect(fields.match(/readOnly=\{readOnly\}/g)?.length, 'both field kinds honour it').toBe(2);
+    expect(fields.match(/aria-readonly=\{readOnly \|\| undefined\}/g)?.length, 'and say so to assistive technology').toBe(2);
+    expect(fields, 'a utility on the input loses to the unlayered global field rule: the look is set in globals.css').not.toContain('bg-panel-2');
+    expect(read('src/app/globals.css'), 'a saved id looks locked').toMatch(/input\[aria-readonly='true'\],\s*input\[aria-readonly='true'\]:focus \{\s*@apply bg-panel-2 text-muted;/);
+    for (const [f, needle] of [
+      ['src/components/instructor/TasksEditor.tsx', 'readOnly={locked?.tasks.has(t.id)}'],
+      ['src/components/instructor/StepsEditor.tsx', 'readOnly={lockedSteps?.has(`${taskId}/${s.id}`)}'],
+      ['src/components/instructor/RolesEditor.tsx', 'readOnly={locked?.has(r.id)}'],
+      ['src/components/instructor/GatesEditor.tsx', 'readOnly={locked?.has(g.id)}'],
+    ] as const) expect(code(f), f).toContain(needle);
+  });
+
+  it('the docs say it', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### Versioned course editing (R122)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| Course versions and history |');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| No silent fork, saved ids read-only |');
+    expect(read('docs/OPERATIONS.md')).toContain('**Course versions (R122):**');
+    expect(read('SUPABASE_SETUP.md')).toContain('### Every save of a course is a numbered version');
+    expect(read('SUPABASE_SETUP.md')).toContain('course_document_versions');
+  });
+});

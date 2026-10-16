@@ -3,9 +3,18 @@
 import { Plus, Trash2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Course, Gate } from '@/lib/types';
-import { TextField, TextArea, NumberField, listToText, textToList } from './fields';
+import { TextField, TextArea, NumberField, ID_LOCKED_HINT, listToText, textToList } from './fields';
 
-export function GatesEditor({ course, onChange }: { course: Course; onChange: (c: Course) => void }) {
+export function GatesEditor({
+  course,
+  onChange,
+  locked,
+}: {
+  course: Course;
+  onChange: (c: Course) => void;
+  /** The gate ids already saved (R122): each team's gate status is recorded against them. */
+  locked?: ReadonlySet<number>;
+}) {
   const setGates = (gates: Gate[]) => onChange({ ...course, gates });
 
   const update = (i: number, patch: Partial<Gate>) =>
@@ -49,7 +58,7 @@ export function GatesEditor({ course, onChange }: { course: Course; onChange: (c
             </button>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
-            <NumberField label="ID" value={g.id} onChange={(v) => update(i, { id: v })} />
+            <NumberField label="ID" value={g.id} onChange={(v) => update(i, { id: v })} readOnly={locked?.has(g.id)} hint={locked?.has(g.id) ? ID_LOCKED_HINT : undefined} />
             <NumberField label="Week" value={g.week} onChange={(v) => update(i, { week: v })} />
             <div className="sm:col-span-1">
               <TextField label="Title" value={g.title} onChange={(v) => update(i, { title: v })} />

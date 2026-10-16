@@ -5,9 +5,18 @@ import { Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Course, Step, Task } from '@/lib/types';
 import { StepsEditor } from './StepsEditor';
-import { TextField, TextArea, SelectField, listToText, textToList } from './fields';
+import { TextField, TextArea, SelectField, ID_LOCKED_HINT, listToText, textToList } from './fields';
 
-export function TasksEditor({ course, onChange }: { course: Course; onChange: (c: Course) => void }) {
+export function TasksEditor({
+  course,
+  onChange,
+  locked,
+}: {
+  course: Course;
+  onChange: (c: Course) => void;
+  /** The ids already saved (R122): progress is recorded against them, so they are shown and not editable. A task or step added in this session is editable until it is saved. Steps are keyed `taskId/stepId`. */
+  locked?: { tasks: ReadonlySet<string>; steps: ReadonlySet<string> };
+}) {
   const [open, setOpen] = useState<string | null>(null);
   const setTasks = (tasks: Task[]) => onChange({ ...course, tasks });
 
@@ -66,7 +75,7 @@ export function TasksEditor({ course, onChange }: { course: Course; onChange: (c
             {isOpen && (
               <div className="space-y-3 border-t border-line p-4">
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <TextField label="ID" value={t.id} onChange={(v) => update(i, { id: v })} mono />
+                  <TextField label="ID" value={t.id} onChange={(v) => update(i, { id: v })} mono readOnly={locked?.tasks.has(t.id)} hint={locked?.tasks.has(t.id) ? ID_LOCKED_HINT : undefined} />
                   <TextField label="Title" value={t.title} onChange={(v) => update(i, { title: v })} />
                   <SelectField label="Role" value={t.role} options={roleOptions} onChange={(v) => update(i, { role: v })} />
                   <SelectField label="Week" value={String(t.week)} options={weekOptions} onChange={(v) => update(i, { week: parseInt(v) })} />
@@ -77,7 +86,7 @@ export function TasksEditor({ course, onChange }: { course: Course; onChange: (c
                   <TextField label="Frameworks (comma-separated)" value={listToText(t.frameworks)} onChange={(v) => update(i, { frameworks: textToList(v) })} />
                 </div>
                 <div className="border-t border-line pt-3">
-                  <StepsEditor taskId={t.id} steps={t.steps} onChange={(steps: Step[]) => update(i, { steps })} />
+                  <StepsEditor taskId={t.id} steps={t.steps} onChange={(steps: Step[]) => update(i, { steps })} lockedSteps={locked?.steps} />
                 </div>
               </div>
             )}

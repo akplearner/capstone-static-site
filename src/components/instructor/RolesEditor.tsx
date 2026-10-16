@@ -5,9 +5,18 @@ import { Button } from '../ui/Button';
 import { RoleIcon } from '@/components/team/RoleIcon';
 import { Course, RoleDef } from '@/lib/types';
 import { ICON_NAMES, DEFAULT_ICON } from '@/lib/icons';
-import { TextField, TextArea, SelectField } from './fields';
+import { TextField, TextArea, SelectField, ID_LOCKED_HINT } from './fields';
 
-export function RolesEditor({ course, onChange }: { course: Course; onChange: (c: Course) => void }) {
+export function RolesEditor({
+  course,
+  onChange,
+  locked,
+}: {
+  course: Course;
+  onChange: (c: Course) => void;
+  /** The role ids already saved (R122): team state and the RACI are recorded against them. */
+  locked?: ReadonlySet<string>;
+}) {
   const setRoles = (roles: RoleDef[]) => onChange({ ...course, roles });
 
   const update = (i: number, patch: Partial<RoleDef>) =>
@@ -35,7 +44,7 @@ export function RolesEditor({ course, onChange }: { course: Course; onChange: (c
             </button>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <TextField label="ID (used in URLs)" value={r.id} onChange={(v) => update(i, { id: v })} mono />
+            <TextField label="ID (used in URLs)" value={r.id} onChange={(v) => update(i, { id: v })} mono readOnly={locked?.has(r.id)} hint={locked?.has(r.id) ? ID_LOCKED_HINT : undefined} />
             <TextField label="Name" value={r.name} onChange={(v) => update(i, { name: v })} />
           </div>
           <TextArea label="Mission" value={r.mission} onChange={(v) => update(i, { mission: v })} />

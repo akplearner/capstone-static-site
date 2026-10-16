@@ -1178,6 +1178,144 @@ do $$ begin
   assert (select summary from public.content_fixes where id = '00000000-0000-4000-a000-000000000006') = 'Zoe''s fix', 'and the entry itself';
 end $$;
 
+-- ── R122: every save of a course is a numbered, restorable version — and only an admin reads the history ──
+-- Yan is a third admin, used to prove that erasing an account keeps what it saved.
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-4000-8000-000000000011', 'yan@example.com', '{"name":"Yan Admin"}');
+update public.profiles set is_admin = true, is_instructor = true where id = '00000000-0000-4000-8000-000000000011';
+
+-- security-plus was published by Ana (version 1) and edited once above (her R85 update, which asked for 2): two saves, two snapshots.
+do $$ begin
+  assert (select version from public.course_documents where course_id = 'security-plus') = 2, 'two saves: version 2';
+  assert (select array_agg(version order by version) from public.course_document_versions where course_id = 'security-plus') = array[1, 2], 'and the history holds both';
+  assert (select doc ->> 'id' from public.course_document_versions where course_id = 'security-plus' and version = 1) = 'security-plus', 'including the first';
+end $$;
+
+-- Yan publishes a course; Ana edits it twice, the second time claiming a lower number than the database holds.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-000000000011';
+insert into public.course_documents (course_id, schema, doc, version, updated_by)
+  values ('ccna', 'capstone-course-dto/1', '{"course":{"id":"ccna","title":"CCNA","version":1}}', 1, '00000000-0000-4000-8000-000000000011');
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000f';
+update public.course_documents
+  set doc = '{"course":{"id":"ccna","title":"CCNA edited","version":1}}', version = 1, updated_by = '00000000-0000-4000-8000-00000000000f'
+  where course_id = 'ccna';
+update public.course_documents
+  set doc = '{"course":{"id":"ccna","title":"CCNA edited again","version":1}}', version = 1, updated_by = '00000000-0000-4000-8000-00000000000f'
+  where course_id = 'ccna';
+do $$ begin
+  assert (select version from public.course_documents where course_id = 'ccna') = 3, 'ana: the database counts the saves, whatever number the client sent';
+  assert (select (doc -> 'course' ->> 'version')::int from public.course_documents where course_id = 'ccna') = 3, 'the document says which version it is';
+  assert (select count(*) from public.course_document_versions where course_id = 'ccna') = 3, 'ana: one snapshot per save';
+  assert (select doc -> 'course' ->> 'title' from public.course_document_versions where course_id = 'ccna' and version = 1) = 'CCNA', 'ana: version 1 is what Yan saved';
+  assert (select doc -> 'course' ->> 'title' from public.course_document_versions where course_id = 'ccna' and version = 2) = 'CCNA edited', 'ana: version 2 is the first edit';
+  assert (select saved_by_name from public.course_document_versions where course_id = 'ccna' and version = 1) = 'Yan Admin', 'the snapshot says who saved it';
+  assert (select saved_by_name from public.course_document_versions where course_id = 'ccna' and version = 3) = 'Ana Admin', 'and who saved the next';
+  assert (select (doc -> 'course' ->> 'version')::int from public.course_document_versions where course_id = 'ccna' and version = 2) = 2, 'each snapshot carries its own number';
+  assert (select title from public.course_document_versions where course_id = 'ccna' and version = 2) = 'CCNA edited', 'the list can show the title without the document';
+  assert (select bytes from public.course_document_versions where course_id = 'ccna' and version = 2) = octet_length((select doc::text from public.course_document_versions where course_id = 'ccna' and version = 2)), 'and its size';
+end $$;
+-- A client may skip ahead (a built-in course forked at its shipped version carries that number on), never behind.
+update public.course_documents set doc = '{"course":{"id":"ccna","title":"Forked at ten"}}', version = 10, updated_by = '00000000-0000-4000-8000-00000000000f' where course_id = 'ccna';
+-- Restoring is an ordinary save of an old document: a new version, and the old ones stay.
+update public.course_documents
+  set doc = (select v.doc from public.course_document_versions v where v.course_id = 'ccna' and v.version = 1), updated_by = '00000000-0000-4000-8000-00000000000f'
+  where course_id = 'ccna';
+do $$ begin
+  assert (select version from public.course_documents where course_id = 'ccna') = 11, 'ana: a restore is the next version';
+  assert (select doc -> 'course' ->> 'title' from public.course_documents where course_id = 'ccna') = 'CCNA', 'ana: the words of version 1 are live again';
+  assert (select (doc -> 'course' ->> 'version')::int from public.course_documents where course_id = 'ccna') = 11, 'under the new number';
+  assert (select count(*) from public.course_document_versions where course_id = 'ccna') = 5, 'ana: nothing was lost: 1, 2, 3, 10 and 11';
+  assert (select array_agg(version order by version) from public.course_document_versions where course_id = 'ccna') = array[1, 2, 3, 10, 11], 'ana: the numbers, in order';
+  -- The history is not hers to write, from a request.
+  begin
+    insert into public.course_document_versions (course_id, version, schema, doc) values ('ccna', 99, 'x', '{}');
+    raise exception 'ana wrote a snapshot';
+  exception when insufficient_privilege then null; end;
+  begin
+    update public.course_document_versions set doc = '{}' where course_id = 'ccna' and version = 1;
+    raise exception 'ana rewrote a snapshot';
+  exception when insufficient_privilege then null; end;
+  begin
+    delete from public.course_document_versions where course_id = 'ccna' and version = 1;
+    raise exception 'ana deleted a snapshot';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+
+-- Only an admin reads the history: an instructor, a student, a signed-in nobody and the signed-out do not.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000d';
+do $$ begin
+  assert (select count(*) from public.course_document_versions) = 0, 'ivy: an instructor is not an admin; no history';
+  assert (select count(*) from public.course_documents) = 2, 'ivy: still reads the courses themselves';
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+do $$ begin
+  assert (select count(*) from public.course_document_versions) = 0, 'ada: a student reads no history';
+end $$;
+reset role;
+set local role anon;
+set local request.jwt.claim.sub = '';
+do $$ begin
+  assert (select count(*) from public.course_document_versions) = 0, 'anon: no history';
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-000000000011';
+do $$ begin
+  assert (select count(*) from public.course_document_versions) = 7, 'yan: another admin reads every course''s history';
+end $$;
+reset role;
+
+-- The owner is held to it too; a deleted course keeps its history and, made again, carries the numbering on.
+do $$ begin
+  begin
+    update public.course_document_versions set saved_by_name = 'someone else' where course_id = 'ccna' and version = 1;
+    raise exception 'the owner rewrote a snapshot';
+  exception when others then
+    if sqlerrm not like '%append-only%' then raise; end if;
+  end;
+  begin
+    delete from public.course_document_versions where course_id = 'ccna' and version = 1;
+    raise exception 'the owner deleted a snapshot';
+  exception when others then
+    if sqlerrm not like '%append-only%' then raise; end if;
+  end;
+end $$;
+delete from public.course_documents where course_id = 'ccna';
+do $$ begin
+  assert (select count(*) from public.course_document_versions where course_id = 'ccna') = 5, 'a deleted course keeps its history';
+end $$;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000f';
+insert into public.course_documents (course_id, schema, doc, updated_by)
+  values ('ccna', 'capstone-course-dto/1', '{"course":{"id":"ccna","title":"CCNA made again"}}', '00000000-0000-4000-8000-00000000000f');
+do $$ begin
+  assert (select version from public.course_documents where course_id = 'ccna') = 12, 'made again, the numbering carries on';
+end $$;
+reset role;
+
+-- Erasing an account keeps what it saved, and is not an edit.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-000000000011';
+insert into public.course_documents (course_id, schema, doc, updated_by)
+  values ('aws-cloud-practitioner', 'capstone-course-dto/1', '{"course":{"id":"aws-cloud-practitioner","title":"AWS"}}', '00000000-0000-4000-8000-000000000011');
+reset role;
+delete from auth.users where id = '00000000-0000-4000-8000-000000000011';
+do $$ begin
+  assert (select count(*) from public.course_documents where course_id = 'aws-cloud-practitioner') = 1, 'erasing the admin who saved a course does not erase the course';
+  assert (select updated_by from public.course_documents where course_id = 'aws-cloud-practitioner') is null, 'it detaches their id';
+  assert (select version from public.course_documents where course_id = 'aws-cloud-practitioner') = 1, 'and is not counted as an edit';
+  assert (select count(*) from public.course_document_versions where course_id = 'aws-cloud-practitioner') = 1, 'nor snapshotted';
+  assert (select saved_by from public.course_document_versions where course_id = 'aws-cloud-practitioner') is null, 'the snapshot is detached too';
+  assert (select saved_by_name from public.course_document_versions where course_id = 'aws-cloud-practitioner') = 'Yan Admin', 'and keeps the name it was saved under';
+end $$;
+
 -- ── Signed out (anon key, no session) ───────────────────────────────────────
 set local role anon;
 set local request.jwt.claim.sub = '';  -- no session: auth.uid() is null

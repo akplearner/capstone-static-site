@@ -3,16 +3,19 @@
 import { Plus, Trash2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Step } from '@/lib/types';
-import { TextField, TextArea, listToText, textToList } from './fields';
+import { TextField, TextArea, ID_LOCKED_HINT, listToText, textToList } from './fields';
 
 export function StepsEditor({
   taskId,
   steps,
   onChange,
+  lockedSteps,
 }: {
   taskId: string;
   steps: Step[];
   onChange: (steps: Step[]) => void;
+  /** The saved step ids, as `taskId/stepId` (R122): shown, not editable. */
+  lockedSteps?: ReadonlySet<string>;
 }) {
   const update = (i: number, patch: Partial<Step>) =>
     onChange(steps.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
@@ -44,7 +47,7 @@ export function StepsEditor({
             </button>
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
-            <TextField label="ID" value={s.id} onChange={(v) => update(i, { id: v })} mono />
+            <TextField label="ID" value={s.id} onChange={(v) => update(i, { id: v })} mono readOnly={lockedSteps?.has(`${taskId}/${s.id}`)} hint={lockedSteps?.has(`${taskId}/${s.id}`) ? ID_LOCKED_HINT : undefined} />
             <TextField label="Title" value={s.title} onChange={(v) => update(i, { title: v })} />
           </div>
           <TextArea label="Instruction (what to do)" value={s.instruction || ''} onChange={(v) => update(i, { instruction: v })} />

@@ -1,6 +1,7 @@
 import { Course, Gate, GateStatus, Member, RosterEntry, Task, TaskCompletion } from '../types';
 import type { ReportStatus } from '../reportKinds';
 import type { ContentFix, FixDraft } from '../contentFix';
+import type { CourseDto } from '../content/dto';
 import type { DeliverableData, DeliverableDef } from '../docs/types';
 
 import type { DeliverableStatus } from '../docs/lifecycle';
@@ -193,6 +194,32 @@ export interface CourseContentOverrides {
   deliverables?: DeliverableDef[];
   glossary?: Record<string, string>;
   content?: Record<string, unknown>;
+}
+
+/** One saved version of a course in the studio (R122): the number the database gave the save, who saved it and when. */
+export interface CourseVersionEntry {
+  version: number;
+  /** Epoch milliseconds. */
+  savedAt: number;
+  /** A name, never an account. */
+  by: string;
+  title: string;
+  /** The size of the saved document. */
+  bytes: number;
+}
+
+/**
+ * The history of a course's studio saves (R122), newest first. In the cloud the database numbers and
+ * keeps every save (`course_document_versions`, admin read); offline this device keeps the last few.
+ * Restoring is an ordinary save of an old document, so it becomes a NEW version and nothing is lost.
+ */
+export interface CourseHistoryRepository {
+  /** `needsUpdate`: the database has not had migration 0018 yet. */
+  list(courseId: string): Promise<{ ok: boolean; needsUpdate: boolean; versions: CourseVersionEntry[] }>;
+  /** The document of one version, to download. */
+  get(courseId: string, version: number): Promise<CourseDto | null>;
+  /** Save that version's document again. Resolves the new version number, or null when it was refused. */
+  restore(courseId: string, version: number): Promise<number | null>;
 }
 
 export interface CourseRepository {

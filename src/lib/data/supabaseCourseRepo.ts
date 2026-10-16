@@ -108,7 +108,10 @@ export const supabaseCourseRepo: CourseRepository = {
   // R85: the admin studio's content edits ride the same whole-document write
   // the course object always used — one save path, one policy (admin writes).
   saveWithContent(course: Course, content: CourseContentOverrides): void {
-    const next: Course = { ...storedCourse(course), isSeed: false, updatedAt: Date.now() };
+    // R122: every save is a new version. The database numbers it for certain (0018: one past the row, never behind the
+    // client); this is the same count, so the page already shows the number the database will give.
+    const prior = (cache.courseDocument(course.id)?.course as Course | undefined)?.version ?? course.version ?? 0;
+    const next: Course = { ...storedCourse(course), isSeed: false, updatedAt: Date.now(), version: prior + 1 };
     const base = documentFor(next);
     const doc: CourseDto = {
       ...base,
@@ -183,6 +186,8 @@ export const supabaseCourseRepo: CourseRepository = {
     clone.slug = newId;
     clone.title = newTitle;
     clone.isSeed = false;
+    // A copy is a new course: its first save is its version 1 (R122).
+    delete clone.version;
     clone.basedOn = src.basedOn ?? (src.isSeed === false ? undefined : src.id);
     this.save(clone);
     return clone;

@@ -982,6 +982,14 @@ select {
   }
 }
 
+/* A field that is shown and cannot be edited (an id already saved, R122) is the same well a step
+   quieter. It lives here because the rule above is unlayered: a utility on the element loses to
+   it, so the look has to be set in the same place. Focus keeps it, since nothing is typed. */
+input[aria-readonly='true'],
+input[aria-readonly='true']:focus {
+  @apply bg-panel-2 text-muted;
+}
+
 ::selection {
   background: var(--color-accent);
   @apply text-white;

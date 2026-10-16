@@ -1,9 +1,10 @@
 import { Course } from '../types';
-import { CourseContentOverrides, CourseRepository, ImportResult } from './types';
+import { CourseContentOverrides, CourseHistoryRepository, CourseRepository, ImportResult } from './types';
 import { KEYS } from './keys';
 import { safeSetItem } from './safeStorage';
 import { bareDocument, effectiveCourse, seedCourses, storedCourse } from '../content/docs';
 import { localStorageContentFixesRepo } from './localStorageContentFixesRepo';
+import { notifyStore } from '../useClientStore';
 import type { CourseDto } from '../content/dto';
 import { SECURITY_PLUS } from './seed/securityPlus';
 import { CYSA_PLUS } from './seed/cysa';
@@ -188,11 +189,15 @@ export const localStorageCourseRepo: CourseRepository = {
 
   save(course: Course): void {
     const authored = readAuthored();
-    const next = { ...storedCourse(course), isSeed: false, updatedAt: Date.now() };
     const idx = authored.findIndex((c) => c.id === course.id);
+    // R122: every save is a new version, counted as the database counts it in the cloud: one past what the
+    // course was (a built-in's first edit is one past the version it shipped at).
+    const prior = (idx >= 0 ? authored[idx].version : undefined) ?? course.version ?? 0;
+    const next = { ...storedCourse(course), isSeed: false, updatedAt: Date.now(), version: prior + 1 };
     if (idx >= 0) authored[idx] = next;
     else authored.push(next);
     writeAuthored(authored);
+    recordVersion(next);
   },
 
   saveWithContent(course: Course, content: CourseContentOverrides): void {
@@ -242,9 +247,84 @@ export const localStorageCourseRepo: CourseRepository = {
     clone.slug = newId;
     clone.title = newTitle;
     clone.isSeed = false;
+    // A copy is a new course: its first save is its version 1 (R122).
+    delete clone.version;
     // A copy keeps its parent's document: the manual, the diagrams, the forms.
     clone.basedOn = src.basedOn ?? (src.isSeed === false ? undefined : src.id);
     this.save(clone);
     return clone;
+  },
+};
+
+// ── The history of the studio's saves, offline (R122) ──────────────────────────────────────
+//
+// In the cloud the database numbers and keeps every save. Offline this device keeps the last few
+// (each is a whole course, and a browser's storage is small): enough to undo a mistaken save.
+// Defined here, beside the repo whose saves it records, so neither imports the other.
+
+const KEEP_VERSIONS = 8;
+
+interface StoredVersion {
+  version: number;
+  savedAt: number;
+  by: string;
+  title: string;
+  course: Course;
+  overrides: CourseContentOverrides;
+}
+
+function readVersions(courseId: string): StoredVersion[] {
+  if (!hasWindow()) return [];
+  try {
+    const raw = localStorage.getItem(KEYS.courseVersions(courseId));
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    return (Array.isArray(parsed) ? parsed : []).filter(
+      (v): v is StoredVersion => !!v && typeof v === 'object' && Number.isInteger((v as StoredVersion).version) && !!(v as StoredVersion).course
+    );
+  } catch {
+    return [];
+  }
+}
+
+/** Keep this save: best effort and quiet, because a full browser must not turn a save that worked into an alarm about its history. */
+function recordVersion(course: Course): void {
+  if (!hasWindow()) return;
+  const all = [
+    ...readVersions(course.id),
+    { version: course.version ?? 1, savedAt: Date.now(), by: 'Instructor', title: course.title, course, overrides: readContentOverrides(course.id) },
+  ];
+  for (let keep = KEEP_VERSIONS; keep >= 1; keep--) {
+    try {
+      localStorage.setItem(KEYS.courseVersions(course.id), JSON.stringify(all.slice(-keep)));
+      return;
+    } catch {
+      /* try keeping fewer */
+    }
+  }
+}
+
+export const localStorageCourseHistoryRepo: CourseHistoryRepository = {
+  async list(courseId) {
+    const versions = readVersions(courseId)
+      .map((v) => ({ version: v.version, savedAt: v.savedAt, by: v.by, title: v.title, bytes: JSON.stringify({ course: v.course, overrides: v.overrides }).length }))
+      .sort((a, b) => b.version - a.version);
+    return { ok: true, needsUpdate: false, versions };
+  },
+
+  async get(courseId, version) {
+    const v = readVersions(courseId).find((x) => x.version === version);
+    return v ? applyOverrides(bareDocument(v.course), v.overrides) : null;
+  },
+
+  // An ordinary save of the old course: a NEW version, with the old content overrides put back as they were.
+  async restore(courseId, version) {
+    const v = readVersions(courseId).find((x) => x.version === version);
+    if (!v) return null;
+    const has = !!(v.overrides.deliverables || v.overrides.glossary || v.overrides.content);
+    if (has) safeSetItem(KEYS.courseContent(courseId), JSON.stringify(v.overrides));
+    else if (hasWindow()) localStorage.removeItem(KEYS.courseContent(courseId));
+    localStorageCourseRepo.save(v.course);
+    notifyStore();
+    return localStorageCourseRepo.get(courseId)?.version ?? null;
   },
 };

@@ -127,6 +127,18 @@ has failed silently in some deployment of some product; none takes more than a m
   `content/profiles/sample-mssp.json` with a new id on `/instructor/profiles`; the Skill board picker
   lists it; Create link there records "measured against" it. Without the consent the dialog points to
   the account page; without the functions it says links are not set up.
+- [ ] **Course versions (R122):** as an admin, open a built-in course in the studio (`/instructor/<id>`): the
+  banner says saving forks it (for every student in the cloud, on this device offline), that wording is better
+  corrected from a report, and that a course of one's own is a duplicate; the title carries `v1.0`. Change the
+  title and Save: a dialog asks first; Cancel saves nothing; "Save an edited copy" saves, the toast says
+  "Course saved as version 2" and the chip reads `v2.0`. The banner now says it is an edited copy, and the next
+  Save does not ask. Open the **History** tab: each save is listed newest first with its number, title, who, when
+  and size, the latest marked Current. **Download** a version; **Restore** an older one: it asks, saves it as a
+  NEW version (`v4.0`), and the Details tab shows its words again. Open Tasks, Roles and Gates: ids already saved
+  are greyed with "Progress is recorded against this id"; **Add task** gives an id that can still be edited
+  until it is saved. In the Supabase SQL Editor, `select version, saved_by_name, title from
+  course_document_versions order by saved_at desc limit 5` lists the same saves. If History says "Database
+  update needed", paste `supabase/setup.sql` and Run.
 - [ ] **Content fixes (R121):** as an admin, open a pending report on `/instructor/issues`: under it,
   **Fix the text** opens the words of the step it names. Change one field (the box is marked "Changed"),
   clear the "what changed and why" line to see Save refuse, put it back, tick "Also resolve the other pending

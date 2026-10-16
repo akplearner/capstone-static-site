@@ -4,18 +4,26 @@ const inputClass =
   'mt-1 w-full rounded-lg depth-edge bg-panel px-3 py-2 text-sm text-ink';
 const labelClass = 'block text-xs font-medium text-muted';
 
+/** Said under an id that can no longer change (R122): progress, team state and the RACI are recorded against it. */
+export const ID_LOCKED_HINT = 'Progress is recorded against this id, so it cannot change once saved.';
+
 export function TextField({
   label,
   value,
   onChange,
   placeholder,
   mono,
+  readOnly,
+  hint,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   mono?: boolean;
+  /** Shown and copyable, not editable; `input[aria-readonly='true']` in globals.css gives it the quieter look. */
+  readOnly?: boolean;
+  hint?: string;
 }) {
   return (
     <label className="block">
@@ -24,8 +32,11 @@ export function TextField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        readOnly={readOnly}
+        aria-readonly={readOnly || undefined}
         className={`${inputClass} ${mono ? 'font-mono' : ''}`}
       />
+      {hint && <span className="mt-1 block text-xs text-muted">{hint}</span>}
     </label>
   );
 }
@@ -55,15 +66,27 @@ export function NumberField({
   label,
   value,
   onChange,
+  readOnly,
+  hint,
 }: {
   label: string;
   value: number;
   onChange: (v: number) => void;
+  readOnly?: boolean;
+  hint?: string;
 }) {
   return (
     <label className="block">
       <span className={labelClass}>{label}</span>
-      <input type="number" value={value} onChange={(e) => onChange(parseInt(e.target.value) || 0)} className={inputClass} />
+      <input
+        type="number"
+        value={value}
+        onChange={(e) => onChange(parseInt(e.target.value) || 0)}
+        readOnly={readOnly}
+        aria-readonly={readOnly || undefined}
+        className={inputClass}
+      />
+      {hint && <span className="mt-1 block text-xs text-muted">{hint}</span>}
     </label>
   );
 }

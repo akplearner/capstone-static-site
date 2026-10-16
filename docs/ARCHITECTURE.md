@@ -708,6 +708,51 @@ and a save names the step instead of failing quietly. Offline the ledger is this
 suite of tests (`contentFix.test.ts`, the local and cloud repo tests, the page test, `rls.sql`) covers both
 paths.
 
+### Versioned course editing (R122)
+
+The studio saved a course by overwriting its one row in `course_documents`: the version was whatever the
+browser said (and the browser never counted it up), nothing recorded who saved or what the course said
+before, and a mistaken save could only be undone by retyping. A built-in course was forked by that first
+save without anyone being told: the copy keeps the old text and stops receiving the built-in course's
+updates. R122 numbers and keeps every save, and says so before a fork.
+
+**The database counts.** Migration `0018_course_document_versions.sql` puts a trigger on `course_documents`:
+every insert or update takes the next version number under a per-course lock, `greatest(the newest snapshot
++ 1, the row's version + 1, the number the client sent)`, so a client may skip ahead (a built-in forked at
+its shipped version carries that numbering on) and never go behind; it writes the number into
+`doc.course.version`, so the row, the document and the history agree; and it snapshots the saved document
+into `course_document_versions` with the course title, its size, who saved it (a name) and when. Only the
+trigger writes there: the grants are revoked, a second trigger refuses a rewrite for the table owner too, and
+`saved_by` detaches (`on delete set null`) when an account is erased. Only an admin reads. A deleted course
+keeps its history, and a course made again carries the numbering on. Rows saved before the migration are
+snapshotted once, so the history starts with what is live. One repair rode along:
+`course_documents.updated_by` had no `ON DELETE` action, so an admin who had ever saved a course could not be
+erased; it now detaches, and the trigger does not count that as an edit.
+
+**The clients count the same way**, so the page already shows the number the database will give: both
+repos save with `version = (the course's saved version, else the one it shipped at, else 0) + 1`, whatever
+number the draft in the studio held, and a duplicate starts again at 1. Offline,
+`localStorageCourseHistoryRepo` (beside the repo whose saves it records) keeps the last eight saves, each a
+whole course, quietly: a full browser must not turn a save that worked into an alarm about its history.
+
+**The content version** a student sees is `{this version}.{content fix revision}` (R121): the first counts
+the edits made in the studio, the second the corrections made from reports.
+
+**History** is the studio's new tab (`HistoryPanel`, props only, `courseHistoryRepo`): each save with its
+number, title, who, when and size; **Download** for any; **Restore**, which asks first and saves the old
+document again as a NEW version (an ordinary upsert, so the trigger numbers it and nothing is lost), after
+which the editor re-seeds from what was restored.
+
+**No silent fork.** A built-in course shows a banner, and its first Save asks: it forks the course (for every
+student, or on this device offline), later updates to the built-in course will not reach the copy, wording
+is better corrected from a report (Fix the text, R121), and a course of one's own is a duplicate. (The
+instructor home never offered Edit on a built-in; the hole was the address.) Once forked, the edited copy has
+its own banner and the next saves do not ask. **Saved ids are read-only**: task, step, role and gate ids are
+shown and not editable once saved (`ID_LOCKED_HINT`), because progress, team state, the RACI and gate status
+are recorded against them; an id added in the session stays editable until it is saved. As with the other
+migrations, a database without `0018` degrades: the History tab says "Database update needed", saves still
+work, and the version the page counts is the one the database will confirm once it is applied.
+
 ## 7. The MSP / business bridge (dual-use is the unlock)
 
 The same primitives serve training *and* commercial implementation:

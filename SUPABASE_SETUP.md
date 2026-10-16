@@ -410,6 +410,17 @@ and nothing a student is doing breaks. Nobody can edit or delete a ledger row, y
 undone with a revert. (To remove a row by hand, disable the trigger `content_fixes_append_only` in the SQL
 Editor for that one statement.)
 
+### Every save of a course is a numbered version
+
+The course editor (the **Studio**, admin only) numbers and keeps every save (**migration 0018**, in
+`supabase/setup.sql`): the database gives each save the next number, writes it into the course, and keeps a
+copy with who saved it and when. The editor's **History** tab lists them, downloads any, and restores any (as
+a new version, so nothing is lost). A built-in course's first save forks it, and the editor asks first;
+task, step, role and gate ids already saved cannot be changed, because progress is recorded against them.
+Paste `supabase/setup.sql` into the SQL Editor and **Run** (safe to repeat) to apply it; until then the
+History tab says "Database update needed" and saves still work. (0018 also lets an admin who has saved a
+course be erased: the course stays and their id detaches.)
+
 ## Let students delete their account
 
 The privacy policy promises account deletion. Removing the login itself needs the
@@ -569,6 +580,7 @@ Still worth ten minutes on the live site before real students:
 | Cohort calendar (start date) | anyone signed in (read); the instructor writes |
 | The course document | anyone signed in (read); **the admin** writes |
 | Content fixes (`content_fixes`) | anyone signed in (read: it is the corrected words they render); **the admin** appends, as themselves; nobody edits or deletes a row, the table owner included; the database numbers each course's entries |
+| Course version history (`course_document_versions`) | **the admin** reads it; nobody writes it from a request (the database does, on every save of a course, and numbers the save); nobody edits or deletes a snapshot, the table owner included |
 
 Lab notes are the strictest on purpose: that is where students record lab details.
 Instructors can read membership, completions, deliverables, the evidence ledger

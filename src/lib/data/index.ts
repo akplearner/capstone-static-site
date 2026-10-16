@@ -9,8 +9,9 @@
 // built on it see the same catalogue the repo serves.
 import { isSupabaseConfigured } from '../supabase/config';
 import { registerDocumentSource, registerFixesSource } from '../content/docs';
-import { localStorageCourseRepo, localDocumentSource } from './localStorageCourseRepo';
+import { localStorageCourseRepo, localStorageCourseHistoryRepo, localDocumentSource } from './localStorageCourseRepo';
 import { supabaseCourseRepo, supabaseDocumentSource } from './supabaseCourseRepo';
+import { supabaseCourseHistoryRepo } from './supabaseCourseHistoryRepo';
 import { localStorageContentFixesRepo } from './localStorageContentFixesRepo';
 import { supabaseContentFixesRepo } from './supabaseContentFixesRepo';
 import { localStorageProgressRepo } from './localStorageProgressRepo';
@@ -27,6 +28,8 @@ import { supabaseReviewRepo, supabaseCohortRepo, supabaseStepNotesRepo, supabase
 const cloud = isSupabaseConfigured();
 
 export const courseRepo = cloud ? supabaseCourseRepo : localStorageCourseRepo;
+// R122: every studio save is a numbered, restorable version (the History tab).
+export const courseHistoryRepo = cloud ? supabaseCourseHistoryRepo : localStorageCourseHistoryRepo;
 registerDocumentSource(cloud ? supabaseDocumentSource : localDocumentSource);
 // R121: the content fix ledger, laid over every course wherever a course or its document is read.
 export const contentFixesRepo = cloud ? supabaseContentFixesRepo : localStorageContentFixesRepo;
@@ -78,4 +81,6 @@ export type {
   SubmissionProgress,
   SubmissionsRepository,
   ContentFixesRepository,
+  CourseHistoryRepository,
+  CourseVersionEntry,
 } from './types';
