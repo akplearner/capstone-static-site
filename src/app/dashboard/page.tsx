@@ -3,20 +3,19 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Compass, FileCheck2, FolderGit2, ListChecks, ShieldCheck, Terminal } from 'lucide-react';
+import { ArrowRight, CalendarCheck, CheckCheck, ClipboardCheck, Compass, FileCheck2, FolderGit2, GraduationCap, ListChecks, ShieldCheck, Terminal, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
 import { RoleIcon } from '@/components/team/RoleIcon';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/ui/Spinner';
-import { ProgressRing } from '@/components/ui/ProgressRing';
 import { CapstoneStonePanel } from '@/components/quarry/CapstoneStone';
 import { SealLedger } from '@/components/quarry/items';
 import { SignInPanel } from '@/components/auth/SignInPanel';
 import { DemoBanner } from '@/components/auth/DemoBanner';
 import { PathRail, PathPicker } from '@/components/catalog/PathRail';
 import { VerificationBar } from '@/components/catalog/VerificationBar';
-import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo, statusRepo, submissionsRepo, reviewRepo, taskReportsRepo, stepNotesRepo } from '@/lib/data';
+import { courseRepo, progressRepo, docsRepo, evidenceRepo, earnedRepo, pathRepo, statusRepo, submissionsRepo, reviewRepo, taskReportsRepo, stepNotesRepo } from '@/lib/data';
 import { courseDocument, bareDocument } from '@/lib/content/docs';
 import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
 import { skillProfile, skillPortfolio } from '@/lib/skillProfile';
@@ -24,7 +23,11 @@ import { defaultMeasure, kpiBoard, sumKpi } from '@/lib/kpiBoard';
 import { MEMBER_PROFILE_SCHEMA, ONTOLOGY_VERSION } from '@/lib/docs/ontology';
 import { buildCredential, buildMemberProfile, profileJson, CREDENTIAL_FILENAME, PROFILE_FILENAME, type MemberCourseRow } from '@/lib/memberExport';
 import { shareProfileCopy } from '@/lib/shareCopy';
-import { useBankEarned, withEarned } from '@/lib/earnedBank';
+import { useBankEarned } from '@/lib/earnedBank';
+import { applyEarned, earnedKey, keptFromEarlier } from '@/lib/earnedSkills';
+import { metricDetail, type MetricDetail, type RecordMetric } from '@/lib/recordDetail';
+import { courseFactsOf } from '@/lib/recordFacts';
+import { RecordDetailPanel, RecordStrip, type RecordTile } from '@/components/skills/RecordStrip';
 import { sha256Text } from '@/lib/evidenceLedger';
 import { downloadText } from '@/lib/download';
 import { DomainStrip } from '@/components/skills/DomainStrip';
@@ -33,7 +36,7 @@ import { DtoChip } from '@/components/skills/DtoChip';
 import { ShareLinkDialog } from '@/components/share/ShareLinkDialog';
 import { deriveCrewProgress } from '@/lib/game';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
-import { getTasksByRole, phaseTag } from '@/lib/course-helpers';
+import { getTasksByRole, isGradedWeek, phaseTag } from '@/lib/course-helpers';
 import { regionFor, seamFor, phaseForWeek } from '@/lib/quarry';
 import { resolveActiveWeek } from '@/lib/resume';
 import { entryForCourse } from '@/lib/catalog';
@@ -62,6 +65,12 @@ interface CourseCard extends MemberCourseRow {
   crew: CrewProgress;
   activeWeek: number;
   level?: string;
+  /** R126: tasks of the graded weeks that are done, over all of them: the record's "Tasks done". */
+  tasksDone: number;
+  tasksTotal: number;
+  /** R126: the graded weeks cleared, by number, and the rows the ledger holds above the live run (R125): what the record's lists are built from. */
+  clearedWeeks: number[];
+  kept: string[];
 }
 
 function buildCard(course: Course): CourseCard | null {
@@ -109,7 +118,7 @@ function buildCard(course: Course): CourseCard | null {
   const registry = skillsOf(doc);
   const cert = certOf(doc);
   // R125: the member's earned rows are laid over the live profile, so a retake reads at what was already earned.
-  const profile = withEarned(skillProfile({
+  const live = skillProfile({
     course,
     role: member.role,
     memberId: member.memberId,
@@ -131,7 +140,14 @@ function buildCard(course: Course): CourseCard | null {
     asOf: Date.now(),
     receipts,
     rehashes,
-  }));
+  });
+  const earned = earnedRepo.list(course.id);
+  const profile = applyEarned(live, earned);
+  // R126: what the record's lists need and the strip does not print.
+  const gradedTasks = getTasksByRole(course, member.role).filter((t) => isGradedWeek(course, t.week) && t.steps.some((x) => !x.optional));
+  const clearedWeeks = course.weeks
+    .filter((w) => isGradedWeek(course, w.number) && getTasksByRole(course, member.role, w.number).length > 0 && (weekStats[w.number] ?? 0) >= 100)
+    .map((w) => w.number);
   // R109: the sixteen KPIs against the role's default measure, and the work
   // roles as rows of this course's own document (the export writes their ids).
   const board = kpiBoard({
@@ -161,6 +177,10 @@ function buildCard(course: Course): CourseCard | null {
     activeWeek,
     level: entry ? levelDef(entry.level).name : undefined,
     capstoneFiled,
+    tasksDone: gradedTasks.filter((t) => (taskStats[t.id] ?? 0) >= 100).length,
+    tasksTotal: gradedTasks.length,
+    clearedWeeks,
+    kept: keptFromEarlier(live, earned).map(earnedKey),
   };
 }
 
@@ -172,12 +192,25 @@ export default function DashboardPage() {
   // Cross-course hydration. Without this the cloud cache is only ever filled by
   // a course page, so a signed-in student landing here first saw an empty
   // dashboard — see src/lib/useUserSync.ts.
-  useUserSync();
+  const { ready } = useUserSync();
 
+  // R126: the key stands in for each course's body (it is a whole course: every week, task and step), which
+  // is the one thing in a card that is large and changes only when the course is edited or fixed. Everything
+  // else is compared by value, so any change to the member's record still re-renders the page.
   const cards = useClientStore<CourseCard[]>(
     () => courseRepo.list().map(buildCard).filter((c): c is CourseCard => c !== null),
-    EMPTY_ARRAY
+    EMPTY_ARRAY,
+    (list) => JSON.stringify(list.map((c) => ({ ...c, course: `${c.course.id}:${c.course.updatedAt ?? 'seed'}:${c.course.revision ?? 0}` })))
   );
+  // R126: the figure that is open, and the lists behind it. The facts are read when a figure is opened and
+  // again whenever the store changes, so an open list is as live as the strip.
+  const [openTile, setOpenTile] = useState<RecordMetric | null>(null);
+  const [more, setMore] = useState<ReadonlySet<string>>(new Set());
+  const detail = useClientStore<MetricDetail | null>(() => (openTile ? metricDetail(openTile, cards.map(courseFactsOf)) : null), null);
+  const toggleTile = (id: RecordMetric) => {
+    setOpenTile((cur) => (cur === id ? null : id));
+    setMore(new Set());
+  };
   const chosen = useClientStore<{ pathId: string; chosenAt: number } | null>(
     () => pathRepo.get(cards[0]?.member.memberId ?? 'local'),
     null
@@ -200,6 +233,38 @@ export default function DashboardPage() {
   const completedCourseIds = new Set(cards.filter((c) => c.capstoneFiled).map((c) => c.course.id));
   const path = chosen ? pathById(chosen.pathId) : undefined;
   const memberId = cards[0]?.member.memberId ?? 'local';
+  // R126: the figures of the record, twelve, in the order a course is lived: progress, proof, then what it taught.
+  const sum = (pick: (c: CourseCard) => number) => cards.reduce((n, c) => n + pick(c), 0);
+  const ratio = (value: number, max: number) => (max > 0 ? { value, max } : undefined);
+  const tiles: RecordTile[] = [
+    { id: 'steps-done', icon: CheckCheck, label: 'Steps done', value: `${summary.stepsDone}`, sub: summary.stepsTotal > 0 ? `of ${summary.stepsTotal} required` : 'none yet', ring: ratio(summary.stepsDone, summary.stepsTotal) },
+    { id: 'tasks-done', icon: ClipboardCheck, label: 'Tasks done', value: `${sum((c) => c.tasksDone)}`, sub: `of ${sum((c) => c.tasksTotal)} in graded weeks`, ring: ratio(sum((c) => c.tasksDone), sum((c) => c.tasksTotal)) },
+    { id: 'weeks-sealed', icon: CalendarCheck, label: 'Weeks sealed', value: `${sum((c) => c.crew.weeksCleared)}`, sub: `of ${sum((c) => c.crew.weeksTotal)} graded weeks`, ring: ratio(sum((c) => c.crew.weeksCleared), sum((c) => c.crew.weeksTotal)) },
+    { id: 'capstones', icon: FolderGit2, label: 'Capstones delivered', value: `${completedCourseIds.size}`, sub: `of ${cards.length} started`, ring: ratio(completedCourseIds.size, cards.length) },
+    {
+      id: 'steps-verified',
+      icon: ShieldCheck,
+      label: 'Steps verified',
+      value: `${summary.verified}`,
+      sub: summary.verifiable > 0 ? `of ${summary.verifiable} checkable${summary.receipted ? ` · ${summary.receipted} receipted` : ''}` : 'none checkable yet',
+      ring: ratio(summary.verified, summary.verifiable),
+    },
+    ...(words
+      ? [
+          { id: 'commands' as const, icon: Terminal, label: words.COPY.tiles.commandsVerified, value: `${commands.value}`, sub: commands.of > 0 ? `of ${commands.of} ${words.COPY.recordCommands}` : words.COPY.emptyDimension, ring: ratio(commands.value, commands.of) },
+        ]
+      : []),
+    { id: 'evidence', icon: FileCheck2, label: 'Evidence hashed', value: `${summary.artifacts}`, sub: 'files in your custody log' },
+    { id: 'days', icon: Compass, label: 'Days worked', value: `${summary.activeDays}`, sub: 'measured, never scored' },
+    ...(words
+      ? [
+          { id: 'skills' as const, icon: ShieldCheck, label: words.COPY.tiles.skillsVerified, value: `${skills.skillsVerified.length}`, sub: `${words.COPY.recordSkills} ${skills.skillsPractised.length} · ${currentSkills} ${words.COPY.board.current}`, ring: ratio(skills.skillsVerified.length, skills.skillsPractised.length) },
+          { id: 'tools' as const, icon: Wrench, label: words.COPY.tiles.toolsUsed, value: `${skills.toolsUsed.length}`, sub: words.COPY.recordTools },
+          { id: 'procedures' as const, icon: ListChecks, label: words.COPY.tiles.proceduresToStandard, value: procedures.loaded ? `${procedures.value}` : '—', sub: !procedures.loaded ? words.COPY.loadedLater : procedures.of > 0 ? `of ${procedures.of} ${words.COPY.recordProcedures}` : words.COPY.emptyDimension, ring: procedures.loaded ? ratio(procedures.value, procedures.of) : undefined },
+          { id: 'domains' as const, icon: GraduationCap, label: 'Exam domains verified', value: `${skills.domainsVerified}`, sub: `of ${skills.domainsTotal} across the courses`, ring: ratio(skills.domainsVerified, skills.domainsTotal) },
+        ]
+      : []),
+  ];
   // R109: the member-profile export and the credential, built by the same
   // module as the portfolio's (src/lib/memberExport.ts), at the click.
   const exportInput = (copy: NonNullable<typeof words>['COPY']) => ({ subject: user?.email ?? 'Capstone portfolio', copy, pathId: path?.id ?? null, summary, skills, rows: cards, generatedAt: new Date().toISOString() });
@@ -227,7 +292,7 @@ export default function DashboardPage() {
         lede="Every capstone you’ve started, how far the stone is cut, and how much of it you proved against real output."
       />
 
-      {!hydrated ? (
+      {!hydrated || !ready ? (
         <div className="grid gap-6 md:grid-cols-2">
           {[0, 1].map((i) => (
             <Skeleton key={i} className="h-56 w-full" />
@@ -258,66 +323,17 @@ export default function DashboardPage() {
             <SectionLabel id="dash-record">Your record</SectionLabel>
             {/* One flat strip, not four boxes: a summary should be readable,
                 not the heaviest object on the page. */}
-            <Surface as="dl" variant="flat" padding="none" className="grid divide-y divide-line sm:grid-cols-2 sm:divide-y-0 sm:divide-x lg:grid-cols-4">
-            <Stat
-              icon={ShieldCheck}
-              label="Steps verified"
-              value={`${summary.verified}`}
-              sub={summary.verifiable > 0 ? `of ${summary.verifiable} checkable${summary.receipted ? ` · ${summary.receipted} receipted` : ''}` : 'none checkable yet'}
-              ring={summary.verifiable > 0 ? { value: summary.verified, max: summary.verifiable } : undefined}
-            />
-            <Stat
-              icon={FileCheck2}
-              label="Evidence hashed"
-              value={`${summary.artifacts}`}
-              sub="files in your custody log"
-            />
-            <Stat
-              icon={FolderGit2}
-              label="Capstones delivered"
-              value={`${completedCourseIds.size}`}
-              sub={`of ${cards.length} started`}
-              ring={cards.length > 0 ? { value: completedCourseIds.size, max: cards.length } : undefined}
-            />
-            <Stat
-              icon={Compass}
-              label="Days worked"
-              value={`${summary.activeDays}`}
-              sub="measured, never scored"
-            />
-            {words && (
-              <Stat
-                icon={ShieldCheck}
-                label={words.COPY.tiles.skillsVerified}
-                value={`${skills.skillsVerified.length}`}
-                sub={`${words.COPY.recordSkills} ${skills.skillsPractised.length} · ${currentSkills} ${words.COPY.board.current}`}
-                ring={skills.skillsPractised.length > 0 ? { value: skills.skillsVerified.length, max: skills.skillsPractised.length } : undefined}
+            <RecordStrip tiles={tiles} open={openTile} onToggle={toggleTile} panelId="dash-record-detail" />
+            {openTile && detail && (
+              <RecordDetailPanel
+                id="dash-record-detail"
+                title={tiles.find((t) => t.id === openTile)?.label ?? ''}
+                detail={detail}
+                expanded={more}
+                onExpand={(section) => setMore((cur) => new Set(cur.has(section) ? [...cur].filter((x) => x !== section) : [...cur, section]))}
+                onClose={() => setOpenTile(null)}
               />
             )}
-            {words && (
-              <Stat icon={FileCheck2} label={words.COPY.tiles.toolsUsed} value={`${skills.toolsUsed.length}`} sub={words.COPY.recordTools} />
-            )}
-            {/* R109: two of the sixteen KPIs across every capstone. A team fact
-                not handed in says so rather than printing a zero. */}
-            {words && (
-              <Stat
-                icon={Terminal}
-                label={words.COPY.tiles.commandsVerified}
-                value={`${commands.value}`}
-                sub={commands.of > 0 ? `of ${commands.of} ${words.COPY.recordCommands}` : words.COPY.emptyDimension}
-                ring={commands.of > 0 ? { value: commands.value, max: commands.of } : undefined}
-              />
-            )}
-            {words && (
-              <Stat
-                icon={ListChecks}
-                label={words.COPY.tiles.proceduresToStandard}
-                value={procedures.loaded ? `${procedures.value}` : '—'}
-                sub={!procedures.loaded ? words.COPY.loadedLater : procedures.of > 0 ? `of ${procedures.of} ${words.COPY.recordProcedures}` : words.COPY.emptyDimension}
-                ring={procedures.loaded && procedures.of > 0 ? { value: procedures.value, max: procedures.of } : undefined}
-              />
-            )}
-            </Surface>
             {/* R109: the member profile as the document an agent reads, and the credential around it. */}
             {words && (
               <DtoChip
@@ -423,41 +439,6 @@ function SectionLabel({ id, children }: { id: string; children: React.ReactNode 
       <span className="shrink-0">{children}</span>
       <span className="h-px flex-1 bg-line" aria-hidden />
     </h2>
-  );
-}
-
-function Stat({
-  icon: Icon,
-  label,
-  value,
-  sub,
-  ring,
-}: {
-  icon: typeof ShieldCheck;
-  label: string;
-  value: string;
-  sub: string;
-  /** Present when the stat is a ratio — drawn as a ring with the value inside. */
-  ring?: { value: number; max: number };
-}) {
-  return (
-    <div className="px-4 py-3 sm:px-5">
-      <dt className="flex items-center gap-2 text-sm text-muted">
-        <Icon className="h-4 w-4 text-accent" aria-hidden />
-        {label}
-      </dt>
-      {ring ? (
-        <dd className="mt-2 flex items-center gap-3">
-          <ProgressRing value={ring.value} max={ring.max} label={label} />
-          <span className="text-sm text-muted">{sub}</span>
-        </dd>
-      ) : (
-        <dd className="mt-1">
-          <span className="block text-2xl font-semibold tabular-nums text-ink">{value}</span>
-          <span className="text-sm text-muted">{sub}</span>
-        </dd>
-      )}
-    </div>
   );
 }
 

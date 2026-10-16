@@ -9,8 +9,8 @@ the record. `src/lib/page-shape.test.ts` fails if an id is removed from the tabl
 |----|---------|-------|--------|
 | F1 | A text field takes one character at a time (creating a link, reporting an issue) | R123 | Done |
 | F2 | Create link fails: "The copy is larger than 256 KB, the most a link can hold." | R124 | Done |
-| F3 | The dashboard's "Your record" does not update | R126 | Open |
-| F4 | Each record metric expands to the tools, commands, procedures and actions behind it | R126 | Open |
+| F3 | The dashboard's "Your record" does not update | R126 | Done |
+| F4 | Each record metric expands to the tools, commands, procedures and actions behind it | R126 | Done |
 | F5 | A skill is earned the first time a course is completed; a retake only adds what is missing and never overwrites an earned skill | R125 | Done |
 | F6 | An export is a compact PDF of skills, progress and issues, not a JSON file | R127 | Open |
 
@@ -66,11 +66,30 @@ the full export over it, which is why the copy is compact), runs the share funct
 validates it against the schema; `ShareLinkDialog.test.tsx` covers the sizes, the ticking, the over-limit state
 and the copy that is sent; `SharedProfile.test.tsx` renders the compact copy.
 
-## F3 and F4 — the record updates, and each metric expands (R126, open)
+## F3 and F4 — the record updates, and each figure opens (R126, done)
 
-Fixed when finishing a step moves the record on the dashboard without a reload, in local and cloud mode, and
-when each tile opens to the tools, commands, procedures, standards and actions that make up its number, with
-the task and step each came from.
+**Cause of F3 (found by reproducing it in a browser).** The record did update, but its figures counted only
+verified evidence: after three ticked steps "Steps verified" read 0 and "Skills verified" read "0 of practised 3".
+Steps done were not in the record at all (only in a card further down), "Capstones delivered" needed a filed
+capstone, and "Days worked" needed evidence. So finishing work changed nothing a member could see. Besides, a page left
+open was never refreshed (no refresh on focus, nothing from another tab or device until a reload), a signed-in
+member saw "No capstones yet" while the first load was still running, and the page serialised every course on every
+broadcast.
+
+**Fix.** The record is twelve figures: progress (steps done, tasks done, weeks sealed, capstones delivered), proof
+(steps verified, commands verified, evidence hashed, days worked) and what the course taught (skills verified, tools
+used, procedures to standard, exam domains verified), so a tick moves a figure at once. The page loads the account
+again when it is looked at (at most every ten seconds), shows a skeleton until the first load lands, and compares a
+course by id, update time and revision instead of by body.
+
+**F4.** Each figure is a button that opens a panel listing what it counted: the steps (actions), commands, tools and
+procedures behind it, each with the course, week and task it came from and a link to the task; six entries with
+"Show all". The lists are built from the step set the figure itself counts, so each is held to the number printed.
+A row kept from an earlier run (F5) is listed as such with the steps it was earned from.
+
+**Verified.** `recordDetail.test.ts` (each list against its figure on a real course, one course and two, empty, and
+after a reset), `dashboard/page.test.tsx` (the real page: a tick moves the record, a figure opens, the list is live,
+the kept rows), `RecordStrip.test.tsx`, `useUserSync.test.tsx`.
 
 ## F5 — first completion earns a skill (R125, done)
 

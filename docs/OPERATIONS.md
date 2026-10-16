@@ -127,6 +127,14 @@ has failed silently in some deployment of some product; none takes more than a m
   `content/profiles/sample-mssp.json` with a new id on `/instructor/profiles`; the Skill board picker
   lists it; Create link there records "measured against" it. Without the consent the dialog points to
   the account page; without the functions it says links are not set up.
+- [ ] **The record moves, and opens (R126):** as a member, open `/dashboard` with a course started and note the twelve
+  figures. In another tab tick a step on the course's Tasks tab and return: **Steps done** has moved without a reload
+  (verified figures move once output is pasted). Open **Steps verified**: a panel lists each verified step with the course,
+  week and task, a link ("Open the task: ..."), then the **Commands**, **Tools** and **Procedures** behind them, six entries
+  each with "Show all". Open **Commands verified**: the commands themselves, in code. Opening another figure closes the first;
+  the figure again, or the close button, closes it. After **Reset my progress**, **Skills verified** still lists the skills,
+  marked "Kept from an earlier run", with the steps they were earned from; **Steps done** is 0 again. On a phone, opening a
+  figure scrolls to its list. `docs/FIX_LIST.md` items F3 and F4.
 - [ ] **Skills kept across a retake (R125):** as a member, finish a few tasks of a course (tick and verify steps) and open
   `/dashboard`: the record shows skills practised and verified. On the course's Home tab choose **Reset my progress**
   (the dialog says earned skills stay on the record): the course reads 0% again, and `/dashboard` and `/portfolio` still

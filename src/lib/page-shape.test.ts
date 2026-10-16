@@ -2576,8 +2576,11 @@ describe('R109 — the KPI pack and the DTO chips', () => {
     expect(card.match(/data-skill-board-link/g), 'the link lives in the pack').toBeNull();
     expect(code('src/components/course/HomeTab.tsx')).toMatch(/<SkillsCard [^>]*crew=\{crew\}/);
     const dash = code('src/app/dashboard/page.tsx');
-    for (const n of ['<KpiPack ', '<DtoChip ', 'kpiBoard({', 'defaultMeasure(', 'sumKpi(', 'buildMemberProfile(', 'buildCredential(', 'profileJson(', 'sha256Text(', 'downloadText(', 'lg:grid-cols-4', 'tiles.commandsVerified', 'tiles.proceduresToStandard']) expect(dash, n).toContain(n);
-    expect(dash.match(/<Stat\b/g)?.length, 'eight record tiles').toBe(8);
+    for (const n of ['<KpiPack ', '<DtoChip ', 'kpiBoard({', 'defaultMeasure(', 'sumKpi(', 'buildMemberProfile(', 'buildCredential(', 'profileJson(', 'sha256Text(', 'downloadText(', 'tiles.commandsVerified', 'tiles.proceduresToStandard']) expect(dash, n).toContain(n);
+    // R126: the figures are a strip of buttons now; the four columns live in the strip.
+    expect(code('src/components/skills/RecordStrip.tsx'), 'lg:grid-cols-4').toContain('lg:grid-cols-4');
+    // R126: eight tiles became twelve, each a button in the strip, defined once in the page as { id, icon, label, value, sub }.
+    expect(dash.match(/\bid: '[a-z-]+'(?: as const)?,\s*icon:/g)?.length, 'twelve record tiles').toBe(12);
     expect(dash).not.toContain('function Mini(');
     expect(dash.match(/data-skill-board-link/g), 'the link lives in the pack').toBeNull();
     expect(dash).not.toMatch(/\bproof\s*:/);
@@ -3610,7 +3613,7 @@ describe('R124 — the link copy fits', () => {
  */
 describe('R125 — the earned-skills ledger', () => {
   it('every surface that builds the member’s profile lays the ledger over it, and the pages bank what they show', () => {
-    expect(code('src/app/dashboard/page.tsx')).toContain('withEarned(skillProfile({');
+    expect(code('src/app/dashboard/page.tsx')).toContain('applyEarned(live, earned)');
     expect(code('src/app/dashboard/page.tsx')).toContain('useBankEarned(cards.map((c) => c.skills))');
     expect(code('src/app/portfolio/page.tsx')).toContain('withEarned(skillProfile({');
     expect(code('src/app/portfolio/page.tsx')).toContain('useBankEarned(rows.map((r) => r.skills))');
@@ -3667,5 +3670,51 @@ describe('R125 — the earned-skills ledger', () => {
     expect(read('SUPABASE_SETUP.md')).toContain('### Skills earned are kept across a reset or a retake');
     expect(read('SUPABASE_SETUP.md')).toContain('| Earned skills (`earned_skills`) |');
     expect(read('docs/FIX_LIST.md')).toContain('| F5 | A skill is earned the first time a course is completed; a retake only adds what is missing and never overwrites an earned skill | R125 | Done |');
+  });
+});
+
+/**
+ * R126 — the record updates, and every figure opens.
+ *
+ * The record counted verified evidence only, so ticking steps changed nothing it printed, and a page left
+ * open never refreshed. These pins keep the twelve figures each a button over a pure list builder, the
+ * lists built from the step set the figure counts (never from a repository inside the builder), the page
+ * refreshing when it is looked at and waiting for its first load, and the store key not serialising
+ * whole courses.
+ */
+describe('R126 — the record, live and openable', () => {
+  it('the dashboard prints the twelve figures as buttons over the pure list builder', () => {
+    const page = code('src/app/dashboard/page.tsx');
+    for (const id of ['steps-done', 'tasks-done', 'weeks-sealed', 'capstones', 'steps-verified', "'commands'", 'evidence', 'days', "'skills'", "'tools'", "'procedures'", "'domains'"]) expect(page, id).toContain(id.replace(/'/g, ''));
+    for (const n of ['<RecordStrip tiles={tiles}', '<RecordDetailPanel', 'metricDetail(openTile, cards.map(courseFactsOf))', 'const { ready } = useUserSync();', '!hydrated || !ready']) expect(page, n).toContain(n);
+    expect(page, 'the old strip of four-column definitions is gone').not.toContain('function Stat(');
+    const strip = code('src/components/skills/RecordStrip.tsx');
+    for (const n of ['aria-expanded={isOpen}', 'aria-controls={panelId}', 'data-record-tile={t.id}', 'data-record-detail={detail.metric}', 'aria-label={`${RECORD_UI.openTask}: ${item.label}`}']) expect(strip, n).toContain(n);
+    expect(strip, 'the list scrolls into view clear of the sticky header, not under it').toContain('<div ref={ref} className="scroll-mt-20">');
+  });
+
+  it('the list builder is pure and counts what the figure counts', () => {
+    const detail = code('src/lib/recordDetail.ts');
+    for (const bad of ['@/lib/data', "from './data'", 'localStorage', 'window', 'Date.now', 'new Date', 'useClientStore', 'fetch(']) expect(detail, bad).not.toContain(bad);
+    for (const m of ['steps-done', 'tasks-done', 'weeks-sealed', 'capstones', 'steps-verified', 'commands', 'evidence', 'days', 'skills', 'tools', 'procedures', 'domains']) expect(detail, m).toContain(`'${m}'`);
+    expect(detail, 'a row kept from an earlier run is marked, from the ledger’s own steps').toContain("'kept'");
+    const facts = code('src/lib/recordFacts.ts');
+    for (const n of ['earnedRepo.list(course.id)', 'evidenceRepo.getSteps(', 'progressRepo.isStepComplete(']) expect(facts, n).toContain(n);
+  });
+
+  it('the page refreshes when it is looked at, and does not serialise whole courses on every broadcast', () => {
+    const sync = code('src/lib/useUserSync.ts');
+    for (const n of ["window.addEventListener('focus', refresh)", "document.addEventListener('visibilitychange', refresh)", "window.addEventListener('pageshow', refresh)", 'export const REFRESH_MS = 10_000;', 'return { ready:']) expect(sync, n).toContain(n);
+    const page = code('src/app/dashboard/page.tsx');
+    expect(page).toContain("course: `${c.course.id}:${c.course.updatedAt ?? 'seed'}:${c.course.revision ?? 0}`");
+  });
+
+  it('the docs say it', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### The record updates and every figure opens (R126)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| The record, live and openable |');
+    expect(read('docs/OPERATIONS.md')).toContain('**The record moves, and opens (R126):**');
+    const list = read('docs/FIX_LIST.md');
+    expect(list).toContain('| F3 | The dashboard\'s "Your record" does not update | R126 | Done |');
+    expect(list).toContain('| F4 | Each record metric expands to the tools, commands, procedures and actions behind it | R126 | Done |');
   });
 });

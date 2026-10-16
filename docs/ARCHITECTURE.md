@@ -827,3 +827,25 @@ progress" never touches the table. `supabase/tests/rls.sql` has the R125 section
 client stamps, can lower, everyone reads, insert for anyone, the course moves, first reached rewritten, no cascade), each
 of which fails it. Counted from the first time a row is reached, not only at course completion, so the record stays live.
 The instructor's cohort figures (`cohortKpi.ts`) are built from the cohort's live data and are not laid over by it.
+
+### The record updates and every figure opens (R126)
+
+The dashboard's "Your record" printed verified evidence and little else: three ticked steps changed no
+figure, steps done were not in it at all (only on a card further down), and a page left open never
+refreshed. It is now twelve figures in the order a course is lived: progress (steps done, tasks done, weeks
+sealed, capstones delivered), proof (steps verified, commands verified, evidence hashed, days worked) and
+what the course taught (skills verified, tools used, procedures to standard, exam domains verified). Each is
+a button (`RecordStrip`, props only) that opens a panel under the strip: `lib/recordDetail.ts` (pure, no
+repository, clock or window) builds, from the step set the figure itself counts, the steps (actions),
+commands, tools and procedures behind it, each with the course, week and task it came from and a link to
+the task; the page reads the facts (`lib/recordFacts.ts`) when a figure is opened and again whenever the
+store changes, so an open list is as live as the strip. A row the earned-skills ledger holds above the live
+run (R125) is listed too, marked as kept from an earlier run, with the steps it was earned from; the work
+figures start again from nothing after a reset, the skill figures do not.
+
+Live: the page also loads the account again when it is looked at (focus, visibility, back-forward cache;
+at most every ten seconds; `useUserSync`), every reader re-reads, and a first load shows a skeleton
+(`ready`) instead of "No capstones yet". The store key stands in for each course's body (the one large part
+of a card) so the page no longer serialises every course on every broadcast. `recordDetail.test.ts` holds
+each list to the number the page prints for it on a real course, for one course and for two, and after a
+reset; `dashboard/page.test.tsx` runs the real page on the real repositories.
