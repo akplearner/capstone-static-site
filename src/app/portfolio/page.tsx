@@ -21,6 +21,7 @@ import { KpiTable } from '@/components/skills/KpiTable';
 import { kpiBoard, defaultMeasure } from '@/lib/kpiBoard';
 import { buildMemberProfile, buildCredential, profileJson, PROFILE_FILENAME, CREDENTIAL_FILENAME, type MemberCourseRow } from '@/lib/memberExport';
 import { shareProfileCopy } from '@/lib/shareCopy';
+import { useBankEarned, withEarned } from '@/lib/earnedBank';
 import { downloadText } from '@/lib/download';
 import { sha256Text } from '@/lib/evidenceLedger';
 import { ONTOLOGY_VERSION } from '@/lib/docs/ontology';
@@ -92,7 +93,8 @@ function buildRow(courseId: string): Row | null {
   // R113: the platform's receipts (null offline) and the member's re-hash checks.
   const receipts = evidenceRepo.getReceipts(course.id, member.memberId);
   const rehashes = evidenceRepo.getRehashes(course.id, member.memberId);
-  const skills = skillProfile({
+  // R125: the member's earned rows are laid over the live profile, so a retake reads at what was already earned.
+  const skills = withEarned(skillProfile({
     course,
     role: member.role,
     memberId: member.memberId,
@@ -108,7 +110,7 @@ function buildRow(courseId: string): Row | null {
     asOf: Date.now(),
     receipts,
     rehashes,
-  });
+  }));
   const registry = skillsOf(doc);
   // R109: the work roles as rows of this course's own document (`WORK_ROLES` is filtered per course); the export writes their ids.
   const workRoles = (registry.WORK_ROLE_OF[member.role] ?? []).flatMap((id) => registry.WORK_ROLES.filter((w) => w.id === id));
@@ -167,6 +169,8 @@ export default function PortfolioPage() {
     null
   );
 
+  // R125: bank what the rows reach, after render, so a later reset or retake cannot take it back.
+  useBankEarned(rows.map((r) => r.skills));
   const summary = portfolioSummary(rows.map((r) => r.metrics));
   const skills = skillPortfolio(rows.map((r) => r.skills));
   // The words of the skills sections, off a document (the same in every document).

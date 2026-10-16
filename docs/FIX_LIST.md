@@ -11,7 +11,7 @@ the record. `src/lib/page-shape.test.ts` fails if an id is removed from the tabl
 | F2 | Create link fails: "The copy is larger than 256 KB, the most a link can hold." | R124 | Done |
 | F3 | The dashboard's "Your record" does not update | R126 | Open |
 | F4 | Each record metric expands to the tools, commands, procedures and actions behind it | R126 | Open |
-| F5 | A skill is earned the first time a course is completed; a retake only adds what is missing and never overwrites an earned skill | R125 | Open |
+| F5 | A skill is earned the first time a course is completed; a retake only adds what is missing and never overwrites an earned skill | R125 | Done |
 | F6 | An export is a compact PDF of skills, progress and issues, not a JSON file | R127 | Open |
 
 Order of the rounds: the field bug first (it blocks reporting and links), then the link size (the link
@@ -72,11 +72,29 @@ Fixed when finishing a step moves the record on the dashboard without a reload, 
 when each tile opens to the tools, commands, procedures, standards and actions that make up its number, with
 the task and step each came from.
 
-## F5 — first completion earns a skill (R125, open)
+## F5 — first completion earns a skill (R125, done)
 
-Fixed when an earned skill is kept as a record of its own (first earned when, in which course, from which
-evidence) that a reset or a retake never lowers, rewrites or re-dates, and a retake adds only the skills not
-yet earned.
+**Cause.** The profile is a projection over the progress a member has now, so "Reset my progress" (the way to
+retake a course) emptied the record with it. Ten skills earned on the first run were gone as the second began.
+
+**Fix.** The earned-skills ledger (`src/lib/earnedSkills.ts`, `earned_skills` in 0019). A skill is earned the
+first time it is reached; a row holds the highest level reached, the course it was first reached in, when it was
+first reached and when it got to its level, and the steps behind it. It is only ever added to and raised: a reset
+or a retake cannot lower, rewrite or re-date a row, a retake adds only what is missing (or raises a skill that was
+only practised), and the database holds the same rule for every client. The record, the board, the exports and a
+link's copy read the profile with the ledger laid over it. It covers skills, tools, procedures, tactics, practices,
+standards and exam domains, per course. Until 0019 is applied the ledger is kept on the device.
+
+**Interpretation to confirm.** The skill counts from the first time it is reached, not only at the moment a
+whole course is completed, so the record stays live as the work goes on. If credit should wait for a completed
+course, only the moment a row is banked changes.
+
+**Not covered.** The instructor's cohort figures are built from live cohort data and do not yet include the ledger.
+
+**Verified.** `earnedSkills.test.ts` (the rule and a real course through a first run, a reset and three kinds of
+retake), `earnedBank.test.tsx` (the same through the real repositories, with "Reset my progress" as HomeTab does
+it, and the hook), `earnedRepos.test.ts` (the device and the database, including the table missing), and
+`supabase/tests/rls.sql` with eight mutation checks that each fail it.
 
 ## F6 — exports are a compact PDF (R127, open)
 

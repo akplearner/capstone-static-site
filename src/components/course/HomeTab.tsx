@@ -195,7 +195,9 @@ export function HomeTab({
   /**
    * Reset means reset: completion keys, the evidence ledger, the notes and the
    * resume pointer all go. Gate status needs no clearing — it is derived from
-   * completions on every render, never stored.
+   * completions on every render, never stored. R125: the earned-skills ledger is
+   * NOT touched (a retake never costs a skill); the Skills card above has banked
+   * everything reached by the time this runs.
    */
   const confirmReset = () => {
     if (!member) return;
@@ -386,7 +388,7 @@ export function HomeTab({
               // record away everywhere the student signs in; say so.
               `This clears your completed steps, your evidence ledger and your hashed artifacts for this course${
                 isSupabaseConfigured() ? ' from your account, on every device' : ' on this device'
-              }. This cannot be undone.`
+              }. Skills you have already earned stay on your record, and a retake only adds the ones still missing. This cannot be undone.`
             }
             confirmLabel="Reset progress"
           />

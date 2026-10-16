@@ -127,6 +127,14 @@ has failed silently in some deployment of some product; none takes more than a m
   `content/profiles/sample-mssp.json` with a new id on `/instructor/profiles`; the Skill board picker
   lists it; Create link there records "measured against" it. Without the consent the dialog points to
   the account page; without the functions it says links are not set up.
+- [ ] **Skills kept across a retake (R125):** as a member, finish a few tasks of a course (tick and verify steps) and open
+  `/dashboard`: the record shows skills practised and verified. On the course's Home tab choose **Reset my progress**
+  (the dialog says earned skills stay on the record): the course reads 0% again, and `/dashboard` and `/portfolio` still
+  show every skill, tool, procedure and exam domain reached before the reset, at the level reached. Redo only the first task:
+  nothing changes. Redo more than the first time: only the skills not yet earned (or only practised) are added or raised, and
+  the ones earned first keep their level. In the Supabase SQL Editor, `select dimension, skill_id, level, first_at, level_at
+  from earned_skills where user_id = '<id>'` lists them; try `update earned_skills set level = 'practised' where level =
+  'verified'` as that member and see no row change. Without 0019 the ledger is kept on the device.
 - [ ] **Link size (R124):** cloud, signed in, with the share-employer consent: on `/portfolio` (or the dashboard) open
   **Create link**. With two or more courses started, the dialog lists each course with its size, all ticked, and says
   "The copy is N KB of the 256 KB a link can hold." Untick a course: the number drops; tick every course of a record big

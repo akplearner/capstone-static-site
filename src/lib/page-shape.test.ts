@@ -3598,3 +3598,74 @@ describe('R124 — the link copy fits', () => {
     expect(read('content/schemas/member-profile.schema.json')).toContain('(R124)');
   });
 });
+
+/**
+ * R125 — a skill earned stays earned.
+ *
+ * "Reset my progress" is how a course is retaken, and the profile is a projection over the progress a
+ * member has now, so it used to take the record with it. The ledger keeps what was reached; these pins
+ * keep every surface that shows a member's profile laying it over the live one and banking as it shows,
+ * a reset never reaching the ledger, the rule pure and held by the database for every client, the cloud
+ * repo sending no time of its own, and the docs saying it.
+ */
+describe('R125 — the earned-skills ledger', () => {
+  it('every surface that builds the member’s profile lays the ledger over it, and the pages bank what they show', () => {
+    expect(code('src/app/dashboard/page.tsx')).toContain('withEarned(skillProfile({');
+    expect(code('src/app/dashboard/page.tsx')).toContain('useBankEarned(cards.map((c) => c.skills))');
+    expect(code('src/app/portfolio/page.tsx')).toContain('withEarned(skillProfile({');
+    expect(code('src/app/portfolio/page.tsx')).toContain('useBankEarned(rows.map((r) => r.skills))');
+    expect(code('src/components/skills/SkillsCard.tsx')).toContain('withEarned(skillProfile({');
+    expect(code('src/components/skills/SkillsCard.tsx')).toContain('useBankEarned([profile])');
+    expect(code('src/app/courses/[courseId]/skills/page.tsx')).toContain('withEarned(skillProfile({');
+    expect(code('src/app/courses/[courseId]/skills/page.tsx')).toContain('<BankEarned profiles={[profile]} />');
+  });
+
+  it('"Reset my progress" never reaches the ledger, and deleting an account clears it', () => {
+    const reset = code('src/components/course/HomeTab.tsx').split('const confirmReset')[1].split('return (')[0];
+    expect(reset).not.toMatch(/earned/i);
+    for (const f of ['src/lib/data/localStorageProgressRepo.ts', 'src/lib/data/supabaseProgressRepo.ts', 'src/lib/data/localStorageEvidenceRepo.ts', 'src/lib/data/supabaseEvidenceRepo.ts', 'src/lib/data/localStorageFeatureRepos.ts', 'src/lib/data/supabaseFeatureRepos.ts']) {
+      expect(code(f), `${f}: a reset is about progress, not the ledger`).not.toMatch(/earned_skills|earnedSkills|earnedRepo/);
+    }
+    expect(code('src/app/account/page.tsx')).toContain("'earned_skills'");
+    expect(read('src/components/course/HomeTab.tsx')).toContain('Skills you have already earned stay on your record');
+  });
+
+  it('the rule is pure and the database holds it for every client', () => {
+    const rule = code('src/lib/earnedSkills.ts');
+    for (const bad of ['Date.now', 'new Date', 'window', 'localStorage', 'useClientStore', 'fetch(']) expect(rule, bad).not.toContain(bad);
+    const sql = read('supabase/migrations/0019_earned_skills.sql');
+    for (const n of [
+      'create trigger earned_skills_guard',
+      'new.first_at := clock_timestamp();',
+      'return old;',
+      'new.course_id := old.course_id;',
+      'new.first_at := old.first_at;',
+      'references auth.users(id) on delete cascade',
+      'using (user_id = auth.uid() or public.is_instructor())',
+      'with check (user_id = auth.uid())',
+      'revoke truncate on public.earned_skills from anon, authenticated',
+    ]) expect(sql, n).toContain(n);
+    const rls = read('supabase/tests/rls.sql');
+    for (const n of ['ada: a reset cannot lower a skill', 'ada: first reached stays', 'ada: where it was first reached stays', 'bob: reads only his own', 'ada added a row for bob', 'removing the login removes the ledger with it', 'ivy: reads them all and raises none of them']) expect(rls, n).toContain(n);
+    expect(read('supabase/setup.sql')).toContain('earned_skills_guard');
+  });
+
+  it('the cloud repo sends no time of its own, keeps a failed write, and falls back to the device when the table is missing', () => {
+    const cloud = code('src/lib/data/supabaseEarnedRepo.ts');
+    expect(cloud).toContain("onConflict: 'user_id,dimension,skill_id'");
+    expect(cloud, 'the database stamps the times').not.toMatch(/first_at|level_at|firstAt|levelAt/);
+    expect(cloud).toContain('cache.markEarnedMissing()');
+    expect(cloud).toContain('pending.set(earnedKey(r), r)');
+    expect(code('src/lib/data/supabaseCache.ts')).toContain('await hydrateEarned(courseId);');
+    expect(code('src/lib/data/index.ts')).toContain('export const earnedRepo = cloud ? supabaseEarnedRepo : localStorageEarnedRepo');
+  });
+
+  it('the docs say it', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### The earned-skills ledger (R125)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| Earned-skills ledger |');
+    expect(read('docs/OPERATIONS.md')).toContain('**Skills kept across a retake (R125):**');
+    expect(read('SUPABASE_SETUP.md')).toContain('### Skills earned are kept across a reset or a retake');
+    expect(read('SUPABASE_SETUP.md')).toContain('| Earned skills (`earned_skills`) |');
+    expect(read('docs/FIX_LIST.md')).toContain('| F5 | A skill is earned the first time a course is completed; a retake only adds what is missing and never overwrites an earned skill | R125 | Done |');
+  });
+});

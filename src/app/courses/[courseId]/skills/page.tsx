@@ -36,6 +36,8 @@ import { courseMetrics, portfolioSummary } from '@/lib/metrics';
 import { skillPortfolio } from '@/lib/skillProfile';
 import { buildCredential, buildMemberProfile, profileJson, type MemberCourseRow } from '@/lib/memberExport';
 import { shareProfileCopy } from '@/lib/shareCopy';
+import { withEarned } from '@/lib/earnedBank';
+import { BankEarned } from '@/components/skills/BankEarned';
 import { sha256Text } from '@/lib/evidenceLedger';
 import { ShareLinkDialog } from '@/components/share/ShareLinkDialog';
 import { Button } from '@/components/ui/Button';
@@ -114,7 +116,8 @@ export default function SkillBoardPage() {
   const activeWeek = resolveActiveWeek(course, member.role, weekStats, null);
   const capstoneFiled = isCapstoneFiled(course.id, facts.docs);
   const crew = deriveCrewProgress(course, member.role, weekStats, taskStats, capstoneFiled);
-  const profile = skillProfile({
+  // R125: the member's earned rows are laid over the live profile, so a retake reads at what was already earned.
+  const profile = withEarned(skillProfile({
     course,
     role: member.role,
     memberId: member.memberId,
@@ -129,7 +132,7 @@ export default function SkillBoardPage() {
     asOf,
     receipts: facts.receipts,
     rehashes: facts.rehashes,
-  });
+  }));
 
   const workRoleIds = registry.WORK_ROLE_OF[member.role] ?? [];
   const workRoles = workRoleIds.map((id) => registry.WORK_ROLES.find((w) => w.id === id)).filter((w): w is NonNullable<typeof w> => !!w);
@@ -194,6 +197,7 @@ export default function SkillBoardPage() {
 
   return (
     <div className="space-y-8">
+      <BankEarned profiles={[profile]} />
       <CourseSubNav courseId={course.id} active="home" teamId={member.teamId} />
 
       <PageHeader

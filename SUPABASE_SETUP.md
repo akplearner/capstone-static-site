@@ -421,6 +421,19 @@ Paste `supabase/setup.sql` into the SQL Editor and **Run** (safe to repeat) to a
 History tab says "Database update needed" and saves still work. (0018 also lets an admin who has saved a
 course be erased: the course stays and their id detaches.)
 
+### Skills earned are kept across a reset or a retake
+
+**Migration 0019** (in `supabase/setup.sql`) adds `earned_skills`: one row per member, dimension (skills, tools,
+procedures, tactics, practices, standards, exam domains) and id, holding the highest level reached, the course it
+was first reached in, when it was first reached and when it got to its level, and the steps behind it. A skill is
+earned the first time it is reached; **Reset my progress** (the way to retake a course) never touches the ledger, a
+retake only adds what is still missing or raises a skill that was only practised, and the database enforces that
+for every client: a lower or equal level changes nothing, a raise keeps who, what, where and when it was first
+reached, and the times are the database's. Paste `supabase/setup.sql` into the SQL Editor and **Run** (safe to
+repeat) to apply it. Until then the app keeps each member's ledger on their device, so a retake still costs
+nothing there, and it moves to the database as soon as the table exists on the next page view. Deleting an
+account removes the ledger with the rest.
+
 ## Let students delete their account
 
 The privacy policy promises account deletion. Removing the login itself needs the
@@ -588,6 +601,7 @@ Still worth ten minutes on the live site before real students:
 | The course document | anyone signed in (read); **the admin** writes |
 | Content fixes (`content_fixes`) | anyone signed in (read: it is the corrected words they render); **the admin** appends, as themselves; nobody edits or deletes a row, the table owner included; the database numbers each course's entries |
 | Course version history (`course_document_versions`) | **the admin** reads it; nobody writes it from a request (the database does, on every save of a course, and numbers the save); nobody edits or deletes a snapshot, the table owner included |
+| Earned skills (`earned_skills`) | **you** read, add, raise and erase your own rows; an instructor or admin reads every member's (for the cohort) and writes none; the database stamps the times and holds the rule: a row is added or raised, never lowered, rewritten or re-dated, so "Reset my progress" and a retake cannot take back what was earned |
 
 Lab notes are the strictest on purpose: that is where students record lab details.
 Instructors can read membership, completions, deliverables, the evidence ledger

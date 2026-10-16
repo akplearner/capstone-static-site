@@ -11,7 +11,7 @@ import { useAuth } from '@/lib/useAuth';
 import { useUserSync } from '@/lib/useUserSync';
 import { useHydrated } from '@/lib/useClientStore';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
-import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo, userStateRepo, labAccessRepo } from '@/lib/data';
+import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo, userStateRepo, labAccessRepo, earnedRepo } from '@/lib/data';
 import { toast } from '@/lib/toastBus';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Surface } from '@/components/ui/Surface';
@@ -101,6 +101,8 @@ export default function AccountPage() {
       exportedAt: new Date().toISOString(),
       account: { id: user.id, email: user.email },
       path: pathRepo.get(user.id),
+      // R125: the skills this account has earned, kept across resets and retakes.
+      earnedSkills: earnedRepo.list(),
       courses: courses.filter(Boolean),
       agreements,
     };
@@ -140,9 +142,12 @@ export default function AccountPage() {
       // R114: a link's frozen copy is reachable by anyone holding it, so it
       // goes now, not only when the login does.
       'profile_shares',
+      // R125: the earned-skills ledger is the member's too. It goes with the rest here;
+      // "Reset my progress" never touches it.
+      'earned_skills',
     ];
-    // A project that has not run 0015 has no such table: nothing to clear.
-    const optional = new Set(['profile_shares']);
+    // A project that has not run 0015 or 0019 has no such table: nothing to clear.
+    const optional = new Set(['profile_shares', 'earned_skills']);
     const missingTable = (e: { code?: string; message?: string }) => e.code === 'PGRST205' || e.code === '42P01' || /schema cache|does not exist/i.test(e.message ?? '');
     for (const table of tables) {
       const { error } = await supabase.from(table).delete().eq('user_id', user.id);

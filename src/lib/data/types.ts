@@ -1,3 +1,4 @@
+import type { EarnedRow } from '../earnedSkills';
 import { Course, Gate, GateStatus, Member, RosterEntry, Task, TaskCompletion } from '../types';
 import type { ReportStatus } from '../reportKinds';
 import type { ContentFix, FixDraft } from '../contentFix';
@@ -206,6 +207,17 @@ export interface CourseVersionEntry {
   title: string;
   /** The size of the saved document. */
   bytes: number;
+}
+
+/**
+ * R125: the earned-skills ledger (see `lib/earnedSkills.ts`). Reads are synchronous. `bank` adds the
+ * rows that are new and raises the ones that are higher, never lowers or rewrites one, and returns
+ * the rows that changed; "Reset my progress" does not touch it.
+ */
+export interface EarnedSkillsRepository {
+  /** The member's earned rows, for one course or all of them. */
+  list(courseId?: string): EarnedRow[];
+  bank(candidates: readonly EarnedRow[]): EarnedRow[];
 }
 
 /**

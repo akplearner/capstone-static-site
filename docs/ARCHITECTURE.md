@@ -800,3 +800,30 @@ The same primitives serve training *and* commercial implementation:
 
 See [`ROADMAP.md`](./ROADMAP.md) for how each of these lands in a phase, and [`adr/`](./adr/) for the
 load-bearing decisions.
+
+### The earned-skills ledger (R125)
+
+The member profile is a projection over the progress a member has now, so "Reset my progress" (the way to retake a
+course) used to empty the record with it. The rule the admin asked for is the opposite: a skill is earned the first
+time it is reached, a retake only adds what is missing, and nothing earned is lowered, rewritten or re-dated.
+`src/lib/earnedSkills.ts` holds that rule, pure: a ledger row is (dimension, id) with the highest level reached
+(practised < verified < reviewed), the course it was first reached in, when it was first reached, when it reached its
+level, and the steps behind that level (ids only, so the words come from the course). `mergeLedger` adds a row or
+raises it and changes nothing else; `applyEarned` lays the ledger over a live profile so a row below its earned level
+reads at that level (this course's rows only, counters stay live, gaps shrink); `candidatesFrom` turns a profile into
+the rows it reaches. It covers every earned dimension (skills, tools, procedures, tactics, practices, standards, exam
+domains), and `skillPortfolio` still takes distinct ids across courses.
+
+The pages bank as they show (`useBankEarned`, after render, only when something new is reached), so the ledger is
+current before the Home tab's reset is used; every surface that builds a profile for the member passes it through
+`withEarned` (dashboard, portfolio, the Skills card, the skill board). `earnedRepo` is `localStorageEarnedRepo` offline
+and `supabaseEarnedRepo` in the cloud: optimistic, the upsert carries no time of its own, a write that fails is kept and
+tried again, and a database with no table yet (0019 not applied) keeps the ledger on the device, per account, so a retake
+never costs a skill in the meantime. In the database (`0019_earned_skills.sql`) a trigger holds the same rule for every
+client: a new row is stamped with the database's clock, an update that does not raise the level is written back as it was,
+and a raise keeps who, what, where and when it was first reached. A member reads, adds, raises and erases their own rows
+(erasing so that deleting an account removes the ledger), an instructor reads all and writes none, and "Reset my
+progress" never touches the table. `supabase/tests/rls.sql` has the R125 section with eight mutation checks (no trigger,
+client stamps, can lower, everyone reads, insert for anyone, the course moves, first reached rewritten, no cascade), each
+of which fails it. Counted from the first time a row is reached, not only at course completion, so the record stays live.
+The instructor's cohort figures (`cohortKpi.ts`) are built from the cohort's live data and are not laid over by it.

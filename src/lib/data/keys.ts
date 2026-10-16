@@ -12,6 +12,9 @@ export const KEYS = {
   // R110: consent grants {grantId: {granted, at}} and the learner outcome answers, per device offline.
   consents: `${STORAGE_PREFIX}consents`,
   outcomes: `${STORAGE_PREFIX}outcomes`,
+  // R125: the earned-skills ledger, per device offline; `earnedSkillsFor` is the per-account copy kept when the database has no table for it yet.
+  earnedSkills: `${STORAGE_PREFIX}earned_skills`,
+  earnedSkillsFor: (userId: string) => `${STORAGE_PREFIX}earned_skills_${userId}`,
   instructorUnlocked: `${STORAGE_PREFIX}instructor_unlocked`,
   migratedV2: `${STORAGE_PREFIX}migrated_v2`,
 

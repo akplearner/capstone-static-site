@@ -1326,6 +1326,145 @@ do $$ begin
 end $$;
 reset role;
 
+-- ── R125: what a member has earned is kept, and only ever added to and raised ──
+-- Ada earns a skill and a tool. The client's idea of the time is ignored: the database stamps them.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+insert into public.earned_skills (user_id, dimension, skill_id, course_id, level, first_at, level_at, via) values
+  ('00000000-0000-4000-8000-00000000000a', 'skills', 'comp.recon.osint', 'security-plus', 'practised', '2000-01-01', '2000-01-01', '[{"taskId":"t1","stepIds":["s1"]}]'),
+  ('00000000-0000-4000-8000-00000000000a', 'tools', 'tool.nmap', 'security-plus', 'verified', '2000-01-01', '2000-01-01', '[]');
+do $$ begin
+  assert (select count(*) from public.earned_skills) = 2, 'ada: her two rows';
+  assert (select min(first_at) from public.earned_skills) > '2020-01-01', 'the database stamps first_at, whatever the client sent';
+  assert (select min(level_at) from public.earned_skills) > '2020-01-01', 'and level_at';
+end $$;
+
+-- A lower level, or a rewrite of the same one, changes nothing: not the level, the steps, the course or either time.
+do $$
+declare b record;
+begin
+  select * into b from public.earned_skills where skill_id = 'tool.nmap';
+  update public.earned_skills
+    set level = 'practised', via = '[{"taskId":"x","stepIds":["y"]}]', level_at = '2001-01-01', first_at = '2001-01-01', course_id = 'ccna'
+    where skill_id = 'tool.nmap';
+  assert (select level from public.earned_skills where skill_id = 'tool.nmap') = 'verified', 'ada: a reset cannot lower a skill';
+  assert (select via from public.earned_skills where skill_id = 'tool.nmap') = b.via, 'ada: nor rewrite the steps behind it';
+  assert (select first_at from public.earned_skills where skill_id = 'tool.nmap') = b.first_at, 'ada: nor re-date when it was first reached';
+  assert (select level_at from public.earned_skills where skill_id = 'tool.nmap') = b.level_at, 'ada: nor when it got to its level';
+  assert (select course_id from public.earned_skills where skill_id = 'tool.nmap') = 'security-plus', 'ada: nor move it to another course';
+  update public.earned_skills set level = 'verified', via = '[{"taskId":"z","stepIds":["z"]}]' where skill_id = 'tool.nmap';
+  assert (select via from public.earned_skills where skill_id = 'tool.nmap') = b.via, 'ada: an equal level rewrites nothing either';
+end $$;
+
+-- A raise moves the level, its time and its steps; who, what, where and when it was first reached stay.
+do $$
+declare b record;
+begin
+  select * into b from public.earned_skills where skill_id = 'comp.recon.osint';
+  update public.earned_skills
+    set level = 'verified', via = '[{"taskId":"t1","stepIds":["s1","s2"]}]', course_id = 'ccna', first_at = '2001-01-01', user_id = '00000000-0000-4000-8000-00000000000b'
+    where skill_id = 'comp.recon.osint';
+  assert (select level from public.earned_skills where skill_id = 'comp.recon.osint') = 'verified', 'ada: practised is raised to verified';
+  assert (select via from public.earned_skills where skill_id = 'comp.recon.osint') = '[{"taskId":"t1","stepIds":["s1","s2"]}]'::jsonb, 'ada: with the steps behind the new level';
+  assert (select first_at from public.earned_skills where skill_id = 'comp.recon.osint') = b.first_at, 'ada: first reached stays';
+  assert (select level_at from public.earned_skills where skill_id = 'comp.recon.osint') > b.level_at, 'ada: the new level is stamped by the database';
+  assert (select course_id from public.earned_skills where skill_id = 'comp.recon.osint') = 'security-plus', 'ada: where it was first reached stays';
+  assert (select user_id from public.earned_skills where skill_id = 'comp.recon.osint') = '00000000-0000-4000-8000-00000000000a', 'ada: and whose it is';
+end $$;
+
+-- Upsert, the way the app writes: a lower level changes nothing, a higher one raises.
+insert into public.earned_skills (user_id, dimension, skill_id, course_id, level, via) values ('00000000-0000-4000-8000-00000000000a', 'skills', 'comp.recon.osint', 'security-plus', 'practised', '[]')
+  on conflict (user_id, dimension, skill_id) do update set level = excluded.level, via = excluded.via, course_id = excluded.course_id;
+do $$ begin
+  assert (select level from public.earned_skills where skill_id = 'comp.recon.osint') = 'verified', 'ada: an upsert with a lower level changes nothing';
+end $$;
+insert into public.earned_skills (user_id, dimension, skill_id, course_id, level, via) values ('00000000-0000-4000-8000-00000000000a', 'skills', 'comp.recon.osint', 'security-plus', 'reviewed', '[]')
+  on conflict (user_id, dimension, skill_id) do update set level = excluded.level, via = excluded.via, course_id = excluded.course_id;
+do $$ begin
+  assert (select level from public.earned_skills where skill_id = 'comp.recon.osint') = 'reviewed', 'ada: an upsert with a higher level raises';
+  -- Only well-formed rows, and only her own.
+  begin
+    insert into public.earned_skills (user_id, dimension, skill_id, course_id, level) values ('00000000-0000-4000-8000-00000000000a', 'skills', 'comp.x', 'security-plus', 'expert');
+    raise exception 'ada added a level that does not exist';
+  exception when check_violation then null; end;
+  begin
+    insert into public.earned_skills (user_id, dimension, skill_id, course_id, level) values ('00000000-0000-4000-8000-00000000000a', 'ability', 'comp.x', 'security-plus', 'verified');
+    raise exception 'ada added a dimension that is not earned';
+  exception when check_violation then null; end;
+  begin
+    insert into public.earned_skills (user_id, dimension, skill_id, course_id, level) values ('00000000-0000-4000-8000-00000000000b', 'skills', 'comp.x', 'security-plus', 'verified');
+    raise exception 'ada added a row for bob';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+
+-- Bob earns his own; each reads only theirs; an instructor reads every member's; a signed-in nobody and the signed-out read none.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000b';
+insert into public.earned_skills (user_id, dimension, skill_id, course_id, level) values ('00000000-0000-4000-8000-00000000000b', 'skills', 'comp.recon.osint', 'security-plus', 'practised');
+do $$
+declare n int;
+begin
+  assert (select count(*) from public.earned_skills) = 1, 'bob: reads only his own';
+  assert (select count(*) from public.earned_skills where user_id = '00000000-0000-4000-8000-00000000000a') = 0, 'bob: none of ada''s';
+  -- He cannot touch hers, raise or erase.
+  update public.earned_skills set level = 'reviewed' where user_id = '00000000-0000-4000-8000-00000000000a';
+  get diagnostics n = row_count;
+  assert n = 0, 'bob: cannot raise ada''s';
+  delete from public.earned_skills where user_id = '00000000-0000-4000-8000-00000000000a';
+  get diagnostics n = row_count;
+  assert n = 0, 'bob: cannot erase ada''s';
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000d';
+do $$
+declare n int;
+begin
+  assert (select count(*) from public.earned_skills) = 3, 'ivy: an instructor reads every member''s rows (ada 2, bob 1)';
+  update public.earned_skills set level = 'reviewed' where user_id = '00000000-0000-4000-8000-00000000000a' and skill_id = 'tool.nmap';
+  get diagnostics n = row_count;
+  assert n = 0, 'ivy: reads them all and raises none of them';
+end $$;
+reset role;
+do $$ begin
+  assert (select level from public.earned_skills where user_id = '00000000-0000-4000-8000-00000000000a' and skill_id = 'tool.nmap') = 'verified', 'an instructor does not raise a student''s skill';
+end $$;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000c';
+do $$ begin
+  assert (select count(*) from public.earned_skills) = 0, 'cy: a student of another team reads none';
+end $$;
+reset role;
+set local role anon;
+set local request.jwt.claim.sub = '';
+do $$ begin
+  assert (select count(*) from public.earned_skills) = 0, 'anon: none';
+  begin
+    insert into public.earned_skills (user_id, dimension, skill_id, course_id, level) values ('00000000-0000-4000-8000-00000000000a', 'skills', 'comp.z', 'security-plus', 'verified');
+    raise exception 'anon wrote a row';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+
+-- Erasing: a member erases their own rows (the account page does, with the other tables), and removing the login takes them too.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+delete from public.earned_skills where skill_id = 'tool.nmap';
+do $$ begin
+  assert (select count(*) from public.earned_skills) = 1, 'ada: erased one of her own';
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000e';
+insert into public.earned_skills (user_id, dimension, skill_id, course_id, level) values ('00000000-0000-4000-8000-00000000000e', 'skills', 'comp.recon.osint', 'security-plus', 'verified');
+reset role;
+do $$ begin
+  assert (select count(*) from public.earned_skills where user_id = '00000000-0000-4000-8000-00000000000e') = 1, 'zed: has a row';
+  delete from auth.users where id = '00000000-0000-4000-8000-00000000000e';
+  assert (select count(*) from public.earned_skills where user_id = '00000000-0000-4000-8000-00000000000e') = 0, 'removing the login removes the ledger with it';
+end $$;
+
 -- ── The realtime publication carries every stream the app subscribes to ────
 -- (Run as the table owner — RLS does not apply to this catalog view.)
 do $$

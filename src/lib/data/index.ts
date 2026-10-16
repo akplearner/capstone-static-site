@@ -14,6 +14,8 @@ import { supabaseCourseRepo, supabaseDocumentSource } from './supabaseCourseRepo
 import { supabaseCourseHistoryRepo } from './supabaseCourseHistoryRepo';
 import { localStorageContentFixesRepo } from './localStorageContentFixesRepo';
 import { supabaseContentFixesRepo } from './supabaseContentFixesRepo';
+import { localStorageEarnedRepo } from './localStorageEarnedRepo';
+import { supabaseEarnedRepo } from './supabaseEarnedRepo';
 import { localStorageProgressRepo } from './localStorageProgressRepo';
 import { localStorageDocsRepo } from './localStorageDocsRepo';
 import { localStorageUserStateRepo, localStorageLabAccessRepo } from './localStorageUserStateRepo';
@@ -34,6 +36,8 @@ registerDocumentSource(cloud ? supabaseDocumentSource : localDocumentSource);
 // R121: the content fix ledger, laid over every course wherever a course or its document is read.
 export const contentFixesRepo = cloud ? supabaseContentFixesRepo : localStorageContentFixesRepo;
 registerFixesSource((courseId) => contentFixesRepo.list(courseId));
+// R125: what a member has earned, kept apart from the progress it was earned with, so a retake never costs a skill.
+export const earnedRepo = cloud ? supabaseEarnedRepo : localStorageEarnedRepo;
 export const progressRepo = cloud ? supabaseProgressRepo : localStorageProgressRepo;
 export const docsRepo = cloud ? supabaseDocsRepo : localStorageDocsRepo;
 export const userStateRepo = cloud ? supabaseUserStateRepo : localStorageUserStateRepo;
@@ -50,6 +54,7 @@ export const submissionsRepo = cloud ? supabaseSubmissionsRepo : localStorageSub
 // R103: the team's document lifecycle (draft → in review → approved → issued).
 export const statusRepo = cloud ? supabaseStatusRepo : localStorageStatusRepo;
 export type {
+  EarnedSkillsRepository,
   CourseRepository,
   ProgressRepository,
   DocsRepository,

@@ -6,6 +6,7 @@ import type { Course, Member } from '@/lib/types';
 import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
 import { useCourseDocument } from '@/lib/useCourse';
 import { skillProfile, type AbilityIndicators, type ProfileRow } from '@/lib/skillProfile';
+import { useBankEarned, withEarned } from '@/lib/earnedBank';
 import { defaultMeasure, kpiBoard } from '@/lib/kpiBoard';
 import { ONTOLOGY_VERSION } from '@/lib/docs/ontology';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
@@ -35,7 +36,8 @@ export function SkillsCard({ course, member, activeWeek, crew }: { course: Cours
   const [asOf] = useState(() => Date.now());
   const keySet = progressRepo.getCompletionKeySet(course.id, member.memberId);
   const docs = docsRepo.get(course.id, member.teamId) ?? {};
-  const profile = skillProfile({
+  // R125: the member's earned rows are laid over the live profile, so a retake reads at what was already earned.
+  const profile = withEarned(skillProfile({
     course,
     role: member.role,
     memberId: member.memberId,
@@ -57,7 +59,9 @@ export function SkillsCard({ course, member, activeWeek, crew }: { course: Cours
     // R113: the platform's receipts (null offline) and the re-hash checks.
     receipts: evidenceRepo.getReceipts(course.id, member.memberId),
     rehashes: evidenceRepo.getRehashes(course.id, member.memberId),
-  });
+  }));
+  // R125: bank what this course reaches, after render: the Home tab is where "Reset my progress" lives, so the ledger is current before it is used.
+  useBankEarned([profile]);
   const { COPY, LEVEL_LABEL, DIMENSION_LABEL } = registry;
   const board = kpiBoard({
     profile,

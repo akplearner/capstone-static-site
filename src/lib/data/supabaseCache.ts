@@ -25,6 +25,7 @@ import type {
 } from './types';
 import { getBrowserClient } from '../supabase/client';
 import { notifyStore } from '../useClientStore';
+import { asEarnedRow, earnedKey, mergeLedger, type EarnedRow } from '../earnedSkills';
 import { KEYS } from './keys';
 import { isMissingSchema } from './schemaErrors';
 import { PAGE_ROWS } from './selectAll';
@@ -83,6 +84,10 @@ const docStatusByTeam = new Map<string, DeliverableStatus[]>(); // `${courseId}:
 // 0014 yet reads "no receipt possible" (null), never zero.
 const receiptsByKey = new Map<string, VerificationReceipt>(); // `${userId}::${courseId}::${taskId}::${stepId}`
 const receiptCourses = new Set<string>();
+// R125: the signed-in member's earned-skills ledger (lib/earnedSkills.ts). `earnedMissing` is set when
+// the database has no table for it yet (0019 not applied): the repo keeps the ledger on this device then.
+const earnedByKey = new Map<string, EarnedRow>();
+let earnedMissing = false;
 let receiptsEverywhere = false;
 const rehashesByKey = new Map<string, RehashCheck[]>(); // `${userId}::${courseId}`
 
@@ -180,6 +185,8 @@ export function setCurrentUserId(id: string | null) {
     receiptCourses.clear();
     receiptsEverywhere = false;
     rehashesByKey.clear();
+    earnedByKey.clear();
+    earnedMissing = false;
     notifyStore();
   }
 }
@@ -192,6 +199,19 @@ export function getCurrentUserId() {
 
 export const cache = {
   completionKeys,
+  /** R125: the member's earned rows, for one course or all. */
+  earned(courseId?: string): EarnedRow[] {
+    const all = [...earnedByKey.values()];
+    return courseId ? all.filter((e) => e.courseId === courseId) : all;
+  },
+  /** R125: add and raise, never lower: what the database holds and what this device banked both stand. */
+  setEarned(rows: readonly EarnedRow[]) {
+    for (const r of mergeLedger([...earnedByKey.values()], rows).changed) earnedByKey.set(earnedKey(r), r);
+  },
+  earnedMissing: () => earnedMissing,
+  markEarnedMissing(missing = true) {
+    earnedMissing = missing;
+  },
   roster(courseId: string): RosterEntry[] {
     return rosterByCourse.get(courseId) ?? [];
   },
@@ -483,6 +503,41 @@ export async function hydrateContentFixes(): Promise<{ ok: boolean; needsUpdate:
   }
 }
 
+/**
+ * R125: the member's earned-skills ledger, one course or all of them. Never throws: a kick nobody
+ * awaits must not become an unhandled rejection on a page a member is reading, and a database that
+ * has not had 0019 yet is `earnedMissing` (the repo keeps the ledger on this device), not an error.
+ */
+export async function hydrateEarned(courseId?: string): Promise<void> {
+  const supabase = getBrowserClient();
+  if (!supabase || !currentUserId) return;
+  try {
+    const rows: Record<string, unknown>[] = [];
+    for (let from = 0; ; from += PAGE_ROWS) {
+      let q = supabase.from('earned_skills').select('*').eq('user_id', currentUserId);
+      if (courseId) q = q.eq('course_id', courseId);
+      const { data, error } = await q.range(from, from + PAGE_ROWS - 1);
+      if (error) {
+        if (isMissingSchema(error)) earnedMissing = true;
+        else console.error('[earned] earned_skills load failed:', error.message);
+        return;
+      }
+      rows.push(...(data ?? []));
+      if (!data || data.length < PAGE_ROWS) break;
+    }
+    earnedMissing = false;
+    cache.setEarned(rows.map(earnedFromRow).filter((r): r is EarnedRow => r !== null));
+  } catch (e) {
+    console.error('[earned] earned_skills load failed:', e);
+  }
+}
+
+/** A database row as a ledger row: the stamps are the database's clock, read as milliseconds. */
+export function earnedFromRow(r: Record<string, unknown>): EarnedRow | null {
+  const ms = (v: unknown) => (typeof v === 'string' ? Date.parse(v) || 0 : 0);
+  return asEarnedRow({ dimension: r.dimension, id: r.skill_id, courseId: r.course_id, level: r.level, firstAt: ms(r.first_at), levelAt: ms(r.level_at), via: r.via });
+}
+
 export function contentFixFromRow(r: Record<string, unknown>): ContentFix {
   const kind: FixKind = r.kind === 'revert' || r.kind === 'fold' ? r.kind : 'fix';
   const nums = (v: unknown) => (Array.isArray(v) ? v.map(Number).filter((n) => Number.isInteger(n)) : []);
@@ -703,6 +758,7 @@ export async function hydrateCourse(courseId: string): Promise<void> {
   }
 
   if (fixes.data) cache.setContentFixes(courseId, fixes.data.map(contentFixFromRow));
+  await hydrateEarned(courseId);
 
   hydratedCourses.add(courseId);
   notifyStore();
@@ -969,6 +1025,7 @@ export async function hydrateUser(): Promise<void> {
     rehashes.data.forEach((r) => cache.addRehash(rehashFromRow(r), me));
   }
 
+  await hydrateEarned();
   notifyStore();
 }
 

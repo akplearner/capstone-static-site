@@ -24,6 +24,7 @@ import { defaultMeasure, kpiBoard, sumKpi } from '@/lib/kpiBoard';
 import { MEMBER_PROFILE_SCHEMA, ONTOLOGY_VERSION } from '@/lib/docs/ontology';
 import { buildCredential, buildMemberProfile, profileJson, CREDENTIAL_FILENAME, PROFILE_FILENAME, type MemberCourseRow } from '@/lib/memberExport';
 import { shareProfileCopy } from '@/lib/shareCopy';
+import { useBankEarned, withEarned } from '@/lib/earnedBank';
 import { sha256Text } from '@/lib/evidenceLedger';
 import { downloadText } from '@/lib/download';
 import { DomainStrip } from '@/components/skills/DomainStrip';
@@ -107,7 +108,8 @@ function buildCard(course: Course): CourseCard | null {
   const doc = courseDocument(course.id) ?? bareDocument(course);
   const registry = skillsOf(doc);
   const cert = certOf(doc);
-  const profile = skillProfile({
+  // R125: the member's earned rows are laid over the live profile, so a retake reads at what was already earned.
+  const profile = withEarned(skillProfile({
     course,
     role: member.role,
     memberId: member.memberId,
@@ -129,7 +131,7 @@ function buildCard(course: Course): CourseCard | null {
     asOf: Date.now(),
     receipts,
     rehashes,
-  });
+  }));
   // R109: the sixteen KPIs against the role's default measure, and the work
   // roles as rows of this course's own document (the export writes their ids).
   const board = kpiBoard({
@@ -180,6 +182,9 @@ export default function DashboardPage() {
     () => pathRepo.get(cards[0]?.member.memberId ?? 'local'),
     null
   );
+
+  // R125: bank what the cards reach, after render, so a later reset or retake cannot take it back.
+  useBankEarned(cards.map((c) => c.skills));
 
   const needsSignIn = isSupabaseConfigured() && !loading && !user;
   const summary = portfolioSummary(cards.map((c) => c.metrics));
