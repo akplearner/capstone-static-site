@@ -52,6 +52,49 @@ describe('SharedProfile (R114)', () => {
     expect(screen.getByRole('button', { name: /Download JSON/ })).toBeInTheDocument();
   });
 
+  it('renders the compact copy a link carries now (R124): reached rows by label, rows not reached left out of the lists, no counters needed', async () => {
+    window.location.hash = `#${TOKEN}`;
+    const empty = { evidence: [], documentation: [], collaboration: [], ability: [], tactics: [], practices: [], procedures: [], standards: [], tools: [] };
+    shared.copy = {
+      ...profileCopy,
+      snapshot: {
+        ...profileCopy.snapshot,
+        summary: { verified: 4, verifiable: 4, artifacts: 1, skillsVerified: ['comp.recon.osint'], skillsPractised: ['comp.recon.osint', 'comp.recon.scan'], toolsUsed: [], sopsFollowed: [], standardsPractised: [], tacticsPractised: [], practicesPractised: [], domainsVerified: 1, domainsTotal: 2 },
+        courses: [
+          {
+            courseId: 'security-plus',
+            title: 'Security+ Capstone Lab',
+            role: 'Red team',
+            skills: {
+              courseId: 'security-plus',
+              role: 'red',
+              denominator: 'own ticks · graded and advanced weeks · required steps',
+              rows: {
+                ...empty,
+                skills: [
+                  { dimension: 'skills', id: 'comp.recon.osint', label: 'Gather open-source intelligence on a target', level: 'verified', verifiedSteps: 4 },
+                  { dimension: 'skills', id: 'comp.recon.scan', label: 'Scan a network for live hosts', level: 'not-started' },
+                ],
+                domains: [
+                  { dimension: 'domains', id: 'd1', label: 'General security concepts', level: 'verified' },
+                  { dimension: 'domains', id: 'd2', label: 'Threats and vulnerabilities', level: 'not-started' },
+                ],
+              },
+              loaded: { team: false, own: true },
+              draftedForms: [],
+            },
+            kpis: [],
+          },
+        ],
+      },
+    };
+    const { container } = render(<SharedProfile />);
+    await waitFor(() => expect(screen.getByText('Gather open-source intelligence on a target')).toBeInTheDocument());
+    expect(container.querySelector('[data-skills-list="skills"]')!.textContent).not.toContain('Scan a network for live hosts');
+    expect(container.querySelector('[data-skills-domains]')!.textContent).toContain('General security concepts');
+    expect(container.querySelector('[data-skills-domains]')!.textContent, 'a domain not reached is still named').toContain('Threats and vulnerabilities');
+  });
+
   it('a credential shows its achievement and alignment', async () => {
     window.location.hash = `#${TOKEN}`;
     shared.copy = {

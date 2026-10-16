@@ -35,6 +35,7 @@ import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { courseMetrics, portfolioSummary } from '@/lib/metrics';
 import { skillPortfolio } from '@/lib/skillProfile';
 import { buildCredential, buildMemberProfile, profileJson, type MemberCourseRow } from '@/lib/memberExport';
+import { shareProfileCopy } from '@/lib/shareCopy';
 import { sha256Text } from '@/lib/evidenceLedger';
 import { ShareLinkDialog } from '@/components/share/ShareLinkDialog';
 import { Button } from '@/components/ui/Button';
@@ -232,7 +233,7 @@ export default function SkillBoardPage() {
         <ShareLinkDialog
           open={sharing}
           onClose={() => setSharing(false)}
-          buildProfile={() => shareProfile() as unknown as Record<string, unknown>}
+          buildProfile={() => shareProfileCopy(shareProfile()) as unknown as Record<string, unknown>}
           buildCredential={shareCredential}
           measuredAgainst={measure.label}
         />

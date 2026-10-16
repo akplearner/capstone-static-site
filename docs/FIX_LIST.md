@@ -8,7 +8,7 @@ the record. `src/lib/page-shape.test.ts` fails if an id is removed from the tabl
 | Id | Symptom | Round | Status |
 |----|---------|-------|--------|
 | F1 | A text field takes one character at a time (creating a link, reporting an issue) | R123 | Done |
-| F2 | Create link fails: "The copy is larger than 256 KB, the most a link can hold." | R124 | Open |
+| F2 | Create link fails: "The copy is larger than 256 KB, the most a link can hold." | R124 | Done |
 | F3 | The dashboard's "Your record" does not update | R126 | Open |
 | F4 | Each record metric expands to the tools, commands, procedures and actions behind it | R126 | Open |
 | F5 | A skill is earned the first time a course is completed; a retake only adds what is missing and never overwrites an earned skill | R125 | Open |
@@ -40,14 +40,31 @@ wraps, and focus returns to the opener.
 old dialog. The earlier sweeps set a field's value in one step (`fill`), which cannot see this; the sweeps
 now type (`pressSequentially`) into the dialogs and the other fields.
 
-## F2 — the link copy is larger than 256 KB (R124, open)
+## F2 — the link copy is larger than 256 KB (R124, done)
 
 **Known limit.** A candidate link serves a frozen copy of the member's portfolio export or credential. The
 `share` function refuses a copy over `SHARE_MAX_BYTES` (256 KB, `supabase/functions/_shared/shareGuard.ts`),
-and the app runs the same check before asking (`src/lib/shares.ts`). The profile carries every skill row,
-tool, procedure, KPI and evidence record of every course the member has started, so it grows with each
-course. Fixed when a full record fits well under the cap, and when a copy that still does not fit says how
-large it is and what to do.
+and the app runs the same check before asking (`src/lib/shares.ts`). The limit stays: a link is public for as
+long as it lives. Changing it means redeploying `share`.
+
+**Cause (measured).** The copy was the full export: every row of every course, reached or not, each with about
+twenty counters, plus the member's own gaps and raw indicators. So its size followed the courses, not the
+member's work. With every course finished and twelve hashed files in each: one large course (Server+) came to
+100 KB, CISSP 66 KB, CCNA 53 KB, and all thirteen to 525 KB. A member with four of the larger courses (260 KB)
+could not make a link, and neither could one who had only started them.
+
+**Fix.** `shareProfileCopy` (`src/lib/shareCopy.ts`) builds the copy a link serves: a row keeps its id, label and
+level and the seven counters a reader uses that are not zero; a row not reached stays as id, label and level, so
+the denominator survives; gaps, raw indicators, mapped task and form ids and the "next task" hint stay out (they
+are the member's own). The same record now comes to 231 KB for all thirteen courses and 114 KB for the four
+largest. The member also chooses which courses go in the copy: the dialog lists each course with its size, shows
+the size of the copy against the limit before the click, will not send a copy over it, and says what to do. The
+published schema allows the smaller shape, and says so.
+
+**Verified.** `shareCopy.test.ts` builds the largest record there can be and holds the copy under the cap (and
+the full export over it, which is why the copy is compact), runs the share function's own guard on it, and
+validates it against the schema; `ShareLinkDialog.test.tsx` covers the sizes, the ticking, the over-limit state
+and the copy that is sent; `SharedProfile.test.tsx` renders the compact copy.
 
 ## F3 and F4 — the record updates, and each metric expands (R126, open)
 

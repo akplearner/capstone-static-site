@@ -479,6 +479,13 @@ project's public key, which the check accepts.
 Until they are deployed the Create link buttons answer that links are not set up, the account page
 shows no links section, and every link page says the link is not available.
 
+**A link holds 256 KB.** The `share` function refuses a copy over 256 KB, and the app checks the same limit before it asks.
+The copy a link serves is a compact one (rows not reached are an id and a label, zero counters and the member's own gaps are
+left out), so all thirteen finished courses come to about 231 KB; the Create link dialog shows the size of the copy and of each
+course before the click and lets the member untick courses. If it says "The copy is larger than 256 KB", untick a course. The
+limit is `SHARE_MAX_BYTES` in `supabase/functions/_shared/shareGuard.ts`; changing it means redeploying `share` (and the paste-in
+copy in `supabase/dashboard/share.ts`).
+
 ## Live teammate updates
 
 Teammates seeing each other's progress update without refreshing is already

@@ -20,6 +20,7 @@ import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { KpiTable } from '@/components/skills/KpiTable';
 import { kpiBoard, defaultMeasure } from '@/lib/kpiBoard';
 import { buildMemberProfile, buildCredential, profileJson, PROFILE_FILENAME, CREDENTIAL_FILENAME, type MemberCourseRow } from '@/lib/memberExport';
+import { shareProfileCopy } from '@/lib/shareCopy';
 import { downloadText } from '@/lib/download';
 import { sha256Text } from '@/lib/evidenceLedger';
 import { ONTOLOGY_VERSION } from '@/lib/docs/ontology';
@@ -191,7 +192,8 @@ export default function PortfolioPage() {
   }
   // R114: a link's copy carries the display name, never the email (the share function sets it again).
   const shareInput = (copy: NonNullable<typeof words>['COPY']) => ({ ...exportInput(copy), subject: profile?.displayName?.trim() || 'Capstone Quarry member' });
-  const shareProfile = () => buildMemberProfile(shareInput(words!.COPY)) as unknown as Record<string, unknown>;
+  // R124: the compact copy, for the courses the member picks in the dialog (all of them when none are named).
+  const shareProfile = (ids?: readonly string[]) => shareProfileCopy(buildMemberProfile(shareInput(words!.COPY)), ids) as unknown as Record<string, unknown>;
   const shareCredential = async () => {
     const shared = buildMemberProfile(shareInput(words!.COPY));
     const digest = await sha256Text(profileJson(shared));
@@ -239,7 +241,7 @@ export default function PortfolioPage() {
           </>
         }
       />
-      {canShare && <ShareLinkDialog open={sharing} onClose={() => setSharing(false)} buildProfile={shareProfile} buildCredential={shareCredential} />}
+      {canShare && <ShareLinkDialog open={sharing} onClose={() => setSharing(false)} buildProfile={shareProfile} buildCredential={shareCredential} courses={rows.map((r) => ({ id: r.courseId, title: r.title }))} />}
 
       <Surface as="article" padding="none" className="space-y-8 p-8 print:border-0 print:p-0">
         <header className="border-b border-line pb-5">

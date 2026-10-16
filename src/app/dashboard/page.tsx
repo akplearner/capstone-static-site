@@ -23,6 +23,7 @@ import { skillProfile, skillPortfolio } from '@/lib/skillProfile';
 import { defaultMeasure, kpiBoard, sumKpi } from '@/lib/kpiBoard';
 import { MEMBER_PROFILE_SCHEMA, ONTOLOGY_VERSION } from '@/lib/docs/ontology';
 import { buildCredential, buildMemberProfile, profileJson, CREDENTIAL_FILENAME, PROFILE_FILENAME, type MemberCourseRow } from '@/lib/memberExport';
+import { shareProfileCopy } from '@/lib/shareCopy';
 import { sha256Text } from '@/lib/evidenceLedger';
 import { downloadText } from '@/lib/download';
 import { DomainStrip } from '@/components/skills/DomainStrip';
@@ -205,7 +206,8 @@ export default function DashboardPage() {
   }
   // R114: a link's copy carries the display name, never the email (the share function sets it again).
   const shareInput = (copy: NonNullable<typeof words>['COPY']) => ({ ...exportInput(copy), subject: profile?.displayName?.trim() || 'Capstone Quarry member' });
-  const shareProfile = () => buildMemberProfile(shareInput(words!.COPY)) as unknown as Record<string, unknown>;
+  // R124: the compact copy, for the courses the member picks in the dialog (all of them when none are named).
+  const shareProfile = (ids?: readonly string[]) => shareProfileCopy(buildMemberProfile(shareInput(words!.COPY)), ids) as unknown as Record<string, unknown>;
   const shareCredential = async () => {
     const shared = buildMemberProfile(shareInput(words!.COPY));
     const digest = await sha256Text(profileJson(shared));
@@ -324,7 +326,7 @@ export default function DashboardPage() {
                 onShare={isSupabaseConfigured() && user ? () => setSharing(true) : undefined}
               />
             )}
-            {words && isSupabaseConfigured() && user && <ShareLinkDialog open={sharing} onClose={() => setSharing(false)} buildProfile={shareProfile} buildCredential={shareCredential} />}
+            {words && isSupabaseConfigured() && user && <ShareLinkDialog open={sharing} onClose={() => setSharing(false)} buildProfile={shareProfile} buildCredential={shareCredential} courses={cards.map((c) => ({ id: c.course.id, title: c.course.title }))} />}
           </section>
 
           {/* R107: the member's skills per course, off the registries. */}

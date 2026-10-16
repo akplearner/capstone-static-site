@@ -3560,3 +3560,41 @@ describe('R123 — typing in a dialog, and the fix list', () => {
     expect(read('docs/OPERATIONS.md')).toContain('**Typing (R123):**');
   });
 });
+
+/**
+ * R124 — the copy a link serves fits in 256 KB.
+ *
+ * The full export carried every row of every course and came to 525 KB for thirteen courses, so a
+ * member with four could not make a link. The copy is now compact, the member picks the courses,
+ * and the dialog shows the size before the click. These pins keep the pages handing the dialog the
+ * compact copy, the dialog measuring it and refusing one over the limit, the builder pure, the cap
+ * where the deployed function also reads it, and the docs saying what the limit is.
+ */
+describe('R124 — the link copy fits', () => {
+  it('the pages hand the dialog the compact copy, and the dialog measures it before the click', () => {
+    for (const f of ['src/app/dashboard/page.tsx', 'src/app/portfolio/page.tsx']) {
+      const page = code(f);
+      expect(page, f).toContain('shareProfileCopy(buildMemberProfile(shareInput(words!.COPY)), ids)');
+      expect(page, `${f}: the member picks the courses`).toMatch(/<ShareLinkDialog[\s\S]{0,400}?courses=\{/);
+    }
+    expect(code('src/app/courses/[courseId]/skills/page.tsx')).toContain('shareProfileCopy(shareProfile())');
+    const dialog = code('src/components/share/ShareLinkDialog.tsx');
+    for (const n of ['courseSizes(buildProfile, ids)', 'copyBytes(buildProfile(', 'SHARE_LIMIT_BYTES', 'data-share-size', 'data-share-courses', 'disabled={busy || !loaded || over || none}']) expect(dialog, n).toContain(n);
+    expect(dialog, 'the copy that is sent is built at the click').toContain('buildProfile(choosing ? chosen : undefined)');
+  });
+
+  it('the builder is pure: no clock, no store, no window', () => {
+    const copy = code('src/lib/shareCopy.ts');
+    for (const bad of ['Date.now', 'new Date', 'window', 'localStorage', 'useClientStore', 'getBrowserClient', 'fetch(']) expect(copy, bad).not.toContain(bad);
+    expect(copy).toContain("from '../../supabase/functions/_shared/shareGuard'");
+  });
+
+  it('the cap is read from the one place the deployed function reads it, and the docs say what it is', () => {
+    expect(read('supabase/functions/_shared/shareGuard.ts')).toContain('export const SHARE_MAX_BYTES = 256 * 1024;');
+    expect(read('docs/ARCHITECTURE.md')).toContain('**The 256 KB limit (R124).**');
+    expect(read('SUPABASE_SETUP.md')).toContain('**A link holds 256 KB.**');
+    expect(read('docs/OPERATIONS.md')).toContain('**Link size (R124):**');
+    expect(read('docs/FIX_LIST.md')).toContain('| F2 | Create link fails: "The copy is larger than 256 KB, the most a link can hold." | R124 | Done |');
+    expect(read('content/schemas/member-profile.schema.json')).toContain('(R124)');
+  });
+});

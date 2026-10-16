@@ -514,6 +514,20 @@ the project's public key, which the check accepts. The public page reads words f
 documents, never the data layer, is noindex and disallowed in robots.txt, and says the copy is unsigned
 and not proof of the machine.
 
+**The 256 KB limit (R124).** The copy is measured as compact JSON in UTF-8, and the limit is deliberate: a link is public
+for as long as it lives. The full export was never built to fit it: it carried every row of every course, reached or not,
+each with about twenty counters, plus the member's own gaps and raw indicators, so one large course came to 100 KB and the
+thirteen to 525 KB, and a member with four courses could not make a link whatever they had done. The copy a link serves is
+now `shareProfileCopy` (`src/lib/shareCopy.ts`): a row keeps its id, label and level and the seven counters a reader uses
+that are not zero; a row not reached stays as id, label and level so the denominator survives; gaps, raw indicators, mapped
+task and form ids and the "next task" hint stay out, because they are the member's own. The thirteen finished courses come
+to 231 KB, the four largest to 114 KB. It is still `capstone-member-profile/1` with `signature: null`: the published schema
+lets a row omit a zero counter and a course omit gaps and indicators, and says so. The Create link dialog lists the courses
+with the size of each, shows the size of the copy against the limit before the click, lets the member untick courses, and
+will not send a copy over the limit; the server's refusal (`too-large`) says the same. `shareCopy.test.ts` builds the largest
+record there can be and holds the copy to the cap, so a round that adds to the profile finds out there. The cap itself is in
+`shareGuard.ts`, which the app and the deployed function share: raising it means redeploying `share`.
+
 Instructors publish employer environment profiles (`environment_profiles`, validated against
 `environment-profile.schema.json` on publish and again on every read) from `/instructor/profiles`;
 every signed-in member's Skill board picker lists them after the work roles and the samples. A link

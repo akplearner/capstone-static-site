@@ -127,6 +127,12 @@ has failed silently in some deployment of some product; none takes more than a m
   `content/profiles/sample-mssp.json` with a new id on `/instructor/profiles`; the Skill board picker
   lists it; Create link there records "measured against" it. Without the consent the dialog points to
   the account page; without the functions it says links are not set up.
+- [ ] **Link size (R124):** cloud, signed in, with the share-employer consent: on `/portfolio` (or the dashboard) open
+  **Create link**. With two or more courses started, the dialog lists each course with its size, all ticked, and says
+  "The copy is N KB of the 256 KB a link can hold." Untick a course: the number drops; tick every course of a record big
+  enough to pass 256 KB (or watch the number in a record of many courses): the line turns to a warning with the size and
+  "Untick a course to make it smaller", and **Create link** is disabled until it fits. Create one: the link opens in a
+  private window with the courses that were ticked and no others. `docs/FIX_LIST.md` item F2 has the measured sizes.
 - [ ] **Typing (R123):** open "Report an issue" on a task and type a whole sentence, spaces included, into
   "What happened?": every character lands, the cursor stays in the box and the dialog does not close. Do the
   same in "Create a link" (the label), "Return for changes" on a form and the fold note on a fix: the first

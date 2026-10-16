@@ -7,7 +7,7 @@ consumer with any validator and the platform with its own get the same answer.
 
 | Schema | Shape | Produced by |
 |---|---|---|
-| `member-profile.schema.json` | the portfolio export (`capstone-member-profile/1`): summary, per-course metrics and skill profile, artifacts; `signature` is `null` | `/portfolio` → Export JSON |
+| `member-profile.schema.json` | the portfolio export (`capstone-member-profile/1`): summary, per-course metrics and skill profile, artifacts; `signature` is `null`. A candidate link's copy (R124) is the same shape, kept small: a row may omit a zero counter, a course may omit gaps and indicators | `/portfolio` → Export JSON; the copy a link serves |
 | `skill-profile.schema.json` | one member against one course: rows per dimension, ability indicators, gaps | `src/lib/skillProfile.ts` |
 | `competency-node.schema.json` | one node of `content/ontology/competencies.json` | `src/lib/docs/skills.ts` |
 | `tool.schema.json` | one tool of `content/ontology/tools.json` | `src/lib/docs/tools.ts` |
