@@ -43,8 +43,11 @@ export interface ReadText {
   font: string;
 }
 
+/** The 0x80–0x9F block of WinAnsi, which differs from Latin-1 (kept here so no runtime's TextDecoder is relied on). */
+const HIGH = '\u20ac\u0081\u201a\u0192\u201e\u2026\u2020\u2021\u02c6\u2030\u0160\u2039\u0152\u008d\u017d\u008f\u0090\u2018\u2019\u201c\u201d\u2022\u2013\u2014\u02dc\u2122\u0161\u203a\u0153\u009d\u017e\u0178';
+
 /** WinAnsi bytes (one per character) back to the text they spell. */
-export const fromWinAnsi = (bytes: string): string => new TextDecoder('windows-1252').decode(Uint8Array.from(bytes, (c) => c.charCodeAt(0)));
+export const fromWinAnsi = (bytes: string): string => Array.from(bytes, (c) => (c.charCodeAt(0) >= 0x80 && c.charCodeAt(0) <= 0x9f ? HIGH[c.charCodeAt(0) - 0x80] : c)).join('');
 
 /** Every text run on every page, in the order written, read back from the file's content streams. */
 export function readTexts(bytes: Uint8Array): ReadText[][] {
