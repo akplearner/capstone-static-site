@@ -14,7 +14,8 @@ import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Spinner';
 import { useHydrated } from '@/lib/useClientStore';
-import { downloadText } from '@/lib/download';
+import { downloadBytes } from '@/lib/download';
+import { buildCredentialPdf, buildRecordPdf, credentialPdfName, recordPdfFromShare, recordPdfName } from '@/lib/recordPdf';
 import { localDay } from '@/lib/localDate';
 
 interface CopyCourse {
@@ -61,7 +62,12 @@ export function SharedProfile() {
   const snap = copy.snapshot as Record<string, unknown>;
   const made = localDay(Date.parse(copy.createdAt));
   const ends = localDay(Date.parse(copy.expiresAt));
-  const download = () => downloadText(copy.kind === 'profile' ? 'shared-member-profile.json' : 'shared-credential.json', JSON.stringify(snap, null, 2), 'application/json');
+  // R127: the copy as a PDF, never a JSON file: the figures and skills the page shows, or the credential's alignment.
+  const download = () => {
+    const now = Date.now();
+    if (copy.kind === 'profile') downloadBytes(recordPdfName(now, 'shared'), buildRecordPdf(recordPdfFromShare(snap, now, { madeAt: Date.parse(copy.createdAt) })));
+    else downloadBytes(credentialPdfName(now), buildCredentialPdf(snap, now));
+  };
   const banner = (
     <div className="flex items-start gap-2 rounded-lg depth-edge bg-panel-2 p-3 text-sm text-body" data-share-banner>
       <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden />
@@ -145,7 +151,7 @@ function Figure({ label, value, sub }: { label: string; value: string; sub: stri
 function DownloadButton({ onClick }: { onClick: () => void }) {
   return (
     <Button variant="secondary" size="sm" className="flex items-center gap-1.5" onClick={onClick} data-share-download>
-      <Download className="h-4 w-4" aria-hidden /> Download JSON
+      <Download className="h-4 w-4" aria-hidden /> Download PDF
     </Button>
   );
 }

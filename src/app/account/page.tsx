@@ -193,11 +193,12 @@ export default function AccountPage() {
         <h2 className="text-lg font-bold text-ink">Your data</h2>
         <p className="mt-1 text-sm text-muted">
           Download everything this account holds — progress, deliverables, your evidence ledger and
-          your chosen path — as JSON.
+          your chosen path — as one JSON file, to keep a copy or move your data elsewhere. To read or
+          share a summary, use Download PDF on your dashboard or portfolio.
         </p>
         <div className="mt-4">
-          <Button variant="secondary" disabled={busy === 'export'} className="flex items-center gap-2" onClick={exportData}>
-            <Download className="h-4 w-4" /> Export my data
+          <Button variant="secondary" disabled={busy === 'export'} className="flex items-center gap-2" onClick={exportData} data-account-export>
+            <Download className="h-4 w-4" /> Export my data (JSON)
           </Button>
         </div>
       </Surface>

@@ -1,7 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { act, render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import DashboardPage from './page';
-import { courseRepo, evidenceRepo, progressRepo, stepNotesRepo, earnedRepo } from '@/lib/data';
+import { courseRepo, evidenceRepo, progressRepo, stepNotesRepo, earnedRepo, taskReportsRepo } from '@/lib/data';
+import { allText } from '@/test/pdfRead';
+import { localDay } from '@/lib/localDate';
 import { invalidateCourseCache } from '@/lib/data/localStorageCourseRepo';
 import { SEED_COURSES } from '@/lib/content/dto';
 import { getTasksByRole, isGradedWeek } from '@/lib/course-helpers';
@@ -16,6 +18,13 @@ import type { Member } from '@/lib/types';
  * reload, a figure opens to the steps, commands, tools and procedures behind it, and after "Reset my
  * progress" the skills still listed are the ones kept from the earlier run.
  */
+// R127: what the page hands the browser to save is read back below.
+const saved = vi.hoisted(() => ({ files: [] as { name: string; bytes: Uint8Array; type?: string }[], text: [] as string[] }));
+vi.mock('@/lib/download', () => ({
+  downloadBytes: (name: string, bytes: Uint8Array, type?: string) => saved.files.push({ name, bytes, type }),
+  downloadText: (name: string) => saved.text.push(name),
+}));
+
 const course = SEED_COURSES.find((c) => c.id === 'security-plus')!;
 const role = course.roles[0].id;
 const me: Member = { memberId: 'me', courseId: course.id, teamId: 't1', role, displayName: 'Grace', cohort: '2026-10' };
@@ -33,6 +42,8 @@ const tile = (id: string) => document.querySelector<HTMLButtonElement>(`[data-re
 const figure = (id: string) => tile(id).textContent!.replace(/\s+/g, ' ');
 
 beforeEach(() => {
+  saved.files.length = 0;
+  saved.text.length = 0;
   localStorage.clear();
   window.dispatchEvent(new StorageEvent('storage'));
   invalidateCourseCache();
@@ -185,5 +196,81 @@ describe('after "Reset my progress" the record is kept, and its lists say so', (
     expect(steps.length, 'the steps it was earned from are named').toBeGreaterThan(0);
     fireEvent.click(tile('steps-done'));
     expect(document.querySelector('[data-record-empty]'), 'the work figures start from nothing').not.toBeNull();
+  });
+});
+
+describe('R127 — the record leaves as a PDF, never a JSON file', () => {
+  const memberPdf = () => document.querySelector<HTMLButtonElement>('[data-dto-chip="capstone-member-profile/1"] [data-dto-pdf]')!;
+  const report = (id: string, memberId: string, note: string, over: Record<string, unknown> = {}) =>
+    taskReportsRepo.save({ id, courseId: course.id, taskId: graded[1].id, teamId: me.teamId, memberId, kind: 'broken', note, status: 'open', at: Date.UTC(2026, 9, 12, 12), reporterName: memberId, ...over });
+
+  it('offers Download PDF beside Copy JSON, and no JSON file and no credential file', () => {
+    workTask(graded[1].id);
+    render(<DashboardPage />);
+    expect(memberPdf().textContent).toContain('Download PDF');
+    expect(screen.getAllByRole('button', { name: 'Copy JSON' }).length).toBeGreaterThan(0);
+    expect(screen.queryByRole('button', { name: /Download JSON/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: /Export credential/ })).toBeNull();
+    expect(document.querySelector('[data-export-credential]')).toBeNull();
+    expect(document.querySelector('[data-dto-download]')).toBeNull();
+  });
+
+  it('the PDF prints the figures the strip printed, the skills by name, progress by course and this member’s issues', () => {
+    workTask(graded[1].id);
+    report('mine', me.memberId, 'The command in step 2 fails on my VM.', { stepId: requiredOf(graded[1].id)[1].id });
+    report('theirs', 'a-teammate', 'A teammate’s own question, not for this PDF.');
+    render(<DashboardPage />);
+    fireEvent.click(memberPdf());
+    expect(saved.text, 'no text file is saved').toEqual([]);
+    expect(saved.files).toHaveLength(1);
+    const [file] = saved.files;
+    expect(file.name).toBe(`capstone-record_${localDay()}.pdf`);
+    expect(new TextDecoder().decode(file.bytes.slice(0, 8))).toBe('%PDF-1.4');
+    const lines = allText(file.bytes).split('\n');
+    const flat = lines.join(' ');
+    expect(lines).toContain('Grace');
+    // the strip's twelve figures, label and number, as the page printed them
+    for (const id of ['steps-done', 'tasks-done', 'weeks-sealed', 'capstones', 'steps-verified', 'commands', 'evidence', 'days', 'skills', 'tools', 'procedures', 'domains']) {
+      const t = tile(id);
+      const label = t.querySelector('span.flex span.min-w-0')!.textContent!.trim();
+      expect(lines, `${id} label`).toContain(label);
+      const value = t.querySelector('svg[role="img"]') ? t.querySelector('svg[role="img"]')!.getAttribute('aria-label')!.match(/: (\d+) of/)![1] : t.querySelector('span.text-2xl')!.textContent!;
+      const at = lines.indexOf(label);
+      expect(lines[at + 1], `${id} value`).toBe(value);
+    }
+    // skills and progress
+    expect(lines).toContain('SKILLS PROVED');
+    expect(lines).toContain('PROGRESS BY COURSE');
+    expect(flat).toContain(course.title);
+    // issues: this member's, with where it is and what was said; a teammate's is not printed
+    expect(lines).toContain('ISSUES REPORTED');
+    expect(flat).toContain('The command in step 2 fails on my VM.');
+    expect(flat).toContain('Something is broken · Open');
+    expect(flat).not.toContain('A teammate’s own question');
+    expect(lines).toContain('1 reported · 1 pending · 0 resolved');
+  });
+
+  it('a card’s own chip makes a PDF of that course alone, named for it', () => {
+    workTask(graded[1].id);
+    report('mine', me.memberId, 'Step 1 is unclear.');
+    render(<DashboardPage />);
+    const card = document.querySelector<HTMLButtonElement>('[data-dto-chip="capstone-kpi-board/1"] [data-dto-pdf]')!;
+    expect(card.textContent).toContain('Download PDF');
+    fireEvent.click(card);
+    const [file] = saved.files;
+    expect(file.name).toBe(`capstone-record_security-plus_${localDay()}.pdf`);
+    const flat = allText(file.bytes).replace(/\s+/g, ' ');
+    expect(flat).toContain(`· ${course.title}`); // the line under the name says which course
+    expect(flat).toContain('Step 1 is unclear.');
+    // a course alone prints the card's figures, not the strip's twelve
+    expect(flat).not.toContain('Weeks sealed');
+  });
+
+  it('says there are no issues when none were reported', () => {
+    workTask(graded[1].id);
+    render(<DashboardPage />);
+    fireEvent.click(memberPdf());
+    const flat = allText(saved.files[0].bytes).replace(/\s+/g, ' ');
+    expect(flat).toContain('No issues reported.');
   });
 });

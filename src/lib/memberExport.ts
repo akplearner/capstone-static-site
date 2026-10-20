@@ -18,8 +18,8 @@ import { MEMBER_PROFILE_SCHEMA, ONTOLOGY_VERSION } from './docs/ontology';
  * that carries no proof and claims none. Both stay member-initiated.
  */
 
+/** What the credential's evidence entry names: the profile a link carries. R127: the files themselves are PDFs now (`recordPdf.ts`). */
 export const PROFILE_FILENAME = 'capstone-portfolio.json';
-export const CREDENTIAL_FILENAME = 'capstone-credential.json';
 
 /** One course as the pages compute it; a page adds its display-only fields on top. */
 export interface MemberCourseRow {

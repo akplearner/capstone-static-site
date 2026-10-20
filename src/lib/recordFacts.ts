@@ -2,7 +2,8 @@
 
 import { bareDocument, courseDocument } from '@/lib/content/docs';
 import { skillsOf } from '@/lib/content/read';
-import { earnedRepo, evidenceRepo, progressRepo } from '@/lib/data';
+import { courseRepo, earnedRepo, evidenceRepo, progressRepo, taskReportsRepo } from '@/lib/data';
+import { buildIssues, type IssueDto, type IssuePeople } from '@/lib/issueInbox';
 import type { CourseFacts } from '@/lib/recordDetail';
 import type { SkillProfile } from '@/lib/skillProfile';
 import type { Course, Member } from '@/lib/types';
@@ -41,4 +42,24 @@ export function courseFactsOf(card: RecordCard): CourseFacts {
     clearedWeeks: card.clearedWeeks,
     cites: (row) => row.deliverables.some((id) => (controls[id] ?? []).length > 0),
   };
+}
+
+/** A report records the name and the role it was filed under, so nobody needs looking up to print it. */
+const RECORDED: IssuePeople = { nameOf: () => undefined, roleOf: () => undefined, resolverName: () => undefined };
+
+/**
+ * R127 — the issues this member reported in these courses, newest first, joined to the course, week, task and
+ * step as the inbox joins them. Read when an export is made, not at render: a team's reports are visible to the
+ * whole team, so each is kept only if this member filed it.
+ */
+export function ownIssues(courseIds: readonly string[]): IssueDto[] {
+  const courses: Course[] = [];
+  const reports = courseIds.flatMap((id) => {
+    const course = courseRepo.get(id);
+    const member = progressRepo.getContext(id);
+    if (!course || !member) return [];
+    courses.push(course);
+    return taskReportsRepo.list(id).filter((r) => r.memberId === member.memberId);
+  });
+  return buildIssues(courses, reports, RECORDED);
 }

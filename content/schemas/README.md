@@ -7,7 +7,7 @@ consumer with any validator and the platform with its own get the same answer.
 
 | Schema | Shape | Produced by |
 |---|---|---|
-| `member-profile.schema.json` | the portfolio export (`capstone-member-profile/1`): summary, per-course metrics and skill profile, artifacts; `signature` is `null`. A candidate link's copy (R124) is the same shape, kept small: a row may omit a zero counter, a course may omit gaps and indicators | `/portfolio` → Export JSON; the copy a link serves |
+| `member-profile.schema.json` | the portfolio export (`capstone-member-profile/1`): summary, per-course metrics and skill profile, artifacts; `signature` is `null`. A candidate link's copy (R124) is the same shape, kept small: a row may omit a zero counter, a course may omit gaps and indicators | the dashboard chip's Copy JSON; the copy a link serves (the file a member saves is a PDF, R127) |
 | `skill-profile.schema.json` | one member against one course: rows per dimension, ability indicators, gaps | `src/lib/skillProfile.ts` |
 | `competency-node.schema.json` | one node of `content/ontology/competencies.json` | `src/lib/docs/skills.ts` |
 | `tool.schema.json` | one tool of `content/ontology/tools.json` | `src/lib/docs/tools.ts` |
@@ -18,7 +18,7 @@ consumer with any validator and the platform with its own get the same answer.
 | `kpi-board.schema.json` | the sixteen KPIs of one member on one course (`capstone-kpi-board/1`): value, denominator, fact kind, loaded (R108) | `src/lib/kpiBoard.ts`; the Skill board's Agent view and the portfolio export |
 | `work-role.schema.json` | one NICE work role of `content/ontology/work-roles.json` (R108) | `src/lib/docs/workRoles.ts` |
 | `environment-profile.schema.json` | what a company publishes to be measured against (`capstone-environment-profile/1`): infrastructure, tools, methodology, policies, ticket taxonomy, required competencies per work role (R108); the sample is `content/profiles/sample-mssp.json` | `src/lib/docs/environmentProfile.ts` → `scripts/export-profiles.ts`; a company, by file |
-| `credential.schema.json` | the Open Badges 3.0 `AchievementCredential` envelope `/portfolio` exports around the member profile; it admits no `proof`, so it is unsigned by construction (R108) | `/portfolio` → Export credential |
+| `credential.schema.json` | the Open Badges 3.0 `AchievementCredential` envelope a candidate link serves around the member profile; it admits no `proof`, so it is unsigned by construction (R108) | Create link → credential |
 | `event.schema.json` | the xAPI-shaped platform event of `docs/EVENTS.md`: actor type, verb, object, result, competencies, assist level, consent scope; a contract only, nothing is emitted (R108) | — |
 | `issue.schema.json` | one student report joined to its course (`capstone-issue/1`, R120): who filed it, when, course, week, task, step, role, the version of the course they saw, status and resolution; names a person, never an account | `src/lib/issueInbox.ts`; the issues inbox's CSV and JSON export |
 | `content-fix.schema.json` | one entry of a course's content fix ledger (`capstone-content-fix/1`, R121): a correction to the words (the text was `before`, now `after`), a revert, or a fold; numbered per course by the database; a course's content version is `{docVersion}.{revision}` | `src/lib/contentFix.ts`; the `content_fixes` table |

@@ -100,8 +100,8 @@ has failed silently in some deployment of some product; none takes more than a m
   domains with a level each and the next task that closes a gap, one line per dimension, the
   indicators and the denominator caption; ticking a step moves a row to Practised, a matching
   paste to Verified from output; `/dashboard` shows a domain strip per card and "Skills by
-  course"; `/portfolio` shows the six skills sections and its Export JSON parses with
-  `schema: "capstone-member-profile/1"` and `signature: null`.
+  course"; `/portfolio` shows the six skills sections and Copy JSON on the dashboard chip gives
+  `schema: "capstone-member-profile/1"` with `signature: null` (the file a member saves is the PDF, R127).
 - [ ] **Skill board (R108):** joined on a course, the Home skills card, the status surface and the
   dashboard card link to `/courses/<id>/skills`; the competency map draws its edges in and lights
   the stars in course order, the sixteen tiles count up once and a sweep crosses them; Replay
@@ -109,8 +109,8 @@ has failed silently in some deployment of some product; none takes more than a m
   switch the captions, and Agent prints JSON with `"schema": "capstone-kpi-board/1"` and sixteen
   `kpis`; Measured against switches the coverage tile between the work roles and the sample
   profile, a bad imported file shows an error and a good one survives a reload; `/portfolio`
-  shows a KPI table per capstone, Export JSON carries `courses[].kpis`, and Export credential
-  downloads JSON with no `proof` field.
+  shows a KPI table per capstone, and the dashboard's Copy JSON carries `courses[].kpis`; the credential a
+  link serves has no `proof` field.
 - [ ] **Cohort KPIs (R108):** `/instructor/<course>/cohort` shows a KPI bands table per cohort
   under the submissions summary, the Team, Focus and Review week selects change the counts, and
   KPI CSV downloads sixteen rows per cohort plus the whole course, naming nobody.
@@ -127,6 +127,18 @@ has failed silently in some deployment of some product; none takes more than a m
   `content/profiles/sample-mssp.json` with a new id on `/instructor/profiles`; the Skill board picker
   lists it; Create link there records "measured against" it. Without the consent the dialog points to
   the account page; without the functions it says links are not set up.
+- [ ] **PDF exports (R127):** as a member with a course started and one issue reported (Report an issue on a task),
+  open `/dashboard` and press **Download PDF** on the record chip: a file `capstone-record_<date>.pdf` is saved
+  (not JSON). Open it: the name and date, the twelve figures as the strip printed them, the skills by name,
+  progress by course with a bar, and the issue with where it is and its status; one page. The same button on a
+  course card gives that course alone (`capstone-record_<course>_<date>.pdf`); `/portfolio` has **Download PDF**
+  and **Print the full record**; the Home card's chip has it for the course. **Copy JSON** still copies JSON and
+  there is no **Download JSON** or **Export credential** anywhere. As an instructor, `/instructor/issues` has a
+  **PDF** beside **CSV**: it lists the tab and filters on screen, grouped by course, with the reporter and the version
+  seen. A candidate link's page has **Download PDF** (a credential link prints what it is aligned to; a profile link
+  has no issues section). The account page's **Export my data (JSON)** and the Deliverables page's
+  **Export my work (.json)** (a handoff file with **Restore from file**) are still JSON on purpose.
+  `docs/FIX_LIST.md` item F6.
 - [ ] **The record moves, and opens (R126):** as a member, open `/dashboard` with a course started and note the twelve
   figures. In another tab tick a step on the course's Tasks tab and return: **Steps done** has moved without a reload
   (verified figures move once output is pasted). Open **Steps verified**: a panel lists each verified step with the course,

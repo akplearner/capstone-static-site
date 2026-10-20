@@ -21,15 +21,16 @@ import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
 import { skillProfile, skillPortfolio } from '@/lib/skillProfile';
 import { defaultMeasure, kpiBoard, sumKpi } from '@/lib/kpiBoard';
 import { MEMBER_PROFILE_SCHEMA, ONTOLOGY_VERSION } from '@/lib/docs/ontology';
-import { buildCredential, buildMemberProfile, profileJson, CREDENTIAL_FILENAME, PROFILE_FILENAME, type MemberCourseRow } from '@/lib/memberExport';
+import { buildCredential, buildMemberProfile, profileJson, type MemberCourseRow } from '@/lib/memberExport';
 import { shareProfileCopy } from '@/lib/shareCopy';
 import { useBankEarned } from '@/lib/earnedBank';
 import { applyEarned, earnedKey, keptFromEarlier } from '@/lib/earnedSkills';
 import { metricDetail, type MetricDetail, type RecordMetric } from '@/lib/recordDetail';
-import { courseFactsOf } from '@/lib/recordFacts';
+import { courseFactsOf, ownIssues } from '@/lib/recordFacts';
+import { buildRecordPdf, recordPdfName } from '@/lib/recordPdf';
 import { RecordDetailPanel, RecordStrip, type RecordTile } from '@/components/skills/RecordStrip';
 import { sha256Text } from '@/lib/evidenceLedger';
-import { downloadText } from '@/lib/download';
+import { downloadBytes } from '@/lib/download';
 import { DomainStrip } from '@/components/skills/DomainStrip';
 import { KpiPack } from '@/components/skills/KpiPack';
 import { DtoChip } from '@/components/skills/DtoChip';
@@ -254,7 +255,7 @@ export default function DashboardPage() {
           { id: 'commands' as const, icon: Terminal, label: words.COPY.tiles.commandsVerified, value: `${commands.value}`, sub: commands.of > 0 ? `of ${commands.of} ${words.COPY.recordCommands}` : words.COPY.emptyDimension, ring: ratio(commands.value, commands.of) },
         ]
       : []),
-    { id: 'evidence', icon: FileCheck2, label: 'Evidence hashed', value: `${summary.artifacts}`, sub: 'files in your custody log' },
+    { id: 'evidence', icon: FileCheck2, label: 'Evidence hashed', value: `${summary.artifacts}`, sub: 'files in the custody log' },
     { id: 'days', icon: Compass, label: 'Days worked', value: `${summary.activeDays}`, sub: 'measured, never scored' },
     ...(words
       ? [
@@ -265,14 +266,25 @@ export default function DashboardPage() {
         ]
       : []),
   ];
-  // R109: the member-profile export and the credential, built by the same
+  // R109: the member profile the chip copies, and the profile a link carries, built by the same
   // module as the portfolio's (src/lib/memberExport.ts), at the click.
   const exportInput = (copy: NonNullable<typeof words>['COPY']) => ({ subject: user?.email ?? 'Capstone portfolio', copy, pathId: path?.id ?? null, summary, skills, rows: cards, generatedAt: new Date().toISOString() });
-  async function exportCredential() {
-    if (!words) return;
-    const profile = buildMemberProfile(exportInput(words.COPY));
-    const digest = await sha256Text(profileJson(profile));
-    downloadText(CREDENTIAL_FILENAME, JSON.stringify(buildCredential({ profile, rows: cards, copy: words.COPY, origin: window.location.origin, digest }), null, 2), 'application/json');
+  // R127: the record as a PDF, built at the click from the rows the strip counted: the same figures, the skills by
+  // name, progress by course and the issues this member reported. One course when it is asked from that course's card.
+  function exportPdf(only?: CourseCard) {
+    const list = only ? [only] : cards;
+    const now = Date.now();
+    downloadBytes(
+      recordPdfName(now, only?.course.id),
+      buildRecordPdf({
+        subject: profile?.displayName?.trim() || cards[0]?.member.displayName || user?.email || 'Capstone member',
+        generatedAt: now,
+        courses: list,
+        issues: ownIssues(list.map((c) => c.course.id)),
+        workRoles: [...new Set(list.flatMap((c) => c.workRoles.map((w) => w.label)))],
+        ...(only ? { scope: only.course.title } : { figures: tiles.map(({ label, value, sub }) => ({ label, value, sub })) }),
+      })
+    );
   }
   // R114: a link's copy carries the display name, never the email (the share function sets it again).
   const shareInput = (copy: NonNullable<typeof words>['COPY']) => ({ ...exportInput(copy), subject: profile?.displayName?.trim() || 'Capstone Quarry member' });
@@ -340,10 +352,9 @@ export default function DashboardPage() {
                 schema={MEMBER_PROFILE_SCHEMA}
                 version={ONTOLOGY_VERSION}
                 json={() => profileJson(buildMemberProfile(exportInput(words.COPY)))}
-                filename={PROFILE_FILENAME}
+                onPdf={() => exportPdf()}
                 caption={words.COPY.exportSchemaNote}
                 copy={words.COPY.board}
-                onCredential={exportCredential}
                 onShare={isSupabaseConfigured() && user ? () => setSharing(true) : undefined}
               />
             )}
@@ -395,7 +406,7 @@ export default function DashboardPage() {
             </SectionLabel>
             <div className="grid gap-6 md:grid-cols-2">
               {cards.map((card, i) => (
-                <DashboardCourseCard key={card.course.id} card={card} index={i} />
+                <DashboardCourseCard key={card.course.id} card={card} index={i} onPdf={() => exportPdf(card)} />
               ))}
             </div>
           </section>
@@ -442,7 +453,7 @@ function SectionLabel({ id, children }: { id: string; children: React.ReactNode 
   );
 }
 
-function DashboardCourseCard({ card, index }: { card: CourseCard; index: number }) {
+function DashboardCourseCard({ card, index, onPdf }: { card: CourseCard; index: number; onPdf: () => void }) {
   const { course, crew, metrics, activeWeek, level, skills, board } = card;
   const roleDef = course.roles.find((r) => r.id === card.member.role);
   const started = crew.stepsDone > 0;
@@ -512,7 +523,7 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
       {/* R109: the sixteen KPIs as sockets, and the document they come from. */}
       <div className="mt-4 space-y-2 border-t border-line pt-3">
         <KpiPack board={board} defs={words.KPIS} families={words.KPI_FAMILIES} copy={words.COPY.board} href={`/courses/${course.id}/skills`} persistenceLabel={words.COPY.abilityLabels.persistence} />
-        <DtoChip schema={board.schema} version={board.ontologyVersion} json={() => JSON.stringify(board, null, 2)} filename={`${course.id}-kpi-board.json`} caption={words.COPY.board.schemaNote} copy={words.COPY.board} />
+        <DtoChip schema={board.schema} version={board.ontologyVersion} json={() => JSON.stringify(board, null, 2)} onPdf={onPdf} caption={words.COPY.board.schemaNote} copy={words.COPY.board} />
       </div>
 
       {/* The three small figures, one line: the pack above is the card's second reading now. */}

@@ -6467,6 +6467,10 @@
           "domains": "Exam domains",
           "tactics": "Tactics and practices"
         },
+        "pdf": {
+          "claim": "This summary lists what the member ticked, verified and filed, and the issues the member reported.",
+          "unsigned": "It is unsigned: it records checks made in the browser and receipts of stamps, not proof of the machine."
+        },
         "dashboardSection": "Skills by course",
         "tiles": {
           "skillsVerified": "Skills verified",
@@ -6507,7 +6511,6 @@
           "weeksLabel": "Weeks cleared",
           "tableTitle": "The sixteen, as a table",
           "nextTask": "Next task",
-          "exportCredential": "Export credential",
           "createLink": "Create link",
           "credentialClaim": "An Open Badges 3.0 envelope around the member profile, unsigned: it carries no proof and claims none.",
           "cohortTitle": "KPI bands per cohort",
@@ -6532,7 +6535,7 @@
           "packTitle": "Sixteen KPIs",
           "packIdle": "Hover or focus a socket to read it.",
           "packKeys": "Arrow keys move between sockets. Enter pins the read-out.",
-          "download": "Download JSON",
+          "download": "Download PDF",
           "contribution": "drafted by this role",
           "contributionColumn": "Drafted by this role",
           "lastVerified": "Last verified",

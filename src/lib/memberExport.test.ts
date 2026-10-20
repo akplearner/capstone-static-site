@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { validate, type JsonSchema } from './schema/validate';
-import { buildCredential, buildMemberProfile, profileJson, CREDENTIAL_FILENAME, PROFILE_FILENAME, type MemberCourseRow } from './memberExport';
+import { buildCredential, buildMemberProfile, profileJson, PROFILE_FILENAME, type MemberCourseRow } from './memberExport';
 import { skillProfile, skillPortfolio } from './skillProfile';
 import { kpiBoard, defaultMeasure } from './kpiBoard';
 import { courseMetrics, portfolioSummary } from './metrics';
@@ -64,7 +64,6 @@ describe('memberExport', () => {
     expect(JSON.parse(profileJson(p))).toEqual(p);
     expect(profileJson(p)).toBe(JSON.stringify(p, null, 2));
     expect(PROFILE_FILENAME).toBe('capstone-portfolio.json');
-    expect(CREDENTIAL_FILENAME).toBe('capstone-credential.json');
   });
 
   it('wraps the profile in an Open Badges 3.0 envelope with no proof, the caller’s digest, one result per KPI and de-duplicated alignment', async () => {

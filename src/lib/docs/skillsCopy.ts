@@ -114,6 +114,11 @@ export const SKILLS_COPY = {
     domains: 'Exam domains',
     tactics: 'Tactics and practices',
   },
+  /** R127: the words of the PDF export that are sentences. */
+  pdf: {
+    claim: 'This summary lists what the member ticked, verified and filed, and the issues the member reported.',
+    unsigned: 'It is unsigned: it records checks made in the browser and receipts of stamps, not proof of the machine.',
+  },
   dashboardSection: 'Skills by course',
   tiles: { skillsVerified: 'Skills verified', toolsUsed: 'Tools used', kpiBoard: 'Skill board', commandsVerified: 'Commands verified', proceduresToStandard: 'Procedures to standard' },
   /** R108: the Skill board page, its tiles, the constellation, the cohort report. */
@@ -145,7 +150,6 @@ export const SKILLS_COPY = {
     weeksLabel: 'Weeks cleared',
     tableTitle: 'The sixteen, as a table',
     nextTask: 'Next task',
-    exportCredential: 'Export credential',
     /** R114: a candidate link to a frozen copy of the export. */
     createLink: 'Create link',
     credentialClaim: 'An Open Badges 3.0 envelope around the member profile, unsigned: it carries no proof and claims none.',
@@ -157,7 +161,7 @@ export const SKILLS_COPY = {
     packTitle: 'Sixteen KPIs',
     packIdle: 'Hover or focus a socket to read it.',
     packKeys: 'Arrow keys move between sockets. Enter pins the read-out.',
-    download: 'Download JSON',
+    download: 'Download PDF',
     /** R111: the role's own share of a team fact, and a row's currency. */
     contribution: 'drafted by this role',
     contributionColumn: 'Drafted by this role',

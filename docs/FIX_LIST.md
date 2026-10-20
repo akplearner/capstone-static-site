@@ -12,7 +12,7 @@ the record. `src/lib/page-shape.test.ts` fails if an id is removed from the tabl
 | F3 | The dashboard's "Your record" does not update | R126 | Done |
 | F4 | Each record metric expands to the tools, commands, procedures and actions behind it | R126 | Done |
 | F5 | A skill is earned the first time a course is completed; a retake only adds what is missing and never overwrites an earned skill | R125 | Done |
-| F6 | An export is a compact PDF of skills, progress and issues, not a JSON file | R127 | Open |
+| F6 | An export is a compact PDF of skills, progress and issues, not a JSON file | R127 | Done |
 
 Order of the rounds: the field bug first (it blocks reporting and links), then the link size (the link
 fails today), then the earned-skills ledger (the record and the PDF both read it), then the live and
@@ -115,9 +115,37 @@ retake), `earnedBank.test.tsx` (the same through the real repositories, with "Re
 it, and the hook), `earnedRepos.test.ts` (the device and the database, including the table missing), and
 `supabase/tests/rls.sql` with eight mutation checks that each fail it.
 
-## F6 — exports are a compact PDF (R127, open)
+## F6 — exports are a compact PDF (R127, done)
 
-Fixed when each learner-facing export (dashboard, portfolio, credential, account data, shared copy) gives
-one compact PDF of skills, progress and issues, and no file the app generates for a learner is JSON.
-Machine-readable files an admin moves between systems (course import and export, the fix bundle, CSV) are a
-different kind of file and are not part of this item unless the admin says so.
+**What was wrong.** Every file a learner could save from the app was JSON: the member profile, the credential, the
+KPI board (dashboard, portfolio, Home card), a shared copy, and the issues inbox. Nobody a member would hand one to
+can open it.
+
+**Fix.** One PDF writer (`src/lib/pdf.ts`: A4, the standard fonts, no dependency) and one builder
+(`src/lib/recordPdf.ts`). The document holds the figures the page printed (the dashboard's twelve, for the whole
+record), the skills by name (verified, practised, tools, procedures, standards, tactics and practices, exam domains,
+the roles the courses prepare for), progress by course with a bar, and the issues the member reported (kind, where
+it is, what was said, what was done): one page for a normal record, a few for a very large one. "Download PDF" is on
+the dashboard (the whole record, and each course's card), the portfolio, the Home card (that course), the shared-copy
+page (a profile copy, or a credential copy as a one-page statement of what it is aligned to) and the issues inbox (the
+list on screen, with the tab and filters said on the first page). A shared copy holds no issues, so its PDF has no
+issues section rather than a claim that there are none. "Copy JSON" stays on the clipboard for an agent; the
+"Download JSON" and "Export credential" files are gone, and the portfolio's browser print is now "Print the full record".
+
+**Still machine-readable (decisions to confirm).** These are files that move data between systems, not records for a
+reader, and a PDF cannot be imported back:
+- the account page's "Export my data", the complete dump (the privacy policy promises it as JSON, so converting it
+  needs a new policy version and a fresh acceptance);
+- the Deliverables page's "Export my work" and "Restore from file": a handoff file a teammate merges back in;
+- the Studio's course document and the course export (imported again), the fix bundle and the live document (for
+  folding fixes into the code), and the IaC template files a lab step asks for;
+- the CSV files (issues, cohort, funnel and friction, the evidence ledger) and the calendar file.
+
+If the admin wants any of these converted too, it is the same builder and one call site each; the page-shape guard
+lists the files that still save JSON, so a new one has to be added on purpose.
+
+**Verified.** `pdf.test.ts` (structure and offsets, escaping, wrapping, margins, page breaks, determinism),
+`recordPdf.test.ts` (content and order, limits, shared copies of any shape, the credential, the issues inbox),
+`dashboard/page.test.tsx` (the real page: the PDF mirrors the twelve figures and carries only this member's issues),
+`DtoChip`, `SharedProfile` and `IssuesBoard` tests, and the page-shape R127 block. The files were opened with PDFium
+(the engine Chrome uses) and pypdf, rendered and read, in the browser sweep.

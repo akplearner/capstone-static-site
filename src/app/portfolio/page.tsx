@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Award, Download, Link2, Printer, ShieldCheck } from 'lucide-react';
+import { Download, Link2, Printer, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/ui/Spinner';
@@ -19,10 +19,12 @@ import { ShareLinkDialog } from '@/components/share/ShareLinkDialog';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { KpiTable } from '@/components/skills/KpiTable';
 import { kpiBoard, defaultMeasure } from '@/lib/kpiBoard';
-import { buildMemberProfile, buildCredential, profileJson, PROFILE_FILENAME, CREDENTIAL_FILENAME, type MemberCourseRow } from '@/lib/memberExport';
+import { buildMemberProfile, buildCredential, profileJson, type MemberCourseRow } from '@/lib/memberExport';
+import { buildRecordPdf, recordPdfName } from '@/lib/recordPdf';
+import { ownIssues } from '@/lib/recordFacts';
 import { shareProfileCopy } from '@/lib/shareCopy';
 import { useBankEarned, withEarned } from '@/lib/earnedBank';
-import { downloadText } from '@/lib/download';
+import { downloadBytes } from '@/lib/download';
 import { sha256Text } from '@/lib/evidenceLedger';
 import { ONTOLOGY_VERSION } from '@/lib/docs/ontology';
 import { deriveCrewProgress } from '@/lib/game';
@@ -48,8 +50,9 @@ import { Surface } from '@/components/ui/Surface';
  * that a command provably ran on real hardware. Employers deserve the precise
  * version, and overstating it would make the whole record worthless.
  *
- * Print CSS turns this into a clean PDF via the browser's own "Save as PDF", so
- * there is no PDF dependency to carry.
+ * Print CSS turns this page into the full record via the browser's own "Save as PDF";
+ * the compact summary (skills, progress, issues) is Download PDF, built by
+ * src/lib/recordPdf.ts. Neither is a JSON file (R127).
  */
 interface Row extends MemberCourseRow {
   /** Narrowed for the stone art; the export row only needs a number. */
@@ -180,19 +183,22 @@ export default function PortfolioPage() {
   const allArtifacts = rows.flatMap((r) => r.artifacts).sort((a, b) => b.hashedAt - a.hashedAt);
   const name = user?.email ?? 'Capstone portfolio';
 
-  // R107/R108/R109: the member-profile export and the credential envelope, built by
-  // src/lib/memberExport.ts (one home for this page and the dashboard). Unsigned:
-  // attestation needs validators; the credential carries no proof and claims none.
+  // R107/R108/R109: the member profile a link carries, built by src/lib/memberExport.ts (one home for this page and the
+  // dashboard). Unsigned: attestation needs validators; the credential carries no proof and claims none.
   const exportInput = (copy: NonNullable<typeof words>['COPY']) => ({ subject: name, copy, pathId: path?.id ?? null, summary, skills, rows, generatedAt: new Date().toISOString() });
-  function exportJson() {
-    if (!words) return;
-    downloadText(PROFILE_FILENAME, profileJson(buildMemberProfile(exportInput(words.COPY))), 'application/json');
-  }
-  async function exportCredential() {
-    if (!words) return;
-    const profile = buildMemberProfile(exportInput(words.COPY));
-    const digest = await sha256Text(profileJson(profile));
-    downloadText(CREDENTIAL_FILENAME, JSON.stringify(buildCredential({ profile, rows, copy: words.COPY, origin: window.location.origin, digest }), null, 2), 'application/json');
+  // R127: the portfolio as a PDF, built at the click: skills by name, progress by course and the issues this member reported.
+  function exportPdf() {
+    const now = Date.now();
+    downloadBytes(
+      recordPdfName(now),
+      buildRecordPdf({
+        subject: profile?.displayName?.trim() || courseRepo.list().map((c) => progressRepo.getContext(c.id)?.displayName).find(Boolean) || name,
+        generatedAt: now,
+        courses: rows,
+        issues: ownIssues(rows.map((r) => r.courseId)),
+        workRoles: [...new Set(rows.flatMap((r) => r.workRoles.map((w) => w.label)))],
+      })
+    );
   }
   // R114: a link's copy carries the display name, never the email (the share function sets it again).
   const shareInput = (copy: NonNullable<typeof words>['COPY']) => ({ ...exportInput(copy), subject: profile?.displayName?.trim() || 'Capstone Quarry member' });
@@ -228,14 +234,11 @@ export default function PortfolioPage() {
         lede={canShare ? 'Private to you until you create a link.' : 'Private to you. Export it when you want to show someone.'}
         trailing={
           <>
+            <Button variant="secondary" className="flex items-center gap-2" onClick={exportPdf} data-portfolio-pdf>
+              <Download className="h-4 w-4" /> {words?.COPY.board.download ?? 'Download PDF'}
+            </Button>
             <Button variant="secondary" className="flex items-center gap-2" onClick={() => window.print()}>
-              <Printer className="h-4 w-4" /> Save as PDF
-            </Button>
-            <Button variant="secondary" className="flex items-center gap-2" onClick={exportJson}>
-              <Download className="h-4 w-4" /> Export JSON
-            </Button>
-            <Button variant="secondary" className="flex items-center gap-2" onClick={() => void exportCredential()} data-export-credential>
-              <Award className="h-4 w-4" /> {words?.COPY.board.exportCredential}
+              <Printer className="h-4 w-4" /> Print the full record
             </Button>
             {canShare && (
               <Button variant="secondary" className="flex items-center gap-2" onClick={() => setSharing(true)} data-share-link>

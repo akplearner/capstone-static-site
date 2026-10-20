@@ -3,14 +3,20 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { Course, Member } from '@/lib/types';
-import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
+import { certOf, deliverablesOf, skillsOf, type SkillsContent } from '@/lib/content/read';
+import type { DeliverableData } from '@/lib/docs/types';
 import { useCourseDocument } from '@/lib/useCourse';
-import { skillProfile, type AbilityIndicators, type ProfileRow } from '@/lib/skillProfile';
+import { skillProfile, type AbilityIndicators, type ProfileRow, type SkillProfile } from '@/lib/skillProfile';
 import { useBankEarned, withEarned } from '@/lib/earnedBank';
 import { defaultMeasure, kpiBoard } from '@/lib/kpiBoard';
 import { ONTOLOGY_VERSION } from '@/lib/docs/ontology';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
 import { docsRepo, evidenceRepo, progressRepo, reviewRepo, statusRepo, stepNotesRepo, submissionsRepo, taskReportsRepo } from '@/lib/data';
+import { courseMetrics } from '@/lib/metrics';
+import { getTasksByRole } from '@/lib/course-helpers';
+import { buildRecordPdf, recordPdfName } from '@/lib/recordPdf';
+import { ownIssues } from '@/lib/recordFacts';
+import { downloadBytes } from '@/lib/download';
 import type { CrewProgress } from '@/lib/game';
 import { LevelPill } from './LevelPill';
 import { KpiPack } from './KpiPack';
@@ -27,6 +33,44 @@ import { DtoChip } from './DtoChip';
  */
 const ABILITY_KEYS = ['partialProgress', 'activeDays', 'activeWeeks', 'drafted', 'reviewed', 'issued', 'submissionsFrozen', 'raciRespected', 'teammateStepsTicked', 'reportsFiled', 'notesWritten'] as const;
 const LINES = ['skills', 'tools', 'procedures', 'standards', 'tactics', 'practices'] as const;
+
+/**
+ * R127 — this course's record as a PDF, built at the click: its skills by name, its progress and the issues this
+ * member reported in it. The metrics are counted here the way the dashboard counts them. A plain function, not a
+ * closure made during render, because it reads the clock and the repositories.
+ */
+function saveCoursePdf({ course, member, profile, docs, registry, keySet }: { course: Course; member: Member; profile: SkillProfile; docs: Record<string, DeliverableData>; registry: SkillsContent; keySet: Set<string> }): void {
+  const taskPercent = Object.fromEntries(getTasksByRole(course, member.role).map((t) => [t.id, progressRepo.getTaskPercent(course.id, member.memberId, t, keySet)]));
+  const now = Date.now();
+  downloadBytes(
+    recordPdfName(now, course.id),
+    buildRecordPdf({
+      subject: member.displayName || 'Capstone member',
+      generatedAt: now,
+      scope: course.title,
+      courses: [
+        {
+          courseId: course.id,
+          title: course.title,
+          role: course.roles.find((r) => r.id === member.role)?.name ?? member.role,
+          capstoneFiled: isCapstoneFiled(course.id, docs),
+          metrics: courseMetrics({
+            course,
+            role: member.role,
+            taskPercent,
+            evidence: evidenceRepo.getSteps(course.id, member.memberId),
+            artifacts: evidenceRepo.getArtifacts(course.id, member.memberId),
+            receipts: evidenceRepo.getReceipts(course.id, member.memberId),
+            rehashes: evidenceRepo.getRehashes(course.id, member.memberId),
+          }),
+          skills: profile,
+        },
+      ],
+      issues: ownIssues([course.id]),
+      workRoles: (registry.WORK_ROLE_OF[member.role] ?? []).flatMap((id) => registry.WORK_ROLES.filter((w) => w.id === id).map((w) => w.label)),
+    })
+  );
+}
 
 export function SkillsCard({ course, member, activeWeek, crew }: { course: Course; member: Member; activeWeek: number; crew: Pick<CrewProgress, 'weeksCleared' | 'weeksTotal'> }) {
   const registry = skillsOf(useCourseDocument());
@@ -124,7 +168,7 @@ export function SkillsCard({ course, member, activeWeek, crew }: { course: Cours
         })}
       </dl>
       <KpiPack board={board} defs={registry.KPIS} families={registry.KPI_FAMILIES} copy={COPY.board} href={`/courses/${course.id}/skills`} persistenceLabel={COPY.abilityLabels.persistence} />
-      <DtoChip schema={board.schema} version={board.ontologyVersion} json={() => JSON.stringify(board, null, 2)} filename={`${course.id}-kpi-board.json`} caption={COPY.board.schemaNote} copy={COPY.board} />
+      <DtoChip schema={board.schema} version={board.ontologyVersion} json={() => JSON.stringify(board, null, 2)} onPdf={() => saveCoursePdf({ course, member, profile, docs, registry, keySet })} caption={COPY.board.schemaNote} copy={COPY.board} />
       {shown.length > 0 && (
         <div className="space-y-1">
           <p className="text-2xs text-muted">{COPY.abilityIntro}</p>

@@ -393,14 +393,14 @@ nothing and renders the final arc at once (a stroke is not a transform, so `Moti
 not still it). Family labels use the longhand mono treatment, never the `eyebrow` class.
 
 Beside each pack a `DtoChip` names the document the numbers come from (`capstone-kpi-board/1` and the
-ontology version as one case-sensitive code chip) and offers Copy JSON and Download JSON, built at the
+ontology version as one case-sensitive code chip) and offers Copy JSON and, since R127, Download PDF, built at the
 click and never printed inline. The dashboard's record grid gains two cross-course totals (commands
 verified, procedures to standard) through `sumKpi`, which leaves an unloaded row out and says so, and
-a page-level chip for the member profile (`capstone-member-profile/1`) with Export credential. The
+a page-level chip for the member profile (`capstone-member-profile/1`). The
 profile and the credential are built by one pure module, `src/lib/memberExport.ts`
 (`buildMemberProfile`, `profileJson`, `buildCredential`): the portfolio and the dashboard both call
-it, the page stamps `generatedAt` and hashes the pretty JSON it downloads, and the module reads no
-clock, no window and no repository. `CopyButton` moved to `src/components/ui/` so the chip could use
+it for the copy and the link a member creates (R114), the page stamps `generatedAt` and hashes the pretty
+JSON, and the module reads no clock, no window and no repository. `CopyButton` moved to `src/components/ui/` so the chip could use
 it without the lab-access graph.
 
 ### Consent, outcomes and the acceptance gate (R110)
@@ -849,3 +849,39 @@ at most every ten seconds; `useUserSync`), every reader re-reads, and a first lo
 of a card) so the page no longer serialises every course on every broadcast. `recordDetail.test.ts` holds
 each list to the number the page prints for it on a real course, for one course and for two, and after a
 reset; `dashboard/page.test.tsx` runs the real page on the real repositories.
+
+### Exports are a compact PDF (R127)
+
+Every file a learner could save was JSON: the member profile, the credential, the KPI board, a shared
+copy, the issues. Nobody a member would hand one to can open it, so the exports are now one compact PDF of
+skills, progress and issues. `src/lib/pdf.ts` is the writer: A4 pages, the three standard fonts every viewer
+carries (nothing is embedded, so a file is a few kilobytes), WinAnsi text with Adobe's Core 14 widths so a line
+breaks where it really ends, wrapping and page breaks, hairline rules and filled rectangles. It is pure, adds
+no dependency and reads no clock (the caller passes the creation time), so the same input is the same bytes.
+Text outside WinAnsi prints as "?" so a gap is visible. `src/lib/recordPdf.ts` is the document: the figures the
+page printed (the dashboard passes its twelve, so the PDF is the strip), the skills by name (verified,
+practised, tools, procedures, standards, tactics and practices, exam domains, the roles the courses prepare
+for; each counted once at the best level any course reached, as the portfolio does), progress by course with a
+bar, and the issues the member reported (`IssueDto`, joined as the inbox joins them, newest first; a note is cut
+at 280 characters and 40 are listed, with "and N more"). A normal record is one page; thirteen courses with
+everything reached are four.
+
+It is offered where the JSON file was: the dashboard (the whole record, and each course's card for that
+course), the portfolio, the Home card (that course), the shared-copy page (a profile copy, or a credential
+copy as a one-page statement of what it is aligned to, with its digest and the line that it is unsigned) and the
+issues inbox (the list on screen, with the tab and filters said on the first page, grouped by course, with
+who reported it and on which version). The issues a member reported are read at the click
+(`ownIssues` in `lib/recordFacts.ts`): a team's reports are visible to the team, so only the member's own are
+kept. A shared copy holds no issues, so its PDF has no issues section rather than a claim that there are none.
+`downloadBytes` in `lib/download.ts` is the one place a binary file is handed to the browser.
+
+Still machine-readable, on purpose, and listed in the page-shape guard so a new one is added deliberately: the
+account page's "Export my data" (the complete dump; the privacy policy promises it as JSON, so changing it needs
+a new policy version), the Deliverables page's "Export my work" (a handoff file a teammate restores and merges,
+`docs/handoff.ts`), the Studio's course document and the course export (imported again), the fix bundle and
+the live course document (folded into the code), the IaC template files a lab step asks for, the CSV files and
+the calendar file. "Copy JSON" stays on the clipboard for an agent. The credential is no longer a file: it is
+what a link serves, and the shared page prints it as the PDF statement.
+`pdf.test.ts` reads the file back (offsets, escaping, wrapping, margins, page breaks, determinism);
+`recordPdf.test.ts` holds the content, order, limits and shared copies of any shape; the browser sweep opens the
+real downloads with PDFium (Chrome's engine) and pypdf.

@@ -7,14 +7,18 @@ import type { IssuesData } from '@/lib/data/issuesLoader';
 import type { TaskReport } from '@/lib/data/types';
 import type { IssueDto } from '@/lib/issueInbox';
 import { splitRoleName } from '@/lib/docs/roles';
+import { allText } from '@/test/pdfRead';
 
 /**
  * R120 — the inbox: four tabs with true counts, filters that only offer what exists,
  * a group-by-task view, who/when/where/role/version on every card, and the
  * instructor's status and note.
  */
-const download = vi.hoisted(() => ({ calls: [] as { name: string; text: string; type?: string }[] }));
-vi.mock('@/lib/download', () => ({ downloadText: (name: string, text: string, type?: string) => download.calls.push({ name, text, type }) }));
+const download = vi.hoisted(() => ({ calls: [] as { name: string; text: string; type?: string }[], files: [] as { name: string; bytes: Uint8Array; type?: string }[] }));
+vi.mock('@/lib/download', () => ({
+  downloadText: (name: string, text: string, type?: string) => download.calls.push({ name, text, type }),
+  downloadBytes: (name: string, bytes: Uint8Array, type?: string) => download.files.push({ name, bytes, type }),
+}));
 
 const A = AZURE_FUNDAMENTALS;
 const S = SECURITY_PLUS;
@@ -50,6 +54,7 @@ function setup(over: { data?: IssuesData; onSave?: (i: IssueDto, p: { status: st
 
 beforeEach(() => {
   download.calls.length = 0;
+  download.files.length = 0;
 });
 
 describe('IssuesBoard', () => {
@@ -156,18 +161,43 @@ describe('IssuesBoard', () => {
     expect(patch).toEqual({ status: 'resolved', note: 'Added the subscription to step 1' });
   });
 
-  it('exports what is on screen as CSV and JSON', () => {
+  it('exports what is on screen as a CSV and a PDF, and no JSON file', () => {
     const { container } = setup();
     fireEvent.click(container.querySelector('[data-issues-csv]')!);
-    fireEvent.click(container.querySelector('[data-issues-json]')!);
-    const [csv, json] = download.calls;
+    fireEvent.click(container.querySelector('[data-issues-pdf]')!);
+    expect(container.querySelector('[data-issues-json]')).toBeNull();
+    expect(download.calls).toHaveLength(1); // the CSV is the only text file
+    const [csv] = download.calls;
     expect(csv.name).toMatch(/^issues_\d{4}-\d{2}-\d{2}\.csv$/);
     expect(csv.text.split('\r\n')[0]).toContain('reported_at');
     expect(csv.text).toContain('Which subscription?');
     expect(csv.text).not.toContain('Old screenshot');
-    const rows = JSON.parse(json.text) as IssueDto[];
-    expect(rows.map((r) => r.id).sort()).toEqual(['a', 'b']);
-    expect(rows.every((r) => r.schema === 'capstone-issue/1')).toBe(true);
+    // R127: the PDF is the same list: the pending tab, with the filters said on the first page
+    const [pdf] = download.files;
+    expect(pdf.name).toMatch(/^capstone-issues_\d{4}-\d{2}-\d{2}\.pdf$/);
+    expect(pdf.type).toBeUndefined(); // the helper's default is application/pdf
+    expect(new TextDecoder().decode(pdf.bytes.slice(0, 8))).toBe('%PDF-1.4');
+    const text = allText(pdf.bytes).replace(/\s+/g, ' ');
+    expect(text).toContain('Pending · all courses');
+    expect(text).toContain('Which subscription?');
+    expect(text).toContain('az login fails');
+    expect(text).toContain('Ada Lovelace');
+    expect(text).not.toContain('Old screenshot'); // resolved: not on this tab
+    expect(text).not.toContain('Why a VNet?'); // won't fix: not on this tab
+  });
+
+  it('says the filters in force on the PDF, and cannot make one of an empty list', () => {
+    const { container, pick } = setup({ initial: { tab: 'all' } });
+    pick(/^Course/, A.id);
+    pick(/^Kind/, 'broken');
+    fireEvent.click(container.querySelector('[data-issues-pdf]')!);
+    const text = allText(download.files[0].bytes).replace(/\s+/g, ' ');
+    expect(text).toContain(`All · ${A.title} · Something is broken`);
+    expect(text).toContain('az login fails');
+    expect(text).not.toContain('Which subscription?');
+    pick(/^Course/, S.id);
+    pick(/^Kind/, 'broken');
+    expect(container.querySelector('[data-issues-pdf]')).toBeDisabled();
   });
 
   it('says so when the database needs its update, and when it holds only this device', () => {

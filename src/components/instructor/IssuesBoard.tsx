@@ -6,7 +6,8 @@ import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
 import { Surface } from '@/components/ui/Surface';
-import { downloadText } from '@/lib/download';
+import { downloadBytes, downloadText } from '@/lib/download';
+import { buildIssuesPdf, issuesPdfName } from '@/lib/recordPdf';
 import { localDay } from '@/lib/localDate';
 import { reportKindLabel, type ReportStatus } from '@/lib/reportKinds';
 import { buildIssues, filterIssues, groupByTask, issueCounts, issueFacets, issuesCsv, type IssueDto, type IssueFilter, type IssueTab } from '@/lib/issueInbox';
@@ -71,6 +72,21 @@ export function IssuesBoard({
     <IssueCard key={`${i.id}:${i.status}:${i.resolution?.note ?? ''}`} issue={i} onSave={(_id, patch) => onSave(i, patch)} extra={renderExtra?.(i, rows)} />
   );
   const stamp = localDay();
+  // R127: the list as a PDF, the way it stands on screen: the tab and every filter in force are said on the first page.
+  const exportPdf = () => {
+    const now = Date.now();
+    const scope = [
+      TABS.find((t) => t.id === tab)?.label,
+      filters.courseId ? facets.courses.find((c) => c.id === filters.courseId)?.title : 'all courses',
+      filters.week !== undefined ? `Week ${filters.week}` : null,
+      filters.kind ? reportKindLabel(filters.kind) : null,
+      filters.reporter ? `reported by ${filters.reporter}` : null,
+      filters.q ? `matching “${filters.q}”` : null,
+    ]
+      .filter(Boolean)
+      .join(' · ');
+    downloadBytes(issuesPdfName(now), buildIssuesPdf({ generatedAt: now, issues: shown, scope }));
+  };
 
   return (
     <div className="space-y-4" data-issues-board>
@@ -105,8 +121,8 @@ export function IssuesBoard({
           <Button variant="secondary" size="sm" onClick={() => downloadText(`issues_${stamp}.csv`, issuesCsv(shown), 'text/csv;charset=utf-8')} disabled={shown.length === 0} className="flex items-center gap-1.5" data-issues-csv>
             <Download className="h-4 w-4" aria-hidden /> CSV
           </Button>
-          <Button variant="secondary" size="sm" onClick={() => downloadText(`issues_${stamp}.json`, JSON.stringify(shown, null, 2) + '\n', 'application/json')} disabled={shown.length === 0} className="flex items-center gap-1.5" data-issues-json>
-            <Download className="h-4 w-4" aria-hidden /> JSON
+          <Button variant="secondary" size="sm" onClick={exportPdf} disabled={shown.length === 0} className="flex items-center gap-1.5" data-issues-pdf>
+            <Download className="h-4 w-4" aria-hidden /> PDF
           </Button>
         </span>
       </div>

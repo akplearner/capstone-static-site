@@ -2494,7 +2494,8 @@ describe('R108 — the skill board, the KPI board, the profiles and the cohort r
     for (const f of ['src/components/skills/SkillsCard.tsx', 'src/components/team/EngagementStatus.tsx', 'src/app/dashboard/page.tsx']) expect(code(f), f).toContain('/skills`');
     expect(code('src/lib/search.ts')).toContain('skills:${course.id}');
     const portfolio = code('src/app/portfolio/page.tsx');
-    for (const n of ['<KpiTable ', 'exportCredential', 'sha256Text(', 'buildMemberProfile(', 'buildCredential(', 'downloadText(']) expect(portfolio, n).toContain(n);
+    // R127: the file a member saves is a PDF; the profile and the credential are still built for a link, which carries them as JSON.
+    for (const n of ['<KpiTable ', 'sha256Text(', 'buildMemberProfile(', 'buildCredential(', 'buildRecordPdf(', 'downloadBytes(']) expect(portfolio, n).toContain(n);
     expect(portfolio, 'unsigned by construction').not.toMatch(/\bproof\s*:/);
     expect(portfolio, 'the one download helper').not.toContain('URL.createObjectURL');
     // R109: the shapes live in the shared builder.
@@ -2561,7 +2562,9 @@ describe('R109 — the KPI pack and the DTO chips', () => {
     expect(pack).not.toContain('<Surface');
     expect(pack).not.toMatch(/animate=\{\{[^}]*\bwidth:/);
     const chip = code('src/components/skills/DtoChip.tsx');
-    for (const n of ['<CopyButton ', 'downloadText(', "'application/json'", 'data-dto-chip', 'data-export-credential']) expect(chip, n).toContain(n);
+    // R127: the chip copies JSON for an agent and hands a PDF to the browser through the page; it saves no JSON file of its own.
+    for (const n of ['<CopyButton ', 'onPdf', 'data-dto-chip', 'data-dto-pdf']) expect(chip, n).toContain(n);
+    for (const bad of ['downloadText(', "'application/json'", 'data-export-credential', 'onCredential']) expect(chip, bad).not.toContain(bad);
     expect(chip, 'no JSON printed inline').not.toContain('<pre');
     expect(chip, 'schema ids are case-sensitive; PixelBadge uppercases').not.toContain('PixelBadge');
     const block = code('src/components/step/CommandBlock.tsx');
@@ -2576,7 +2579,7 @@ describe('R109 — the KPI pack and the DTO chips', () => {
     expect(card.match(/data-skill-board-link/g), 'the link lives in the pack').toBeNull();
     expect(code('src/components/course/HomeTab.tsx')).toMatch(/<SkillsCard [^>]*crew=\{crew\}/);
     const dash = code('src/app/dashboard/page.tsx');
-    for (const n of ['<KpiPack ', '<DtoChip ', 'kpiBoard({', 'defaultMeasure(', 'sumKpi(', 'buildMemberProfile(', 'buildCredential(', 'profileJson(', 'sha256Text(', 'downloadText(', 'tiles.commandsVerified', 'tiles.proceduresToStandard']) expect(dash, n).toContain(n);
+    for (const n of ['<KpiPack ', '<DtoChip ', 'kpiBoard({', 'defaultMeasure(', 'sumKpi(', 'buildMemberProfile(', 'buildCredential(', 'profileJson(', 'sha256Text(', 'buildRecordPdf(', 'downloadBytes(', 'tiles.commandsVerified', 'tiles.proceduresToStandard']) expect(dash, n).toContain(n);
     // R126: the figures are a strip of buttons now; the four columns live in the strip.
     expect(code('src/components/skills/RecordStrip.tsx'), 'lg:grid-cols-4').toContain('lg:grid-cols-4');
     // R126: eight tiles became twelve, each a button in the strip, defined once in the page as { id, icon, label, value, sub }.
@@ -3299,7 +3302,8 @@ describe('R120 — the issues inbox', () => {
       for (const bad of ['taskReportsRepo', 'loadIssues', 'localStorage', 'useClientStore', 'progressRepo', 'courseRepo']) expect(src, `${f}: ${bad}`).not.toContain(bad);
     }
     const board = code('src/components/instructor/IssuesBoard.tsx');
-    for (const n of ['role="tablist"', 'data-issues-tab', 'data-issues-csv', 'data-issues-json', 'data-issues-group', 'issueFacets(', 'groupByTask(']) expect(board, n).toContain(n);
+    for (const n of ['role="tablist"', 'data-issues-tab', 'data-issues-csv', 'data-issues-pdf', 'buildIssuesPdf(', 'data-issues-group', 'issueFacets(', 'groupByTask(']) expect(board, n).toContain(n);
+    expect(board, 'R127: the inbox saves a CSV and a PDF, no JSON file').not.toContain('data-issues-json');
     const card = code('src/components/instructor/IssueCard.tsx');
     expect(card, 'a status is an icon and a word').toContain('STATUS_LOOK');
     expect(card).toContain('data-issue-where');
@@ -3716,5 +3720,92 @@ describe('R126 — the record, live and openable', () => {
     const list = read('docs/FIX_LIST.md');
     expect(list).toContain('| F3 | The dashboard\'s "Your record" does not update | R126 | Done |');
     expect(list).toContain('| F4 | Each record metric expands to the tools, commands, procedures and actions behind it | R126 | Done |');
+  });
+});
+
+/**
+ * R127 — exports are a compact PDF, not JSON files.
+ *
+ * The admin's fix list, F6: every export a learner makes is one compact PDF of skills, progress and issues. These
+ * pins keep the writer and the builder pure and free of a dependency, send every learner-facing export through
+ * them, and keep the list of files that are still machine-readable explicit, so a JSON download added to a
+ * learner's page is a decision somebody writes down here, not an accident.
+ */
+describe('R127 — exports are a compact PDF', () => {
+  it('the writer and the builder are pure, and add no dependency', () => {
+    for (const f of ['src/lib/pdf.ts', 'src/lib/recordPdf.ts']) {
+      const src = code(f);
+      for (const bad of ['window', 'document.', 'Date.now', 'new Date()', 'localStorage', 'fetch(', '@/lib/data', 'useClientStore', 'toISOString']) expect(src, `${f}: ${bad}`).not.toContain(bad);
+    }
+    expect(read('package.json')).not.toMatch(/"(jspdf|pdfkit|pdf-lib|pdfmake|@react-pdf\/renderer|react-pdf)"/);
+    // the writer reads no clock: the caller says when it was made
+    expect(code('src/lib/pdf.ts')).toContain('created: number');
+    // text is WinAnsi and widths are Adobe's AFM, so a line is broken where it ends
+    expect(code('src/lib/pdf.ts')).toContain('/Encoding /WinAnsiEncoding');
+  });
+
+  it('every learner-facing export goes through the PDF builder and the one download helper, and none saves JSON', () => {
+    const surfaces = ['src/app/dashboard/page.tsx', 'src/app/portfolio/page.tsx', 'src/components/skills/DtoChip.tsx', 'src/components/skills/SkillsCard.tsx', 'src/components/share/SharedProfile.tsx', 'src/components/instructor/IssuesBoard.tsx'];
+    for (const f of surfaces) {
+      const src = code(f);
+      expect(src, `${f}: no JSON mime type`).not.toContain("'application/json'");
+      expect(src, `${f}: no Blob of its own`).not.toContain('new Blob');
+      expect(src, `${f}: no JSON file name`).not.toMatch(/downloadText\([^)]*\.json/);
+    }
+    for (const f of ['src/app/dashboard/page.tsx', 'src/app/portfolio/page.tsx', 'src/components/skills/SkillsCard.tsx']) {
+      const src = code(f);
+      for (const n of ['buildRecordPdf(', 'recordPdfName(', 'downloadBytes(', 'ownIssues(']) expect(src, `${f}: ${n}`).toContain(n);
+    }
+    const shared = code('src/components/share/SharedProfile.tsx');
+    for (const n of ['recordPdfFromShare(', 'buildRecordPdf(', 'buildCredentialPdf(', 'downloadBytes(']) expect(shared, n).toContain(n);
+    expect(code('src/components/instructor/IssuesBoard.tsx')).toContain('buildIssuesPdf(');
+    // the helper is the one place a file is handed to the browser
+    const helper = code('src/lib/download.ts');
+    expect(helper).toContain('export function downloadBytes(');
+    expect(helper.match(/URL\.createObjectURL/g)).toHaveLength(1);
+    // the words: "Download PDF" is the registry's, and the credential file is gone
+    expect(code('src/lib/docs/skillsCopy.ts')).toContain("download: 'Download PDF'");
+    expect(code('src/lib/docs/skillsCopy.ts')).not.toContain('exportCredential');
+    expect(code('src/lib/memberExport.ts')).not.toContain('CREDENTIAL_FILENAME');
+  });
+
+  it('the files that are still JSON are the ones that are machine-read, and they are listed here', () => {
+    // A page that saves JSON (a Blob of it, downloadText with its type, or a file named .json) must be on this list, with the reason.
+    const MACHINE_READ = [
+      'src/app/account/page.tsx', // the complete data export: the privacy policy promises it as JSON, and it is the member's to move elsewhere
+      'src/app/courses/[courseId]/docs/page.tsx', // "Export my work" is a handoff file a teammate restores and merges (`docs/handoff.ts`), which a PDF cannot be
+      'src/app/instructor/[courseId]/page.tsx', // the Studio's course document, which the Studio imports again
+      'src/app/instructor/page.tsx', // the course export, imported again
+      'src/app/instructor/issues/page.tsx', // the fix bundle and the live course document, for folding fixes into the code
+      'src/components/cloud/IacViewer.tsx', // template files a lab step asks for, which are JSON because the tool reads JSON
+    ];
+    const saves = collectSourceFiles('src').filter((f) => {
+      const src = code(f);
+      return (
+        /(?:download|downloadText)\([^\n]*\.json/.test(src) ||
+        /\.download = [^\n]*\.json/.test(src) ||
+        (src.includes("'application/json'") && (src.includes('new Blob') || src.includes('downloadText(')))
+      );
+    });
+    expect(saves.sort()).toEqual([...MACHINE_READ].sort());
+    // and the account page says what that file is for, and where the readable summary is
+    expect(code('src/app/account/page.tsx')).toContain('data-account-export');
+  });
+
+  it('the PDF says what it holds, in the register, and leaves out what it does not hold', () => {
+    const src = code('src/lib/recordPdf.ts');
+    for (const n of ['SKILLS_COPY.pdf.claim', 'SKILLS_COPY.pdf.unsigned', 'if (issues) issuesSection(', 'MAX_ISSUES', 'NOTE_CHARS']) expect(src, n).toContain(n);
+    // nothing in it is ranked or badged: no string the PDF prints says so
+    const literals = [...src.matchAll(/'([^'\n]*)'|`([^`\n]*)`/g)].map((m) => m[1] ?? m[2] ?? '');
+    for (const text of literals) expect(text, text).not.toMatch(/\b(rank|ranked|ranking|percent|leaderboard|badge)\b/i);
+  });
+
+  it('the docs say it', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### Exports are a compact PDF (R127)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| PDF exports |');
+    expect(read('docs/OPERATIONS.md')).toContain('**PDF exports (R127):**');
+    const list = read('docs/FIX_LIST.md');
+    expect(list).toContain('| F6 | An export is a compact PDF of skills, progress and issues, not a JSON file | R127 | Done |');
+    expect(list).toContain('Still machine-readable');
   });
 });

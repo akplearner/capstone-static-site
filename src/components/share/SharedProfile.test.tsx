@@ -1,10 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { allText } from '@/test/pdfRead';
 
 // R114: the public page reads the token from the fragment, shows the frozen
 // copy under a banner that says what it is and is not, and treats unknown,
 // revoked and expired alike.
 const shared = vi.hoisted(() => ({ copy: null as null | Record<string, unknown>, asked: [] as string[] }));
+// R127: the page's download is a PDF; what it hands the browser is read back below.
+const saved = vi.hoisted(() => ({ files: [] as { name: string; bytes: Uint8Array; type?: string }[], text: [] as string[] }));
+vi.mock('@/lib/download', () => ({
+  downloadBytes: (name: string, bytes: Uint8Array, type?: string) => saved.files.push({ name, bytes, type }),
+  downloadText: (name: string) => saved.text.push(name),
+}));
 vi.mock('@/lib/shares', async (orig) => {
   const real = await orig<typeof import('@/lib/shares')>();
   return {
@@ -36,6 +43,8 @@ const profileCopy = {
 beforeEach(() => {
   shared.copy = null;
   shared.asked = [];
+  saved.files.length = 0;
+  saved.text.length = 0;
   window.location.hash = '';
 });
 
@@ -49,7 +58,27 @@ describe('SharedProfile (R114)', () => {
     const banner = container.querySelector('[data-share-banner]')!.textContent!;
     for (const phrase of ['frozen copy', 'unsigned', 'not proof of the machine', 'revoke', 'Sample MSSP']) expect(banner, phrase).toContain(phrase);
     expect(container.querySelector('[data-share-figures]')!.textContent).toContain('2 receipted');
-    expect(screen.getByRole('button', { name: /Download JSON/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Download PDF' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /JSON/ })).toBeNull();
+  });
+
+  it('downloads the copy as a PDF: the figures it carries, the courses it holds, and no claim about issues it does not hold', async () => {
+    window.location.hash = `#${TOKEN}`;
+    shared.copy = profileCopy;
+    render(<SharedProfile />);
+    await waitFor(() => expect(screen.getByText('Grace Hopper')).toBeInTheDocument());
+    fireEvent.click(screen.getByRole('button', { name: 'Download PDF' }));
+    expect(saved.text).toEqual([]); // no JSON file
+    expect(saved.files).toHaveLength(1);
+    const [file] = saved.files;
+    expect(file.name).toMatch(/^capstone-record_shared_\d{4}-\d{2}-\d{2}\.pdf$/);
+    expect(new TextDecoder().decode(file.bytes.slice(0, 8))).toBe('%PDF-1.4');
+    const text = allText(file.bytes).replace(/\s+/g, ' ');
+    expect(text).toContain('Grace Hopper');
+    expect(text).toContain('of 9 checkable · 2 receipted');
+    expect(text).toContain('a shared copy made 2026-10-14 of 0 courses');
+    expect(text).toContain('It is unsigned');
+    expect(text).not.toContain('ISSUES REPORTED');
   });
 
   it('renders the compact copy a link carries now (R124): reached rows by label, rows not reached left out of the lists, no counters needed', async () => {
@@ -105,6 +134,15 @@ describe('SharedProfile (R114)', () => {
     render(<SharedProfile />);
     await waitFor(() => expect(screen.getByText('Network scanning')).toBeInTheDocument());
     expect(screen.getByText('comp.recon.scan')).toBeInTheDocument();
+    // R127: and downloads as a one-page PDF of the same alignment, not the envelope
+    fireEvent.click(screen.getByRole('button', { name: 'Download PDF' }));
+    expect(saved.text).toEqual([]);
+    const [file] = saved.files;
+    expect(file.name).toMatch(/^capstone-credential_\d{4}-\d{2}-\d{2}\.pdf$/);
+    const text = allText(file.bytes).replace(/\s+/g, ' ');
+    expect(text).toContain('Capstone member profile');
+    expect(text).toContain('Unsigned.');
+    expect(text).toContain('Network scanning (comp.recon.scan)');
   });
 
   it('an unknown, revoked or expired link, or none at all, reads the same', async () => {
