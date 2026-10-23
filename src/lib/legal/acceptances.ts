@@ -127,28 +127,78 @@ export async function fetchCloudAcceptanceLog(): Promise<AcceptanceRow[] | null>
   return ((data ?? []) as unknown as Record<string, unknown>[]).map((r) => ({ agreementId: String(r.agreement_id), version: Number(r.version ?? 0), acceptedAt: String(r.accepted_at ?? ''), textSha256: r.text_sha256 ? String(r.text_sha256) : null }));
 }
 
-export async function acceptInCloud(userId: string, agreements: Agreement[]): Promise<boolean> {
+/** Why a write to the acknowledgement log failed, in the terms a student can act on (R128). */
+export type AcceptFailure = 'session' | 'permission' | 'network' | 'unknown';
+export type AcceptResult = { ok: true } | { ok: false; reason: AcceptFailure; code: string; message: string };
+
+type DbError = { code?: string; message?: string; details?: string; hint?: string; status?: number };
+
+/** Sort a database error into the four things a person can do something about. */
+export function classifyAcceptError(error: DbError): AcceptFailure {
+  const code = String(error.code ?? '');
+  const message = (error.message ?? '').toLowerCase();
+  if (code === 'PGRST301' || code === 'PGRST303' || error.status === 401 || /jwt|token is expired|not authenticated|invalid claim/.test(message)) return 'session';
+  if (code === '42501' || error.status === 403 || /row-level security|permission denied/.test(message)) return 'permission';
+  if (/failed to fetch|networkerror|load failed|network request failed|timeout/.test(message)) return 'network';
+  return 'unknown';
+}
+
+const isDuplicate = (error: DbError | null) => error?.code === '23505';
+
+/**
+ * Record the acceptances for the signed-in user. A plain insert (a duplicate means it was already
+ * recorded, which is success); the hash is optional, because it needs `crypto.subtle` (absent in some
+ * in-app browsers) and migration 0013; an expired session is refreshed once and the write retried.
+ * The failure carries the code and message so the console says what actually happened.
+ */
+export async function acceptInCloudDetailed(userId: string, agreements: Agreement[]): Promise<AcceptResult> {
   const supabase = getBrowserClient();
-  if (!supabase) return false;
-  const hashes = await Promise.all(agreements.map(agreementTextHash));
-  const write = (withHash: boolean) =>
-    supabase.from('agreement_acceptances').upsert(
-      agreements.map((a, i) => ({ user_id: userId, agreement_id: a.id, version: a.version, ...(withHash ? { text_sha256: hashes[i] } : {}) })),
-      { onConflict: 'user_id,agreement_id,version', ignoreDuplicates: true }
-    );
-  let { error } = await write(hashColumn !== false);
-  if (error && hashColumn !== false && missingHashColumn(error)) {
-    // The version and the time are what the gate needs; the hash waits for 0013.
-    console.warn('agreement_acceptances has no text_sha256 column yet (run supabase/setup.sql); logging the acceptance without the text hash');
-    hashColumn = false;
-    ({ error } = await write(false));
+  if (!supabase) return { ok: false, reason: 'unknown', code: '', message: 'no client' };
+  const hashes = await Promise.all(
+    agreements.map((a) =>
+      agreementTextHash(a).catch((e: unknown) => {
+        console.warn('agreement text hash unavailable; logging the acceptance without it', e instanceof Error ? e.message : e);
+        return null;
+      })
+    )
+  );
+  const rowsFor = (withHash: boolean) => agreements.map((a, i) => ({ user_id: userId, agreement_id: a.id, version: a.version, ...(withHash && hashes[i] ? { text_sha256: hashes[i] } : {}) }));
+  const write = async (withHash: boolean): Promise<DbError | null> => {
+    const rows = rowsFor(withHash);
+    const { error } = await supabase.from('agreement_acceptances').insert(rows);
+    if (!isDuplicate(error)) return error;
+    // One of the rows is already in the log: add the others one at a time, and count a duplicate as done.
+    for (const row of rows) {
+      const one = await supabase.from('agreement_acceptances').insert(row);
+      if (one.error && !isDuplicate(one.error)) return one.error;
+    }
+    return null;
+  };
+  const attempt = async (): Promise<DbError | null> => {
+    let error = await write(hashColumn !== false);
+    if (error && hashColumn !== false && missingHashColumn(error)) {
+      // The version and the time are what the gate needs; the hash waits for 0013.
+      console.warn('agreement_acceptances has no text_sha256 column yet (run supabase/setup.sql); logging the acceptance without the text hash');
+      hashColumn = false;
+      error = await write(false);
+    }
+    return error;
+  };
+  let error = await attempt();
+  if (error && classifyAcceptError(error) === 'session') {
+    await supabase.auth.refreshSession().catch(() => undefined);
+    error = await attempt();
   }
   if (error) {
-    console.error('acceptance log write failed', error.message);
-    return false;
+    console.error('acceptance log write failed', { code: error.code, message: error.message, details: error.details, hint: error.hint, status: error.status });
+    return { ok: false, reason: classifyAcceptError(error), code: String(error.code ?? ''), message: String(error.message ?? '') };
   }
   if (hashColumn === null) hashColumn = true;
-  return true;
+  return { ok: true };
+}
+
+export async function acceptInCloud(userId: string, agreements: Agreement[]): Promise<boolean> {
+  return (await acceptInCloudDetailed(userId, agreements)).ok;
 }
 
 export function isCloudMode(): boolean {

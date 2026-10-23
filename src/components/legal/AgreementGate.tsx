@@ -11,7 +11,7 @@ import { useAuth } from '@/lib/useAuth';
 import { useClientStore } from '@/lib/useClientStore';
 import { AGREEMENTS, missingAcceptances, type Agreement } from '@/lib/legal/agreements';
 import {
-  acceptInCloud,
+  acceptInCloudDetailed,
   acceptLocally,
   fetchCloudAcceptances,
   isCloudMode,
@@ -144,13 +144,26 @@ export function LegalGateOverlay() {
 
   const accept = () => {
     setBusy(true);
-    void acceptInCloud(user.id, missing).then((ok) => {
+    const unlock = () => setAccepted({ ...accepted, ...Object.fromEntries(missing.map((a) => [a.id, a.version])) });
+    void acceptInCloudDetailed(user.id, missing).then((result) => {
       setBusy(false);
-      if (!ok) {
-        toast({ message: 'Couldn’t record the acceptance — check your connection and try again.', variant: 'warning' });
+      if (result.ok) return unlock();
+      // R128: say what went wrong. The log is a record, not a lock: a fault in writing it
+      // (network, a database that lags the app) must not strand a student, so the platform
+      // opens for this visit and the write is tried again; a sign-in or permission fault cannot be
+      // worked around and is named, with the code to quote.
+      if (result.reason === 'session') {
+        toast({ message: 'Your sign-in has expired. Sign in again, then accept.', variant: 'warning' });
+        void signOut();
         return;
       }
-      setAccepted({ ...accepted, ...Object.fromEntries(missing.map((a) => [a.id, a.version])) });
+      if (result.reason === 'permission') {
+        toast({ message: `This account cannot record the acceptance yet (code ${result.code || 'none'}). Tell your instructor and quote that code.`, variant: 'warning' });
+        return;
+      }
+      toast({ message: 'The acceptance could not be saved just now. You can continue; it will be saved again shortly.', variant: 'warning' });
+      unlock();
+      window.setTimeout(() => void acceptInCloudDetailed(user.id, missing), 15000);
     });
   };
 

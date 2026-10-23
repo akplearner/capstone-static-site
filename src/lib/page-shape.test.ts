@@ -3561,7 +3561,7 @@ describe('R123 — typing in a dialog, and the fix list', () => {
 
   it('every item on the admin’s list is in the fix list, with the link limit written down', () => {
     const list = read('docs/FIX_LIST.md');
-    for (const id of ['F1', 'F2', 'F3', 'F4', 'F5', 'F6']) expect(list, id).toContain(`| ${id} |`);
+    for (const id of ['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7']) expect(list, id).toContain(`| ${id} |`);
     expect(list).toContain('256 KB');
     expect(list).toContain('SHARE_MAX_BYTES');
     expect(read('docs/OPERATIONS.md')).toContain('**Typing (R123):**');
@@ -3807,5 +3807,21 @@ describe('R127 — exports are a compact PDF', () => {
     const list = read('docs/FIX_LIST.md');
     expect(list).toContain('| F6 | An export is a compact PDF of skills, progress and issues, not a JSON file | R127 | Done |');
     expect(list).toContain('Still machine-readable');
+  });
+});
+
+/**
+ * R128 — the agreements gate says why it failed (fix list F7). The write is a plain insert (no upsert shape),
+ * the hash is optional, an expired session is refreshed once, and the console gets the code.
+ */
+describe('R128 — the acceptance write fails legibly', () => {
+  it('is a typed, tolerant write and the gate uses it', () => {
+    const src = code('src/lib/legal/acceptances.ts');
+    for (const n of ['acceptInCloudDetailed', 'classifyAcceptError', 'refreshSession()', "'23505'", 'console.error(\'acceptance log write failed\', { code:']) expect(src, n).toContain(n);
+    expect(src, 'no ON CONFLICT upsert on the log').not.toContain('ignoreDuplicates');
+    const gate = code('src/components/legal/AgreementGate.tsx');
+    for (const n of ['acceptInCloudDetailed(', "result.reason === 'session'", "result.reason === 'permission'", 'result.code']) expect(gate, n).toContain(n);
+    expect(read('SUPABASE_SETUP.md')).toContain('A student cannot get past the agreements checkbox (R128)');
+    expect(read('docs/FIX_LIST.md')).toContain('| F7 |');
   });
 });

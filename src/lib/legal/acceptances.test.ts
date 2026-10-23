@@ -9,6 +9,9 @@ import { AGREEMENTS } from './agreements';
 const db = vi.hoisted(() => ({
   hasHashColumn: false,
   otherError: null as null | { code: string; message: string },
+  errors: [] as { code?: string; message: string; status?: number }[],
+  duplicates: false,
+  refreshed: 0,
   writes: [] as Record<string, unknown>[][],
   reads: [] as string[],
 }));
@@ -17,9 +20,14 @@ const MISSING = { code: 'PGRST204', message: "Could not find the 'text_sha256' c
 
 vi.mock('../supabase/client', () => ({
   getBrowserClient: () => ({
+    auth: { refreshSession: async () => { db.refreshed++; return {}; } },
     from: () => ({
-      upsert: async (rows: Record<string, unknown>[]) => {
+      insert: async (input: Record<string, unknown> | Record<string, unknown>[]) => {
+        const rows = Array.isArray(input) ? input : [input];
         db.writes.push(rows);
+        if (db.duplicates && rows.length > 1) return { error: { code: '23505', message: 'duplicate key value' } };
+        if (db.duplicates && rows[0].agreement_id === AGREEMENTS[0].id) return { error: { code: '23505', message: 'duplicate key value' } };
+        if (db.errors.length) return { error: db.errors.shift() };
         if (db.otherError) return { error: db.otherError };
         if (!db.hasHashColumn && rows.some((r) => 'text_sha256' in r)) return { error: MISSING };
         return { error: null };
@@ -44,6 +52,9 @@ const load = async () => {
 beforeEach(() => {
   db.hasHashColumn = false;
   db.otherError = null;
+  db.errors = [];
+  db.duplicates = false;
+  db.refreshed = 0;
   db.writes = [];
   db.reads = [];
 });
@@ -84,5 +95,50 @@ describe('the acceptance log survives a database that predates 0013', () => {
     db.hasHashColumn = true;
     const fresh = await load();
     expect((await fresh.fetchCloudAcceptanceLog())?.[0].textSha256).toBe('a'.repeat(64));
+  });
+});
+
+describe('R128 — an acceptance that fails says why, and does not fail for avoidable reasons', () => {
+  it('refreshes an expired session once and writes again', async () => {
+    db.hasHashColumn = true;
+    db.errors = [{ code: 'PGRST301', message: 'JWT expired', status: 401 }];
+    const { acceptInCloudDetailed } = await load();
+    expect(await acceptInCloudDetailed('user-1', AGREEMENTS)).toEqual({ ok: true });
+    expect(db.refreshed).toBe(1);
+    expect(db.writes).toHaveLength(2);
+  });
+
+  it('names a session that stays expired, a permission fault and a network fault, with the code', async () => {
+    db.hasHashColumn = true;
+    const { acceptInCloudDetailed } = await load();
+    db.errors = [{ code: 'PGRST301', message: 'JWT expired' }, { code: 'PGRST301', message: 'JWT expired' }];
+    expect(await acceptInCloudDetailed('u', AGREEMENTS)).toMatchObject({ ok: false, reason: 'session', code: 'PGRST301' });
+    db.errors = [{ code: '42501', message: 'new row violates row-level security policy' }];
+    expect(await acceptInCloudDetailed('u', AGREEMENTS)).toMatchObject({ ok: false, reason: 'permission', code: '42501' });
+    db.errors = [{ message: 'TypeError: Failed to fetch' }];
+    expect(await acceptInCloudDetailed('u', AGREEMENTS)).toMatchObject({ ok: false, reason: 'network' });
+    db.errors = [{ code: 'XX000', message: 'something else' }];
+    expect(await acceptInCloudDetailed('u', AGREEMENTS)).toMatchObject({ ok: false, reason: 'unknown', code: 'XX000' });
+  });
+
+  it('counts a row that is already in the log as done, and still adds the others', async () => {
+    db.hasHashColumn = true;
+    db.duplicates = true;
+    const { acceptInCloudDetailed } = await load();
+    expect(await acceptInCloudDetailed('u', AGREEMENTS)).toEqual({ ok: true });
+    expect(db.writes.length).toBe(1 + AGREEMENTS.length);
+  });
+
+  it('logs without the hash when crypto.subtle is not there, instead of hanging', async () => {
+    db.hasHashColumn = true;
+    const real = globalThis.crypto.subtle;
+    Object.defineProperty(globalThis.crypto, 'subtle', { value: undefined, configurable: true });
+    try {
+      const { acceptInCloudDetailed } = await load();
+      expect(await acceptInCloudDetailed('u', AGREEMENTS)).toEqual({ ok: true });
+      expect(db.writes[0].some((r) => 'text_sha256' in r)).toBe(false);
+    } finally {
+      Object.defineProperty(globalThis.crypto, 'subtle', { value: real, configurable: true });
+    }
   });
 });

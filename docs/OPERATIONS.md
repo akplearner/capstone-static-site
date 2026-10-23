@@ -127,6 +127,10 @@ has failed silently in some deployment of some product; none takes more than a m
   `content/profiles/sample-mssp.json` with a new id on `/instructor/profiles`; the Skill board picker
   lists it; Create link there records "measured against" it. Without the consent the dialog points to
   the account page; without the functions it says links are not set up.
+- [ ] **Agreements gate failures (R128):** sign in as a new account and tick the agreements: access opens and a row per
+  agreement is in `agreement_acceptances`. With the session cookie removed in another tab, pressing Agree says the
+  sign-in expired and signs out; with the network blocked it says it could not be saved, lets you continue and
+  saves later; the console shows the error code in each case. `SUPABASE_SETUP.md` has the SQL that checks an account.
 - [ ] **PDF exports (R127):** as a member with a course started and one issue reported (Report an issue on a task),
   open `/dashboard` and press **Download PDF** on the record chip: a file `capstone-record_<date>.pdf` is saved
   (not JSON). Open it: the name and date, the twelve figures as the strip printed them, the skills by name,

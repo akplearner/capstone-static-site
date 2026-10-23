@@ -614,6 +614,26 @@ Team 1 of March are separate teams with separate documents.
 
 ---
 
+## A student cannot get past the agreements checkbox (R128)
+
+The gate now says why it failed (and the browser console has the code). A sign-in that expired is refreshed
+once; if it still fails the student is signed out and asked to sign in again. A fault in the write itself lets
+the student continue and the write is tried again. A permission fault shows `code 42501`: run this in the SQL
+Editor, with the student's email, to see which part of the setup is missing:
+
+```sql
+select
+  (select count(*) from pg_policies where tablename = 'agreement_acceptances' and policyname = 'acceptances self insert') as insert_policy,
+  (select count(*) from information_schema.columns where table_name = 'agreement_acceptances' and column_name = 'text_sha256') as hash_column,
+  (select count(*) from auth.users u where u.email = 'STUDENT@EXAMPLE.COM') as auth_user,
+  (select count(*) from public.profiles p join auth.users u on u.id = p.id where u.email = 'STUDENT@EXAMPLE.COM') as profile_row,
+  (select count(*) from public.agreement_acceptances a join auth.users u on u.id = a.user_id where u.email = 'STUDENT@EXAMPLE.COM') as accepted_rows;
+```
+
+`insert_policy` must be 1 (re-run `supabase/setup.sql` if not), `hash_column` 1 (0 only delays the hash), and
+`auth_user` and `profile_row` 1 each (a missing profile row means the sign-up trigger did not run for that
+account).
+
 ## What students experience
 
 | | Before setup | After setup |

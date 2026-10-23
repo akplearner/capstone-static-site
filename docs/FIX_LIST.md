@@ -13,6 +13,7 @@ the record. `src/lib/page-shape.test.ts` fails if an id is removed from the tabl
 | F4 | Each record metric expands to the tools, commands, procedures and actions behind it | R126 | Done |
 | F5 | A skill is earned the first time a course is completed; a retake only adds what is missing and never overwrites an earned skill | R125 | Done |
 | F6 | An export is a compact PDF of skills, progress and issues, not a JSON file | R127 | Done |
+| F7 | Some students cannot record the agreements: "Couldn't record the acceptance" repeats | R128 | Done |
 
 Order of the rounds: the field bug first (it blocks reporting and links), then the link size (the link
 fails today), then the earned-skills ledger (the record and the PDF both read it), then the live and
@@ -149,3 +150,17 @@ lists the files that still save JSON, so a new one has to be added on purpose.
 `dashboard/page.test.tsx` (the real page: the PDF mirrors the twelve figures and carries only this member's issues),
 `DtoChip`, `SharedProfile` and `IssuesBoard` tests, and the page-shape R127 block. The files were opened with PDFium
 (the engine Chrome uses) and pypdf, rendered and read, in the browser sweep.
+
+## F7 — the agreements checkbox error (R128, done)
+
+**Cause.** The only thing that shows that message is the acceptance write failing for that account, and the app hid why:
+the error code was never logged and every fault read as "check your connection". The likely causes are a session
+that had expired while the page stayed open, a browser without `crypto.subtle` (the text hash threw and the button
+stuck), and the `ON CONFLICT` upsert shape under row-level security.
+
+**Fix.** `acceptInCloudDetailed` (src/lib/legal/acceptances.ts): a plain insert (a duplicate counts as recorded), the
+hash optional, one session refresh and retry, and a typed result (session, permission, network, unknown) with the code in
+the console. The gate names the cause, signs out an expired session, quotes the code for a permission fault, and lets a
+network or lag fault continue and retry, because the log is a record, not a lock. `SUPABASE_SETUP.md` has the SQL that checks one account.
+
+**Still to learn.** If an account keeps failing, the console line (or the SQL result) says which of the above it is.
