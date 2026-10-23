@@ -3561,7 +3561,7 @@ describe('R123 — typing in a dialog, and the fix list', () => {
 
   it('every item on the admin’s list is in the fix list, with the link limit written down', () => {
     const list = read('docs/FIX_LIST.md');
-    for (const id of ['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7']) expect(list, id).toContain(`| ${id} |`);
+    for (const id of ['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8']) expect(list, id).toContain(`| ${id} |`);
     expect(list).toContain('256 KB');
     expect(list).toContain('SHARE_MAX_BYTES');
     expect(read('docs/OPERATIONS.md')).toContain('**Typing (R123):**');
@@ -3817,11 +3817,50 @@ describe('R127 — exports are a compact PDF', () => {
 describe('R128 — the acceptance write fails legibly', () => {
   it('is a typed, tolerant write and the gate uses it', () => {
     const src = code('src/lib/legal/acceptances.ts');
-    for (const n of ['acceptInCloudDetailed', 'classifyAcceptError', 'refreshSession()', "'23505'", 'console.error(\'acceptance log write failed\', { code:']) expect(src, n).toContain(n);
+    for (const n of ['acceptInCloudDetailed', 'classifyAcceptError', 'refreshSession()', "'23505'", 'reportError({ area: \'agreements\'']) expect(src, n).toContain(n);
+    // R129: no technical detail is left in the browser
+    expect(src, 'no console output in the acceptance module').not.toMatch(/console\.(error|warn|log)/);
     expect(src, 'no ON CONFLICT upsert on the log').not.toContain('ignoreDuplicates');
     const gate = code('src/components/legal/AgreementGate.tsx');
-    for (const n of ['acceptInCloudDetailed(', "result.reason === 'session'", "result.reason === 'permission'", 'result.code']) expect(gate, n).toContain(n);
+    for (const n of ['acceptInCloudDetailed(', "result.reason === 'session'", "result.reason === 'permission'", 'supportLine(result.support)']) expect(gate, n).toContain(n);
     expect(read('SUPABASE_SETUP.md')).toContain('A student cannot get past the agreements checkbox (R128)');
     expect(read('docs/FIX_LIST.md')).toContain('| F7 |');
+  });
+});
+
+/**
+ * R129 — a failure is a support code and a time for the student, and the detail for the admin only (fix list F8):
+ * the log table is admin-read and append-only, the student-facing text carries no database wording, and the
+ * acceptance module prints nothing to the console.
+ */
+describe('R129 — support codes, details on our side', () => {
+  it('the log is written by the person it is about and read by an admin only', () => {
+    const sql = read('supabase/migrations/0020_client_errors.sql');
+    for (const n of ['create table if not exists public.client_errors', 'with check (user_id = auth.uid())', 'using (public.is_admin())', 'revoke update, delete, truncate on public.client_errors', "support_code ~ '^E-[A-Z0-9]{6}$'"]) expect(sql, n).toContain(n);
+    expect(read('supabase/setup.sql')).toContain('create table if not exists public.client_errors');
+    expect(read('supabase/tests/rls.sql')).toContain('R129: the support log');
+  });
+
+  it('the student sees the code and the time, through one helper, and no database wording', () => {
+    const gate = code('src/components/legal/AgreementGate.tsx');
+    for (const n of ['supportLine(result.support)', 'result.support']) expect(gate, n).toContain(n);
+    for (const bad of ['result.code', 'result.message', '42501', 'row-level']) expect(gate, bad).not.toContain(bad);
+    const rep = code('src/lib/reportError.ts');
+    for (const n of ["from('client_errors').insert(", 'export function supportCode', 'Never throws']) expect(rep + read('src/lib/reportError.ts'), n).toContain(n);
+    expect(rep, 'the log write is best effort and silent').not.toMatch(/console\./);
+  });
+
+  it('the admin finds a code on the metrics page, behind the admin gate', () => {
+    expect(code('src/app/instructor/metrics/page.tsx')).toContain('<ErrorLog data={errors}');
+    expect(code('src/components/instructor/ErrorLog.tsx')).toContain('data-error-log');
+    for (const bad of ['taskReportsRepo', 'localStorage', 'useClientStore']) expect(code('src/components/instructor/ErrorLog.tsx'), bad).not.toContain(bad);
+  });
+
+  it('the docs say it, including what a gate is', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### Support codes and the support log (R129)');
+    expect(read('docs/ARCHITECTURE.md')).toContain('What a "gate" is');
+    expect(read('SUPABASE_SETUP.md')).toContain('Looking up a support code (R129)');
+    expect(read('docs/OPERATIONS.md')).toContain('**Support codes (R129):**');
+    expect(read('docs/FIX_LIST.md')).toContain('| F8 |');
   });
 });

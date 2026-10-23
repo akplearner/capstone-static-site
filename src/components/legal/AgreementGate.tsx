@@ -9,6 +9,7 @@ import { Dialog } from '@/components/ui/Dialog';
 import { toast } from '@/components/ui/Toast';
 import { useAuth } from '@/lib/useAuth';
 import { useClientStore } from '@/lib/useClientStore';
+import { supportLine } from '@/lib/reportError';
 import { AGREEMENTS, missingAcceptances, type Agreement } from '@/lib/legal/agreements';
 import {
   acceptInCloudDetailed,
@@ -148,20 +149,21 @@ export function LegalGateOverlay() {
     void acceptInCloudDetailed(user.id, missing).then((result) => {
       setBusy(false);
       if (result.ok) return unlock();
-      // R128: say what went wrong. The log is a record, not a lock: a fault in writing it
-      // (network, a database that lags the app) must not strand a student, so the platform
-      // opens for this visit and the write is tried again; a sign-in or permission fault cannot be
-      // worked around and is named, with the code to quote.
+      // R128/R129: the log is a record, not a lock. A fault in writing it (network, a database that
+      // lags the app) must not strand a student, so the platform opens for this visit and the write is
+      // tried again; a sign-in or permission fault cannot be worked around. The student is told the
+      // support code and the time, never the technical cause: that is in our log (client_errors).
+      const line = supportLine(result.support);
       if (result.reason === 'session') {
-        toast({ message: 'Your sign-in has expired. Sign in again, then accept.', variant: 'warning' });
+        toast({ message: `Your sign-in has expired. Sign in again, then accept. ${line}`, variant: 'warning' });
         void signOut();
         return;
       }
       if (result.reason === 'permission') {
-        toast({ message: `This account cannot record the acceptance yet (code ${result.code || 'none'}). Tell your instructor and quote that code.`, variant: 'warning' });
+        toast({ message: `This account cannot record the acceptance yet. ${line}`, variant: 'warning' });
         return;
       }
-      toast({ message: 'The acceptance could not be saved just now. You can continue; it will be saved again shortly.', variant: 'warning' });
+      toast({ message: `The acceptance could not be saved just now. You can continue; it will be saved again shortly. ${line}`, variant: 'warning' });
       unlock();
       window.setTimeout(() => void acceptInCloudDetailed(user.id, missing), 15000);
     });

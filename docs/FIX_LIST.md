@@ -14,6 +14,7 @@ the record. `src/lib/page-shape.test.ts` fails if an id is removed from the tabl
 | F5 | A skill is earned the first time a course is completed; a retake only adds what is missing and never overwrites an earned skill | R125 | Done |
 | F6 | An export is a compact PDF of skills, progress and issues, not a JSON file | R127 | Done |
 | F7 | Some students cannot record the agreements: "Couldn't record the acceptance" repeats | R128 | Done |
+| F8 | A failure shows the student only a support code and a time; the detail is kept on our side for the admin | R129 | Done |
 
 Order of the rounds: the field bug first (it blocks reporting and links), then the link size (the link
 fails today), then the earned-skills ledger (the record and the PDF both read it), then the live and
@@ -159,8 +160,16 @@ that had expired while the page stayed open, a browser without `crypto.subtle` (
 stuck), and the `ON CONFLICT` upsert shape under row-level security.
 
 **Fix.** `acceptInCloudDetailed` (src/lib/legal/acceptances.ts): a plain insert (a duplicate counts as recorded), the
-hash optional, one session refresh and retry, and a typed result (session, permission, network, unknown) with the code in
-the console. The gate names the cause, signs out an expired session, quotes the code for a permission fault, and lets a
+hash optional, one session refresh and retry, and a typed result (session, permission, network, unknown); the detail goes
+to the support log (F8). The gate says what to do in plain words, signs out an expired session, and lets a
 network or lag fault continue and retry, because the log is a record, not a lock. `SUPABASE_SETUP.md` has the SQL that checks one account.
 
-**Still to learn.** If an account keeps failing, the console line (or the SQL result) says which of the above it is.
+**Still to learn.** If an account keeps failing, the support code (Metrics → Support errors) or the SQL result says which of the above it is.
+
+## F8 — support codes and a log on our side (R129, done)
+
+**Why.** The admin does not want technical detail shown to students or left in the browser console, but does want to see what
+failed and for whom. **Fix.** A failure shows `Code E-XXXXXX · time`; `reportError` writes the database's code, message and status,
+the account, the page and the browser to `client_errors` (0020; admin read only, append only); Instructor → Metrics → Support
+errors finds a row by code. The browser console carries nothing from the acceptance module. The first caller is the agreements
+gate; any later failure uses the same helper. **Admin step.** Paste `supabase/setup.sql` into the SQL Editor and Run (0020).

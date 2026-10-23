@@ -1465,6 +1465,45 @@ do $$ begin
   assert (select count(*) from public.earned_skills where user_id = '00000000-0000-4000-8000-00000000000e') = 0, 'removing the login removes the ledger with it';
 end $$;
 
+-- ── R129: the support log is written by the person it is about and read by an admin only ──
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+insert into public.client_errors (support_code, user_id, user_email, area, reason, db_code, message)
+  values ('E-ABC234', '00000000-0000-4000-8000-00000000000a', 'ada@example.com', 'agreements', 'permission', '42501', 'new row violates row-level security policy');
+do $$ begin
+  begin
+    insert into public.client_errors (support_code, user_id, area) values ('E-ABC235', '00000000-0000-4000-8000-00000000000b', 'agreements');
+    raise exception 'ada logged an error as bob';
+  exception when insufficient_privilege then null; end;
+  begin
+    insert into public.client_errors (support_code, user_id, area) values ('bad code', '00000000-0000-4000-8000-00000000000a', 'agreements');
+    raise exception 'a malformed support code was accepted';
+  exception when check_violation then null; end;
+  assert (select count(*) from public.client_errors) = 0, 'ada: cannot read the log, not even her own rows';
+  begin
+    update public.client_errors set area = 'x';
+    raise exception 'ada rewrote the log';
+  exception when insufficient_privilege then null; end;
+  begin
+    delete from public.client_errors;
+    raise exception 'ada erased the log';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000d';
+do $$ begin
+  assert (select count(*) from public.client_errors) = 0, 'ivy (instructor, not admin): cannot read the support log';
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000f';
+do $$ begin
+  assert (select count(*) from public.client_errors where support_code = 'E-ABC234') = 1, 'ana (admin): reads it, with the detail';
+  assert (select db_code from public.client_errors where support_code = 'E-ABC234') = '42501', 'ana: the database code is there';
+end $$;
+reset role;
+
 -- ── The realtime publication carries every stream the app subscribes to ────
 -- (Run as the table owner — RLS does not apply to this catalog view.)
 do $$

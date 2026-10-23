@@ -10,6 +10,8 @@ import { Crumbs } from '@/components/SiteNav';
 import { Alert } from '@/components/ui/Alert';
 import { CohortSkeleton } from '@/components/ui/Skeletons';
 import { loadMetrics, type MetricsData } from '@/lib/data/metricsLoader';
+import { loadErrorLog, type ErrorLogData } from '@/lib/data/errorLogLoader';
+import { ErrorLog } from '@/components/instructor/ErrorLog';
 import { getBrowserClient } from '@/lib/supabase/client';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { PRESENCE_CHANNEL } from '@/lib/usePresence';
@@ -29,6 +31,7 @@ const LIVE_FALLBACK_MS = 2 * 60_000;
 export default function MetricsPage() {
   const [data, setData] = useState<MetricsData | null>(null);
   const [live, setLive] = useState<Set<string>>(new Set());
+  const [errors, setErrors] = useState<ErrorLogData>({ rows: [], needsUpdate: false });
   const [query, setQuery] = useState('');
   // The clock the "last activity" labels compare against — read when the data
   // loads, not during render (the purity lint is right: a re-render is not an
@@ -41,6 +44,8 @@ export default function MetricsPage() {
       setData(d);
     });
   useEffect(reload, []);
+  const reloadErrors = () => void loadErrorLog().then(setErrors);
+  useEffect(reloadErrors, []);
 
   // Who is on right now: membership of the presence channel every signed-in
   // tab joins. Synced live; falls back to the heartbeat clock below.
@@ -228,6 +233,7 @@ export default function MetricsPage() {
             </Link>
           </div>
         )}
+        {data.mode === 'cloud' && <ErrorLog data={errors} onRefresh={reloadErrors} />}
       </div>
     </AdminGate>
   );

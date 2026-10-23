@@ -850,6 +850,25 @@ of a card) so the page no longer serialises every course on every broadcast. `re
 each list to the number the page prints for it on a real course, for one course and for two, and after a
 reset; `dashboard/page.test.tsx` runs the real page on the real repositories.
 
+### Support codes and the support log (R129)
+
+A failure shows a person a support code and a time and nothing else; the detail stays on our side. `src/lib/reportError.ts`
+makes the code (`E-` and six characters with no look-alikes), writes the whole story to `client_errors` (migration 0020: the
+database's error code, message and status, the account's id and email, the area, the reason, the page and the browser) and
+returns `{ code, at }`; it never throws, so a log that cannot be written (signed out, offline, 0020 not yet applied) still gives
+the person a code. Only the person it is about can insert a row, only an admin reads (the Support errors list on
+`/instructor/metrics`, searchable by code, `ErrorLog`, props only), nobody updates or deletes. The acknowledgement write
+(`acceptInCloudDetailed`) is the first caller: its result carries the reason and the reference, never the database's words, and the
+module prints nothing to the console. Before: the error object went to the console and a permission fault's code to the student.
+
+**What a "gate" is, in this codebase.** A gate is a checkpoint that decides whether you may continue. There are four:
+the **sign-in gate** (`src/proxy.ts` and `src/lib/routeGate.ts`: no session, no course material or dashboard, runs on the server on
+every navigation); the **enrolment gate** (`CourseEnrolGate`: signed in, but have you joined this course and picked a role);
+the **agreements gate** (`LegalGateOverlay` in `AgreementGate.tsx`: the full-screen "Before you continue" checklist that covers
+everything until the current agreements are accepted, and again whenever one changes); and the **instructor and admin gates**
+(`InstructorGate`, `AdminGate`: staff pages). The course **week gates** are different: a graded checkpoint inside a course that
+opens when a team has finished the week's work. Gates are not content security: course text still ships in the browser bundle (roadmap R37).
+
 ### Exports are a compact PDF (R127)
 
 Every file a learner could save was JSON: the member profile, the credential, the KPI board, a shared

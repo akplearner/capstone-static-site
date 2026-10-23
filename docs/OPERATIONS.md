@@ -127,6 +127,10 @@ has failed silently in some deployment of some product; none takes more than a m
   `content/profiles/sample-mssp.json` with a new id on `/instructor/profiles`; the Skill board picker
   lists it; Create link there records "measured against" it. Without the consent the dialog points to
   the account page; without the functions it says links are not set up.
+- [ ] **Support codes (R129):** with the network blocked (or the `agreement_acceptances` insert policy dropped on a throwaway
+  project) press Agree: the toast ends `Code E-XXXXXX · <date> <time> UTC. Tell your instructor.` and nothing technical appears in the
+  toast or the browser console. As an admin open Instructor → Metrics → Support errors: the row is there with the account's email, the
+  area, the reason, the database code and the page; searching the code finds it. `SUPABASE_SETUP.md` "Looking up a support code".
 - [ ] **Agreements gate failures (R128):** sign in as a new account and tick the agreements: access opens and a row per
   agreement is in `agreement_acceptances`. With the session cookie removed in another tab, pressing Agree says the
   sign-in expired and signs out; with the network blocked it says it could not be saved, lets you continue and

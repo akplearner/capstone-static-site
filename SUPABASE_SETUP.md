@@ -601,6 +601,7 @@ Still worth ten minutes on the live site before real students:
 | The course document | anyone signed in (read); **the admin** writes |
 | Content fixes (`content_fixes`) | anyone signed in (read: it is the corrected words they render); **the admin** appends, as themselves; nobody edits or deletes a row, the table owner included; the database numbers each course's entries |
 | Course version history (`course_document_versions`) | **the admin** reads it; nobody writes it from a request (the database does, on every save of a course, and numbers the save); nobody edits or deletes a snapshot, the table owner included |
+| Support log (`client_errors`) | **you** add rows about yourself (that is how a failure gets a code); only an admin reads them; nobody updates or deletes |
 | Earned skills (`earned_skills`) | **you** read, add, raise and erase your own rows; an instructor or admin reads every member's (for the cohort) and writes none; the database stamps the times and holds the rule: a row is added or raised, never lowered, rewritten or re-dated, so "Reset my progress" and a retake cannot take back what was earned |
 
 Lab notes are the strictest on purpose: that is where students record lab details.
@@ -616,10 +617,10 @@ Team 1 of March are separate teams with separate documents.
 
 ## A student cannot get past the agreements checkbox (R128)
 
-The gate now says why it failed (and the browser console has the code). A sign-in that expired is refreshed
-once; if it still fails the student is signed out and asked to sign in again. A fault in the write itself lets
-the student continue and the write is tried again. A permission fault shows `code 42501`: run this in the SQL
-Editor, with the student's email, to see which part of the setup is missing:
+The gate refreshes an expired sign-in once and, if that fails, signs the student out and asks them to sign in
+again. A fault in the write itself lets the student continue and the write is tried again. In every failure the
+student sees only a support code and the time (R129, below); nothing technical is shown or left in the browser.
+To see which part of the setup is missing for one student, run this in the SQL Editor with their email:
 
 ```sql
 select
@@ -633,6 +634,21 @@ select
 `insert_policy` must be 1 (re-run `supabase/setup.sql` if not), `hash_column` 1 (0 only delays the hash), and
 `auth_user` and `profile_row` 1 each (a missing profile row means the sign-up trigger did not run for that
 account).
+
+## Looking up a support code (R129)
+
+When something fails for a student they are shown only a code and the time, for example
+`Code E-7K2M9Q · 2026-10-23 14:05 UTC. Tell your instructor.` The whole story (the database's error code and
+message, the HTTP status, the account's email, the page, the browser) is written to `client_errors`
+(migration 0020, in `supabase/setup.sql`; paste it again and press Run), which only an admin can read.
+Open **Instructor → Metrics → Support errors** and paste the code into the search box, or run:
+
+```sql
+select occurred_at, support_code, user_email, area, reason, db_code, http_status, message, details, path
+from public.client_errors where support_code = 'E-7K2M9Q';
+```
+
+Nobody can change or delete a row from the app. To prune old rows, run `delete from public.client_errors where occurred_at < now() - interval '90 days';` in the SQL Editor.
 
 ## What students experience
 

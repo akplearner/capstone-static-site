@@ -7,6 +7,7 @@ import { safeSetItem } from '../data/safeStorage';
 import { notifyStore } from '../useClientStore';
 import { AGREEMENTS, type Agreement } from './agreements';
 import { sha256Text } from '../evidenceLedger';
+import { reportError, type SupportRef } from '../reportError';
 
 /**
  * The acknowledgement log's client half (R86). Cloud: one append-only row per
@@ -79,7 +80,7 @@ export async function fetchCloudAcceptances(): Promise<AcceptedVersions | null> 
   if (!supabase) return null;
   const { data, error } = await supabase.from('agreement_acceptances').select('agreement_id, version');
   if (error) {
-    console.error('acceptance log read failed', error.message);
+    void reportError({ area: 'agreements-read', reason: classifyAcceptError(error), dbCode: error.code, message: error.message });
     return null;
   }
   const out: AcceptedVersions = {};
@@ -121,7 +122,7 @@ export async function fetchCloudAcceptanceLog(): Promise<AcceptanceRow[] | null>
     ({ data, error } = await read(false));
   }
   if (error) {
-    console.error('acceptance log read failed', error.message);
+    void reportError({ area: 'agreements-read', reason: classifyAcceptError(error), dbCode: error.code, message: error.message });
     return null;
   }
   return ((data ?? []) as unknown as Record<string, unknown>[]).map((r) => ({ agreementId: String(r.agreement_id), version: Number(r.version ?? 0), acceptedAt: String(r.accepted_at ?? ''), textSha256: r.text_sha256 ? String(r.text_sha256) : null }));
@@ -129,7 +130,7 @@ export async function fetchCloudAcceptanceLog(): Promise<AcceptanceRow[] | null>
 
 /** Why a write to the acknowledgement log failed, in the terms a student can act on (R128). */
 export type AcceptFailure = 'session' | 'permission' | 'network' | 'unknown';
-export type AcceptResult = { ok: true } | { ok: false; reason: AcceptFailure; code: string; message: string };
+export type AcceptResult = { ok: true } | { ok: false; reason: AcceptFailure; support: SupportRef };
 
 type DbError = { code?: string; message?: string; details?: string; hint?: string; status?: number };
 
@@ -153,13 +154,11 @@ const isDuplicate = (error: DbError | null) => error?.code === '23505';
  */
 export async function acceptInCloudDetailed(userId: string, agreements: Agreement[]): Promise<AcceptResult> {
   const supabase = getBrowserClient();
-  if (!supabase) return { ok: false, reason: 'unknown', code: '', message: 'no client' };
+  if (!supabase) return { ok: false, reason: 'unknown', support: await reportError({ area: 'agreements', reason: 'unknown', message: 'no client' }) };
   const hashes = await Promise.all(
     agreements.map((a) =>
-      agreementTextHash(a).catch((e: unknown) => {
-        console.warn('agreement text hash unavailable; logging the acceptance without it', e instanceof Error ? e.message : e);
-        return null;
-      })
+      // crypto.subtle may be absent: the acceptance is logged without the hash rather than not at all.
+      agreementTextHash(a).catch(() => null)
     )
   );
   const rowsFor = (withHash: boolean) => agreements.map((a, i) => ({ user_id: userId, agreement_id: a.id, version: a.version, ...(withHash && hashes[i] ? { text_sha256: hashes[i] } : {}) }));
@@ -178,7 +177,7 @@ export async function acceptInCloudDetailed(userId: string, agreements: Agreemen
     let error = await write(hashColumn !== false);
     if (error && hashColumn !== false && missingHashColumn(error)) {
       // The version and the time are what the gate needs; the hash waits for 0013.
-      console.warn('agreement_acceptances has no text_sha256 column yet (run supabase/setup.sql); logging the acceptance without the text hash');
+      // (The project predates 0013: log without the hash; re-running supabase/setup.sql adds the column.)
       hashColumn = false;
       error = await write(false);
     }
@@ -190,8 +189,10 @@ export async function acceptInCloudDetailed(userId: string, agreements: Agreemen
     error = await attempt();
   }
   if (error) {
-    console.error('acceptance log write failed', { code: error.code, message: error.message, details: error.details, hint: error.hint, status: error.status });
-    return { ok: false, reason: classifyAcceptError(error), code: String(error.code ?? ''), message: String(error.message ?? '') };
+    // The detail goes to our log, not to the student or the console (R129).
+    const reason = classifyAcceptError(error);
+    const support = await reportError({ area: 'agreements', reason, dbCode: error.code, status: error.status, message: error.message, details: [error.details, error.hint].filter(Boolean).join(' | ') });
+    return { ok: false, reason, support };
   }
   if (hashColumn === null) hashColumn = true;
   return { ok: true };

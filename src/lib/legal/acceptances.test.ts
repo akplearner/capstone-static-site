@@ -12,6 +12,7 @@ const db = vi.hoisted(() => ({
   errors: [] as { code?: string; message: string; status?: number }[],
   duplicates: false,
   refreshed: 0,
+  logged: [] as Record<string, unknown>[],
   writes: [] as Record<string, unknown>[][],
   reads: [] as string[],
 }));
@@ -20,8 +21,8 @@ const MISSING = { code: 'PGRST204', message: "Could not find the 'text_sha256' c
 
 vi.mock('../supabase/client', () => ({
   getBrowserClient: () => ({
-    auth: { refreshSession: async () => { db.refreshed++; return {}; } },
-    from: () => ({
+    auth: { refreshSession: async () => { db.refreshed++; return {}; }, getSession: async () => ({ data: { session: { user: { id: 'user-1', email: 'ada@example.com' } } } }) },
+    from: (table: string) => table === 'client_errors' ? { insert: async (row: Record<string, unknown>) => { db.logged.push(row); return { error: null }; } } : ({
       insert: async (input: Record<string, unknown> | Record<string, unknown>[]) => {
         const rows = Array.isArray(input) ? input : [input];
         db.writes.push(rows);
@@ -55,6 +56,7 @@ beforeEach(() => {
   db.errors = [];
   db.duplicates = false;
   db.refreshed = 0;
+  db.logged = [];
   db.writes = [];
   db.reads = [];
 });
@@ -112,13 +114,13 @@ describe('R128 — an acceptance that fails says why, and does not fail for avoi
     db.hasHashColumn = true;
     const { acceptInCloudDetailed } = await load();
     db.errors = [{ code: 'PGRST301', message: 'JWT expired' }, { code: 'PGRST301', message: 'JWT expired' }];
-    expect(await acceptInCloudDetailed('u', AGREEMENTS)).toMatchObject({ ok: false, reason: 'session', code: 'PGRST301' });
+    expect(await acceptInCloudDetailed('u', AGREEMENTS)).toMatchObject({ ok: false, reason: 'session' });
     db.errors = [{ code: '42501', message: 'new row violates row-level security policy' }];
-    expect(await acceptInCloudDetailed('u', AGREEMENTS)).toMatchObject({ ok: false, reason: 'permission', code: '42501' });
+    expect(await acceptInCloudDetailed('u', AGREEMENTS)).toMatchObject({ ok: false, reason: 'permission' });
     db.errors = [{ message: 'TypeError: Failed to fetch' }];
     expect(await acceptInCloudDetailed('u', AGREEMENTS)).toMatchObject({ ok: false, reason: 'network' });
     db.errors = [{ code: 'XX000', message: 'something else' }];
-    expect(await acceptInCloudDetailed('u', AGREEMENTS)).toMatchObject({ ok: false, reason: 'unknown', code: 'XX000' });
+    expect(await acceptInCloudDetailed('u', AGREEMENTS)).toMatchObject({ ok: false, reason: 'unknown' });
   });
 
   it('counts a row that is already in the log as done, and still adds the others', async () => {
@@ -140,5 +142,32 @@ describe('R128 — an acceptance that fails says why, and does not fail for avoi
     } finally {
       Object.defineProperty(globalThis.crypto, 'subtle', { value: real, configurable: true });
     }
+  });
+});
+
+describe('R129 — the student gets a code and a time; the detail goes to our log', () => {
+  it('returns only a support reference, and writes the full detail with the account to the log', async () => {
+    db.hasHashColumn = true;
+    db.errors = [{ code: '42501', message: 'new row violates row-level security policy', status: 403 }];
+    const { acceptInCloudDetailed } = await load();
+    const result = await acceptInCloudDetailed('user-1', AGREEMENTS);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(Object.keys(result).sort()).toEqual(['ok', 'reason', 'support']);
+    expect(result.support.code).toMatch(/^E-[A-HJ-NP-Z2-9]{6}$/);
+    expect(JSON.stringify(result)).not.toMatch(/42501|row-level/);
+    expect(db.logged).toHaveLength(1);
+    expect(db.logged[0]).toMatchObject({ support_code: result.support.code, user_id: 'user-1', user_email: 'ada@example.com', area: 'agreements', reason: 'permission', db_code: '42501', http_status: 403 });
+    expect(String(db.logged[0].message)).toContain('row-level security');
+  });
+
+  it('prints nothing to the console: the detail is not left in the browser', async () => {
+    db.hasHashColumn = true;
+    db.errors = [{ code: 'XX000', message: 'secret internals' }];
+    const spies = (['error', 'warn', 'log'] as const).map((m) => vi.spyOn(console, m).mockImplementation(() => {}));
+    const { acceptInCloudDetailed } = await load();
+    await acceptInCloudDetailed('user-1', AGREEMENTS);
+    for (const spy of spies) expect(spy).not.toHaveBeenCalled();
+    spies.forEach((spy) => spy.mockRestore());
   });
 });
