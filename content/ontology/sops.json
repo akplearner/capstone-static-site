@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "sops": [
     {
       "id": "sop.runbook",
@@ -478,6 +478,37 @@
     }
   ],
   "formsByCourse": {
+    "a-plus": {
+      "ap_intake": [
+        "sop.asset-inventory"
+      ],
+      "ap_asset": [
+        "sop.asset-inventory",
+        "sop.build-record"
+      ],
+      "ap_fault": [
+        "sop.incident-record"
+      ],
+      "ap_os": [
+        "sop.build-record",
+        "sop.hardening-baseline"
+      ],
+      "ap_backup": [
+        "sop.backup-plan",
+        "sop.recovery-drill"
+      ],
+      "ap_tickets": [
+        "sop.incident-record",
+        "sop.runbook"
+      ],
+      "ap_security": [
+        "sop.hardening-baseline"
+      ],
+      "ap_handover": [
+        "sop.handover",
+        "sop.chain-of-custody"
+      ]
+    },
     "security-plus": {
       "scope_roe": [
         "sop.scope-and-roe"
@@ -854,6 +885,31 @@
     }
   },
   "tasksByCourse": {
+    "a-plus": {
+      "ap-w1-fault": [
+        "sop.incident-record"
+      ],
+      "ap-w2-image": [
+        "sop.backup-plan"
+      ],
+      "ap-w2-restore": [
+        "sop.recovery-drill"
+      ],
+      "ap-w3-tickets": [
+        "sop.incident-record"
+      ],
+      "ap-w4-secure": [
+        "sop.hardening-baseline"
+      ],
+      "ap-w4-restore": [
+        "sop.recovery-drill",
+        "sop.backup-plan"
+      ],
+      "ap-w4-handover": [
+        "sop.handover",
+        "sop.chain-of-custody"
+      ]
+    },
     "security-plus": {
       "red-w1-osint": [
         "sop.scope-and-roe"

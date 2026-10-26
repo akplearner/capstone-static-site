@@ -138,10 +138,11 @@ describe('lookup helpers', () => {
     const cysa = deliverablesForCourse('cysa-plus');
     const server = deliverablesForCourse('server-plus');
     const ccna = deliverablesForCourse('ccna');
+    const aplus = deliverablesForCourse('a-plus');
     const secai = deliverablesForCourse('secai-plus');
     const cissp = deliverablesForCourse('cissp');
     const cloud = ['azure-fundamentals', 'azure-administrator', 'azure-devops', 'aws-cloud-practitioner', 'aws-solutions-architect', 'aws-devops'].map(deliverablesForCourse);
-    const sets = [sp, mssp, cysa, server, ccna, secai, cissp, ...cloud];
+    const sets = [sp, mssp, cysa, server, ccna, aplus, secai, cissp, ...cloud];
     sets.forEach((s) => expect(s.length).toBeGreaterThan(0));
     // No form appears in more than one course's set.
     sets.forEach((a, i) =>

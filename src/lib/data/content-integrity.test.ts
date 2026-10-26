@@ -5,6 +5,7 @@ import { CYSA_PLUS } from './seed/cysa';
 import { MSSP } from './seed/mssp';
 import { SERVER_PLUS } from './seed/serverPlus';
 import { CCNA } from './seed/ccna';
+import { A_PLUS } from './seed/aPlus';
 import { SECAI_PLUS } from './seed/secaiPlus';
 import { CISSP } from './seed/cissp';
 import { AZURE_COURSES } from './seed/azureCloud';
@@ -30,7 +31,7 @@ import { READING_BUDGET, prose, words } from '../readingBudget';
 // deliverable actually provides would render a dead link. These tests fail fast if
 // a step ever points at a form/file that isn't registered for its course.
 
-const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
+const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, A_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
 /** R106: the associate and professional cloud courses are being rewritten against their exams; coverage is enforced as each lands. */
 const PENDING_REWRITE = new Set<string>([]);
 /** R107: the courses whose skills, SOP and practice mapping lands in R107a-2; tools are derived for every course already. */

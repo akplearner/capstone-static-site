@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "workRoles": [
     {
       "id": "role.cyber-defense-analyst",
@@ -372,7 +372,8 @@
         "comp.docs.build-log",
         "comp.docs.work-a-ticket",
         "comp.docs.incident-management",
-        "comp.docs.known-issues"
+        "comp.docs.known-issues",
+        "comp.docs.service-ticket"
       ]
     },
     {
@@ -506,7 +507,18 @@
         "comp.docs.build-log",
         "comp.docs.work-a-ticket",
         "comp.docs.incident-management",
-        "comp.docs.known-issues"
+        "comp.docs.known-issues",
+        "comp.hardware.identify-components",
+        "comp.hardware.pc-fault-diagnosis",
+        "comp.hardware.firmware-settings",
+        "comp.hardware.pc-network-connect",
+        "comp.sysadmin.windows-install",
+        "comp.sysadmin.user-and-peripherals",
+        "comp.sysadmin.remote-support",
+        "comp.sysadmin.endpoint-security",
+        "comp.docs.service-ticket",
+        "comp.continuity.disk-image",
+        "comp.continuity.restore-from-image"
       ]
     },
     {
@@ -574,7 +586,8 @@
         "comp.docs.build-log",
         "comp.docs.work-a-ticket",
         "comp.docs.incident-management",
-        "comp.docs.known-issues"
+        "comp.docs.known-issues",
+        "comp.docs.service-ticket"
       ]
     },
     {
@@ -707,6 +720,7 @@
         "comp.docs.work-a-ticket",
         "comp.docs.incident-management",
         "comp.docs.known-issues",
+        "comp.docs.service-ticket",
         "comp.cloud.budget-and-tags",
         "comp.cloud.shared-responsibility",
         "comp.cloud.network-foundation",
@@ -859,6 +873,21 @@
       "idops": [
         "role.systems-security-analyst",
         "role.incident-responder"
+      ]
+    },
+    "a-plus": {
+      "hw": [
+        "role.system-administrator"
+      ],
+      "os": [
+        "role.system-administrator"
+      ],
+      "support": [
+        "role.system-administrator",
+        "role.network-operations-specialist"
+      ],
+      "records": [
+        "role.system-administrator"
       ]
     },
     "azure-fundamentals": {

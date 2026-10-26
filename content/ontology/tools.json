@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "tools": [
     {
       "id": "tool.linux-shell",
@@ -117,7 +117,12 @@
         "tr",
         "sha1sum",
         "history",
-        "clear"
+        "clear",
+        "lsusb",
+        "dmesg",
+        "nproc",
+        "mount",
+        "umount"
       ]
     },
     {
@@ -145,7 +150,15 @@
         "netsh",
         "hostname",
         "systeminfo",
-        "findstr"
+        "findstr",
+        "sfc",
+        "chkdsk",
+        "manage-bde",
+        "wbadmin",
+        "diskpart",
+        "winver",
+        "msinfo32",
+        "query"
       ]
     },
     {
@@ -257,7 +270,18 @@
         "Hardware Discovery form",
         "Hardware Discovery, HCL & Upgrade Plan",
         "Engagement Agreement form",
-        "Engagement scope"
+        "Engagement scope",
+        "Intake & Bench Checklist form",
+        "Asset & Build Sheet form",
+        "Troubleshooting Log form",
+        "OS Build & Baseline Record form",
+        "Backup & Image Register form",
+        "Support Ticket Log form",
+        "Security Checklist form",
+        "Handover & As-Built form",
+        "The intake record",
+        "The register",
+        "The handover form"
       ]
     },
     {
@@ -1552,8 +1576,63 @@
       "aliases": [
         "A USB drive of at least 4 GB",
         "A Linux live USB",
-        "Rufus"
+        "Rufus",
+        "Ventoy",
+        "The LIVE stick",
+        "The INSTALL stick"
       ]
+    },
+    {
+      "id": "tool.pc-hardware",
+      "label": "The bench PC",
+      "kind": "hardware",
+      "aliases": [
+        "The PC",
+        "The bench PC",
+        "The desktop PC"
+      ]
+    },
+    {
+      "id": "tool.clonezilla",
+      "label": "Clonezilla",
+      "kind": "app",
+      "aliases": [
+        "Clonezilla",
+        "Clonezilla live",
+        "The Clonezilla stick"
+      ],
+      "url": "https://clonezilla.org/"
+    },
+    {
+      "id": "tool.smartmontools",
+      "label": "smartctl",
+      "kind": "cli",
+      "aliases": [
+        "smartctl",
+        "smartmontools"
+      ],
+      "commands": [
+        "smartctl"
+      ]
+    },
+    {
+      "id": "tool.memtest",
+      "label": "MemTest86+",
+      "kind": "app",
+      "aliases": [
+        "MemTest86+",
+        "memtest"
+      ],
+      "url": "https://www.memtest.org/"
+    },
+    {
+      "id": "tool.quick-assist",
+      "label": "Quick Assist",
+      "kind": "app",
+      "aliases": [
+        "Quick Assist"
+      ],
+      "vendor": "Microsoft"
     },
     {
       "id": "tool.azure-portal",
@@ -1667,6 +1746,37 @@
     }
   ],
   "wherePrefixes": {
+    "The bench — ": [
+      "tool.pc-hardware",
+      "tool.hand-tools"
+    ],
+    "The live USB": [
+      "tool.linux-shell",
+      "tool.usb-media"
+    ],
+    "The PC — booted from the Clonezilla stick": [
+      "tool.clonezilla",
+      "tool.pc-hardware"
+    ],
+    "The PC — booted from the INSTALL stick": [
+      "tool.windows",
+      "tool.usb-media"
+    ],
+    "The PC — firmware setup": [
+      "tool.pc-hardware"
+    ],
+    "Windows — ": [
+      "tool.windows",
+      "tool.powershell"
+    ],
+    "Clonezilla, then Windows": [
+      "tool.clonezilla",
+      "tool.powershell"
+    ],
+    "Windows, then the Clonezilla stick": [
+      "tool.clonezilla",
+      "tool.powershell"
+    ],
     "Azure portal · or Cloud Shell": [
       "tool.azure-portal",
       "tool.azure-cloud-shell"
@@ -2029,6 +2139,9 @@
   "courseDefaults": {
     "ccna": [
       "tool.cisco-ios"
+    ],
+    "a-plus": [
+      "tool.pc-hardware"
     ],
     "azure-fundamentals": [
       "tool.azure-portal",

@@ -5,13 +5,14 @@ import { MSSP } from '../data/seed/mssp';
 import { CYSA_PLUS } from '../data/seed/cysa';
 import { SERVER_PLUS } from '../data/seed/serverPlus';
 import { CCNA } from '../data/seed/ccna';
+import { A_PLUS } from '../data/seed/aPlus';
 import { SECAI_PLUS } from '../data/seed/secaiPlus';
 import { CISSP } from '../data/seed/cissp';
 import { AZURE_COURSES } from '../data/seed/azureCloud';
 import { AWS_COURSES } from '../data/seed/awsCloud';
 import type { Course } from '../types';
 
-const COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
+const COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, A_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
 
 /**
  * The manual's sections used to be gated on `course.id === 'server-plus'` and
@@ -39,7 +40,7 @@ describe('manual sections', () => {
     // after it was replaced (CCNA) never went through that rule, so asserting it
     // against a reconstruction of the rule would only be asserting the
     // reconstruction. It is checked on its own terms below.
-    for (const c of COURSES.filter((x) => x.id !== 'ccna' && x.manualSections?.includes('cloud-iac') !== true)) {
+    for (const c of COURSES.filter((x) => x.id !== 'ccna' && x.id !== 'a-plus' && x.manualSections?.includes('cloud-iac') !== true)) {
       expect(manualSectionsFor(c).map((s) => s.id), c.id).toEqual(oldGating(c));
     }
   });
@@ -56,6 +57,12 @@ describe('manual sections', () => {
     expect(ids).not.toContain('tools');
     // Its lab section is therefore "The lab", not the deployment course's "The build".
     expect(manualSectionsFor(CCNA).find((s) => s.id === 'lab')?.title).toBe('The lab');
+  });
+
+  it('the A+ bench gets only the sections it can fill: no configuration guide, no tool manual', () => {
+    const ids = manualSectionsFor(A_PLUS).map((s) => s.id);
+    expect(ids).toEqual(['lab', 'terminal', 'evidence', 'forms', 'roles', 'lifecycle', 'frameworks']);
+    expect(manualSectionsFor(A_PLUS).find((s) => s.id === 'lab')?.title).toBe('The lab');
   });
 
   it('a cloud capstone gets its workflows and its architecture instead of a lab (R87)', () => {

@@ -464,6 +464,9 @@ export const CONTROL_EXCEPTIONS: Record<string, string[]> = {
   'Rules of Engagement': ['practice.authorised-testing'],
   'Test & acceptance': ['practice.test-and-acceptance'],
   'Troubleshooting method, RAID & hypervisor build record': ['practice.troubleshooting-method', 'practice.build-record'],
+  'Structured troubleshooting method': ['practice.troubleshooting-method'],
+  'Backup & restore proof': ['practice.backup-before-change', 'practice.backups-tested'],
+  'Incident & request handling': ['practice.troubleshooting-method', 'practice.work-tracked'],
 };
 
 /* ── helpers (lowercase: never written to a document) ───────────────────── */

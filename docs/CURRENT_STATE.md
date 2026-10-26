@@ -234,6 +234,13 @@ additive, none requiring a rewrite.
   `dhcpRangeOf`) rather than typed. `ccnaTopology.test.ts` asserts the derivation, that no DHCP pool contains
   a static device address, that a trunk never carries a VLAN its far site lacks, and that anything "public"
   is inside the RFC 5737 documentation range.
+- **The A+ bench (R130):** `src/lib/data/seed/aPlus.ts` is the first entry-level CompTIA capstone, on real
+  equipment — one used desktop per team — in the Server+ shape (shared track, four focuses, no gates, every graded
+  command with a sample and verify tokens). Its rule is image first: the disk is imaged and hashed before the
+  installer runs, and an image counts only once a restore from it has been run and timed against a written
+  target (`aPlusDeliverables.ts`, the Backup & Image Register). The Troubleshooting Log is the six-step method as
+  data, with a DoD that requires a wrong theory. Its picture is an `ArchPicture` (`aPlusContent.ts`); its lab
+  panel collects the bench PC's name and address; `certs.ts` carries the two cores as one row at half weight.
 - **Reading budgets apply to every course's graded weeks,** not just Server+'s: the 36-word command
   explanation and 30-word step-subtitle limits now key on `isGradedWeek`. The "every command shows a sample
   and an explanation" rule is a RATCHET — a measured per-course backlog (security-plus 68, cysa-plus 77,

@@ -43,18 +43,18 @@ export interface ToolDef {
 
 const t = (id: string, label: string, kind: ToolKind, aliases: string[], extra: Partial<Pick<ToolDef, 'vendor' | 'url' | 'commands'>> = {}): ToolDef => ({ id, label, kind, aliases, ...extra });
 
-const SHELL_COMMANDS = ['bash', 'sh', 'cat', 'grep', 'tail', 'head', 'less', 'mkdir', 'cp', 'mv', 'rm', 'echo', 'printf', 'cd', 'ls', 'date', 'sed', 'awk', 'nano', 'vi', 'vim', 'chown', 'chmod', 'tee', 'ss', 'ip', 'bridge', 'route', 'lsblk', 'lscpu', 'lspci', 'dmidecode', 'diff', 'gunzip', 'tar', 'sleep', 'time', 'export', 'for', 'if', 'while', 'do', 'done', 'exit', 'timedatectl', 'lsb_release', 'usermod', 'adduser', 'useradd', 'sysctl', 'systemctl', 'journalctl', 'apt', 'apt-get', 'dpkg', 'resolvectl', 'hostnamectl', 'id', 'whoami', 'source', 'test', 'true', 'wc', 'sort', 'uniq', 'xargs', 'find', 'which', 'env', 'set', 'unset', 'touch', 'ln', 'df', 'du', 'free', 'uptime', 'uname', 'ps', 'kill', 'crontab', 'base64', 'md5sum', 'cut', 'jq', 'pkill', 'reboot', 'gpg', 'zip', 'unzip', 'mkfifo', 'until', 'then', 'else', 'elif', 'fi', 'case', 'esac', 'pipx', 'tr', 'sha1sum', 'history', 'clear'];
+const SHELL_COMMANDS = ['bash', 'sh', 'cat', 'grep', 'tail', 'head', 'less', 'mkdir', 'cp', 'mv', 'rm', 'echo', 'printf', 'cd', 'ls', 'date', 'sed', 'awk', 'nano', 'vi', 'vim', 'chown', 'chmod', 'tee', 'ss', 'ip', 'bridge', 'route', 'lsblk', 'lscpu', 'lspci', 'dmidecode', 'diff', 'gunzip', 'tar', 'sleep', 'time', 'export', 'for', 'if', 'while', 'do', 'done', 'exit', 'timedatectl', 'lsb_release', 'usermod', 'adduser', 'useradd', 'sysctl', 'systemctl', 'journalctl', 'apt', 'apt-get', 'dpkg', 'resolvectl', 'hostnamectl', 'id', 'whoami', 'source', 'test', 'true', 'wc', 'sort', 'uniq', 'xargs', 'find', 'which', 'env', 'set', 'unset', 'touch', 'ln', 'df', 'du', 'free', 'uptime', 'uname', 'ps', 'kill', 'crontab', 'base64', 'md5sum', 'cut', 'jq', 'pkill', 'reboot', 'gpg', 'zip', 'unzip', 'mkfifo', 'until', 'then', 'else', 'elif', 'fi', 'case', 'esac', 'pipx', 'tr', 'sha1sum', 'history', 'clear', 'lsusb', 'dmesg', 'nproc', 'mount', 'umount'];
 
 export const TOOLS: ToolDef[] = [
   // ── Shells, transport and the platform's own surfaces ────────────────────
   t('tool.linux-shell', 'Linux shell', 'cli', ['Terminal', 'grep', 'tail/grep', 'tail', 'A text editor', 'text editor'], { commands: SHELL_COMMANDS }),
-  t('tool.powershell', 'PowerShell', 'cli', ['PowerShell', 'PowerShell (Get-WinEvent)', 'elevated PowerShell'], { vendor: 'Microsoft', commands: ['powershell', 'pwsh', 'msiexec', 'msiexec.exe', 'ipconfig', 'mstsc', 'notepad', 'explorer', 'auditpol', 'sc', 'net', 'netsh', 'hostname', 'systeminfo', 'findstr'] }),
+  t('tool.powershell', 'PowerShell', 'cli', ['PowerShell', 'PowerShell (Get-WinEvent)', 'elevated PowerShell'], { vendor: 'Microsoft', commands: ['powershell', 'pwsh', 'msiexec', 'msiexec.exe', 'ipconfig', 'mstsc', 'notepad', 'explorer', 'auditpol', 'sc', 'net', 'netsh', 'hostname', 'systeminfo', 'findstr', 'sfc', 'chkdsk', 'manage-bde', 'wbadmin', 'diskpart', 'winver', 'msinfo32', 'query'] }),
   t('tool.ssh', 'SSH', 'cli', ['ssh'], { commands: ['ssh', 'scp', 'sftp', 'ssh-keygen', 'ssh-copy-id', 'sshd'] }),
   t('tool.curl', 'curl', 'cli', ['curl', 'wget'], { commands: ['curl', 'wget'] }),
   t('tool.ping', 'ping / traceroute', 'cli', ['ping', 'traceroute', 'tracert'], { commands: ['ping', 'traceroute', 'tracert', 'mtr'] }),
   t('tool.nslookup', 'nslookup', 'cli', ['nslookup'], { commands: ['nslookup', 'host'] }),
   t('tool.sha256sum', 'sha256sum', 'cli', ['sha256sum', 'Get-FileHash'], { commands: ['sha256sum', 'shasum', 'Get-FileHash', 'certutil'] }),
-  t('tool.capstone-forms', 'Capstone forms', 'document', ['Deliverables forms', 'Deliverables tab', 'Deliverables page', 'The document', 'Team package export', 'Generate PDF', 'your weekly reports', 'Control Matrix', 'Control Matrix form', 'Risk register', 'Statement of Applicability form', 'Retest & Validation form', 'Detection Rules form', 'Detection & Response Metrics form', 'Internal Audit Report form', 'Audit Evidence Packet form', 'Server Bring-Up Log', 'Server Bring-Up Log form', 'DR Plan & As-Built Handover', 'DR Plan & As-Built Handover form', 'IP Plan & Connectivity Proof', 'IP Plan & Connectivity Proof form', 'Operations Log & SOPs', 'Operations Log & SOPs form', 'Rack, Power & Asset Register', 'Rack, Power & Asset Register form', 'Architecture Brief', 'Architecture Brief form', 'Baselines, Policies & Standards', 'Hardware Discovery form', 'Hardware Discovery, HCL & Upgrade Plan', 'Engagement Agreement form', 'Engagement scope']),
+  t('tool.capstone-forms', 'Capstone forms', 'document', ['Deliverables forms', 'Deliverables tab', 'Deliverables page', 'The document', 'Team package export', 'Generate PDF', 'your weekly reports', 'Control Matrix', 'Control Matrix form', 'Risk register', 'Statement of Applicability form', 'Retest & Validation form', 'Detection Rules form', 'Detection & Response Metrics form', 'Internal Audit Report form', 'Audit Evidence Packet form', 'Server Bring-Up Log', 'Server Bring-Up Log form', 'DR Plan & As-Built Handover', 'DR Plan & As-Built Handover form', 'IP Plan & Connectivity Proof', 'IP Plan & Connectivity Proof form', 'Operations Log & SOPs', 'Operations Log & SOPs form', 'Rack, Power & Asset Register', 'Rack, Power & Asset Register form', 'Architecture Brief', 'Architecture Brief form', 'Baselines, Policies & Standards', 'Hardware Discovery form', 'Hardware Discovery, HCL & Upgrade Plan', 'Engagement Agreement form', 'Engagement scope', 'Intake & Bench Checklist form', 'Asset & Build Sheet form', 'Troubleshooting Log form', 'OS Build & Baseline Record form', 'Backup & Image Register form', 'Support Ticket Log form', 'Security Checklist form', 'Handover & As-Built form', 'The intake record', 'The register', 'The handover form']),
   t('tool.capstone-guide', 'Capstone guide', 'document', ['The Guide', 'Configuration guide (in platform)', 'Configuration guide', 'PXE Imaging Student Guide (PDF)', 'Starter pack (ZIP)']),
   t('tool.notes', 'Notes', 'document', ['Notes', 'Your notes', 'On paper first', 'paper']),
   t('tool.spreadsheet', 'Spreadsheet', 'app', ['a spreadsheet', 'spreadsheet']),
@@ -173,7 +173,13 @@ export const TOOLS: ToolDef[] = [
   t('tool.patch-panel', 'Patch panel', 'hardware', ['Patch panel']),
   t('tool.console-cable', 'Console cable', 'hardware', ['Console cable']),
   t('tool.network-simulator', 'Network simulator', 'app', ['Packet Tracer', 'CML', 'GNS3', 'containerlab', 'Packet Tracer / CML / GNS3 / containerlab']),
-  t('tool.usb-media', 'USB install media', 'hardware', ['A USB drive of at least 4 GB', 'A Linux live USB', 'Rufus']),
+  t('tool.usb-media', 'USB install media', 'hardware', ['A USB drive of at least 4 GB', 'A Linux live USB', 'Rufus', 'Ventoy', 'The LIVE stick', 'The INSTALL stick']),
+  // ── The A+ bench (R130) ───────────────────────────────────────────────────
+  t('tool.pc-hardware', 'The bench PC', 'hardware', ['The PC', 'The bench PC', 'The desktop PC']),
+  t('tool.clonezilla', 'Clonezilla', 'app', ['Clonezilla', 'Clonezilla live', 'The Clonezilla stick'], { url: 'https://clonezilla.org/' }),
+  t('tool.smartmontools', 'smartctl', 'cli', ['smartctl', 'smartmontools'], { commands: ['smartctl'] }),
+  t('tool.memtest', 'MemTest86+', 'app', ['MemTest86+', 'memtest'], { url: 'https://www.memtest.org/' }),
+  t('tool.quick-assist', 'Quick Assist', 'app', ['Quick Assist'], { vendor: 'Microsoft' }),
   // ── The clouds ───────────────────────────────────────────────────────────
   t('tool.azure-portal', 'Azure portal', 'portal', ['Azure portal', 'Cost Management', 'Network Watcher', 'Application Insights', 'Run Command', 'Update Manager', 'Azure Policy', 'Defender for Cloud', 'Entra ID', 'Azure Monitor'], { vendor: 'Microsoft', url: 'https://portal.azure.com/' }),
   t('tool.azure-cloud-shell', 'Azure Cloud Shell', 'portal', ['Cloud Shell', 'Cloud Shell (az)', 'Azure Cloud Shell', 'Azure Cloud Shell (Bash)'], { vendor: 'Microsoft' }),
@@ -201,6 +207,15 @@ export const TOOL_STRING_EXCEPTIONS: Record<string, string> = {
  * matching prefix. A line that matches nothing adds no tool.
  */
 export const WHERE_TOOLS: Record<string, string[]> = {
+  // The A+ bench
+  'The bench — ': ['tool.pc-hardware', 'tool.hand-tools'],
+  'The live USB': ['tool.linux-shell', 'tool.usb-media'],
+  'The PC — booted from the Clonezilla stick': ['tool.clonezilla', 'tool.pc-hardware'],
+  'The PC — booted from the INSTALL stick': ['tool.windows', 'tool.usb-media'],
+  'The PC — firmware setup': ['tool.pc-hardware'],
+  'Windows — ': ['tool.windows', 'tool.powershell'],
+  'Clonezilla, then Windows': ['tool.clonezilla', 'tool.powershell'],
+  'Windows, then the Clonezilla stick': ['tool.clonezilla', 'tool.powershell'],
   // The clouds
   'Azure portal · or Cloud Shell': ['tool.azure-portal', 'tool.azure-cloud-shell'],
   'Azure portal': ['tool.azure-portal'],
@@ -323,6 +338,7 @@ export const WHERE_TOOLS: Record<string, string[]> = {
 /** The tools a course's graded work uses when a task says nothing itself. */
 export const COURSE_TOOL_DEFAULTS: Record<string, string[]> = {
   ccna: ['tool.cisco-ios'],
+  'a-plus': ['tool.pc-hardware'],
   'azure-fundamentals': ['tool.azure-portal', 'tool.azure-cloud-shell'],
   'azure-administrator': ['tool.azure-portal', 'tool.azure-cloud-shell'],
   'azure-devops': ['tool.azure-portal', 'tool.azure-cloud-shell'],

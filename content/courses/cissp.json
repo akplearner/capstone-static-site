@@ -6499,6 +6499,7 @@
         "cysa-plus": "Wazuh · Suricata · Sysmon · tcpdump · Wireshark · nmap · nikto · sqlmap · ssh · sha256sum",
         "mssp": "nmap · lynis · ufw · auditd · Sigma/grep · CIS Benchmarks · sha256sum · the framework mappings (SOC 2, ISO 27001)",
         "server-plus": "Proxmox VE · ssh · netplan · cloud-init · Terraform · Ansible · git · Tailscale · Wazuh · Prometheus · Grafana · NetBox · GLPI · sha256sum",
+        "a-plus": "Clonezilla · smartctl · MemTest86+ · PowerShell · Windows · Quick Assist · Remote Desktop · Microsoft Defender · Windows Firewall · Event Viewer · sha256sum",
         "ccna": "show version · show vlan brief · show interfaces trunk · show spanning-tree · show etherchannel summary · show ip route · show ip ospf neighbor · show ip nat translations · show access-lists · ping · traceroute · Wireshark · NetBox · LibreNMS · Oxidized · Ansible",
         "secai-plus": "Ollama · LiteLLM · OpenBao · Chroma · garak · LLM Guard · Microsoft Presidio · Semgrep · Trivy · Gitleaks · ModelScan · Prowler · Wazuh · Git · sha256sum",
         "cissp": "eramba · draw.io · OPNsense · nmap · OpenSSL · Keycloak · Trivy · Gitleaks · OpenVAS · Lynis · Wazuh · restic · OSCAL Compass · Git · sha256sum",
@@ -12552,7 +12553,12 @@
             "tr",
             "sha1sum",
             "history",
-            "clear"
+            "clear",
+            "lsusb",
+            "dmesg",
+            "nproc",
+            "mount",
+            "umount"
           ]
         },
         {
@@ -12620,7 +12626,18 @@
             "Hardware Discovery form",
             "Hardware Discovery, HCL & Upgrade Plan",
             "Engagement Agreement form",
-            "Engagement scope"
+            "Engagement scope",
+            "Intake & Bench Checklist form",
+            "Asset & Build Sheet form",
+            "Troubleshooting Log form",
+            "OS Build & Baseline Record form",
+            "Backup & Image Register form",
+            "Support Ticket Log form",
+            "Security Checklist form",
+            "Handover & As-Built form",
+            "The intake record",
+            "The register",
+            "The handover form"
           ]
         },
         {
@@ -13147,7 +13164,8 @@
             "comp.docs.build-log",
             "comp.docs.work-a-ticket",
             "comp.docs.incident-management",
-            "comp.docs.known-issues"
+            "comp.docs.known-issues",
+            "comp.docs.service-ticket"
           ]
         },
         {

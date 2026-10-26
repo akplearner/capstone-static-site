@@ -22,6 +22,7 @@ export const COURSE_DEFAULT_VISUAL: Record<string, DeliverableVisual> = {
   // R99: a form draws its course's picture as it stands in the form's week.
   'server-plus': { kit: 'week' },
   ccna: { kit: 'week' },
+  'a-plus': { kit: 'week' },
   'cysa-plus': { kit: 'week' },
   'security-plus': { kit: 'week' },
   mssp: { kit: 'week' },

@@ -7,10 +7,10 @@ weekly tables, one per course.
 
 ## One picture shape for the self-drawn courses
 
-Security+, CySA+, MSSP, SecAI+ and CISSP draw an `ArchPicture`
+Security+, CySA+, MSSP, SecAI+, CISSP and A+ draw an `ArchPicture`
 (`src/lib/docs/archPicture.ts`) from their content module
 (`securityContent.ts`, `cysaContent.ts`, `msspContent.ts`, `secaiContent.ts`,
-`cisspContent.ts`). One renderer, `ArchDiagram`, draws all five from the course
+`cisspContent.ts`, `aPlusContent.ts`). One renderer, `ArchDiagram`, draws all six from the course
 document (`content.arch`).
 
 | Element | Rule |

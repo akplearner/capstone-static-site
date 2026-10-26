@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "standards": [
     {
       "id": "NIST_CSF",
@@ -2553,6 +2553,17 @@
     "Troubleshooting method, RAID & hypervisor build record": [
       "practice.troubleshooting-method",
       "practice.build-record"
+    ],
+    "Structured troubleshooting method": [
+      "practice.troubleshooting-method"
+    ],
+    "Backup & restore proof": [
+      "practice.backup-before-change",
+      "practice.backups-tested"
+    ],
+    "Incident & request handling": [
+      "practice.troubleshooting-method",
+      "practice.work-tracked"
     ]
   }
 }

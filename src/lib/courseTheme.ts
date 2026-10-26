@@ -69,6 +69,11 @@ const SEED_THEMES: Record<string, CourseTheme> = {
     vendor: 'Cisco',
     certification: 'CCNA (200-301)',
   },
+  'a-plus': {
+    key: 'a-plus',
+    vendor: 'CompTIA',
+    certification: 'A+ (220-1201 / 220-1202)',
+  },
   'azure-fundamentals': { key: 'azure-fundamentals', vendor: 'Microsoft', certification: 'AZ-900' },
   'azure-administrator': { key: 'azure-administrator', vendor: 'Microsoft', certification: 'AZ-104' },
   'azure-devops': { key: 'azure-devops', vendor: 'Microsoft', certification: 'AZ-400' },

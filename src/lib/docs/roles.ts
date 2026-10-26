@@ -117,6 +117,16 @@ const CCNA: RoleContent = {
   ],
 };
 
+const A_PLUS: RoleContent = {
+  MOTION: DEFAULT_MOTION,
+  PROFILES: [
+    p('hw', 'both', 'Leads the hardware record: what is inside, the fault worked with the method, and the firmware.', ['Inventory from the live system', 'Fault log by the method', 'Physical checks on tickets', 'Final part list'], 'Week 1 inventory and the fault; Week 3 the boot ticket on the bench; Week 4 the part list for the handover.'),
+    p('os', 'commands', 'Leads the system record: the image, the install, the accounts, the baseline and the security state.', ['Firmware and image', 'Clean install and baseline', 'Encryption and Defender', 'Baseline comparison'], 'Week 1 firmware; Week 2 image, install and baseline; Week 4 encryption, scans and the diff.'),
+    p('support', 'both', 'Leads the ticket log: the user, the peripherals, remote help and every fault worked as a ticket.', ['Network connection proof', 'User and peripherals', 'Remote help session', 'Three tickets by the method'], 'Week 0 the team and the folder; Week 3 connect, set up the user, work three tickets; Week 4 approves the handover.'),
+    p('records', 'documents', 'Leads the records that outlive the bench: intake, images and restores, and the handover with custody.', ['Intake and bench safety', 'Image and restore register', 'Timed restore against a target', 'As-built and custody log'], 'Week 0 intake; Week 2 the restores proved; Week 4 the target, the timed restore and the handover.'),
+  ],
+};
+
 const SECAI_PLUS: RoleContent = {
   MOTION: { ...DEFAULT_MOTION, stagger: 'swap' },
   PROFILES: [
@@ -153,6 +163,7 @@ export const ROLE_CONTENT: Record<string, RoleContent> = {
   mssp: MSSP,
   'server-plus': SERVER_PLUS,
   ccna: CCNA,
+  'a-plus': A_PLUS,
   'secai-plus': SECAI_PLUS,
   cissp: CISSP,
   ...Object.fromEntries(CLOUD_IDS.map((id) => [id, CLOUD])),

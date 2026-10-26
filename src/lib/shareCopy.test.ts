@@ -12,7 +12,7 @@ import { buildMemberProfile, type MemberCourseRow, type MemberProfileExport } fr
 import { getTasksByRole } from './course-helpers';
 import { verifiableSteps } from './evidenceLedger';
 import type { StepEvidence } from './data/types';
-import { SHARE_LIMIT_BYTES, copyBytes, courseSizes, kb, shareProfileCopy, shareRow } from './shareCopy';
+import { SHARE_LIMIT_BYTES, copyBytes, courseSizes, hydrateShareCourse, kb, shareProfileCopy, shareRow } from './shareCopy';
 import { shareProblem } from '../../supabase/functions/_shared/shareGuard';
 
 /**
@@ -95,17 +95,31 @@ describe('what the copy keeps and drops', () => {
     expect(shareProfileCopy(ALL).signature).toBeNull();
   });
 
-  it('writes a reached row as its id, label and level and the counters that are not zero', () => {
+  it('writes a reached row as its id and level and the counters that are not zero, and the reader puts the words back', () => {
     const reached = ROWS.find((r) => r.courseId === 'security-plus')!.skills.rows.skills.find((r) => r.level === 'verified')!;
     const row = shareRow(reached);
-    expect(row).toMatchObject({ dimension: 'skills', id: reached.id, label: reached.label, level: 'verified', verifiedSteps: reached.verifiedSteps, tickedSteps: reached.tickedSteps });
+    expect(row).toMatchObject({ id: reached.id, level: 'verified', verifiedSteps: reached.verifiedSteps, tickedSteps: reached.tickedSteps });
     expect(Object.values(row).every((v) => v !== 0 && v !== undefined), 'no zero counter and nothing undefined').toBe(true);
-    for (const dropped of ['tasks', 'deliverables', 'next', 'exercisedTasks', 'doneTasks', 'selfAttestedSteps', 'draftedByMember']) expect(dropped in row, dropped).toBe(false);
+    for (const dropped of ['dimension', 'label', 'standardRefs', 'tasks', 'deliverables', 'next', 'exercisedTasks', 'doneTasks', 'selfAttestedSteps', 'draftedByMember']) expect(dropped in row, dropped).toBe(false);
+    // R130: the reader resolves the words from the course document, by id, in every dimension.
+    const full = ROWS.find((r) => r.courseId === 'security-plus')!.skills;
+    const doc = courseDto('security-plus');
+    const back = hydrateShareCourse(course.skills, skillsOf(doc), certOf(doc).CERT);
+    for (const dim of Object.keys(full.rows) as (keyof typeof full.rows)[]) {
+      expect(back.rows[dim].map((r) => [r.dimension, r.id, r.label])).toEqual(full.rows[dim].map((r) => [r.dimension, r.id, r.label]));
+      for (const r of back.rows[dim]) {
+        const orig = full.rows[dim].find((x) => x.id === r.id)!;
+        if (orig.level !== 'not-started' && orig.standardRefs?.length) expect(r.standardRefs, `${dim} ${r.id} references`).toEqual(orig.standardRefs);
+      }
+    }
+    // A copy from before this round carries its labels; the reader keeps them, and an unknown id is shown under its id.
+    const old = hydrateShareCourse({ ...course.skills, rows: { skills: [{ id: 'comp.gone', level: 'verified', label: 'An old label' }, { id: 'comp.unknown', level: 'practised' }] } }, skillsOf(doc), certOf(doc).CERT);
+    expect(old.rows.skills.map((r) => r.label)).toEqual(['An old label', 'comp.unknown']);
   });
 
-  it('keeps a row not reached as an id, a label and a level, so the denominator survives', () => {
+  it('keeps a row not reached as an id and a level, so the denominator survives', () => {
     const base = ROWS[0].skills.rows.skills[0];
-    expect(shareRow({ ...base, level: 'not-started', tickedSteps: 0, verifiedSteps: 0, artifacts: 0, lastVerifiedAt: undefined, current: undefined })).toEqual({ dimension: 'skills', id: base.id, label: base.label, level: 'not-started' });
+    expect(shareRow({ ...base, level: 'not-started', tickedSteps: 0, verifiedSteps: 0, artifacts: 0, lastVerifiedAt: undefined, current: undefined })).toEqual({ id: base.id, level: 'not-started' });
     const started = course.skills.rows;
     for (const dimension of Object.keys(ROWS[0].skills.rows)) expect(started[dimension].length, dimension).toBe(ROWS.find((r) => r.courseId === 'security-plus')!.skills.rows[dimension as keyof (typeof ROWS)[0]['skills']['rows']].length);
   });

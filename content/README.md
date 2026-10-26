@@ -11,6 +11,7 @@ One JSON document per course, generated from the TypeScript seeds:
 | `courses/secai-plus.json` | SecAI+ (CY0-001) | `src/lib/data/seed/secaiPlus.ts` · `src/lib/docs/secaiDeliverables.ts` · `src/lib/docs/secaiContent.ts` |
 | `courses/cissp.json` | CISSP | `src/lib/data/seed/cissp.ts` · `src/lib/docs/cisspDeliverables.ts` · `src/lib/docs/cisspContent.ts` |
 | `courses/ccna.json` | CCNA | `src/lib/data/seed/ccna.ts` · `src/lib/docs/ccnaDeliverables.ts` · `src/lib/docs/ccnaDiagrams.ts` · `src/lib/ccnaTopology.ts` |
+| `courses/a-plus.json` | A+ Capstone Bench | `src/lib/data/seed/aPlus.ts` · `src/lib/docs/aPlusDeliverables.ts` · `src/lib/docs/aPlusContent.ts` |
 | `courses/azure-{fundamentals,administrator,devops}.json` | Azure (three quarters) | `src/lib/data/seed/azureCloud.ts` · `src/lib/docs/cloudDeliverables.ts` · `src/lib/cloud/azureTopology.ts` · `azureIac.ts` |
 | `courses/aws-{cloud-practitioner,solutions-architect,devops}.json` | AWS (three quarters) | `src/lib/data/seed/awsCloud.ts` · `src/lib/docs/cloudDeliverables.ts` · `src/lib/cloud/awsTopology.ts` · `awsIac.ts` |
 | `courses/index.json` | catalogue | counts per course, plus vendor, certification, level, prerequisite, next, exam fee, coverage and cost (R106), and the skills, tools, standards, controls, procedures, tactics and practices the graded tasks use (R107) |

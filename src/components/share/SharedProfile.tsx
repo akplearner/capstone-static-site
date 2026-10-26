@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { Download, Link2Off, ShieldAlert } from 'lucide-react';
 import { fetchShared, tokenFromHash, type SharedCopy } from '@/lib/shares';
 import { courseDocument } from '@/lib/content/docs';
-import { skillsOf } from '@/lib/content/read';
+import { certOf, skillsOf } from '@/lib/content/read';
+import { hydrateShareCourse, type ShareSkillProfile } from '@/lib/shareCopy';
 import type { SkillPortfolio, SkillProfile } from '@/lib/skillProfile';
 import type { KpiBoard } from '@/lib/kpiBoard';
 import { SkillsSections } from '@/components/skills/SkillsSections';
@@ -41,7 +42,8 @@ export function SharedProfile() {
     if (!token) return;
     let on = true;
     void fetchShared(token).then((c) => {
-      if (on) setCopy(c ?? 'missing');
+      // R130: a copy carries its rows by id; the words come back from the course documents the app ships.
+      if (on) setCopy(c ? (c.kind === 'profile' ? { ...c, snapshot: hydrateSnapshot(c.snapshot as Record<string, unknown>) } : c) : 'missing');
     });
     return () => {
       on = false;
@@ -136,6 +138,18 @@ export function SharedProfile() {
           })}
     </div>
   );
+}
+
+/** The copy with every course's rows rehydrated from its own document (older copies already carry their labels). */
+function hydrateSnapshot(snap: Record<string, unknown>): Record<string, unknown> {
+  if (!Array.isArray(snap.courses)) return snap;
+  const courses = (snap.courses as CopyCourse[]).map((c) => {
+    if (!c || typeof c !== 'object' || !c.skills || typeof c.skills !== 'object' || !(c.skills as ShareSkillProfile).rows) return c;
+    const doc = courseDocument(c.courseId) ?? courseDocument('security-plus');
+    if (!doc) return c;
+    return { ...c, skills: hydrateShareCourse(c.skills as unknown as ShareSkillProfile, skillsOf(doc), certOf(doc).CERT) as unknown as SkillProfile };
+  });
+  return { ...snap, courses };
 }
 
 function Figure({ label, value, sub }: { label: string; value: string; sub: string }) {

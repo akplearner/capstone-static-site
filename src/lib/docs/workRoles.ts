@@ -110,6 +110,12 @@ export const WORK_ROLE_OF: Record<string, Record<string, string[]>> = {
     archnet: ['role.security-architect', 'role.systems-security-analyst'],
     idops: ['role.systems-security-analyst', 'role.incident-responder'],
   },
+  'a-plus': {
+    hw: ['role.system-administrator'],
+    os: ['role.system-administrator'],
+    support: ['role.system-administrator', 'role.network-operations-specialist'],
+    records: ['role.system-administrator'],
+  },
   'azure-fundamentals': CLOUD,
   'azure-administrator': CLOUD,
   'azure-devops': CLOUD,

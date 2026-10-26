@@ -118,6 +118,16 @@ const CLOUD_TASK_SOPS: Record<string, string[]> = {
 
 /** Every form → the SOP kinds it is an instance of (one to three). */
 export const DELIVERABLE_SOPS: Record<string, Record<string, string[]>> = {
+  'a-plus': {
+    ap_intake: ['sop.asset-inventory'],
+    ap_asset: ['sop.asset-inventory', 'sop.build-record'],
+    ap_fault: ['sop.incident-record'],
+    ap_os: ['sop.build-record', 'sop.hardening-baseline'],
+    ap_backup: ['sop.backup-plan', 'sop.recovery-drill'],
+    ap_tickets: ['sop.incident-record', 'sop.runbook'],
+    ap_security: ['sop.hardening-baseline'],
+    ap_handover: ['sop.handover', 'sop.chain-of-custody'],
+  },
   'security-plus': {
     scope_roe: ['sop.scope-and-roe'],
     asset_inventory: ['sop.asset-inventory'],
@@ -210,6 +220,15 @@ export const DELIVERABLE_SOPS: Record<string, Record<string, string[]>> = {
 
 /** Tasks that execute a procedure → the SOP kinds they execute. */
 export const TASK_SOPS: Record<string, Record<string, string[]>> = {
+  'a-plus': {
+    'ap-w1-fault': ['sop.incident-record'],
+    'ap-w2-image': ['sop.backup-plan'],
+    'ap-w2-restore': ['sop.recovery-drill'],
+    'ap-w3-tickets': ['sop.incident-record'],
+    'ap-w4-secure': ['sop.hardening-baseline'],
+    'ap-w4-restore': ['sop.recovery-drill', 'sop.backup-plan'],
+    'ap-w4-handover': ['sop.handover', 'sop.chain-of-custody'],
+  },
   'security-plus': {
     'red-w1-osint': ['sop.scope-and-roe'],
     'red-w2-enumeration': ['sop.scope-and-roe'],

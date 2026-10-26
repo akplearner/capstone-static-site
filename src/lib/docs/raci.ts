@@ -83,6 +83,19 @@ export const RACI: Record<string, Raci> = {
   ccna_security: r('auto', 'ops', 'arch'),
   ccna_handover: r('arch', 'ops', 'auto', ['impl']),
 
+  // A+ — hw · os · support · records. The focus that does the work drafts,
+  // the focus that depends on it reviews, Records approves most; the
+  // handover is drafted by Records, reviewed by Systems and approved by the
+  // Help Desk, which runs the machine from then on.
+  ap_intake: r('records', 'hw', 'os'),
+  ap_asset: r('hw', 'os', 'records'),
+  ap_fault: r('hw', 'support', 'records'),
+  ap_os: r('os', 'hw', 'records'),
+  ap_backup: r('records', 'os', 'hw'),
+  ap_tickets: r('support', 'hw', 'records'),
+  ap_security: r('os', 'support', 'records'),
+  ap_handover: r('records', 'os', 'support', ['hw']),
+
   // SecAI+ — redteam · defender · governance.
   secai_lab_rule: r('governance', 'defender', 'governance'),
   secai_system_map: r('governance', 'defender', 'governance'),

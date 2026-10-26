@@ -302,6 +302,18 @@ export const SKILLS: SkillNode[] = [
   n('docs.work-a-ticket', 'Work a ticket with scope and layers', ['200-301.d3', 'ITIL.incident']),
   n('docs.incident-management', 'Work an incident to root cause', ['200-301.d3', 'ITIL.incident']),
   n('docs.known-issues', 'List known issues honestly', ['200-301.d1', 'ITIL.transition']),
+  // ── The A+ bench (R130) ──────────────────────────────────────────────────
+  n('hardware.identify-components', 'Identify and record PC components', ['220-1201.d3']),
+  n('hardware.pc-fault-diagnosis', 'Diagnose a PC fault to a part', ['220-1201.d5', 'ITIL.problem']),
+  n('hardware.firmware-settings', 'Set firmware boot and security options', ['220-1201.d3']),
+  n('hardware.pc-network-connect', 'Connect a PC and prove the link', ['220-1201.d2']),
+  n('sysadmin.windows-install', 'Install Windows and drivers from media', ['220-1201.d6']),
+  n('sysadmin.user-and-peripherals', 'Set up a user, printer and displays', ['220-1201.d6', '220-1201.d3']),
+  n('sysadmin.remote-support', 'Support a user remotely', ['220-1201.d6']),
+  n('sysadmin.endpoint-security', 'Secure an endpoint: encryption, Defender, firewall', ['220-1201.d7', 'CIS.BENCHMARK']),
+  n('docs.service-ticket', 'Record a service ticket end to end', ['220-1201.d9', 'ITIL.incident']),
+  n('continuity.disk-image', 'Image a disk before changing it', ['220-1201.d9', 'NIST.800-53.CP-9']),
+  n('continuity.restore-from-image', 'Restore a machine from an image, timed', ['220-1201.d9', 'NIST.800-53.CP-4']),
   // ── Cloud services (one node for the Azure and the AWS form) ─────────────
   n('cloud.budget-and-tags', 'Set a budget alert and a tag standard', ['AZ-900.d1', 'CLF-C02.d1', 'WAF.cost']),
   n('cloud.shared-responsibility', 'State the shared-responsibility split', ['AZ-900.d1', 'CLF-C02.d1']),
@@ -434,6 +446,20 @@ const CLOUD_SKILLS: Record<string, string[]> = {
 
 /** Every task of a graded or advanced week → one to three nodes. Setup weeks are not mapped. */
 export const TASK_SKILLS: Record<string, Record<string, string[]>> = {
+  'a-plus': {
+    'ap-w1-inventory': ['comp.hardware.identify-components', 'comp.hardware.receive-and-inspect'],
+    'ap-w1-fault': ['comp.hardware.pc-fault-diagnosis', 'comp.sysadmin.troubleshooting-method'],
+    'ap-w1-firmware': ['comp.hardware.firmware-settings', 'comp.hardware.boot-media'],
+    'ap-w2-image': ['comp.continuity.disk-image', 'comp.forensics.hash-evidence'],
+    'ap-w2-install': ['comp.sysadmin.windows-install', 'comp.sysadmin.patching'],
+    'ap-w2-restore': ['comp.continuity.restore-from-image', 'comp.continuity.verify-backups'],
+    'ap-w3-connect': ['comp.hardware.pc-network-connect'],
+    'ap-w3-user': ['comp.sysadmin.user-and-peripherals', 'comp.sysadmin.remote-support'],
+    'ap-w3-tickets': ['comp.docs.service-ticket', 'comp.sysadmin.troubleshooting-method'],
+    'ap-w4-secure': ['comp.sysadmin.endpoint-security', 'comp.harden.windows-baseline'],
+    'ap-w4-restore': ['comp.continuity.restore-from-image', 'comp.respond.restore-test', 'comp.respond.recovery-targets'],
+    'ap-w4-handover': ['comp.docs.as-built-handover', 'comp.forensics.chain-of-custody'],
+  },
   'security-plus': {
     'red-w1-osint': ['comp.recon.osint', 'comp.recon.dns-whois', 'comp.recon.fingerprint-web'],
     'red-w2-enumeration': ['comp.recon.port-scan', 'comp.recon.web-scan', 'comp.vuln.summarise-findings'],

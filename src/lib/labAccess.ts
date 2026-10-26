@@ -139,6 +139,23 @@ export const CCNA_FIELDS: typeof LAB_FIELDS = [
   },
 ];
 
+/**
+ * The A+ bench: one machine per team, named by the team. Two tokens — the
+ * hostname and the address Week 3 gives it — so a command that names the
+ * machine fills in. No preference fields: the course has one path.
+ */
+export const A_PLUS_FIELDS: typeof LAB_FIELDS = [
+  { key: 'PC_HOST', label: 'Your bench PC’s hostname', placeholder: 'e.g. BENCH-T1', tokens: ['<PC_HOST>'] },
+  { key: 'PC_IP', label: 'Its address once connected (Week 3)', placeholder: 'e.g. 10.10.50.23', tokens: ['<PC_IP>'] },
+];
+
+export const A_PLUS_CHECKS: typeof LAB_CHECKS = [
+  { key: 'power', label: 'The PC powers on and shows the firmware splash' },
+  { key: 'live', label: 'The LIVE stick boots on it to a shell' },
+  { key: 'images', label: 'The IMAGES drive mounts with room for two full images' },
+  { key: 'strap', label: 'The strap is on whenever the case is open' },
+];
+
 export const CCNA_CHECKS: typeof LAB_CHECKS = [
   { key: 'prompt', label: 'You can reach a device prompt — console, SSH or the emulator' },
   { key: 'register', label: 'Every device you have is a row in the Kit & Capability Register' },
@@ -176,7 +193,7 @@ export const SERVER_CHECKS: typeof LAB_CHECKS = [
  * would render an input the filler never looked at — a box that silently does
  * nothing. The profile below governs the FORM; this governs substitution.
  */
-const ALL_FIELDS = [...LAB_FIELDS, ...SERVER_FIELDS, ...CCNA_FIELDS, ...CLOUD_FIELDS];
+const ALL_FIELDS = [...LAB_FIELDS, ...SERVER_FIELDS, ...CCNA_FIELDS, ...A_PLUS_FIELDS, ...CLOUD_FIELDS];
 
 /**
  * What a given course's lab actually consists of.
@@ -232,6 +249,13 @@ const LAB_PROFILES: Record<string, LabProfile> = {
   // offering the Security+ target/attacker fields, which mean nothing here.
   'secai-plus': { fields: [], checks: [] },
   cissp: { fields: [], checks: [] },
+  // The bench: the machine's name and, from Week 3, its address.
+  'a-plus': {
+    fields: A_PLUS_FIELDS,
+    checks: A_PLUS_CHECKS,
+    title: 'Your bench PC — name, address and readiness',
+    intro: 'Name the machine the team rebuilds and, once it is connected, its address. Saved to your account, visible only to you.',
+  },
 };
 
 const CLOUD_PROFILE: LabProfile = {

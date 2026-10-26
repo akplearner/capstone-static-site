@@ -69,6 +69,22 @@ export const CERTS: Record<string, CertDef> = {
     prerequisite: 'security-plus', next: 'secai-plus',
     domains: [d('d1', 'Security Operations', 33), d('d2', 'Vulnerability Management', 30), d('d3', 'Incident Response and Management', 20), d('d4', 'Reporting and Communication', 17)],
   },
+  'a-plus': {
+    courseId: 'a-plus', vendorId: 'comptia', vendor: 'CompTIA', code: '220-1201', name: 'A+', level: 'entry', exam: true, examFeeUsd: 506, feeCheckedYear: 2026,
+    // Two exams (Core 1, 220-1201 and Core 2, 220-1202). The fee is the pair;
+    // the domains are both cores at half weight, so the sheet reads as one.
+    domains: [
+      d('d1', 'Mobile Devices (Core 1)', 7, '13% of Core 1', 'A bench desktop has no mobile device; read with the exam guide'),
+      d('d2', 'Networking (Core 1)', 12, '23% of Core 1'),
+      d('d3', 'Hardware (Core 1)', 13, '25% of Core 1'),
+      d('d4', 'Virtualization and Cloud Computing (Core 1)', 5, '11% of Core 1', 'No hypervisor on the bench; Server+ and the cloud courses practise it'),
+      d('d5', 'Hardware and Network Troubleshooting (Core 1)', 14, '28% of Core 1'),
+      d('d6', 'Operating Systems (Core 2)', 14, '28% of Core 2'),
+      d('d7', 'Security (Core 2)', 14, '28% of Core 2'),
+      d('d8', 'Software Troubleshooting (Core 2)', 11, '23% of Core 2'),
+      d('d9', 'Operational Procedures (Core 2)', 10, '21% of Core 2'),
+    ],
+  },
   'server-plus': {
     courseId: 'server-plus', vendorId: 'comptia', vendor: 'CompTIA', code: 'SK0-005', name: 'Server+', level: 'associate', exam: true, examFeeUsd: 369, feeCheckedYear: 2026,
     domains: [d('d1', 'Server Hardware Installation and Management', 18), d('d2', 'Server Administration', 30), d('d3', 'Security and Disaster Recovery', 24), d('d4', 'Troubleshooting', 28)],
@@ -186,6 +202,10 @@ export const TASK_DOMAINS: Record<string, Record<string, string>> = {
     'sp-w1-net': 'd1', 'sp-w2-net': 'd2', 'sp-w3-net': 'd4', 'sp-w4-net': 'd4', 'sp-w1-win': 'd2', 'sp-w2-win': 'd2', 'sp-w3-win': 'd2', 'sp-w4-win': 'd3',
     'sp-w1-lnx': 'd1', 'sp-w2-lnx': 'd2', 'sp-w3-lnx': 'd4', 'sp-w4-lnx': 'd3', 'sp-w1-mgmt': 'd3', 'sp-w2-mgmt': 'd2', 'sp-w3-mgmt': 'd2', 'sp-w4-mgmt': 'd2',
     'sp-w6-net': 'd2', 'sp-w5-win': 'd4', 'sp-w5-lnx': 'd4', 'sp-w6-mgmt': 'd2', 'sp-w7-net': 'd1', 'sp-w8-win': 'd2', 'sp-w8-lnx': 'd3', 'sp-w8-mgmt': 'd4',
+  },
+  'a-plus': {
+    'ap-w1-inventory': 'd3', 'ap-w1-fault': 'd5', 'ap-w1-firmware': 'd3', 'ap-w2-image': 'd9', 'ap-w2-install': 'd6', 'ap-w2-restore': 'd9',
+    'ap-w3-connect': 'd2', 'ap-w3-user': 'd6', 'ap-w3-tickets': 'd8', 'ap-w4-secure': 'd7', 'ap-w4-restore': 'd9', 'ap-w4-handover': 'd9',
   },
   ccna: {
     'ccna-w0-path': 'd1', 'ccna-w0-register': 'd1', 'ccna-w1-discover': 'd1', 'ccna-w1-design': 'd1', 'ccna-w1-bringup': 'd2', 'ccna-w2-vlans': 'd2', 'ccna-w2-route': 'd3', 'ccna-w2-resilience': 'd2',

@@ -1,6 +1,6 @@
 # Server+ Build & Handover — skills sheet
 
-31 graded tasks and 25 advanced · 63 skills · 45 tools · 14 procedures · 2 standards (0 controls cited) · 0 tactics · 33 practices
+31 graded tasks and 25 advanced · 63 skills · 46 tools · 14 procedures · 2 standards (0 controls cited) · 0 tactics · 33 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -121,6 +121,7 @@ Generated from the registries and the course document by `npm run content:export
 | Hand tools | hardware | Bring the server up; Rack and cable per the plan |
 | Patch panel | hardware | Rack and cable per the plan |
 | USB install media | hardware | Document what it is; Install Proxmox and get the team in |
+| The bench PC | hardware | Bring the server up |
 
 ## Procedures
 
@@ -209,7 +210,7 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | --- | --- | --- | --- |
 | Skills verified `kpi.ability.skills-verified` | ability | metric.skill-verified (own) | net: 48 skills with a verifiable step; win: 49 skills with a verifiable step; lnx: 48 skills with a verifiable step; mgmt: 47 skills with a verifiable step |
 | Exam weight verified `kpi.ability.exam-weight-verified` | ability | metric.domain-weight-verified (own) | net: 100 percent of the exam over 4 domains; win: 100 percent of the exam over 4 domains; lnx: 100 percent of the exam over 4 domains; mgmt: 100 percent of the exam over 4 domains |
-| Profile coverage `kpi.ability.profile-coverage` | ability | metric.profile-coverage (own) | net: Network Operations Specialist: 52 required, 28 not taught here; win: System Administrator: 54 required, 10 not taught here; lnx: System Administrator: 54 required, 11 not taught here; mgmt: System Administrator: 54 required, 9 not taught here |
+| Profile coverage `kpi.ability.profile-coverage` | ability | metric.profile-coverage (own) | net: Network Operations Specialist: 53 required, 29 not taught here; win: System Administrator: 65 required, 21 not taught here; lnx: System Administrator: 65 required, 22 not taught here; mgmt: System Administrator: 65 required, 20 not taught here |
 | Skills proved twice `kpi.ability.skills-transferred` | ability | metric.skill-transfer (own) | net: 12 skills on two or more tasks; win: 11 skills on two or more tasks; lnx: 14 skills on two or more tasks; mgmt: 10 skills on two or more tasks |
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | net: 15 tasks with two or more verifiable steps; win: 15 tasks with two or more verifiable steps; lnx: 15 tasks with two or more verifiable steps; mgmt: 15 tasks with two or more verifiable steps |
 | First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | net: 56 verifiable steps; win: 58 verifiable steps; lnx: 58 verifiable steps; mgmt: 53 verifiable steps |

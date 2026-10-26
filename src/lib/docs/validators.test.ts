@@ -6,6 +6,7 @@ import { CYSA_PLUS } from '../data/seed/cysa';
 import { MSSP } from '../data/seed/mssp';
 import { SERVER_PLUS } from '../data/seed/serverPlus';
 import { CCNA } from '../data/seed/ccna';
+import { A_PLUS } from '../data/seed/aPlus';
 import { SECAI_PLUS } from '../data/seed/secaiPlus';
 import { CISSP } from '../data/seed/cissp';
 import { AZURE_COURSES } from '../data/seed/azureCloud';
@@ -107,7 +108,7 @@ describe('the validator registry', () => {
   });
 
   it('every step that opts in names a validator that exists, on a step with a verify box', () => {
-    const courses = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
+    const courses = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, A_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
     const opted = courses.flatMap((c) => c.tasks.flatMap((t) => t.steps.filter((s) => s.validator).map((s) => ({ c: c.id, s }))));
     expect(opted.length, 'at least one step opts in').toBeGreaterThan(0);
     for (const { c, s } of opted) {

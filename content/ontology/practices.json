@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "practices": [
     {
       "id": "practice.least-privilege",
@@ -580,6 +580,56 @@
     }
   ],
   "tasksByCourse": {
+    "a-plus": {
+      "ap-w1-inventory": [
+        "practice.asset-inventory",
+        "practice.build-record"
+      ],
+      "ap-w1-fault": [
+        "practice.troubleshooting-method",
+        "practice.build-record"
+      ],
+      "ap-w1-firmware": [
+        "practice.build-record",
+        "practice.configuration-record"
+      ],
+      "ap-w2-image": [
+        "practice.backup-before-change",
+        "practice.evidence-hashing"
+      ],
+      "ap-w2-install": [
+        "practice.build-record",
+        "practice.hardening-baseline"
+      ],
+      "ap-w2-restore": [
+        "practice.backups-tested"
+      ],
+      "ap-w3-connect": [
+        "practice.test-and-acceptance",
+        "practice.configuration-record"
+      ],
+      "ap-w3-user": [
+        "practice.least-privilege",
+        "practice.configuration-record"
+      ],
+      "ap-w3-tickets": [
+        "practice.troubleshooting-method",
+        "practice.work-tracked"
+      ],
+      "ap-w4-secure": [
+        "practice.hardening-baseline",
+        "practice.least-privilege"
+      ],
+      "ap-w4-restore": [
+        "practice.backups-tested",
+        "practice.recovery-objectives"
+      ],
+      "ap-w4-handover": [
+        "practice.as-built-documentation",
+        "practice.evidence-hashing",
+        "practice.sign-and-version"
+      ]
+    },
     "security-plus": {
       "red-w1-osint": [
         "practice.passive-before-active",

@@ -274,6 +274,20 @@ const CLOUD_PRACTICES: Record<string, string[]> = {
 
 /** Every task of a graded or advanced week → the practices it asks for (one to three). */
 export const TASK_PRACTICES: Record<string, Record<string, string[]>> = {
+  'a-plus': {
+    'ap-w1-inventory': ['practice.asset-inventory', 'practice.build-record'],
+    'ap-w1-fault': ['practice.troubleshooting-method', 'practice.build-record'],
+    'ap-w1-firmware': ['practice.build-record', 'practice.configuration-record'],
+    'ap-w2-image': ['practice.backup-before-change', 'practice.evidence-hashing'],
+    'ap-w2-install': ['practice.build-record', 'practice.hardening-baseline'],
+    'ap-w2-restore': ['practice.backups-tested'],
+    'ap-w3-connect': ['practice.test-and-acceptance', 'practice.configuration-record'],
+    'ap-w3-user': ['practice.least-privilege', 'practice.configuration-record'],
+    'ap-w3-tickets': ['practice.troubleshooting-method', 'practice.work-tracked'],
+    'ap-w4-secure': ['practice.hardening-baseline', 'practice.least-privilege'],
+    'ap-w4-restore': ['practice.backups-tested', 'practice.recovery-objectives'],
+    'ap-w4-handover': ['practice.as-built-documentation', 'practice.evidence-hashing', 'practice.sign-and-version'],
+  },
   'security-plus': {
     'red-w1-osint': ['practice.passive-before-active', 'practice.authorised-testing', 'practice.evidence-hashing'],
     'red-w2-enumeration': ['practice.authorised-testing', 'practice.evidence-hashing'],

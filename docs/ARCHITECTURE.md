@@ -205,7 +205,7 @@ Role facts have one home each, and nothing is typed twice:
 is drawn in the box and bold in the table; the parenthesised title is the professional role, set
 small beneath it (`splitRoleName()`). Missions, summaries, arcs and responsibilities are third
 person, present tense, with the lane as the subject: no "you", no contractions, no em dash, no
-emoji. `content-integrity.test.ts` asserts the shape and the register for all 13 courses.
+emoji. `content-integrity.test.ts` asserts the shape and the register for all 14 courses.
 
 **Motion as data.** A picture never carries a number of its own: `resolveRoleMotion(spec,
 reduce)` (`src/lib/roleMotion.ts`) turns the spec into framer transitions from `DUR`/`EASE`,
@@ -518,10 +518,13 @@ and not proof of the machine.
 for as long as it lives. The full export was never built to fit it: it carried every row of every course, reached or not,
 each with about twenty counters, plus the member's own gaps and raw indicators, so one large course came to 100 KB and the
 thirteen to 525 KB, and a member with four courses could not make a link whatever they had done. The copy a link serves is
-now `shareProfileCopy` (`src/lib/shareCopy.ts`): a row keeps its id, label and level and the seven counters a reader uses
-that are not zero; a row not reached stays as id, label and level so the denominator survives; gaps, raw indicators, mapped
-task and form ids and the "next task" hint stay out, because they are the member's own. The thirteen finished courses come
-to 231 KB, the four largest to 114 KB. It is still `capstone-member-profile/1` with `signature: null`: the published schema
+now `shareProfileCopy` (`src/lib/shareCopy.ts`): a row keeps its id and level and the seven counters a reader uses that are
+not zero; a row not reached stays as id and level so the denominator survives; gaps, raw indicators, mapped task and form
+ids and the "next task" hint stay out, because they are the member's own. Since R130 a row's dimension, label and
+references are not in the copy either: the reader (`SharedProfile`) has every course document, so `hydrateShareCourse` puts
+them back by id from the published ontology, which deprecates and never removes an id; a standards row keeps the codes
+the member's own forms cited, and a copy made before R130 keeps the labels it carries. The fourteen finished courses come
+to about 201 KB, the four largest to 93 KB. It is still `capstone-member-profile/1` with `signature: null`: the published schema
 lets a row omit a zero counter and a course omit gaps and indicators, and says so. The Create link dialog lists the courses
 with the size of each, shows the size of the copy against the limit before the click, lets the member untick courses, and
 will not send a copy over the limit; the server's refusal (`too-large`) says the same. `shareCopy.test.ts` builds the largest

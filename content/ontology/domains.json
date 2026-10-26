@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "domains": [
     {
       "id": "SY0-701.d1",
@@ -64,6 +64,69 @@
       "name": "Reporting and Communication",
       "weight": 17,
       "courseId": "cysa-plus"
+    },
+    {
+      "id": "220-1201.d1",
+      "code": "220-1201",
+      "name": "Mobile Devices (Core 1)",
+      "weight": 7,
+      "courseId": "a-plus"
+    },
+    {
+      "id": "220-1201.d2",
+      "code": "220-1201",
+      "name": "Networking (Core 1)",
+      "weight": 12,
+      "courseId": "a-plus"
+    },
+    {
+      "id": "220-1201.d3",
+      "code": "220-1201",
+      "name": "Hardware (Core 1)",
+      "weight": 13,
+      "courseId": "a-plus"
+    },
+    {
+      "id": "220-1201.d4",
+      "code": "220-1201",
+      "name": "Virtualization and Cloud Computing (Core 1)",
+      "weight": 5,
+      "courseId": "a-plus"
+    },
+    {
+      "id": "220-1201.d5",
+      "code": "220-1201",
+      "name": "Hardware and Network Troubleshooting (Core 1)",
+      "weight": 14,
+      "courseId": "a-plus"
+    },
+    {
+      "id": "220-1201.d6",
+      "code": "220-1201",
+      "name": "Operating Systems (Core 2)",
+      "weight": 14,
+      "courseId": "a-plus"
+    },
+    {
+      "id": "220-1201.d7",
+      "code": "220-1201",
+      "name": "Security (Core 2)",
+      "weight": 14,
+      "courseId": "a-plus"
+    },
+    {
+      "id": "220-1201.d8",
+      "code": "220-1201",
+      "name": "Software Troubleshooting (Core 2)",
+      "weight": 11,
+      "courseId": "a-plus"
+    },
+    {
+      "id": "220-1201.d9",
+      "code": "220-1201",
+      "name": "Operational Procedures (Core 2)",
+      "weight": 10,
+      "courseId": "a-plus"
     },
     {
       "id": "SK0-005.d1",

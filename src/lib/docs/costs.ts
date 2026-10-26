@@ -75,6 +75,14 @@ export const COURSE_COSTS: Record<string, CostLine[]> = {
     line('pbs', 'software', 'Proxmox VE and Proxmox Backup Server', 0, 'once', 'Free, community repositories.'),
     line('win-eval', 'software', 'Windows Server evaluation', 0, 'once', 'Free 180-day evaluation.'),
   ],
+  'a-plus': [
+    line('pc', 'hardware', 'A used desktop PC per team (the one the course rebuilds)', 100, 'once', 'Order of magnitude; donated or second-hand, any make that opens with a screwdriver.', { approx: true }),
+    line('drive', 'hardware', 'A spare SATA or NVMe drive', 40, 'once', 'For the rebuild if the SMART check fails the fitted one.', { approx: true }),
+    line('usb', 'hardware', 'Two USB 3 sticks of at least 32 GB', 10, 'once', 'The live system and the installer.', { approx: true }),
+    line('images', 'hardware', 'An external drive for the disk images', 40, 'once', 'At least twice the PC disk; three images are kept.', { approx: true }),
+    line('tools', 'hardware', 'A #2 screwdriver and an anti-static strap', 10, 'once', 'The bench kit.', { approx: true }),
+    line('sw', 'software', 'Windows evaluation media, a Linux live image and Clonezilla', 0, 'once', 'Free downloads; the course checks each hash.'),
+  ],
   ccna: [
     line('kit-l2', 'hardware', 'Two managed Layer-2 switches (low band)', 40, 'once', 'Second-hand; the kit guide bands it rather than pricing it.', { approx: true }),
     line('kit-l3', 'hardware', 'A router or Layer-3 switch (medium band)', 120, 'once', 'Second-hand; a considered purchase, or emulate it.', { approx: true }),

@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "areas": {
     "recon": "Reconnaissance",
     "vuln": "Vulnerability management",
@@ -2188,6 +2188,111 @@
       ]
     },
     {
+      "id": "comp.hardware.identify-components",
+      "version": "1.0.0",
+      "label": "Identify and record PC components",
+      "area": "hardware",
+      "objectiveRefs": [
+        "220-1201.d3"
+      ]
+    },
+    {
+      "id": "comp.hardware.pc-fault-diagnosis",
+      "version": "1.0.0",
+      "label": "Diagnose a PC fault to a part",
+      "area": "hardware",
+      "objectiveRefs": [
+        "220-1201.d5",
+        "ITIL.problem"
+      ]
+    },
+    {
+      "id": "comp.hardware.firmware-settings",
+      "version": "1.0.0",
+      "label": "Set firmware boot and security options",
+      "area": "hardware",
+      "objectiveRefs": [
+        "220-1201.d3"
+      ]
+    },
+    {
+      "id": "comp.hardware.pc-network-connect",
+      "version": "1.0.0",
+      "label": "Connect a PC and prove the link",
+      "area": "hardware",
+      "objectiveRefs": [
+        "220-1201.d2"
+      ]
+    },
+    {
+      "id": "comp.sysadmin.windows-install",
+      "version": "1.0.0",
+      "label": "Install Windows and drivers from media",
+      "area": "sysadmin",
+      "objectiveRefs": [
+        "220-1201.d6"
+      ]
+    },
+    {
+      "id": "comp.sysadmin.user-and-peripherals",
+      "version": "1.0.0",
+      "label": "Set up a user, printer and displays",
+      "area": "sysadmin",
+      "objectiveRefs": [
+        "220-1201.d6",
+        "220-1201.d3"
+      ]
+    },
+    {
+      "id": "comp.sysadmin.remote-support",
+      "version": "1.0.0",
+      "label": "Support a user remotely",
+      "area": "sysadmin",
+      "objectiveRefs": [
+        "220-1201.d6"
+      ]
+    },
+    {
+      "id": "comp.sysadmin.endpoint-security",
+      "version": "1.0.0",
+      "label": "Secure an endpoint: encryption, Defender, firewall",
+      "area": "sysadmin",
+      "objectiveRefs": [
+        "220-1201.d7",
+        "CIS.BENCHMARK"
+      ]
+    },
+    {
+      "id": "comp.docs.service-ticket",
+      "version": "1.0.0",
+      "label": "Record a service ticket end to end",
+      "area": "docs",
+      "objectiveRefs": [
+        "220-1201.d9",
+        "ITIL.incident"
+      ]
+    },
+    {
+      "id": "comp.continuity.disk-image",
+      "version": "1.0.0",
+      "label": "Image a disk before changing it",
+      "area": "continuity",
+      "objectiveRefs": [
+        "220-1201.d9",
+        "NIST.800-53.CP-9"
+      ]
+    },
+    {
+      "id": "comp.continuity.restore-from-image",
+      "version": "1.0.0",
+      "label": "Restore a machine from an image, timed",
+      "area": "continuity",
+      "objectiveRefs": [
+        "220-1201.d9",
+        "NIST.800-53.CP-4"
+      ]
+    },
+    {
       "id": "comp.cloud.budget-and-tags",
       "version": "1.0.0",
       "label": "Set a budget alert and a tag standard",
@@ -2717,6 +2822,254 @@
     }
   ],
   "taughtBy": {
+    "comp.hardware.identify-components": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w1-inventory"
+      }
+    ],
+    "comp.hardware.receive-and-inspect": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w1-inventory"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-bringup"
+      }
+    ],
+    "comp.hardware.pc-fault-diagnosis": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w1-fault"
+      }
+    ],
+    "comp.sysadmin.troubleshooting-method": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w1-fault"
+      },
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w3-tickets"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-bringup"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w6-ticket"
+      }
+    ],
+    "comp.hardware.firmware-settings": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w1-firmware"
+      }
+    ],
+    "comp.hardware.boot-media": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w1-firmware"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-install"
+      }
+    ],
+    "comp.continuity.disk-image": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w2-image"
+      }
+    ],
+    "comp.forensics.hash-evidence": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w2-image"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "grc-w1-framework"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "grc-w3-custody"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cg-w2"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cr-w4"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w1-red"
+      }
+    ],
+    "comp.sysadmin.windows-install": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w2-install"
+      }
+    ],
+    "comp.sysadmin.patching": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w2-install"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-win"
+      }
+    ],
+    "comp.continuity.restore-from-image": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w2-restore"
+      },
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w4-restore"
+      }
+    ],
+    "comp.continuity.verify-backups": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w2-restore"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-vault"
+      }
+    ],
+    "comp.hardware.pc-network-connect": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w3-connect"
+      }
+    ],
+    "comp.sysadmin.user-and-peripherals": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w3-user"
+      }
+    ],
+    "comp.sysadmin.remote-support": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w3-user"
+      }
+    ],
+    "comp.docs.service-ticket": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w3-tickets"
+      }
+    ],
+    "comp.sysadmin.endpoint-security": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w4-secure"
+      }
+    ],
+    "comp.harden.windows-baseline": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w4-secure"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "blue-w1-hardening"
+      }
+    ],
+    "comp.respond.restore-test": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w4-restore"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w4-idops"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-dr"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-net"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-win"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-lnx"
+      }
+    ],
+    "comp.respond.recovery-targets": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w4-restore"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w2-idops"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-dr"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-mgmt"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w8-arch"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w8-arch"
+      }
+    ],
+    "comp.docs.as-built-handover": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w4-handover"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-handover"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-record"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-mgmt"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w8-handover"
+      }
+    ],
+    "comp.forensics.chain-of-custody": [
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w4-handover"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "grc-w3-custody"
+      }
+    ],
     "comp.recon.osint": [
       {
         "courseId": "security-plus",
@@ -2786,12 +3139,6 @@
       }
     ],
     "comp.harden.linux-baseline": [
-      {
-        "courseId": "security-plus",
-        "taskId": "blue-w1-hardening"
-      }
-    ],
-    "comp.harden.windows-baseline": [
       {
         "courseId": "security-plus",
         "taskId": "blue-w1-hardening"
@@ -2867,28 +3214,6 @@
         "taskId": "grc-w1-framework"
       }
     ],
-    "comp.forensics.hash-evidence": [
-      {
-        "courseId": "security-plus",
-        "taskId": "grc-w1-framework"
-      },
-      {
-        "courseId": "security-plus",
-        "taskId": "grc-w3-custody"
-      },
-      {
-        "courseId": "cysa-plus",
-        "taskId": "cg-w2"
-      },
-      {
-        "courseId": "cysa-plus",
-        "taskId": "cr-w4"
-      },
-      {
-        "courseId": "secai-plus",
-        "taskId": "sa-w1-red"
-      }
-    ],
     "comp.risk.likelihood-impact": [
       {
         "courseId": "security-plus",
@@ -2912,12 +3237,6 @@
       }
     ],
     "comp.respond.ir-runbook": [
-      {
-        "courseId": "security-plus",
-        "taskId": "grc-w3-custody"
-      }
-    ],
-    "comp.forensics.chain-of-custody": [
       {
         "courseId": "security-plus",
         "taskId": "grc-w3-custody"
@@ -3423,28 +3742,6 @@
         "taskId": "ci-w2-idops"
       }
     ],
-    "comp.respond.recovery-targets": [
-      {
-        "courseId": "cissp",
-        "taskId": "ci-w2-idops"
-      },
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w4-dr"
-      },
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w4-mgmt"
-      },
-      {
-        "courseId": "azure-administrator",
-        "taskId": "az-w8-arch"
-      },
-      {
-        "courseId": "aws-solutions-architect",
-        "taskId": "aws-w8-arch"
-      }
-    ],
     "comp.respond.seven-step-plan": [
       {
         "courseId": "cissp",
@@ -3503,28 +3800,6 @@
       {
         "courseId": "cissp",
         "taskId": "ci-w4-idops"
-      }
-    ],
-    "comp.respond.restore-test": [
-      {
-        "courseId": "cissp",
-        "taskId": "ci-w4-idops"
-      },
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w4-dr"
-      },
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w4-net"
-      },
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w4-win"
-      },
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w4-lnx"
       }
     ],
     "comp.ops.contingency-phases": [
@@ -3639,26 +3914,10 @@
         "taskId": "ci-w6-idops"
       }
     ],
-    "comp.hardware.receive-and-inspect": [
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w1-bringup"
-      }
-    ],
     "comp.hardware.memory-population": [
       {
         "courseId": "server-plus",
         "taskId": "sp-w1-bringup"
-      }
-    ],
-    "comp.sysadmin.troubleshooting-method": [
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w1-bringup"
-      },
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w6-ticket"
       }
     ],
     "comp.hardware.capability-audit": [
@@ -3681,12 +3940,6 @@
       {
         "courseId": "server-plus",
         "taskId": "sp-w1-raid"
-      }
-    ],
-    "comp.hardware.boot-media": [
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w1-install"
       }
     ],
     "comp.virt.install-hypervisor": [
@@ -3865,24 +4118,6 @@
       {
         "courseId": "server-plus",
         "taskId": "sp-w3-win"
-      }
-    ],
-    "comp.docs.as-built-handover": [
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w4-handover"
-      },
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w5-record"
-      },
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w4-mgmt"
-      },
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w8-handover"
       }
     ],
     "comp.docs.capacity-planning": [
@@ -4087,12 +4322,6 @@
         "taskId": "sp-w6-vault"
       }
     ],
-    "comp.continuity.verify-backups": [
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w6-vault"
-      }
-    ],
     "comp.observe.siem-tenancy": [
       {
         "courseId": "server-plus",
@@ -4197,12 +4426,6 @@
       {
         "courseId": "server-plus",
         "taskId": "sp-w8-mgmt"
-      }
-    ],
-    "comp.sysadmin.patching": [
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w4-win"
       }
     ],
     "comp.docs.sla-mapping": [

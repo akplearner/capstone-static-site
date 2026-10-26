@@ -34,7 +34,8 @@ export const CATALOG: CatalogEntry[] = [
     vendorId: 'comptia',
     certName: 'A+',
     level: 'entry',
-    status: 'coming-soon',
+    status: 'available',
+    courseId: 'a-plus',
     blurb: 'Build and document a working endpoint from bare hardware.',
   },
   {

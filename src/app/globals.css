@@ -641,6 +641,30 @@
 /* CCNA — the copper vein inside the Cisco rock. The build is network-shaped
    rather than adversarial, so the per-week phases run cool-to-warm across the
    graded weeks and the four advanced weeks take the hues no phase uses. */
+[data-seam='a-plus'] {
+  --color-accent: #3f7a12;
+  --color-accent-strong: #2f6009;
+  --color-accent-ink: #27500a;
+  --color-accent-soft: #e8f6d8;
+  --color-accent-contrast: #ffffff;
+  --stone-crystal: #7cb342;
+  --color-w1: #a55401;
+  --color-w2: #0057b7;
+  --color-w3: #01726c;
+  --color-w4: #7514bd;
+}
+.dark [data-seam='a-plus'] {
+  --color-accent: #8fd14f;
+  --color-accent-strong: #a9e36f;
+  --color-accent-ink: #e6f8d2;
+  --color-accent-soft: #1d3309;
+  --color-accent-contrast: #0f1f05;
+  --stone-crystal: #b6e88a;
+  --color-w1: #f8942e;
+  --color-w2: #3890fa;
+  --color-w3: #03beb4;
+  --color-w4: #bb90f3;
+}
 [data-seam='ccna'] {
   --color-accent: #046592;
   --color-accent-strong: #00537a;

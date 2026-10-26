@@ -15,6 +15,7 @@ the record. `src/lib/page-shape.test.ts` fails if an id is removed from the tabl
 | F6 | An export is a compact PDF of skills, progress and issues, not a JSON file | R127 | Done |
 | F7 | Some students cannot record the agreements: "Couldn't record the acceptance" repeats | R128 | Done |
 | F8 | A failure shows the student only a support code and a time; the detail is kept on our side for the admin | R129 | Done |
+| F9 | The A+ capstone is built: a real desktop on a bench, image first, the six-step method, tickets, a timed restore and a handover with custody | R130 | Done |
 
 Order of the rounds: the field bug first (it blocks reporting and links), then the link size (the link
 fails today), then the earned-skills ledger (the record and the PDF both read it), then the live and
@@ -58,8 +59,9 @@ could not make a link, and neither could one who had only started them.
 **Fix.** `shareProfileCopy` (`src/lib/shareCopy.ts`) builds the copy a link serves: a row keeps its id, label and
 level and the seven counters a reader uses that are not zero; a row not reached stays as id, label and level, so
 the denominator survives; gaps, raw indicators, mapped task and form ids and the "next task" hint stay out (they
-are the member's own). The same record now comes to 231 KB for all thirteen courses and 114 KB for the four
-largest. The member also chooses which courses go in the copy: the dialog lists each course with its size, shows
+are the member's own). The same record came to 231 KB for all thirteen courses and 114 KB for the four
+largest; R130 (a fourteenth course) took the row's dimension, label and references out of the copy too, since the
+reader restores them from the ontology by id, so fourteen finished courses come to about 201 KB and the four largest to 93 KB. The member also chooses which courses go in the copy: the dialog lists each course with its size, shows
 the size of the copy against the limit before the click, will not send a copy over it, and says what to do. The
 published schema allows the smaller shape, and says so.
 
@@ -173,3 +175,24 @@ failed and for whom. **Fix.** A failure shows `Code E-XXXXXX · time`; `reportEr
 the account, the page and the browser to `client_errors` (0020; admin read only, append only); Instructor → Metrics → Support
 errors finds a row by code. The browser console carries nothing from the acceptance module. The first caller is the agreements
 gate; any later failure uses the same helper. **Admin step.** Paste `supabase/setup.sql` into the SQL Editor and Run (0020).
+
+## F9 — the A+ Capstone Bench (R130, done)
+
+**What.** The first of the two entry CompTIA stones, built on the same pattern as Server+ (real hardware) and CCNA
+(one shared track, four focus roles, no gates): `src/lib/data/seed/aPlus.ts` (week 0 plus four graded weeks, fifteen
+tasks, every graded command with a sample, an explanation and verify tokens) and `src/lib/docs/aPlusDeliverables.ts`
+(eight forms, the handover as the capstone with a custody log). One used desktop per team; a spare drive, two sticks and an
+external drive for the images (`costs.ts`). The rule the course teaches is image first: Week 2 images the disk before the
+installer runs and proves the image by a timed restore; Week 4 writes a recovery target, takes the handover image, breaks the
+machine on purpose and restores it inside the target. The Troubleshooting Log is the six-step method as data (one theory and
+one change per row, the wrong theories kept, a DoD that requires one). Week 3 is a help desk: the standard user, a printer
+and a second display, remote help with Quick Assist, and three faults another team injects, worked as tickets.
+
+**Wired.** The catalog card (`comptia-a-plus`) is live; `certs.ts` carries A+ 220-1201/1202 as one registry row (the two
+cores at half weight, two gaps noted: mobile devices and virtualization); eleven competency nodes, five tools and three
+standard exceptions were added (ontology 1.5.0); the picture is an `ArchPicture` (`aPlusContent.ts`); the lab panel
+collects the bench PC's name and address. Every id list a test pins now carries `a-plus`.
+
+**Verified.** The content-integrity, R84, R103, R106 and R107 suites for `a-plus`; the archPicture, weekVisuals and
+weekAdds suites; the exported `content/courses/a-plus.json` and its sheets; the share-link cap (see F2) with fourteen courses.
+
