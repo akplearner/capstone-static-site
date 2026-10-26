@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "tools": [
     {
       "id": "tool.linux-shell",
@@ -281,7 +281,18 @@
         "Handover & As-Built form",
         "The intake record",
         "The register",
-        "The handover form"
+        "The handover form",
+        "Lab & Path Register form",
+        "Design Brief & IP Plan form",
+        "VLAN & Port Map form",
+        "Configuration Record form",
+        "Services & Verification Log form",
+        "Change & Fault Log form",
+        "Equipment Research & BOM form",
+        "Migration Plan & Handover form",
+        "The design brief",
+        "The IP plan",
+        "The research form"
       ]
     },
     {
@@ -1746,6 +1757,18 @@
     }
   ],
   "wherePrefixes": {
+    "Packet Tracer — ": [
+      "tool.network-simulator",
+      "tool.cisco-ios"
+    ],
+    "A real switch — console cable": [
+      "tool.cisco-ios",
+      "tool.console-cable",
+      "tool.terminal-emulator"
+    ],
+    "Vendor sites and the used market": [
+      "tool.vendor-docs"
+    ],
     "The bench — ": [
       "tool.pc-hardware",
       "tool.hand-tools"
@@ -2142,6 +2165,9 @@
     ],
     "a-plus": [
       "tool.pc-hardware"
+    ],
+    "network-plus": [
+      "tool.network-simulator"
     ],
     "azure-fundamentals": [
       "tool.azure-portal",

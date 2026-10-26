@@ -96,6 +96,18 @@ export const RACI: Record<string, Raci> = {
   ap_security: r('os', 'support', 'records'),
   ap_handover: r('records', 'os', 'support', ['hw']),
 
+  // Network+ — design · sw · rt · ops. Designs are reviewed by the people who
+  // build them and approved by the people who run them; the handover is
+  // drafted by Design, reviewed by Operations and approved by Routing.
+  np_lab: r('ops', 'sw', 'design'),
+  np_design: r('design', 'rt', 'ops'),
+  np_ports: r('sw', 'design', 'ops'),
+  np_config: r('rt', 'sw', 'ops'),
+  np_verify: r('rt', 'ops', 'design'),
+  np_changes: r('ops', 'rt', 'design'),
+  np_bom: r('design', 'ops', 'rt'),
+  np_handover: r('design', 'ops', 'rt', ['sw']),
+
   // SecAI+ — redteam · defender · governance.
   secai_lab_rule: r('governance', 'defender', 'governance'),
   secai_system_map: r('governance', 'defender', 'governance'),

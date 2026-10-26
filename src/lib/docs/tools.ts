@@ -54,7 +54,7 @@ export const TOOLS: ToolDef[] = [
   t('tool.ping', 'ping / traceroute', 'cli', ['ping', 'traceroute', 'tracert'], { commands: ['ping', 'traceroute', 'tracert', 'mtr'] }),
   t('tool.nslookup', 'nslookup', 'cli', ['nslookup'], { commands: ['nslookup', 'host'] }),
   t('tool.sha256sum', 'sha256sum', 'cli', ['sha256sum', 'Get-FileHash'], { commands: ['sha256sum', 'shasum', 'Get-FileHash', 'certutil'] }),
-  t('tool.capstone-forms', 'Capstone forms', 'document', ['Deliverables forms', 'Deliverables tab', 'Deliverables page', 'The document', 'Team package export', 'Generate PDF', 'your weekly reports', 'Control Matrix', 'Control Matrix form', 'Risk register', 'Statement of Applicability form', 'Retest & Validation form', 'Detection Rules form', 'Detection & Response Metrics form', 'Internal Audit Report form', 'Audit Evidence Packet form', 'Server Bring-Up Log', 'Server Bring-Up Log form', 'DR Plan & As-Built Handover', 'DR Plan & As-Built Handover form', 'IP Plan & Connectivity Proof', 'IP Plan & Connectivity Proof form', 'Operations Log & SOPs', 'Operations Log & SOPs form', 'Rack, Power & Asset Register', 'Rack, Power & Asset Register form', 'Architecture Brief', 'Architecture Brief form', 'Baselines, Policies & Standards', 'Hardware Discovery form', 'Hardware Discovery, HCL & Upgrade Plan', 'Engagement Agreement form', 'Engagement scope', 'Intake & Bench Checklist form', 'Asset & Build Sheet form', 'Troubleshooting Log form', 'OS Build & Baseline Record form', 'Backup & Image Register form', 'Support Ticket Log form', 'Security Checklist form', 'Handover & As-Built form', 'The intake record', 'The register', 'The handover form']),
+  t('tool.capstone-forms', 'Capstone forms', 'document', ['Deliverables forms', 'Deliverables tab', 'Deliverables page', 'The document', 'Team package export', 'Generate PDF', 'your weekly reports', 'Control Matrix', 'Control Matrix form', 'Risk register', 'Statement of Applicability form', 'Retest & Validation form', 'Detection Rules form', 'Detection & Response Metrics form', 'Internal Audit Report form', 'Audit Evidence Packet form', 'Server Bring-Up Log', 'Server Bring-Up Log form', 'DR Plan & As-Built Handover', 'DR Plan & As-Built Handover form', 'IP Plan & Connectivity Proof', 'IP Plan & Connectivity Proof form', 'Operations Log & SOPs', 'Operations Log & SOPs form', 'Rack, Power & Asset Register', 'Rack, Power & Asset Register form', 'Architecture Brief', 'Architecture Brief form', 'Baselines, Policies & Standards', 'Hardware Discovery form', 'Hardware Discovery, HCL & Upgrade Plan', 'Engagement Agreement form', 'Engagement scope', 'Intake & Bench Checklist form', 'Asset & Build Sheet form', 'Troubleshooting Log form', 'OS Build & Baseline Record form', 'Backup & Image Register form', 'Support Ticket Log form', 'Security Checklist form', 'Handover & As-Built form', 'The intake record', 'The register', 'The handover form', 'Lab & Path Register form', 'Design Brief & IP Plan form', 'VLAN & Port Map form', 'Configuration Record form', 'Services & Verification Log form', 'Change & Fault Log form', 'Equipment Research & BOM form', 'Migration Plan & Handover form', 'The design brief', 'The IP plan', 'The research form']),
   t('tool.capstone-guide', 'Capstone guide', 'document', ['The Guide', 'Configuration guide (in platform)', 'Configuration guide', 'PXE Imaging Student Guide (PDF)', 'Starter pack (ZIP)']),
   t('tool.notes', 'Notes', 'document', ['Notes', 'Your notes', 'On paper first', 'paper']),
   t('tool.spreadsheet', 'Spreadsheet', 'app', ['a spreadsheet', 'spreadsheet']),
@@ -207,6 +207,10 @@ export const TOOL_STRING_EXCEPTIONS: Record<string, string> = {
  * matching prefix. A line that matches nothing adds no tool.
  */
 export const WHERE_TOOLS: Record<string, string[]> = {
+  // The Network+ branch
+  'Packet Tracer — ': ['tool.network-simulator', 'tool.cisco-ios'],
+  'A real switch — console cable': ['tool.cisco-ios', 'tool.console-cable', 'tool.terminal-emulator'],
+  'Vendor sites and the used market': ['tool.vendor-docs'],
   // The A+ bench
   'The bench — ': ['tool.pc-hardware', 'tool.hand-tools'],
   'The live USB': ['tool.linux-shell', 'tool.usb-media'],
@@ -339,6 +343,7 @@ export const WHERE_TOOLS: Record<string, string[]> = {
 export const COURSE_TOOL_DEFAULTS: Record<string, string[]> = {
   ccna: ['tool.cisco-ios'],
   'a-plus': ['tool.pc-hardware'],
+  'network-plus': ['tool.network-simulator'],
   'azure-fundamentals': ['tool.azure-portal', 'tool.azure-cloud-shell'],
   'azure-administrator': ['tool.azure-portal', 'tool.azure-cloud-shell'],
   'azure-devops': ['tool.azure-portal', 'tool.azure-cloud-shell'],

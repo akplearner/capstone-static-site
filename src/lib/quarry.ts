@@ -106,6 +106,7 @@ const COURSE_REGION: Record<string, { region: string; seam: string }> = {
   'server-plus': { region: 'comptia', seam: 'server-plus' },
   ccna: { region: 'cisco', seam: 'ccna' },
   'a-plus': { region: 'comptia', seam: 'a-plus' },
+  'network-plus': { region: 'comptia', seam: 'network-plus' },
   'secai-plus': { region: 'comptia', seam: 'secai' },
   cissp: { region: 'isc2', seam: 'cissp' },
   'azure-fundamentals': { region: 'microsoft', seam: 'cloud' },

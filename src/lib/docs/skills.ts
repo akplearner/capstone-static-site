@@ -314,6 +314,16 @@ export const SKILLS: SkillNode[] = [
   n('docs.service-ticket', 'Record a service ticket end to end', ['220-1201.d9', 'ITIL.incident']),
   n('continuity.disk-image', 'Image a disk before changing it', ['220-1201.d9', 'NIST.800-53.CP-9']),
   n('continuity.restore-from-image', 'Restore a machine from an image, timed', ['220-1201.d9', 'NIST.800-53.CP-4']),
+  // ── The Network+ branch (R131) ───────────────────────────────────────────
+  n('network.subnet-plan', 'Plan subnets and VLANs from one rule', ['N10-009.d1']),
+  n('network.topology-in-simulator', 'Build and cable a topology in a simulator', ['N10-009.d2']),
+  n('network.dhcp-dns-services', 'Serve DHCP, DNS and NAT for a site', ['N10-009.d2']),
+  n('network.port-security', 'Secure access ports and the guest VLAN', ['N10-009.d4']),
+  n('network.syslog-and-backups', 'Collect logs and back up configurations', ['N10-009.d3']),
+  n('network.fault-isolation', 'Isolate a network fault by layer', ['N10-009.d5', 'ITIL.problem']),
+  n('docs.equipment-research', 'Research equipment against a design', ['N10-009.d2']),
+  n('docs.bill-of-materials', 'Price a bill of materials', ['N10-009.d3']),
+  n('docs.migration-plan', 'Plan a move from simulation to hardware', ['N10-009.d3', 'ITIL.transition']),
   // ── Cloud services (one node for the Azure and the AWS form) ─────────────
   n('cloud.budget-and-tags', 'Set a budget alert and a tag standard', ['AZ-900.d1', 'CLF-C02.d1', 'WAF.cost']),
   n('cloud.shared-responsibility', 'State the shared-responsibility split', ['AZ-900.d1', 'CLF-C02.d1']),
@@ -446,6 +456,23 @@ const CLOUD_SKILLS: Record<string, string[]> = {
 
 /** Every task of a graded or advanced week → one to three nodes. Setup weeks are not mapped. */
 export const TASK_SKILLS: Record<string, Record<string, string[]>> = {
+  'network-plus': {
+    'np-w1-requirements': ['comp.docs.requirements-gathering', 'comp.docs.site-survey'],
+    'np-w1-plan': ['comp.network.subnet-plan', 'comp.network.hierarchical-design'],
+    'np-w1-topology': ['comp.network.topology-in-simulator', 'comp.docs.build-log'],
+    'np-w2-switches': ['comp.network.vlans-and-trunks', 'comp.network.switch-bringup'],
+    'np-w2-routing': ['comp.network.inter-vlan-routing', 'comp.network.default-route-and-nat'],
+    'np-w2-services': ['comp.network.dhcp-dns-services'],
+    'np-w3-monitor': ['comp.observe.snmp-and-syslog', 'comp.network.syslog-and-backups'],
+    'np-w3-secure': ['comp.network.port-security', 'comp.network.acls'],
+    'np-w3-change': ['comp.network.config-backup', 'comp.docs.change-control'],
+    'np-w3-faults': ['comp.network.fault-isolation', 'comp.sysadmin.troubleshooting-method', 'comp.docs.work-a-ticket'],
+    'np-w4-research': ['comp.docs.equipment-research'],
+    'np-w4-bom': ['comp.docs.bill-of-materials'],
+    'np-w4-handover': ['comp.docs.migration-plan', 'comp.docs.as-built-handover'],
+    'np-w5-realkit': ['comp.network.switch-bringup', 'comp.network.vlans-and-trunks'],
+    'np-w5-differences': ['comp.docs.known-issues'],
+  },
   'a-plus': {
     'ap-w1-inventory': ['comp.hardware.identify-components', 'comp.hardware.receive-and-inspect'],
     'ap-w1-fault': ['comp.hardware.pc-fault-diagnosis', 'comp.sysadmin.troubleshooting-method'],

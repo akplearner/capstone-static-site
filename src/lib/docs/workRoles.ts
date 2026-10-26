@@ -116,6 +116,12 @@ export const WORK_ROLE_OF: Record<string, Record<string, string[]>> = {
     support: ['role.system-administrator', 'role.network-operations-specialist'],
     records: ['role.system-administrator'],
   },
+  'network-plus': {
+    design: ['role.network-operations-specialist', 'role.security-architect'],
+    sw: ['role.network-operations-specialist'],
+    rt: ['role.network-operations-specialist'],
+    ops: ['role.network-operations-specialist', 'role.system-administrator'],
+  },
   'azure-fundamentals': CLOUD,
   'azure-administrator': CLOUD,
   'azure-devops': CLOUD,

@@ -43,7 +43,8 @@ export const CATALOG: CatalogEntry[] = [
     vendorId: 'comptia',
     certName: 'Network+',
     level: 'entry',
-    status: 'coming-soon',
+    status: 'available',
+    courseId: 'network-plus',
     blurb: 'Stand up and map a small multi-subnet network.',
   },
   {

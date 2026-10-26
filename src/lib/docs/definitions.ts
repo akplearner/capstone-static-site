@@ -6,6 +6,7 @@ import { CYSA_DELIVERABLES } from './cysaDeliverables';
 import { SERVER_PLUS_DELIVERABLES } from './serverPlusDeliverables';
 import { CCNA_DELIVERABLES } from './ccnaDeliverables';
 import { A_PLUS_DELIVERABLES } from './aPlusDeliverables';
+import { NETWORK_PLUS_DELIVERABLES } from './networkPlusDeliverables';
 import { SECAI_DELIVERABLES } from './secaiDeliverables';
 import { CISSP_DELIVERABLES } from './cisspDeliverables';
 import { RACI } from './raci';
@@ -760,6 +761,7 @@ export const DELIVERABLES: DeliverableDef[] = [
   ...SERVER_PLUS_DELIVERABLES,
   ...CCNA_DELIVERABLES,
   ...A_PLUS_DELIVERABLES,
+  ...NETWORK_PLUS_DELIVERABLES,
   ...SECAI_DELIVERABLES,
   ...CISSP_DELIVERABLES,
   ...AZURE_CLOUD_DELIVERABLES,

@@ -16,6 +16,7 @@ the record. `src/lib/page-shape.test.ts` fails if an id is removed from the tabl
 | F7 | Some students cannot record the agreements: "Couldn't record the acceptance" repeats | R128 | Done |
 | F8 | A failure shows the student only a support code and a time; the detail is kept on our side for the admin | R129 | Done |
 | F9 | The A+ capstone is built: a real desktop on a bench, image first, the six-step method, tickets, a timed restore and a handover with custody | R130 | Done |
+| F10 | The Network+ capstone is built: a branch network designed and proved in Packet Tracer, operated, then researched, priced and planned toward real equipment | R131 | Done |
 
 Order of the rounds: the field bug first (it blocks reporting and links), then the link size (the link
 fails today), then the earned-skills ledger (the record and the PDF both read it), then the live and
@@ -61,7 +62,7 @@ level and the seven counters a reader uses that are not zero; a row not reached 
 the denominator survives; gaps, raw indicators, mapped task and form ids and the "next task" hint stay out (they
 are the member's own). The same record came to 231 KB for all thirteen courses and 114 KB for the four
 largest; R130 (a fourteenth course) took the row's dimension, label and references out of the copy too, since the
-reader restores them from the ontology by id, so fourteen finished courses come to about 201 KB and the four largest to 93 KB. The member also chooses which courses go in the copy: the dialog lists each course with its size, shows
+reader restores them from the ontology by id, so fourteen finished courses came to about 201 KB and, with Network+ (R131), fifteen to about 220 KB; the four largest to 97 KB. The member also chooses which courses go in the copy: the dialog lists each course with its size, shows
 the size of the copy against the limit before the click, will not send a copy over it, and says what to do. The
 published schema allows the smaller shape, and says so.
 
@@ -195,4 +196,27 @@ collects the bench PC's name and address. Every id list a test pins now carries 
 
 **Verified.** The content-integrity, R84, R103, R106 and R107 suites for `a-plus`; the archPicture, weekVisuals and
 weekAdds suites; the exported `content/courses/a-plus.json` and its sheets; the share-link cap (see F2) with fourteen courses.
+
+## F10 — the Network+ Capstone Branch (R131, done)
+
+**What.** The second entry CompTIA stone, in the CCNA shape with Packet Tracer as the lab: `src/lib/data/seed/networkPlus.ts`
+(week 0, four graded weeks and one optional advanced week on the CCNA kit; sixteen tasks; every graded command a `show`
+line pasted from the simulator with a sample and verify tokens) and `src/lib/docs/networkPlusDeliverables.ts` (eight forms,
+the Migration Plan & Handover as the capstone). The branch itself is data, `src/lib/networkPlusTopology.ts`: one site, four
+VLANs on the CCNA rule (the third octet is the VLAN id) in its own second octet, nine devices, seven links, an RFC 5737 ISP
+link and the policy table; the seed, the forms and the picture read every name and address from it. Week 1 designs and
+cables, Week 2 configures VLANs, trunks, router-on-a-stick, NAT, DHCP and DNS and fills a test matrix with the rows that
+MUST FAIL, Week 3 adds syslog and backups, the access list that makes those rows fail, port security, one change under a
+record and three injected faults worked by layer, and Week 4 moves toward real equipment the way a team does: capabilities
+from the design, two real candidates per class with the datasheet line, a priced and dated bill of materials, and the
+migration plan with the simulator's gaps listed honestly. No hardware is needed to pass.
+
+**Wired.** The catalog card is live and the CompTIA ladder reads A+ → Network+ → Security+ (`certs.ts` prerequisites);
+nine competency nodes, a `NETWORK_PLUS` exam standard and the branch picture (`networkPlusContent.ts`) were added (ontology
+1.6.0); the lab panel records the simulator and the first management address; the Blue Team career path now starts at
+Network+. Every id list a test pins carries `network-plus`.
+
+**Verified.** The content-integrity, R84, R103, R106 and R107 suites for `network-plus`; `networkPlusTopology.test.ts`;
+the archPicture, weekVisuals and weekAdds suites; the exported `content/courses/network-plus.json` and its sheets; the
+share-link cap with fifteen courses; a browser sweep that joins, pastes a VLAN table and sees it verified.
 

@@ -205,7 +205,7 @@ Role facts have one home each, and nothing is typed twice:
 is drawn in the box and bold in the table; the parenthesised title is the professional role, set
 small beneath it (`splitRoleName()`). Missions, summaries, arcs and responsibilities are third
 person, present tense, with the lane as the subject: no "you", no contractions, no em dash, no
-emoji. `content-integrity.test.ts` asserts the shape and the register for all 14 courses.
+emoji. `content-integrity.test.ts` asserts the shape and the register for all 15 courses.
 
 **Motion as data.** A picture never carries a number of its own: `resolveRoleMotion(spec,
 reduce)` (`src/lib/roleMotion.ts`) turns the spec into framer transitions from `DUR`/`EASE`,
@@ -523,8 +523,8 @@ not zero; a row not reached stays as id and level so the denominator survives; g
 ids and the "next task" hint stay out, because they are the member's own. Since R130 a row's dimension, label and
 references are not in the copy either: the reader (`SharedProfile`) has every course document, so `hydrateShareCourse` puts
 them back by id from the published ontology, which deprecates and never removes an id; a standards row keeps the codes
-the member's own forms cited, and a copy made before R130 keeps the labels it carries. The fourteen finished courses come
-to about 201 KB, the four largest to 93 KB. It is still `capstone-member-profile/1` with `signature: null`: the published schema
+the member's own forms cited, and a copy made before R130 keeps the labels it carries. The fifteen finished courses come
+to about 220 KB, the four largest to 97 KB. It is still `capstone-member-profile/1` with `signature: null`: the published schema
 lets a row omit a zero counter and a course omit gaps and indicators, and says so. The Create link dialog lists the courses
 with the size of each, shows the size of the copy against the limit before the click, lets the member untick courses, and
 will not send a copy over the limit; the server's refusal (`too-large`) says the same. `shareCopy.test.ts` builds the largest

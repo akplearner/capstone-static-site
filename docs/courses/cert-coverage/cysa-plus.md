@@ -6,7 +6,7 @@ Generated from the certification registry and the course document by `npm run co
 
 ## The ladder
 
-Security+ (SY0-701) → **CySA+ (CS0-003)** → SecAI+ (CY0-001)
+A+ (220-1201) → Network+ (N10-009) → Security+ (SY0-701) → **CySA+ (CS0-003)** → SecAI+ (CY0-001)
 
 ## Exam coverage — 100% of the exam weight is practised
 

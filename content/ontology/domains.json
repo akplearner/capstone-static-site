@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "domains": [
     {
       "id": "SY0-701.d1",
@@ -127,6 +127,41 @@
       "name": "Operational Procedures (Core 2)",
       "weight": 10,
       "courseId": "a-plus"
+    },
+    {
+      "id": "N10-009.d1",
+      "code": "N10-009",
+      "name": "Networking Concepts",
+      "weight": 23,
+      "courseId": "network-plus"
+    },
+    {
+      "id": "N10-009.d2",
+      "code": "N10-009",
+      "name": "Network Implementation",
+      "weight": 20,
+      "courseId": "network-plus"
+    },
+    {
+      "id": "N10-009.d3",
+      "code": "N10-009",
+      "name": "Network Operations",
+      "weight": 19,
+      "courseId": "network-plus"
+    },
+    {
+      "id": "N10-009.d4",
+      "code": "N10-009",
+      "name": "Network Security",
+      "weight": 14,
+      "courseId": "network-plus"
+    },
+    {
+      "id": "N10-009.d5",
+      "code": "N10-009",
+      "name": "Network Troubleshooting",
+      "weight": 24,
+      "courseId": "network-plus"
     },
     {
       "id": "SK0-005.d1",

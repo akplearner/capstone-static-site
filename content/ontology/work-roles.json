@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "workRoles": [
     {
       "id": "role.cyber-defense-analyst",
@@ -373,7 +373,10 @@
         "comp.docs.work-a-ticket",
         "comp.docs.incident-management",
         "comp.docs.known-issues",
-        "comp.docs.service-ticket"
+        "comp.docs.service-ticket",
+        "comp.docs.equipment-research",
+        "comp.docs.bill-of-materials",
+        "comp.docs.migration-plan"
       ]
     },
     {
@@ -518,7 +521,10 @@
         "comp.sysadmin.endpoint-security",
         "comp.docs.service-ticket",
         "comp.continuity.disk-image",
-        "comp.continuity.restore-from-image"
+        "comp.continuity.restore-from-image",
+        "comp.docs.equipment-research",
+        "comp.docs.bill-of-materials",
+        "comp.docs.migration-plan"
       ]
     },
     {
@@ -587,7 +593,16 @@
         "comp.docs.work-a-ticket",
         "comp.docs.incident-management",
         "comp.docs.known-issues",
-        "comp.docs.service-ticket"
+        "comp.docs.service-ticket",
+        "comp.network.subnet-plan",
+        "comp.network.topology-in-simulator",
+        "comp.network.dhcp-dns-services",
+        "comp.network.port-security",
+        "comp.network.syslog-and-backups",
+        "comp.network.fault-isolation",
+        "comp.docs.equipment-research",
+        "comp.docs.bill-of-materials",
+        "comp.docs.migration-plan"
       ]
     },
     {
@@ -721,6 +736,9 @@
         "comp.docs.incident-management",
         "comp.docs.known-issues",
         "comp.docs.service-ticket",
+        "comp.docs.equipment-research",
+        "comp.docs.bill-of-materials",
+        "comp.docs.migration-plan",
         "comp.cloud.budget-and-tags",
         "comp.cloud.shared-responsibility",
         "comp.cloud.network-foundation",
@@ -887,6 +905,22 @@
         "role.network-operations-specialist"
       ],
       "records": [
+        "role.system-administrator"
+      ]
+    },
+    "network-plus": {
+      "design": [
+        "role.network-operations-specialist",
+        "role.security-architect"
+      ],
+      "sw": [
+        "role.network-operations-specialist"
+      ],
+      "rt": [
+        "role.network-operations-specialist"
+      ],
+      "ops": [
+        "role.network-operations-specialist",
         "role.system-administrator"
       ]
     },

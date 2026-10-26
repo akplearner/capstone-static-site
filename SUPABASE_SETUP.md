@@ -494,7 +494,7 @@ shows no links section, and every link page says the link is not available.
 
 **A link holds 256 KB.** The `share` function refuses a copy over 256 KB, and the app checks the same limit before it asks.
 The copy a link serves is a compact one (a row is an id and a level, the words come back from the ontology on the reader's
-side, zero counters and the member's own gaps are left out), so all fourteen finished courses come to about 201 KB; the Create link dialog shows the size of the copy and of each
+side, zero counters and the member's own gaps are left out), so all fifteen finished courses come to about 220 KB; the Create link dialog shows the size of the copy and of each
 course before the click and lets the member untick courses. If it says "The copy is larger than 256 KB", untick a course. The
 limit is `SHARE_MAX_BYTES` in `supabase/functions/_shared/shareGuard.ts`; changing it means redeploying `share` (and the paste-in
 copy in `supabase/dashboard/share.ts`).

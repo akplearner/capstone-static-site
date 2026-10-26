@@ -22,7 +22,7 @@ import { WORK_ROLES, WORK_ROLE_OF } from './workRoles';
  * version they were read against.
  */
 export const ONTOLOGY_SCHEMA = 'capstone-ontology/1';
-export const ONTOLOGY_VERSION = '1.5.0';
+export const ONTOLOGY_VERSION = '1.6.0';
 export const MEMBER_PROFILE_SCHEMA = 'capstone-member-profile/1';
 
 const GENERATED_FROM = ['src/lib/docs/skills.ts', 'src/lib/docs/tools.ts', 'src/lib/docs/standards.ts', 'src/lib/docs/sops.ts', 'src/lib/docs/tactics.ts', 'src/lib/docs/metricCatalogue.ts', 'src/lib/docs/certs.ts', 'src/lib/docs/kpis.ts', 'src/lib/docs/workRoles.ts'];

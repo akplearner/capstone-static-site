@@ -127,6 +127,16 @@ const A_PLUS: RoleContent = {
   ],
 };
 
+const NETWORK_PLUS: RoleContent = {
+  MOTION: DEFAULT_MOTION,
+  PROFILES: [
+    p('design', 'documents', 'Leads the design record: the requirements, the addressing rule, the VLANs, the research and the plan.', ['Requirements and survey', 'Addressing rule and VLANs', 'Equipment research', 'Migration plan and handover'], 'Week 1 requirements and the plan; Week 4 the research, the bill of materials and the migration plan handed over.'),
+    p('sw', 'commands', 'Builds the switches: the topology, VLANs, trunks, port security, and reviews every port.', ['Topology placed and cabled', 'VLANs and trunks', 'Port security', 'Hardware build (Week 5)'], 'Week 1 the empty topology; Week 2 VLANs and trunks; Week 3 the policy enforced; Week 5 the same build on hardware.'),
+    p('rt', 'commands', 'Builds the router: gateways, the default route, NAT, DHCP and DNS, and proves the test matrix.', ['Gateways and NAT', 'DHCP and DNS', 'Test matrix', 'Approves the handover'], 'Week 2 gateways, NAT, pools and the matrix; Week 3 the matrix rerun after the access list; Week 4 approves the handover.'),
+    p('ops', 'both', 'Runs the branch: the simulator, logs, backups, the change record, the faults and the bill of materials.', ['Simulator and register', 'Logs and backups', 'Change and fault log', 'Bill of materials'], 'Week 0 the simulator and the register; Week 3 logs, backups, one change, three faults; Week 4 the bill of materials.'),
+  ],
+};
+
 const SECAI_PLUS: RoleContent = {
   MOTION: { ...DEFAULT_MOTION, stagger: 'swap' },
   PROFILES: [
@@ -164,6 +174,7 @@ export const ROLE_CONTENT: Record<string, RoleContent> = {
   'server-plus': SERVER_PLUS,
   ccna: CCNA,
   'a-plus': A_PLUS,
+  'network-plus': NETWORK_PLUS,
   'secai-plus': SECAI_PLUS,
   cissp: CISSP,
   ...Object.fromEntries(CLOUD_IDS.map((id) => [id, CLOUD])),

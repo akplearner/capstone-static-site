@@ -30,6 +30,7 @@ import { MSSP } from '@/lib/data/seed/mssp';
 import { SERVER_PLUS } from '@/lib/data/seed/serverPlus';
 import { CCNA } from '@/lib/data/seed/ccna';
 import { A_PLUS } from '@/lib/data/seed/aPlus';
+import { NETWORK_PLUS } from '@/lib/data/seed/networkPlus';
 import { AZURE_BLOCKS, AZURE_COURSES } from '@/lib/data/seed/azureCloud';
 import { AWS_BLOCKS, AWS_COURSES } from '@/lib/data/seed/awsCloud';
 import { AWS_IAC } from '@/lib/cloud/awsIac';
@@ -62,6 +63,8 @@ import { CISSP } from '@/lib/data/seed/cissp';
 import * as secaiContent from '@/lib/docs/secaiContent';
 import * as cisspContent from '@/lib/docs/cisspContent';
 import * as aPlusContent from '@/lib/docs/aPlusContent';
+import * as networkPlusContent from '@/lib/docs/networkPlusContent';
+import * as networkPlusTopology from '@/lib/networkPlusTopology';
 import { weekVisualsFor } from '@/lib/docs/weekVisuals';
 import type { BuildModel } from '@/lib/weekVisual';
 import type { ArchPicture } from '@/lib/docs/archPicture';
@@ -75,7 +78,7 @@ export { DTO_SCHEMA } from './schema';
 import { DTO_SCHEMA } from './schema';
 
 /** The seed courses, in the order the catalogue lists them. */
-export const SEED_COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, A_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
+export const SEED_COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
 
 /** A function replaced on the way to JSON: the name says what was there. */
 export type FnMarker = { $fn: string };
@@ -176,6 +179,7 @@ const SEED_FILE: Record<string, string> = {
   'server-plus': 'src/lib/data/seed/serverPlus.ts',
   ccna: 'src/lib/data/seed/ccna.ts',
   'a-plus': 'src/lib/data/seed/aPlus.ts',
+  'network-plus': 'src/lib/data/seed/networkPlus.ts',
   'secai-plus': 'src/lib/data/seed/secaiPlus.ts',
   cissp: 'src/lib/data/seed/cissp.ts',
   'azure-fundamentals': 'src/lib/data/seed/azureCloud.ts',
@@ -193,6 +197,7 @@ const FORM_FILE: Record<string, string> = {
   'server-plus': 'src/lib/docs/serverPlusDeliverables.ts',
   ccna: 'src/lib/docs/ccnaDeliverables.ts',
   'a-plus': 'src/lib/docs/aPlusDeliverables.ts',
+  'network-plus': 'src/lib/docs/networkPlusDeliverables.ts',
   'secai-plus': 'src/lib/docs/secaiDeliverables.ts',
   cissp: 'src/lib/docs/cisspDeliverables.ts',
   'azure-fundamentals': 'src/lib/docs/azureCloudDeliverables.ts',
@@ -249,6 +254,7 @@ const ARCH_CONTENT: Record<string, { file: string; mod: { ARCH: ArchPicture; ARC
   'secai-plus': { file: 'src/lib/docs/secaiContent.ts', mod: secaiContent },
   cissp: { file: 'src/lib/docs/cisspContent.ts', mod: cisspContent },
   'a-plus': { file: 'src/lib/docs/aPlusContent.ts', mod: aPlusContent },
+  'network-plus': { file: 'src/lib/docs/networkPlusContent.ts', mod: networkPlusContent },
 };
 
 export function courseDto(courseId: string): CourseDto {
@@ -271,6 +277,9 @@ export function courseDto(courseId: string): CourseDto {
   } else if (courseId === 'ccna') {
     generatedFrom.push('src/lib/ccnaTopology.ts');
     dto.topology = serialisable(topologyData(ccnaTopology));
+  } else if (courseId === 'network-plus') {
+    generatedFrom.push('src/lib/networkPlusTopology.ts');
+    dto.topology = serialisable(topologyData(networkPlusTopology));
   } else if (SOC_TOPOLOGY_BY_COURSE[courseId]) {
     generatedFrom.push('src/lib/labTopology.ts');
     // Same rule as the Server+ side: everything the module holds as data, minus

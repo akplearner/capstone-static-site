@@ -257,11 +257,11 @@ describe('career paths', () => {
 
   it('marks completed rungs and picks the next AVAILABLE one as current', () => {
     const blue = pathById('blue-team')!;
-    // network+ is coming-soon; security+ is the first available rung.
+    // R131: Network+ is live, so it is the path's first available rung; Security+ follows it.
     const rungs = resolvePath(blue, new Set());
-    expect(rungs.find((r) => r.current)?.entry.courseId).toBe('security-plus');
+    expect(rungs.find((r) => r.current)?.entry.courseId).toBe('network-plus');
 
-    const after = resolvePath(blue, new Set(['security-plus']));
+    const after = resolvePath(blue, new Set(['network-plus', 'security-plus']));
     expect(after.find((r) => r.entry.courseId === 'security-plus')?.complete).toBe(true);
     expect(after.find((r) => r.current)?.entry.courseId).toBe('cysa-plus');
   });

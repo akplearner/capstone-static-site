@@ -665,6 +665,32 @@
   --color-w3: #03beb4;
   --color-w4: #bb90f3;
 }
+[data-seam='network-plus'] {
+  --color-accent: #0a6f78;
+  --color-accent-strong: #065960;
+  --color-accent-ink: #044a50;
+  --color-accent-soft: #dcf4f6;
+  --color-accent-contrast: #ffffff;
+  --stone-crystal: #2fb3bf;
+  --color-w1: #0057b7;
+  --color-w2: #01726c;
+  --color-w3: #a55401;
+  --color-w4: #7514bd;
+  --color-w5: #9b0037;
+}
+.dark [data-seam='network-plus'] {
+  --color-accent: #4fd3dc;
+  --color-accent-strong: #7ae1e8;
+  --color-accent-ink: #d9f7f9;
+  --color-accent-soft: #063338;
+  --color-accent-contrast: #052022;
+  --stone-crystal: #8fe6ec;
+  --color-w1: #3890fa;
+  --color-w2: #03beb4;
+  --color-w3: #f8942e;
+  --color-w4: #bb90f3;
+  --color-w5: #fc6c95;
+}
 [data-seam='ccna'] {
   --color-accent: #046592;
   --color-accent-strong: #00537a;

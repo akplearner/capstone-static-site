@@ -211,6 +211,8 @@ export const COURSE_TOOLS: Record<string, string> = {
     'Proxmox VE · ssh · netplan · cloud-init · Terraform · Ansible · git · Tailscale · Wazuh · Prometheus · Grafana · NetBox · GLPI · sha256sum',
   'a-plus':
     'Clonezilla · smartctl · MemTest86+ · PowerShell · Windows · Quick Assist · Remote Desktop · Microsoft Defender · Windows Firewall · Event Viewer · sha256sum',
+  'network-plus':
+    'Packet Tracer · Cisco IOS · ping · traceroute · nslookup · draw.io · spreadsheet · sha256sum',
   ccna:
     'show version · show vlan brief · show interfaces trunk · show spanning-tree · show etherchannel summary · show ip route · show ip ospf neighbor · show ip nat translations · show access-lists · ping · traceroute · Wireshark · NetBox · LibreNMS · Oxidized · Ansible',
   'secai-plus':

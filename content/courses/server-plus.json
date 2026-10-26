@@ -13785,6 +13785,7 @@
         "mssp": "nmap · lynis · ufw · auditd · Sigma/grep · CIS Benchmarks · sha256sum · the framework mappings (SOC 2, ISO 27001)",
         "server-plus": "Proxmox VE · ssh · netplan · cloud-init · Terraform · Ansible · git · Tailscale · Wazuh · Prometheus · Grafana · NetBox · GLPI · sha256sum",
         "a-plus": "Clonezilla · smartctl · MemTest86+ · PowerShell · Windows · Quick Assist · Remote Desktop · Microsoft Defender · Windows Firewall · Event Viewer · sha256sum",
+        "network-plus": "Packet Tracer · Cisco IOS · ping · traceroute · nslookup · draw.io · spreadsheet · sha256sum",
         "ccna": "show version · show vlan brief · show interfaces trunk · show spanning-tree · show etherchannel summary · show ip route · show ip ospf neighbor · show ip nat translations · show access-lists · ping · traceroute · Wireshark · NetBox · LibreNMS · Oxidized · Ansible",
         "secai-plus": "Ollama · LiteLLM · OpenBao · Chroma · garak · LLM Guard · Microsoft Presidio · Semgrep · Trivy · Gitleaks · ModelScan · Prowler · Wazuh · Git · sha256sum",
         "cissp": "eramba · draw.io · OPNsense · nmap · OpenSSL · Keycloak · Trivy · Gitleaks · OpenVAS · Lynis · Wazuh · restic · OSCAL Compass · Git · sha256sum",
@@ -19581,7 +19582,18 @@
             "Handover & As-Built form",
             "The intake record",
             "The register",
-            "The handover form"
+            "The handover form",
+            "Lab & Path Register form",
+            "Design Brief & IP Plan form",
+            "VLAN & Port Map form",
+            "Configuration Record form",
+            "Services & Verification Log form",
+            "Change & Fault Log form",
+            "Equipment Research & BOM form",
+            "Migration Plan & Handover form",
+            "The design brief",
+            "The IP plan",
+            "The research form"
           ]
         },
         {
@@ -20554,7 +20566,10 @@
             "comp.sysadmin.endpoint-security",
             "comp.docs.service-ticket",
             "comp.continuity.disk-image",
-            "comp.continuity.restore-from-image"
+            "comp.continuity.restore-from-image",
+            "comp.docs.equipment-research",
+            "comp.docs.bill-of-materials",
+            "comp.docs.migration-plan"
           ]
         },
         {
@@ -20623,7 +20638,16 @@
             "comp.docs.work-a-ticket",
             "comp.docs.incident-management",
             "comp.docs.known-issues",
-            "comp.docs.service-ticket"
+            "comp.docs.service-ticket",
+            "comp.network.subnet-plan",
+            "comp.network.topology-in-simulator",
+            "comp.network.dhcp-dns-services",
+            "comp.network.port-security",
+            "comp.network.syslog-and-backups",
+            "comp.network.fault-isolation",
+            "comp.docs.equipment-research",
+            "comp.docs.bill-of-materials",
+            "comp.docs.migration-plan"
           ]
         }
       ],

@@ -8,6 +8,7 @@ import { MSSP } from '../data/seed/mssp';
 import { SERVER_PLUS } from '../data/seed/serverPlus';
 import { CCNA } from '../data/seed/ccna';
 import { A_PLUS } from '../data/seed/aPlus';
+import { NETWORK_PLUS } from '../data/seed/networkPlus';
 import { SECAI_PLUS } from '../data/seed/secaiPlus';
 import { CISSP } from '../data/seed/cissp';
 import { AZURE_COURSES } from '../data/seed/azureCloud';
@@ -16,7 +17,7 @@ import { seedDeliverablesForCourse } from './definitions';
 import { emptyData } from './types';
 import type { StepEvidence } from '../data/types';
 
-const COURSES = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, A_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
+const COURSES = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
 
 const ctx = (over: Partial<BundleContext> = {}): BundleContext => ({
   evidence: {},

@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "standards": [
     {
       "id": "NIST_CSF",
@@ -95,6 +95,15 @@
       "kind": "exam",
       "publisher": "Cisco",
       "url": "https://learningnetwork.cisco.com/s/ccna-exam-topics"
+    },
+    {
+      "id": "NETWORK_PLUS",
+      "label": "Network+ N10-009",
+      "description": "CompTIA Network+ N10-009: the exam blueprint and its five domains",
+      "why": "The Network+ blueprint: concepts, implementation, operations, security and troubleshooting. This tag says which exam domain the work covers, so the portfolio and the syllabus can be read against each other.",
+      "kind": "exam",
+      "publisher": "CompTIA",
+      "url": "https://www.comptia.org/certifications/network"
     },
     {
       "id": "ITIL",

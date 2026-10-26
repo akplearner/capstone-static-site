@@ -83,6 +83,11 @@ export const COURSE_COSTS: Record<string, CostLine[]> = {
     line('tools', 'hardware', 'A #2 screwdriver and an anti-static strap', 10, 'once', 'The bench kit.', { approx: true }),
     line('sw', 'software', 'Windows evaluation media, a Linux live image and Clonezilla', 0, 'once', 'Free downloads; the course checks each hash.'),
   ],
+  'network-plus': [
+    line('pt', 'software', 'Cisco Packet Tracer', 0, 'once', 'Free with a Cisco Networking Academy account; the whole graded course runs in it.'),
+    line('laptop', 'hardware', 'A laptop that runs the simulator', 0, 'once', 'Any laptop from the last decade; nothing to buy.'),
+    line('kit', 'hardware', 'The CCNA kit for the optional Week 5, borrowed or shared', 0, 'once', 'Optional; the course is passed in the simulator. The CCNA cost sheet bands the kit.'),
+  ],
   ccna: [
     line('kit-l2', 'hardware', 'Two managed Layer-2 switches (low band)', 40, 'once', 'Second-hand; the kit guide bands it rather than pricing it.', { approx: true }),
     line('kit-l3', 'hardware', 'A router or Layer-3 switch (medium band)', 120, 'once', 'Second-hand; a considered purchase, or emulate it.', { approx: true }),

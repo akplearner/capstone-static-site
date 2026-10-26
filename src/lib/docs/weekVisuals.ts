@@ -21,6 +21,7 @@ import { CCNA_BUILD } from './ccnaDiagrams';
 import { ARCH_BUILD as SECAI_BUILD } from './secaiContent';
 import { ARCH_BUILD as CISSP_BUILD } from './cisspContent';
 import { ARCH_BUILD as A_PLUS_BUILD } from './aPlusContent';
+import { ARCH_BUILD as NETWORK_PLUS_BUILD } from './networkPlusContent';
 
 /** The build model of each course that draws its own picture. */
 export const BUILD_MODELS: Record<string, BuildModel> = {
@@ -30,6 +31,7 @@ export const BUILD_MODELS: Record<string, BuildModel> = {
   'server-plus': SERVER_BUILD,
   ccna: CCNA_BUILD,
   'a-plus': A_PLUS_BUILD,
+  'network-plus': NETWORK_PLUS_BUILD,
   'secai-plus': SECAI_BUILD,
   cissp: CISSP_BUILD,
 };

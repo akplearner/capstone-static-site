@@ -241,6 +241,13 @@ additive, none requiring a rewrite.
   target (`aPlusDeliverables.ts`, the Backup & Image Register). The Troubleshooting Log is the six-step method as
   data, with a DoD that requires a wrong theory. Its picture is an `ArchPicture` (`aPlusContent.ts`); its lab
   panel collects the bench PC's name and address; `certs.ts` carries the two cores as one row at half weight.
+- **The Network+ branch (R131):** `src/lib/data/seed/networkPlus.ts` is the second entry-level CompTIA capstone,
+  in the CCNA shape with Packet Tracer as the lab and no hardware needed to pass. Its branch is data
+  (`src/lib/networkPlusTopology.ts`: the CCNA addressing rule in its own second octet, nine devices, the policy
+  table, an RFC 5737 ISP link) that the seed, the forms and the picture read. The test matrix carries the rows that
+  MUST FAIL, and Week 3's access list is what makes them fail; Week 4 moves toward real equipment by research, a
+  priced bill of materials and a migration plan that lists the simulator's gaps. The CompTIA ladder now reads
+  A+ → Network+ → Security+.
 - **Reading budgets apply to every course's graded weeks,** not just Server+'s: the 36-word command
   explanation and 30-word step-subtitle limits now key on `isGradedWeek`. The "every command shows a sample
   and an explanation" rule is a RATCHET — a measured per-course backlog (security-plus 68, cysa-plus 77,

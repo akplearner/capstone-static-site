@@ -118,6 +118,16 @@ const CLOUD_TASK_SOPS: Record<string, string[]> = {
 
 /** Every form → the SOP kinds it is an instance of (one to three). */
 export const DELIVERABLE_SOPS: Record<string, Record<string, string[]>> = {
+  'network-plus': {
+    np_lab: ['sop.asset-inventory'],
+    np_design: ['sop.requirements', 'sop.network-design'],
+    np_ports: ['sop.network-design'],
+    np_config: ['sop.build-record'],
+    np_verify: ['sop.test-and-acceptance'],
+    np_changes: ['sop.change-record', 'sop.incident-record', 'sop.backup-plan'],
+    np_bom: ['sop.asset-inventory'],
+    np_handover: ['sop.handover', 'sop.chain-of-custody'],
+  },
   'a-plus': {
     ap_intake: ['sop.asset-inventory'],
     ap_asset: ['sop.asset-inventory', 'sop.build-record'],
@@ -220,6 +230,14 @@ export const DELIVERABLE_SOPS: Record<string, Record<string, string[]>> = {
 
 /** Tasks that execute a procedure → the SOP kinds they execute. */
 export const TASK_SOPS: Record<string, Record<string, string[]>> = {
+  'network-plus': {
+    'np-w2-services': ['sop.test-and-acceptance'],
+    'np-w3-monitor': ['sop.backup-plan'],
+    'np-w3-secure': ['sop.hardening-baseline'],
+    'np-w3-change': ['sop.change-record', 'sop.backup-plan'],
+    'np-w3-faults': ['sop.incident-record'],
+    'np-w4-handover': ['sop.handover', 'sop.chain-of-custody'],
+  },
   'a-plus': {
     'ap-w1-fault': ['sop.incident-record'],
     'ap-w2-image': ['sop.backup-plan'],

@@ -274,6 +274,23 @@ const CLOUD_PRACTICES: Record<string, string[]> = {
 
 /** Every task of a graded or advanced week → the practices it asks for (one to three). */
 export const TASK_PRACTICES: Record<string, Record<string, string[]>> = {
+  'network-plus': {
+    'np-w1-requirements': ['practice.requirements-first'],
+    'np-w1-plan': ['practice.addressing-plan', 'practice.segmentation'],
+    'np-w1-topology': ['practice.build-record'],
+    'np-w2-switches': ['practice.segmentation', 'practice.configuration-record'],
+    'np-w2-routing': ['practice.test-and-acceptance', 'practice.configuration-record'],
+    'np-w2-services': ['practice.test-and-acceptance'],
+    'np-w3-monitor': ['practice.centralised-logging', 'practice.backup-before-change'],
+    'np-w3-secure': ['practice.default-deny', 'practice.hardening-baseline'],
+    'np-w3-change': ['practice.backup-before-change', 'practice.change-control'],
+    'np-w3-faults': ['practice.troubleshooting-method', 'practice.work-tracked'],
+    'np-w4-research': ['practice.requirements-first'],
+    'np-w4-bom': ['practice.asset-inventory'],
+    'np-w4-handover': ['practice.as-built-documentation', 'practice.sign-and-version'],
+    'np-w5-realkit': ['practice.build-record', 'practice.test-and-acceptance'],
+    'np-w5-differences': ['practice.as-built-documentation', 'practice.lessons-learned'],
+  },
   'a-plus': {
     'ap-w1-inventory': ['practice.asset-inventory', 'practice.build-record'],
     'ap-w1-fault': ['practice.troubleshooting-method', 'practice.build-record'],

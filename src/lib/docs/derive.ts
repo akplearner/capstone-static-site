@@ -23,6 +23,7 @@ export const COURSE_DEFAULT_VISUAL: Record<string, DeliverableVisual> = {
   'server-plus': { kit: 'week' },
   ccna: { kit: 'week' },
   'a-plus': { kit: 'week' },
+  'network-plus': { kit: 'week' },
   'cysa-plus': { kit: 'week' },
   'security-plus': { kit: 'week' },
   mssp: { kit: 'week' },

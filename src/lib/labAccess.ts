@@ -156,6 +156,34 @@ export const A_PLUS_CHECKS: typeof LAB_CHECKS = [
   { key: 'strap', label: 'The strap is on whenever the case is open' },
 ];
 
+/**
+ * The Network+ branch: one worked example in the simulator, so one address to
+ * substitute (the first switch's management address a team really set) and
+ * one preference, the emulator, with no tokens.
+ */
+export const NETWORK_PLUS_FIELDS: typeof LAB_FIELDS = [
+  { key: 'NP_MGMT', label: 'Your first switch’s management address', placeholder: 'e.g. 10.70.99.11', tokens: ['<NP_MGMT>'] },
+  {
+    key: 'NP_EMULATOR',
+    label: 'Which simulator',
+    placeholder: '',
+    tokens: [],
+    kind: 'select',
+    options: [
+      { value: 'packet-tracer', label: 'Cisco Packet Tracer' },
+      { value: 'cml', label: 'Cisco Modeling Labs' },
+      { value: 'gns3', label: 'GNS3' },
+      { value: 'kit', label: 'The CCNA kit (Week 5)' },
+    ],
+  },
+];
+
+export const NETWORK_PLUS_CHECKS: typeof LAB_CHECKS = [
+  { key: 'prompt', label: 'A switch answers at a prompt in the simulator' },
+  { key: 'file', label: 'The team has one project file and knows where it lives' },
+  { key: 'register', label: 'The Lab & Path Register names the version and the four focuses' },
+];
+
 export const CCNA_CHECKS: typeof LAB_CHECKS = [
   { key: 'prompt', label: 'You can reach a device prompt — console, SSH or the emulator' },
   { key: 'register', label: 'Every device you have is a row in the Kit & Capability Register' },
@@ -193,7 +221,7 @@ export const SERVER_CHECKS: typeof LAB_CHECKS = [
  * would render an input the filler never looked at — a box that silently does
  * nothing. The profile below governs the FORM; this governs substitution.
  */
-const ALL_FIELDS = [...LAB_FIELDS, ...SERVER_FIELDS, ...CCNA_FIELDS, ...A_PLUS_FIELDS, ...CLOUD_FIELDS];
+const ALL_FIELDS = [...LAB_FIELDS, ...SERVER_FIELDS, ...CCNA_FIELDS, ...A_PLUS_FIELDS, ...NETWORK_PLUS_FIELDS, ...CLOUD_FIELDS];
 
 /**
  * What a given course's lab actually consists of.
@@ -255,6 +283,13 @@ const LAB_PROFILES: Record<string, LabProfile> = {
     checks: A_PLUS_CHECKS,
     title: 'Your bench PC — name, address and readiness',
     intro: 'Name the machine the team rebuilds and, once it is connected, its address. Saved to your account, visible only to you.',
+  },
+  // The branch: the simulator the build runs in and the one address the team set.
+  'network-plus': {
+    fields: NETWORK_PLUS_FIELDS,
+    checks: NETWORK_PLUS_CHECKS,
+    title: 'Your lab — the simulator and the first address',
+    intro: 'Say which simulator the build runs in and give the management address you set on the first switch. Saved to your account, visible only to you.',
   },
 };
 

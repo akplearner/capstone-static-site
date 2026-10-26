@@ -5,6 +5,7 @@ import { ARCH as MSSP } from './msspContent';
 import { ARCH as SECAI } from './secaiContent';
 import { ARCH as CISSP } from './cisspContent';
 import { ARCH as APLUS } from './aPlusContent';
+import { ARCH as NETPLUS } from './networkPlusContent';
 import { deliverablesForCourse } from './definitions';
 import { LAB_HOSTS } from '../labTopology';
 import { socTopology } from '../labTopology';
@@ -23,6 +24,7 @@ const PICTURES: [string, ArchPicture][] = [
   ['secai-plus', SECAI],
   ['cissp', CISSP],
   ['a-plus', APLUS],
+  ['network-plus', NETPLUS],
 ];
 const words = (t: string) => t.split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;
 const BOX = { w: 150, h: 48 };

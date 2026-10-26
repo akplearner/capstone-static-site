@@ -55,7 +55,7 @@ const d = (id: string, name: string, weight: number, weightLabel?: string, gapNo
 export const CERTS: Record<string, CertDef> = {
   'security-plus': {
     courseId: 'security-plus', vendorId: 'comptia', vendor: 'CompTIA', code: 'SY0-701', name: 'Security+', level: 'associate', exam: true, examFeeUsd: 404, feeCheckedYear: 2026,
-    next: 'cysa-plus',
+    prerequisite: 'network-plus', next: 'cysa-plus',
     domains: [
       d('d1', 'General Security Concepts', 12, undefined, 'Read with the exam guide; the lab assumes the vocabulary'),
       d('d2', 'Threats, Vulnerabilities, and Mitigations', 22),
@@ -71,6 +71,7 @@ export const CERTS: Record<string, CertDef> = {
   },
   'a-plus': {
     courseId: 'a-plus', vendorId: 'comptia', vendor: 'CompTIA', code: '220-1201', name: 'A+', level: 'entry', exam: true, examFeeUsd: 506, feeCheckedYear: 2026,
+    next: 'network-plus',
     // Two exams (Core 1, 220-1201 and Core 2, 220-1202). The fee is the pair;
     // the domains are both cores at half weight, so the sheet reads as one.
     domains: [
@@ -83,6 +84,17 @@ export const CERTS: Record<string, CertDef> = {
       d('d7', 'Security (Core 2)', 14, '28% of Core 2'),
       d('d8', 'Software Troubleshooting (Core 2)', 11, '23% of Core 2'),
       d('d9', 'Operational Procedures (Core 2)', 10, '21% of Core 2'),
+    ],
+  },
+  'network-plus': {
+    courseId: 'network-plus', vendorId: 'comptia', vendor: 'CompTIA', code: 'N10-009', name: 'Network+', level: 'entry', exam: true, examFeeUsd: 369, feeCheckedYear: 2026,
+    prerequisite: 'a-plus', next: 'security-plus',
+    domains: [
+      d('d1', 'Networking Concepts', 23),
+      d('d2', 'Network Implementation', 20),
+      d('d3', 'Network Operations', 19),
+      d('d4', 'Network Security', 14),
+      d('d5', 'Network Troubleshooting', 24),
     ],
   },
   'server-plus': {
@@ -206,6 +218,10 @@ export const TASK_DOMAINS: Record<string, Record<string, string>> = {
   'a-plus': {
     'ap-w1-inventory': 'd3', 'ap-w1-fault': 'd5', 'ap-w1-firmware': 'd3', 'ap-w2-image': 'd9', 'ap-w2-install': 'd6', 'ap-w2-restore': 'd9',
     'ap-w3-connect': 'd2', 'ap-w3-user': 'd6', 'ap-w3-tickets': 'd8', 'ap-w4-secure': 'd7', 'ap-w4-restore': 'd9', 'ap-w4-handover': 'd9',
+  },
+  'network-plus': {
+    'np-w1-requirements': 'd1', 'np-w1-plan': 'd1', 'np-w1-topology': 'd2', 'np-w2-switches': 'd2', 'np-w2-routing': 'd2', 'np-w2-services': 'd2',
+    'np-w3-monitor': 'd3', 'np-w3-secure': 'd4', 'np-w3-change': 'd3', 'np-w3-faults': 'd5', 'np-w4-research': 'd2', 'np-w4-bom': 'd3', 'np-w4-handover': 'd3', 'np-w5-realkit': 'd2', 'np-w5-differences': 'd5',
   },
   ccna: {
     'ccna-w0-path': 'd1', 'ccna-w0-register': 'd1', 'ccna-w1-discover': 'd1', 'ccna-w1-design': 'd1', 'ccna-w1-bringup': 'd2', 'ccna-w2-vlans': 'd2', 'ccna-w2-route': 'd3', 'ccna-w2-resilience': 'd2',

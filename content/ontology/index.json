@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "generatedFrom": [
     "src/lib/docs/skills.ts",
     "src/lib/docs/tools.ts",
@@ -25,15 +25,15 @@
     "work-roles": "work-roles.json"
   },
   "counts": {
-    "competencies": 277,
+    "competencies": 286,
     "tools": 134,
-    "standards": 38,
+    "standards": 39,
     "controls": 230,
     "sops": 43,
     "tactics": 28,
     "practices": 96,
     "metrics": 100,
-    "domains": 72,
+    "domains": 77,
     "kpis": 16,
     "workRoles": 13
   },

@@ -58,6 +58,7 @@ const SEAM_REGION: Record<string, string | string[]> = {
   'server-plus': 'comptia',
   // R130: the A+ bench.
   'a-plus': 'comptia',
+  'network-plus': 'comptia',
   mssp: 'engagement',
   ccna: 'cisco',
   // R101: the two Ridgeline capstones.

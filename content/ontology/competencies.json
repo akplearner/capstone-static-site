@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "areas": {
     "recon": "Reconnaissance",
     "vuln": "Vulnerability management",
@@ -2293,6 +2293,89 @@
       ]
     },
     {
+      "id": "comp.network.subnet-plan",
+      "version": "1.0.0",
+      "label": "Plan subnets and VLANs from one rule",
+      "area": "network",
+      "objectiveRefs": [
+        "N10-009.d1"
+      ]
+    },
+    {
+      "id": "comp.network.topology-in-simulator",
+      "version": "1.0.0",
+      "label": "Build and cable a topology in a simulator",
+      "area": "network",
+      "objectiveRefs": [
+        "N10-009.d2"
+      ]
+    },
+    {
+      "id": "comp.network.dhcp-dns-services",
+      "version": "1.0.0",
+      "label": "Serve DHCP, DNS and NAT for a site",
+      "area": "network",
+      "objectiveRefs": [
+        "N10-009.d2"
+      ]
+    },
+    {
+      "id": "comp.network.port-security",
+      "version": "1.0.0",
+      "label": "Secure access ports and the guest VLAN",
+      "area": "network",
+      "objectiveRefs": [
+        "N10-009.d4"
+      ]
+    },
+    {
+      "id": "comp.network.syslog-and-backups",
+      "version": "1.0.0",
+      "label": "Collect logs and back up configurations",
+      "area": "network",
+      "objectiveRefs": [
+        "N10-009.d3"
+      ]
+    },
+    {
+      "id": "comp.network.fault-isolation",
+      "version": "1.0.0",
+      "label": "Isolate a network fault by layer",
+      "area": "network",
+      "objectiveRefs": [
+        "N10-009.d5",
+        "ITIL.problem"
+      ]
+    },
+    {
+      "id": "comp.docs.equipment-research",
+      "version": "1.0.0",
+      "label": "Research equipment against a design",
+      "area": "docs",
+      "objectiveRefs": [
+        "N10-009.d2"
+      ]
+    },
+    {
+      "id": "comp.docs.bill-of-materials",
+      "version": "1.0.0",
+      "label": "Price a bill of materials",
+      "area": "docs",
+      "objectiveRefs": [
+        "N10-009.d3"
+      ]
+    },
+    {
+      "id": "comp.docs.migration-plan",
+      "version": "1.0.0",
+      "label": "Plan a move from simulation to hardware",
+      "area": "docs",
+      "objectiveRefs": [
+        "N10-009.d3",
+        "ITIL.transition"
+      ]
+    },
+    {
       "id": "comp.cloud.budget-and-tags",
       "version": "1.0.0",
       "label": "Set a budget alert and a tag standard",
@@ -2822,6 +2905,268 @@
     }
   ],
   "taughtBy": {
+    "comp.docs.requirements-gathering": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w1-requirements"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w1-discover"
+      }
+    ],
+    "comp.docs.site-survey": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w1-requirements"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w1-discover"
+      }
+    ],
+    "comp.network.subnet-plan": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w1-plan"
+      }
+    ],
+    "comp.network.hierarchical-design": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w1-plan"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w1-design"
+      }
+    ],
+    "comp.network.topology-in-simulator": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w1-topology"
+      }
+    ],
+    "comp.docs.build-log": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w1-topology"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w1-bringup"
+      }
+    ],
+    "comp.network.vlans-and-trunks": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w2-switches"
+      },
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w5-realkit"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w2-vlans"
+      }
+    ],
+    "comp.network.switch-bringup": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w2-switches"
+      },
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w5-realkit"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w1-bringup"
+      }
+    ],
+    "comp.network.inter-vlan-routing": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w2-routing"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w2-route"
+      }
+    ],
+    "comp.network.default-route-and-nat": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w2-routing"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w3-internet"
+      }
+    ],
+    "comp.network.dhcp-dns-services": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w2-services"
+      }
+    ],
+    "comp.observe.snmp-and-syslog": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w3-monitor"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w6-noc"
+      }
+    ],
+    "comp.network.syslog-and-backups": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w3-monitor"
+      }
+    ],
+    "comp.network.port-security": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w3-secure"
+      }
+    ],
+    "comp.network.acls": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w3-secure"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w4-policy"
+      }
+    ],
+    "comp.network.config-backup": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w3-change"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w5-change"
+      }
+    ],
+    "comp.docs.change-control": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w3-change"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w3-sops"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w3-mgmt"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w5-change"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w8-incident"
+      }
+    ],
+    "comp.network.fault-isolation": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w3-faults"
+      }
+    ],
+    "comp.sysadmin.troubleshooting-method": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w3-faults"
+      },
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w1-fault"
+      },
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w3-tickets"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-bringup"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w6-ticket"
+      }
+    ],
+    "comp.docs.work-a-ticket": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w3-faults"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w6-ticket"
+      }
+    ],
+    "comp.docs.equipment-research": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w4-research"
+      }
+    ],
+    "comp.docs.bill-of-materials": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w4-bom"
+      }
+    ],
+    "comp.docs.migration-plan": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w4-handover"
+      }
+    ],
+    "comp.docs.as-built-handover": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w4-handover"
+      },
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w4-handover"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-handover"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-record"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-mgmt"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w8-handover"
+      }
+    ],
+    "comp.docs.known-issues": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w5-differences"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w8-handover"
+      }
+    ],
     "comp.hardware.identify-components": [
       {
         "courseId": "a-plus",
@@ -2842,24 +3187,6 @@
       {
         "courseId": "a-plus",
         "taskId": "ap-w1-fault"
-      }
-    ],
-    "comp.sysadmin.troubleshooting-method": [
-      {
-        "courseId": "a-plus",
-        "taskId": "ap-w1-fault"
-      },
-      {
-        "courseId": "a-plus",
-        "taskId": "ap-w3-tickets"
-      },
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w1-bringup"
-      },
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w6-ticket"
       }
     ],
     "comp.hardware.firmware-settings": [
@@ -3036,28 +3363,6 @@
       {
         "courseId": "aws-solutions-architect",
         "taskId": "aws-w8-arch"
-      }
-    ],
-    "comp.docs.as-built-handover": [
-      {
-        "courseId": "a-plus",
-        "taskId": "ap-w4-handover"
-      },
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w4-handover"
-      },
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w5-record"
-      },
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w4-mgmt"
-      },
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w8-handover"
       }
     ],
     "comp.forensics.chain-of-custody": [
@@ -4072,24 +4377,6 @@
         "taskId": "sp-w8-mgmt"
       }
     ],
-    "comp.docs.change-control": [
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w3-sops"
-      },
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w3-mgmt"
-      },
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w5-change"
-      },
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w8-incident"
-      }
-    ],
     "comp.sysadmin.ssh-hardening": [
       {
         "courseId": "server-plus",
@@ -4440,52 +4727,10 @@
         "taskId": "sp-w2-mgmt"
       }
     ],
-    "comp.docs.requirements-gathering": [
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w1-discover"
-      }
-    ],
-    "comp.docs.site-survey": [
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w1-discover"
-      }
-    ],
-    "comp.network.hierarchical-design": [
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w1-design"
-      }
-    ],
     "comp.docs.design-decisions": [
       {
         "courseId": "ccna",
         "taskId": "ccna-w1-design"
-      }
-    ],
-    "comp.network.switch-bringup": [
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w1-bringup"
-      }
-    ],
-    "comp.docs.build-log": [
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w1-bringup"
-      }
-    ],
-    "comp.network.vlans-and-trunks": [
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w2-vlans"
-      }
-    ],
-    "comp.network.inter-vlan-routing": [
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w2-route"
       }
     ],
     "comp.network.spanning-tree": [
@@ -4500,18 +4745,6 @@
         "taskId": "ccna-w3-wan"
       }
     ],
-    "comp.network.default-route-and-nat": [
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w3-internet"
-      }
-    ],
-    "comp.network.acls": [
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w4-policy"
-      }
-    ],
     "comp.network.management-plane-hardening": [
       {
         "courseId": "ccna",
@@ -4522,24 +4755,6 @@
       {
         "courseId": "ccna",
         "taskId": "ccna-w4-wireless"
-      }
-    ],
-    "comp.network.config-backup": [
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w5-change"
-      }
-    ],
-    "comp.observe.snmp-and-syslog": [
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w6-noc"
-      }
-    ],
-    "comp.docs.work-a-ticket": [
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w6-ticket"
       }
     ],
     "comp.automation.network-as-data": [
@@ -4558,12 +4773,6 @@
       {
         "courseId": "ccna",
         "taskId": "ccna-w8-incident"
-      }
-    ],
-    "comp.docs.known-issues": [
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-w8-handover"
       }
     ],
     "comp.cloud.budget-and-tags": [
