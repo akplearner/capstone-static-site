@@ -173,6 +173,8 @@ export default function AccountPage() {
     }
     toast({ message: 'Your account and all its data have been deleted.', variant: 'success' });
     await signOut();
+    // A full load on purpose: the account is gone, so nothing cached in this tab may survive.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.assign('/');
   };
 

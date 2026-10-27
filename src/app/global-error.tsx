@@ -34,6 +34,8 @@ export default function GlobalError({ reset }: { error: Error & { digest?: strin
             </button>
             <button
               onClick={() => {
+                // A full load on purpose: the React tree that would run the router is the thing that crashed.
+                // eslint-disable-next-line @next/next/no-location-assign-relative-destination
                 window.location.href = '/';
               }}
               style={{ border: '1px solid #d1d5db', background: '#fff', borderRadius: 8, padding: '8px 16px', color: '#111', cursor: 'pointer' }}
