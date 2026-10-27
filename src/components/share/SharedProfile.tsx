@@ -25,6 +25,8 @@ interface CopyCourse {
   role?: string;
   skills?: SkillProfile;
   kpis?: KpiBoard['kpis'];
+  /** R134: the scores a copy since member-profile/2 carries. */
+  scores?: { id: string; value: number; counted: number; of: number; loaded: boolean }[];
 }
 
 /**
@@ -120,6 +122,19 @@ export function SharedProfile() {
         <Figure label="Skills verified" value={`${summary.skillsVerified?.length ?? 0}`} sub={`of ${summary.skillsPractised?.length ?? 0} practised`} />
         <Figure label="Courses" value={`${courses.length}`} sub="in this copy" />
       </Surface>
+      {words && Array.isArray(snap.categories) && (snap.categories as { id: string; tier: string; verifiedUses: number; threshold: number }[]).length > 0 && (
+        <Surface as="section" data-share-categories>
+          <h2 className="text-base font-semibold text-ink">{words.COPY.categoriesHeading}</h2>
+          <p className="text-xs text-muted">{words.COPY.board.tierRule}</p>
+          <ul className="mt-2 flex flex-wrap gap-1.5">
+            {(snap.categories as { id: string; tier: string; verifiedUses: number; threshold: number }[]).map((c) => (
+              <li key={c.id} data-share-category={c.id} data-tier={c.tier} className={`rounded-full px-2 py-0.5 text-2xs font-medium ${c.tier === 'professional' ? 'bg-ok-soft text-ok' : 'bg-info-soft text-info'}`}>
+                {words.CATEGORIES.find((d) => d.id === c.id)?.label ?? c.id} · {c.tier === 'professional' ? words.COPY.board.tierProfessional : `${words.COPY.board.tierBuilding} ${c.verifiedUses}/${c.threshold}`}
+              </li>
+            ))}
+          </ul>
+        </Surface>
+      )}
       {words && profiles.length > 0 && summary.skillsVerified && (
         <Surface as="section">
           <SkillsSections courses={profiles} portfolio={summary as SkillPortfolio} content={words} />
@@ -132,7 +147,7 @@ export function SharedProfile() {
             const cw = skillsOf(courseDocument(c.courseId) ?? doc!);
             return (
               <Surface as="section" key={c.courseId} data-share-course={c.courseId}>
-                <KpiTable board={{ kpis: c.kpis! }} defs={cw.KPIS} families={cw.KPI_FAMILIES} copy={cw.COPY.board} title={`${c.title}${c.role ? ` · ${c.role}` : ''}`} />
+                <KpiTable board={{ kpis: c.kpis! }} defs={cw.KPIS} families={cw.KPI_FAMILIES} copy={cw.COPY.board} title={`${c.title}${c.role ? ` · ${c.role}` : ''}`} scores={Array.isArray(c.scores) ? c.scores : undefined} />
               </Surface>
             );
           })}

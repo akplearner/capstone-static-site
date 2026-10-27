@@ -41,6 +41,20 @@ export interface PdfCourse {
     receipted?: number | null;
   };
   skills?: { rows?: Partial<Record<string, readonly PdfSkillRow[]>> };
+  /** R134: the course's scores by the published method, printed beside its progress line. */
+  scores?: readonly { id: string; value: number; loaded: boolean }[];
+}
+
+/** R134: one category of the record, as the dashboard counted it. */
+export interface PdfCategory {
+  id: string;
+  label: string;
+  tier: string;
+  verifiedUses: number;
+  threshold: number;
+  successRate: { value: number; of: number };
+  relevance: number;
+  evidenceCount: number;
 }
 
 export interface PdfFigure {
@@ -65,6 +79,8 @@ export interface RecordPdfInput {
   workRoles?: readonly string[];
   /** Overrides the "N courses" under the title: a course's name when the export is for one. */
   scope?: string;
+  /** R134: the record by category across the courses; absent on a one-course export and on a copy without it. */
+  categories?: readonly PdfCategory[];
 }
 
 const INK: Rgb = [0.09, 0.11, 0.15];
@@ -87,6 +103,9 @@ export const PDF_LABELS = {
   issuedBy: 'Issued by',
   generated: 'Generated',
   record: 'Record',
+  categories: 'Record by category',
+  categoryColumns: ['Category', 'Tier', 'Verified uses', 'Success', 'Relevance', 'Evidence'],
+  scores: 'Scores',
   progress: 'Progress by course',
   issues: 'Issues reported',
   issuesTitle: 'Reported issues',
@@ -239,6 +258,32 @@ function skillsSection(pdf: PdfWriter, courses: readonly PdfCourse[], workRoles:
   if (workRoles.length > 0) listRow(pdf, SKILLS_COPY.board.workRole, workRoles);
 }
 
+/** R134 — the fourteen categories as a table: the tier at ten verified uses, the success rate, the relevance and the evidence. */
+function categoriesSection(pdf: PdfWriter, categories: readonly PdfCategory[]): void {
+  if (categories.length === 0) return;
+  section(pdf, PDF_LABELS.categories, SKILLS_COPY.board.tierRule);
+  const fractions = [0.26, 0.18, 0.14, 0.14, 0.14, 0.14];
+  const widths = fractions.map((f) => f * pdf.contentWidth);
+  const xs = widths.map((_, i) => pdf.margin.left + widths.slice(0, i).reduce((a, b) => a + b, 0));
+  pdf.need(26);
+  const head = pdf.y;
+  PDF_LABELS.categoryColumns.forEach((c, i) => pdf.textAt(xs[i], head + 9, c.toUpperCase(), { font: 'bold', size: 6.5, tracking: 0.6, color: MUTED }));
+  pdf.y = head + 14;
+  for (const c of categories) {
+    pdf.need(13);
+    const top = pdf.y;
+    const base = top + 9;
+    pdf.textAt(xs[0], base, fit(c.label, 'bold', 8, widths[0] - 6), { font: 'bold', size: 8 });
+    pdf.textAt(xs[1], base, c.tier === 'professional' ? SKILLS_COPY.board.tierProfessional : `${SKILLS_COPY.board.tierBuilding} ${c.verifiedUses}/${c.threshold}`, { size: 8, color: c.tier === 'professional' ? ACCENT : MUTED });
+    pdf.textAt(xs[2], base, `${c.verifiedUses}`, { size: 8 });
+    pdf.textAt(xs[3], base, c.successRate.of > 0 ? `${Math.round((100 * c.successRate.value) / c.successRate.of)}%` : '—', { size: 8 });
+    pdf.textAt(xs[4], base, `${c.relevance}%`, { size: 8 });
+    pdf.textAt(xs[5], base, `${c.evidenceCount}`, { size: 8 });
+    pdf.y = top + 13;
+  }
+  pdf.gap(4);
+}
+
 function progressSection(pdf: PdfWriter, courses: readonly PdfCourse[]): void {
   if (courses.length === 0) return;
   section(pdf, PDF_LABELS.progress);
@@ -254,7 +299,9 @@ function progressSection(pdf: PdfWriter, courses: readonly PdfCourse[]): void {
     const m = c.metrics ?? {};
     const titleLines = wrapText(c.title, 'bold', 8.5, widths[0] - pad * 2);
     const shown = titleLines.length > 2 ? [titleLines[0], fit(titleLines.slice(1).join(' '), 'bold', 8.5, widths[0] - pad * 2)] : titleLines;
-    const meta = [c.role, c.capstoneFiled ? PDF_LABELS.capstoneFiled : null].filter(Boolean).join(' · ');
+    // R134: the scores that stand on something, as "label n/100".
+    const scores = (c.scores ?? []).filter((x) => x.loaded).map((x) => `${x.id.replace('score.', '').replace(/-/g, ' ')} ${x.value}/100`);
+    const meta = [c.role, c.capstoneFiled ? PDF_LABELS.capstoneFiled : null, scores.length ? `${PDF_LABELS.scores.toLowerCase()}: ${scores.join(', ')}` : null].filter(Boolean).join(' · ');
     const h = Math.max(30, shown.length * 11 + (meta ? 11 : 0) + 8);
     pdf.need(h);
     const top = pdf.y;
@@ -334,6 +381,7 @@ export function buildRecordPdf(input: RecordPdfInput): Uint8Array<ArrayBuffer> {
   pdf.paragraph(`${SKILLS_COPY.pdf.claim} ${SKILLS_COPY.pdf.unsigned}`, { size: 8, leading: 11, color: MUTED });
   section(pdf, PDF_LABELS.record);
   figureGrid(pdf, input.figures ?? figuresOf(input.courses));
+  if (input.categories) categoriesSection(pdf, input.categories);
   skillsSection(pdf, input.courses, input.workRoles ?? []);
   progressSection(pdf, input.courses);
   // A source that carries no issues (a shared copy) leaves the section out: "none" would be a claim nobody checked.
@@ -432,7 +480,21 @@ export function recordPdfFromShare(snapshot: unknown, generatedAt: number, opts:
           ])
         ),
       },
+      // R134: a copy since member-profile/2 carries the scores; an older one does not.
+      scores: asArray(c.scores).flatMap((x) => {
+        const sc = asRecord(x);
+        const id = asString(sc.id);
+        const value = asNumber(sc.value);
+        return id && value !== undefined ? [{ id, value, loaded: sc.loaded === true }] : [];
+      }),
     };
+  });
+  const categories: PdfCategory[] = asArray(snap.categories).flatMap((x) => {
+    const c = asRecord(x);
+    const id = asString(c.id);
+    const rate = asRecord(c.successRate);
+    if (!id) return [];
+    return [{ id, label: id.replace(/-/g, ' ').replace(/^./, (ch) => ch.toUpperCase()), tier: asString(c.tier) ?? 'building', verifiedUses: asNumber(c.verifiedUses) ?? 0, threshold: asNumber(c.threshold) ?? 10, successRate: { value: asNumber(rate.value) ?? 0, of: asNumber(rate.of) ?? 0 }, relevance: asNumber(c.relevance) ?? 0, evidenceCount: asNumber(c.evidenceCount) ?? 0 }];
   });
   const summary = asRecord(snap.summary);
   const figures: PdfFigure[] = [
@@ -442,7 +504,7 @@ export function recordPdfFromShare(snapshot: unknown, generatedAt: number, opts:
     { label: 'Courses', value: `${courses.length}`, sub: 'in this copy' },
   ];
   const display = asString(asRecord(snap.subject).display) ?? 'A Capstone Quarry member';
-  return { subject: display, generatedAt, courses, figures, scope: `a shared copy${opts.madeAt ? ` made ${day(opts.madeAt)}` : ''} of ${courses.length} ${courses.length === 1 ? 'course' : 'courses'}` };
+  return { subject: display, generatedAt, courses, figures, ...(categories.length ? { categories } : {}), scope: `a shared copy${opts.madeAt ? ` made ${day(opts.madeAt)}` : ''} of ${courses.length} ${courses.length === 1 ? 'course' : 'courses'}` };
 }
 
 /**

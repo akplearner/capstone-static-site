@@ -733,6 +733,113 @@
           "minimum": 0
         }
       }
+    },
+    "recordCategory": {
+      "type": "object",
+      "required": [
+        "id",
+        "utilization",
+        "verifiedUses",
+        "successRate",
+        "courses",
+        "projects",
+        "trend",
+        "evidenceCount",
+        "relevance",
+        "tier",
+        "threshold"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "enum": [
+            "tools",
+            "commands",
+            "procedures",
+            "standards",
+            "troubleshooting",
+            "investigations",
+            "documentation",
+            "architectures",
+            "configurations",
+            "communication",
+            "collaboration",
+            "decisions",
+            "projects",
+            "exam-domains"
+          ]
+        },
+        "utilization": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verifiedUses": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "successRate": {
+          "type": "object",
+          "required": [
+            "value",
+            "of"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "value": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "of": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "lastActivityAt": {
+          "type": "number",
+          "minimum": 0
+        },
+        "courses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "projects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "trend": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "evidenceCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "relevance": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "tier": {
+          "enum": [
+            "professional",
+            "building"
+          ]
+        },
+        "threshold": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
     }
   },
   "type": "object",
@@ -1186,6 +1293,15 @@
     },
     "signature": {
       "type": "null"
+    },
+    "categories": {
+      "type": "array",
+      "minItems": 14,
+      "maxItems": 14,
+      "items": {
+        "$ref": "#/$defs/recordCategory"
+      },
+      "description": "R134: the record by category across the courses, with the tier at ten verified uses; absent where the page did not build it."
     }
   }
 }

@@ -5,7 +5,7 @@ import type { DeliverableStatus } from './docs/lifecycle';
 import type { CertContent, SkillsContent } from './content/read';
 import type { KpiFact, KpiFamily } from './docs/kpis';
 import { skillProfile } from './skillProfile';
-import { defaultMeasure, kpiBoard, type KpiValue } from './kpiBoard';
+import { defaultMeasure, kpiBoard, type KpiBoard, type KpiValue } from './kpiBoard';
 import { isDeliverableFiled } from './deliverableChain';
 import { gradedWeeksCleared } from './course-helpers';
 import { toCsv } from './csv';
@@ -43,6 +43,10 @@ export interface CohortKpiGroup {
   members: number;
   /** In registry order. */
   kpis: CohortKpiRow[];
+  /** R134: per score, the mean over the members whose score stood on something, and how many those were. */
+  scores: { id: string; mean: number; loaded: number }[];
+  /** R134: the steps timed across the group, the share within the hour and over a day, and the median of the members' medians. */
+  timing: { timedSteps: number; withinHour: number; over24h: number; medianMinutes: number | null };
 }
 
 export interface CohortKpiReport {
@@ -83,24 +87,49 @@ export function bandOf(v: Pick<KpiValue, 'value' | 'of'>): KpiBand {
 
 const BANDS: KpiBand[] = ['notStarted', 'inProgress', 'complete', 'noDenominator'];
 
-function emptyGroup(cohort: string, template: KpiValue[]): CohortKpiGroup {
+function emptyGroup(cohort: string, template: KpiValue[], scoreIds: string[]): CohortKpiGroup {
   return {
     cohort,
     members: 0,
     kpis: template.map((k) => ({ id: k.id, family: k.family, metricId: k.metricId, fact: k.fact, members: 0, loaded: 0, bands: { notStarted: 0, inProgress: 0, complete: 0, noDenominator: 0 }, sumValue: 0, sumOf: 0 })),
+    scores: scoreIds.map((id) => ({ id, mean: 0, loaded: 0 })),
+    timing: { timedSteps: 0, withinHour: 0, over24h: 0, medianMinutes: null },
   };
 }
 
-function fold(group: CohortKpiGroup, kpis: KpiValue[]) {
+/** The running sums behind a group's means and median, kept apart from the report so the report carries no per-member value. */
+interface Running {
+  scoreSums: number[];
+  medians: number[];
+}
+
+function fold(group: CohortKpiGroup, running: Running, board: Pick<KpiBoard, 'kpis' | 'scores' | 'timing'>) {
   group.members += 1;
-  kpis.forEach((k, i) => {
+  board.kpis.forEach((k, i) => {
     const row = group.kpis[i];
     row.members += 1;
     if (k.loaded) row.loaded += 1;
     row.bands[bandOf(k)] += 1;
-    row.sumValue += k.value;
-    row.sumOf += k.of;
+    // A count has no denominator and a minutes row's value is a median: neither sums into a ratio.
+    if (k.unit === 'ratio') {
+      row.sumValue += k.value;
+      row.sumOf += k.of;
+    }
   });
+  board.scores.forEach((sc, i) => {
+    if (!sc.loaded) return;
+    group.scores[i].loaded += 1;
+    running.scoreSums[i] += sc.value;
+    group.scores[i].mean = Math.round(running.scoreSums[i] / group.scores[i].loaded);
+  });
+  group.timing.timedSteps += board.timing.timedSteps;
+  group.timing.withinHour += board.timing.withinHour;
+  group.timing.over24h += board.timing.over24h;
+  if (board.timing.medianMinutes !== null) {
+    running.medians.push(board.timing.medianMinutes);
+    const sorted = [...running.medians].sort((a, b) => a - b);
+    group.timing.medianMinutes = sorted.length % 2 ? sorted[(sorted.length - 1) / 2] : Math.round((sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2);
+  }
 }
 
 
@@ -108,6 +137,12 @@ export function cohortKpiReport(input: CohortKpiInput): CohortKpiReport {
   const { course, week, roster, registry, cert, deliverables, facts } = input;
   const capstone = deliverables.find((d) => d.capstone);
   const groups = new Map<string, CohortKpiGroup>();
+  const running = new Map<string, Running>();
+  const runningOf = (cohort: string, n: number) => {
+    const r = running.get(cohort) ?? { scoreSums: Array.from({ length: n }, () => 0), medians: [] };
+    running.set(cohort, r);
+    return r;
+  };
   let all: CohortKpiGroup | undefined;
 
   for (const m of roster) {
@@ -134,14 +169,15 @@ export function cohortKpiReport(input: CohortKpiInput): CohortKpiReport {
       outcome: { capstoneFiled: !!capstone && isDeliverableFiled(docs[capstone.id]), weeksCleared: weeks.cleared, weeksTotal: weeks.total },
       ontologyVersion: input.ontologyVersion,
     });
-    all ??= emptyGroup('all', board.kpis);
-    const group = groups.get(m.cohort) ?? emptyGroup(m.cohort, board.kpis);
+    const scoreIds = board.scores.map((sc) => sc.id);
+    all ??= emptyGroup('all', board.kpis, scoreIds);
+    const group = groups.get(m.cohort) ?? emptyGroup(m.cohort, board.kpis, scoreIds);
     groups.set(m.cohort, group);
-    fold(group, board.kpis);
-    fold(all, board.kpis);
+    fold(group, runningOf(m.cohort, scoreIds.length), board);
+    fold(all, runningOf('all', scoreIds.length), board);
   }
 
-  const template = all ?? emptyGroup('all', kpiBoardTemplate(registry));
+  const template = all ?? emptyGroup('all', kpiBoardTemplate(registry), registry.SCORING.map((sc) => sc.id));
   return {
     schema: COHORT_KPI_SCHEMA,
     courseId: course.id,

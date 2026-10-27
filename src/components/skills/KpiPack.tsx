@@ -67,7 +67,9 @@ export function KpiPack({ board, defs, families, copy, href, persistenceLabel }:
   const besideOf = (k: KpiValue) => (k.beside ? ` · ${persistenceLabel} ${k.beside.value} of ${k.beside.of}` : '');
   // R111: the role's own share, printed only where it differs from the team count.
   const ownOf = (k: KpiValue) => (k.contribution && (k.contribution.value !== k.value || k.contribution.of !== k.of) ? ` · ${copy.contribution} ${k.contribution.value} of ${k.contribution.of}` : '');
-  const labelOf = (k: KpiValue) => (k.loaded ? `${nameOf(k)}: ${k.value} of ${k.of}${k.beside ? `; ${persistenceLabel} ${k.beside.value} of ${k.beside.of}` : ''}${ownOf(k).replace(' · ', '; ')}` : `${nameOf(k)}: ${copy.notLoaded}`);
+  // R132: a count has no denominator; a minutes row is the median over the steps timed.
+  const figureOf = (k: KpiValue) => (k.unit === 'count' ? `${k.value}` : k.unit === 'minutes' ? (k.of > 0 ? `${k.value} min over ${k.of}` : copy.noTiming) : `${k.value} of ${k.of}`);
+  const labelOf = (k: KpiValue) => (k.loaded ? `${nameOf(k)}: ${figureOf(k)}${k.beside ? `; ${persistenceLabel} ${k.beside.value} of ${k.beside.of}` : ''}${ownOf(k).replace(' · ', '; ')}` : `${nameOf(k)}: ${copy.notLoaded}`);
 
   const move = (e: KeyboardEvent<HTMLButtonElement>, i: number) => {
     const delta = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : e.key === 'ArrowDown' ? 4 : e.key === 'ArrowUp' ? -4 : e.key === 'Home' ? -i : e.key === 'End' ? ordered.length - 1 - i : 0;
@@ -171,7 +173,7 @@ export function KpiPack({ board, defs, families, copy, href, persistenceLabel }:
         {shown ? (
           shown.loaded ? (
             <>
-              <span className="font-semibold text-ink">{nameOf(shown)}</span> · {shown.value} of {shown.of} · {shown.pct}% · {factWord(shown)}{besideOf(shown)}{ownOf(shown)}
+              <span className="font-semibold text-ink">{nameOf(shown)}</span> · {figureOf(shown)}{shown.unit !== 'count' && shown.of > 0 ? ` · ${shown.pct}%` : ''} · {factWord(shown)}{besideOf(shown)}{ownOf(shown)}
             </>
           ) : (
             <>

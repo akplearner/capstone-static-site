@@ -420,4 +420,24 @@ describe('R127 — for an external reader', () => {
     }));
     write('record-heavy', buildRecordPdf({ subject: 'Grace', generatedAt: NOW, courses: heavy, issues: sampleIssues() }));
   });
+
+  it('R134: prints the record by category and the scores when a copy carries them, and leaves both out when it does not', () => {
+    const copy = { schema: 'capstone-member-profile/2', subject: { display: 'Ada Lovelace' }, summary: { verified: 1, verifiable: 2, artifacts: 0, skillsVerified: [], skillsPractised: [] }, courses: [{ courseId: 'security-plus', title: 'Security+ Capstone Lab', role: 'Red Team', capstoneFiled: false, metrics: {}, skills: { rows: {} } }] };
+    const withBoth = {
+      ...copy,
+      courses: [{ ...copy.courses[0], scores: [{ id: 'score.tool-proficiency', value: 70, counted: 3, of: 3, loaded: true }, { id: 'score.judgment', value: 0, counted: 0, of: 4, loaded: false }] }],
+      categories: [{ id: 'troubleshooting', utilization: 12, verifiedUses: 11, successRate: { value: 11, of: 12 }, courses: ['Security+ Capstone Lab'], projects: [], trend: [0, 0, 0, 0, 5, 6], evidenceCount: 3, relevance: 100, tier: 'professional', threshold: 10 }, { id: 'decisions', utilization: 3, verifiedUses: 2, successRate: { value: 2, of: 3 }, courses: [], projects: [], trend: [0, 0, 0, 0, 0, 2], evidenceCount: 0, relevance: 83, tier: 'building', threshold: 10 }],
+    };
+    const text = allText(buildRecordPdf(recordPdfFromShare(withBoth, NOW)));
+    expect(text).toContain('RECORD BY CATEGORY');
+    expect(text).toContain('Troubleshooting');
+    expect(text).toContain('Professional');
+    expect(text).toContain('Building 2/10');
+    expect(text).toContain('92%');
+    expect(text).toContain('scores: tool proficiency 70/100');
+    expect(text).not.toContain('judgment');
+    const without = allText(buildRecordPdf(recordPdfFromShare(copy, NOW)));
+    expect(without).not.toContain('RECORD BY CATEGORY');
+    expect(without).not.toContain('scores:');
+  });
 });

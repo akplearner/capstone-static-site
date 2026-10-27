@@ -18,6 +18,7 @@ the record. `src/lib/page-shape.test.ts` fails if an id is removed from the tabl
 | F9 | The A+ capstone is built: a real desktop on a bench, image first, the six-step method, tickets, a timed restore and a handover with custody | R130 | Done |
 | F10 | The Network+ capstone is built: a branch network designed and proved in Packet Tracer, operated, then researched, priced and planned toward real equipment | R131 | Done |
 | F11 | The record reads as workforce readiness: eight evidence-backed domains on the Skill board and fourteen professional categories with a tier at ten verified uses on the dashboard | R133 | Done |
+| F12 | The scores, the timing and the record by category reach every surface: the KPI board, table and pack, the cohort report, the export, the credential, the PDF, the shared page, and the instructor's marks per rubric category | R134 | Done |
 
 Order of the rounds: the field bug first (it blocks reporting and links), then the link size (the link
 fails today), then the earned-skills ledger (the record and the PDF both read it), then the live and

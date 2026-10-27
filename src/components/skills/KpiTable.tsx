@@ -1,4 +1,5 @@
 import type { KpiBoard } from '@/lib/kpiBoard';
+import type { ScoreValue } from '@/lib/scores';
 import type { KpiDef, KpiFamilyDef } from '@/lib/docs/kpis';
 import type { BoardCopy } from '@/lib/docs/skillsCopy';
 
@@ -13,7 +14,7 @@ export interface ToolLine {
   of: number;
 }
 
-export function KpiTable({ board, defs, families, copy, perTool, title }: { board: Pick<KpiBoard, 'kpis'>; defs: KpiDef[]; families: KpiFamilyDef[]; copy: BoardCopy; perTool?: ToolLine[]; title?: string }) {
+export function KpiTable({ board, defs, families, copy, perTool, title, scores }: { board: Pick<KpiBoard, 'kpis'>; defs: KpiDef[]; families: KpiFamilyDef[]; copy: BoardCopy; perTool?: ToolLine[]; title?: string; /** R132: the scores, printed beneath the KPIs when handed in. */ scores?: Pick<ScoreValue, 'id' | 'value' | 'counted' | 'of' | 'loaded'>[] }) {
   const defOf = new Map(defs.map((d) => [d.id, d]));
   const familyOf = new Map(families.map((f) => [f.id, f.label]));
   const fact = (k: KpiBoard['kpis'][number]) => (!k.loaded ? copy.notLoaded : k.fact === 'own' ? copy.factOwn : k.fact === 'team' ? copy.factTeam : copy.factContent).split(':')[0];
@@ -40,8 +41,8 @@ export function KpiTable({ board, defs, families, copy, perTool, title }: { boar
                   <div className="font-normal text-muted">{defOf.get(k.id)?.whyMember}</div>
                 </td>
                 <td className="whitespace-nowrap px-3 py-2 text-body">{familyOf.get(k.family) ?? k.family}</td>
-                <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-ink">{k.loaded ? `${k.value} / ${k.of}` : '—'}</td>
-                <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-body">{k.loaded && k.of > 0 ? `${k.pct}%` : '—'}</td>
+                <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-ink">{!k.loaded ? '—' : k.unit === 'minutes' ? (k.of > 0 ? `${k.value} min · ${k.of}` : '—') : k.unit === 'count' ? `${k.value}` : `${k.value} / ${k.of}`}</td>
+                <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-body">{k.loaded && k.of > 0 && k.unit !== 'count' ? `${k.pct}%` : '—'}</td>
                 <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-body" data-contribution={k.contribution ? `${k.contribution.value}/${k.contribution.of}` : ''}>{k.contribution ? `${k.contribution.value} / ${k.contribution.of}` : '—'}</td>
                 <td className="px-3 py-2 text-muted">{fact(k)}</td>
               </tr>
@@ -49,6 +50,22 @@ export function KpiTable({ board, defs, families, copy, perTool, title }: { boar
           </tbody>
         </table>
       </div>
+      {scores && scores.length > 0 && (
+        <div className="overflow-x-auto rounded-lg depth-edge bg-panel">
+          <table className="w-full text-left text-xs" data-kpi-scores-table>
+            <caption className="px-3 py-2 text-left text-2xs uppercase tracking-wide text-muted">{copy.scoresHeading}</caption>
+            <tbody>
+              {scores.map((s) => (
+                <tr key={s.id} data-score-row={s.id} className="border-t border-line">
+                  <td className="px-3 py-1.5 text-ink">{s.id.replace('score.', '').replace(/-/g, ' ')}</td>
+                  <td className="whitespace-nowrap px-3 py-1.5 text-right tabular-nums text-body">{s.loaded ? `${s.value} / 100` : '—'}</td>
+                  <td className="whitespace-nowrap px-3 py-1.5 text-right tabular-nums text-muted">{copy.scoreStandsOn} {s.counted} / {s.of}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       {perTool && perTool.length > 0 && (
         <div className="overflow-x-auto rounded-lg depth-edge bg-panel">
           <table className="w-full text-left text-xs" data-kpi-tools>

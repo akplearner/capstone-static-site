@@ -255,7 +255,7 @@ export default function SkillBoardPage() {
 
       <KpiBoard board={board} defs={registry.KPIS} families={registry.KPI_FAMILIES} workRoles={workRoles} copy={copy} persistenceLabel={COPY.abilityLabels.persistence} weeks={{ value: crew.weeksCleared, of: crew.weeksTotal }} />
 
-      <KpiTable board={board} defs={registry.KPIS} families={registry.KPI_FAMILIES} copy={copy} perTool={perTool} />
+      <KpiTable board={board} defs={registry.KPIS} families={registry.KPI_FAMILIES} copy={copy} perTool={perTool} scores={board.scores} />
 
       <p className="text-xs text-muted">
         {COPY.denominator} {COPY.teamFact} {COPY.verifiedMeans} {COPY.noSpeed}

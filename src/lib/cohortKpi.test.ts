@@ -98,4 +98,22 @@ describe('cohortKpiReport', () => {
     expect(empty.all.members).toBe(0);
     expect(empty.all.kpis).toHaveLength(28);
   });
+
+  it('R134: folds the scores as means over the members whose score stood on something, the timing across the group, and sums only ratios', () => {
+    for (const g of [report.all, ...report.groups]) {
+      expect(g.scores.map((sc) => sc.id)).toEqual(skillsOf(doc).SCORING.map((sc) => sc.id));
+      for (const sc of g.scores) {
+        expect(sc.loaded).toBeLessThanOrEqual(g.members);
+        expect(sc.mean).toBeGreaterThanOrEqual(0);
+        expect(sc.mean).toBeLessThanOrEqual(100);
+      }
+      expect(g.timing).toEqual({ timedSteps: 1, withinHour: 1, over24h: 0, medianMinutes: 0 });
+      const count = g.kpis.find((k) => k.id === 'kpi.teamwork.teammate-steps')!;
+      expect(count.sumOf, 'a count sums into no ratio').toBe(0);
+      const minutes = g.kpis.find((k) => k.id === 'kpi.problem-solving.time-to-resolution')!;
+      expect(minutes.sumValue, 'a median sums into no ratio').toBe(0);
+    }
+    expect(report.all.scores.find((sc) => sc.id === 'score.tool-proficiency')!.loaded).toBeGreaterThanOrEqual(1);
+    expect(JSON.stringify(report)).not.toContain('Ana');
+  });
 });

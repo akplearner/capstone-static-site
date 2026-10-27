@@ -291,7 +291,7 @@ export default function DashboardPage() {
   ];
   // R109: the member profile the chip copies, and the profile a link carries, built by the same
   // module as the portfolio's (src/lib/memberExport.ts), at the click.
-  const exportInput = (copy: NonNullable<typeof words>['COPY']) => ({ subject: user?.email ?? 'Capstone portfolio', copy, pathId: path?.id ?? null, summary, skills, rows: cards, generatedAt: new Date().toISOString() });
+  const exportInput = (copy: NonNullable<typeof words>['COPY']) => ({ subject: user?.email ?? 'Capstone portfolio', copy, pathId: path?.id ?? null, summary, skills, rows: cards, generatedAt: new Date().toISOString(), categories: categoryCards });
   // R127: the record as a PDF, built at the click from the rows the strip counted: the same figures, the skills by
   // name, progress by course and the issues this member reported. One course when it is asked from that course's card.
   function exportPdf(only?: CourseCard) {
@@ -302,10 +302,10 @@ export default function DashboardPage() {
       buildRecordPdf({
         subject: profile?.displayName?.trim() || cards[0]?.member.displayName || user?.email || 'Capstone member',
         generatedAt: now,
-        courses: list,
+        courses: list.map((c) => ({ ...c, scores: c.board.scores })),
         issues: ownIssues(list.map((c) => c.course.id)),
         workRoles: [...new Set(list.flatMap((c) => c.workRoles.map((w) => w.label)))],
-        ...(only ? { scope: only.course.title } : { figures: tiles.map(({ label, value, sub }) => ({ label, value, sub })) }),
+        ...(only ? { scope: only.course.title } : { figures: tiles.map(({ label, value, sub }) => ({ label, value, sub })), categories: categoryCards.map((c) => ({ ...c, label: words?.CATEGORIES.find((d) => d.id === c.id)?.label ?? c.id })) }),
       })
     );
   }

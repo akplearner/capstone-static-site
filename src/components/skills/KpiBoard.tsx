@@ -10,12 +10,14 @@ import { DUR, EASE, meter } from '@/lib/motion';
 import { useReducedMotionSafe } from '@/lib/useReducedMotionSafe';
 import { useCountUp } from '@/lib/useCountUp';
 import type { KpiBoard as KpiBoardDto, KpiValue } from '@/lib/kpiBoard';
+import type { ScoreValue } from '@/lib/scores';
 import type { KpiDef, KpiFamilyDef } from '@/lib/docs/kpis';
 import type { WorkRoleDef } from '@/lib/docs/workRoles';
 import type { BoardCopy } from '@/lib/docs/skillsCopy';
 
 /**
- * R108 — the sixteen tiles. Props only: the page reads the document and
+ * R108 — the KPI tiles (twenty-eight since R132, seven families of four), the
+ * six scores by the published method and the timing block. Props only: the page reads the document and
  * hands in the board, the registry rows and the words. On mount a sweep
  * crosses the panel and every figure counts up, both inside the meter budget
  * (`DUR.meter`); the sweep is positional, so `MotionConfig` stills it, and
@@ -110,6 +112,8 @@ export function KpiBoard({ board, defs, families, workRoles, copy, persistenceLa
               </ul>
             </section>
           ))}
+          <ScoresSection scores={board.scores} defs={defOf} copy={copy} />
+          <TimingSection timing={board.timing} copy={copy} />
         </div>
       )}
     </section>
@@ -127,16 +131,19 @@ function KpiTile({ k, def, copy, audience, persistenceLabel, weeks, replayKey }:
   const n = useCountUp(k.loaded ? k.value : 0, replayKey);
   const { Icon, text } = factLine(k, copy);
   const why = audience === 'hiring' ? def?.whyCompany : def?.whyMember;
-  const capstone = k.id === 'kpi.outcome.capstone-filed';
+  // R132: a count has no denominator; a minutes row prints the median over the steps timed, the percentage being the share within the hour.
+  const minutes = k.unit === 'minutes';
+  const count = k.unit === 'count';
+  const after = !k.loaded ? '' : minutes ? (k.of > 0 ? ` min · ${k.of} ${copy.timedSteps}` : ` · ${copy.noTiming}`) : count ? '' : ` of ${k.of}`;
   return (
-    <li data-kpi={k.id} data-fact={k.fact} data-loaded={k.loaded} className="min-w-0">
+    <li data-kpi={k.id} data-fact={k.fact} data-loaded={k.loaded} data-unit={k.unit} data-scored={k.scored || undefined} className="min-w-0">
       <Surface variant="dense" padding="sm" className="flex h-full flex-col gap-2">
         <h4 className="text-sm font-semibold text-ink">{def?.label ?? k.id}</h4>
         <div className="flex items-baseline gap-1">
-          <span className="text-xl font-semibold tabular-nums text-ink" aria-hidden>{k.loaded ? n : '—'}</span>
-          {k.loaded && <span className="text-sm text-muted" aria-hidden>of {k.of}</span>}
-          <span className="sr-only">{k.loaded ? `${k.value} of ${k.of}` : copy.notLoaded}</span>
-          {k.loaded && k.of > 0 && <span className="ml-auto text-sm tabular-nums text-muted">{k.pct}%</span>}
+          <span className="text-xl font-semibold tabular-nums text-ink" aria-hidden>{k.loaded ? (minutes && k.of === 0 ? '—' : n) : '—'}</span>
+          {after && <span className="text-sm text-muted" aria-hidden>{after}</span>}
+          <span className="sr-only">{k.loaded ? `${k.value}${after}` : copy.notLoaded}</span>
+          {k.loaded && k.of > 0 && !count && <span className="ml-auto text-sm tabular-nums text-muted" title={minutes ? copy.withinHour : undefined}>{k.pct}%</span>}
         </div>
         <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={k.loaded ? k.pct : 0} aria-label={def?.label ?? k.id} className="relative h-1.5 w-full overflow-hidden rounded-full bg-panel-2">
           <motion.div className="absolute inset-0 origin-left rounded-full bg-accent" initial={{ scaleX: 0 }} animate={{ scaleX: k.loaded ? k.pct / 100 : 0 }} transition={meter} />
@@ -144,7 +151,7 @@ function KpiTile({ k, def, copy, audience, persistenceLabel, weeks, replayKey }:
         {k.beside && k.loaded && (
           <p className="text-2xs text-muted" data-beside>{persistenceLabel}: {k.beside.value} of {k.beside.of}</p>
         )}
-        {capstone && k.loaded && (
+        {k.id === 'kpi.execution.dod-met' && k.loaded && (
           <p className="text-2xs text-muted" data-weeks>{copy.weeksLabel}: {weeks.value} of {weeks.of}</p>
         )}
         {k.loaded && k.contribution && (k.contribution.value !== k.value || k.contribution.of !== k.of) && (
@@ -156,5 +163,62 @@ function KpiTile({ k, def, copy, audience, persistenceLabel, weeks, replayKey }:
         {why && <p className="text-xs text-body">{why}</p>}
       </Surface>
     </li>
+  );
+}
+
+/** R132 — the six scores: a weighted mean of the KPIs named, with every component and whether it counted; a score that stands on nothing prints a dash. */
+function ScoresSection({ scores, defs, copy }: { scores: ScoreValue[]; defs: Map<string, KpiDef>; copy: BoardCopy }) {
+  return (
+    <section data-kpi-scores className="space-y-2">
+      <h3 className="text-sm font-semibold text-ink">
+        {copy.scoresHeading} <span className="font-normal text-muted">· {copy.scoreNote}</span>
+      </h3>
+      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {scores.map((s) => (
+          <li key={s.id} data-score={s.id} data-loaded={s.loaded}>
+            <Surface variant="dense" padding="sm" className="flex h-full flex-col gap-2">
+              <h4 className="text-sm font-semibold text-ink">{s.id.replace('score.', '').replace(/-/g, ' ')}</h4>
+              <div className="flex items-baseline gap-1">
+                <span className="text-xl font-semibold tabular-nums text-ink">{s.loaded ? s.value : '—'}</span>
+                {s.loaded && <span className="text-sm text-muted">/ 100</span>}
+                <span className="ml-auto text-2xs text-muted">{copy.scoreStandsOn} {s.counted} / {s.of} {copy.scoreComponents}</span>
+              </div>
+              <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={s.loaded ? s.value : 0} aria-label={s.id} className="relative h-1.5 w-full overflow-hidden rounded-full bg-panel-2">
+                <motion.div className="absolute inset-0 origin-left rounded-full bg-accent" initial={{ scaleX: 0 }} animate={{ scaleX: s.loaded ? s.value / 100 : 0 }} transition={meter} />
+              </div>
+              <details className="text-2xs text-muted">
+                <summary className="cursor-pointer">{copy.scoreComponents}</summary>
+                <ul className="mt-1 space-y-0.5" data-score-components>
+                  {s.components.map((c) => (
+                    <li key={c.kpi} data-counted={c.counted} className="flex justify-between gap-2">
+                      <span>{defs.get(c.kpi)?.label ?? c.kpi} <span className="tabular-nums">×{c.weight}</span></span>
+                      <span className="tabular-nums">{c.counted ? `${c.pct}%` : '—'}</span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            </Surface>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** R132 — the minutes between the first paste and the verification, as the board carries them. */
+function TimingSection({ timing, copy }: { timing: KpiBoardDto['timing']; copy: BoardCopy }) {
+  return (
+    <section data-kpi-timing className="space-y-1">
+      <h3 className="text-sm font-semibold text-ink">
+        {copy.timingHeading} <span className="font-normal text-muted">· {copy.timingNote}</span>
+      </h3>
+      {timing.timedSteps === 0 ? (
+        <p className="text-sm text-muted">{copy.noTiming}</p>
+      ) : (
+        <p className="text-sm text-body">
+          <span className="font-semibold tabular-nums text-ink" data-median-minutes>{timing.medianMinutes ?? '—'}</span> min · {timing.timedSteps} {copy.timedSteps} · {timing.withinHour} {copy.withinHour} · {timing.over24h} {copy.over24h}
+        </p>
+      )}
+    </section>
   );
 }

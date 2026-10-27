@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { RECORD_CATEGORIES } from './docs/recordCategories';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { validate, type JsonSchema } from './schema/validate';
@@ -97,5 +98,19 @@ describe('memberExport', () => {
     expect(new Set(codes).size).toBe(codes.length);
     expect(cred.credentialSubject.result).toHaveLength(2 * (28 + 6));
     expect(cred.evidence[0].id).toBe(`sha256:${'b'.repeat(64)}`);
+  });
+
+  it('R134: the record by category rides on the export when the page hands it in, validates, and gives the credential one result per category', async () => {
+    const categories = RECORD_CATEGORIES.map((id, i) => ({ id, utilization: i + 2, verifiedUses: i, successRate: { value: i, of: i + 2 }, courses: [course.title], projects: [], trend: [0, 0, 0, 0, 0, i], evidenceCount: 1, relevance: 50, tier: (i >= 10 ? 'professional' : 'building') as 'professional' | 'building', threshold: 10 }));
+    const p = buildMemberProfile({ ...input, categories });
+    expect(validate(p, schema('member-profile'))).toEqual([]);
+    expect(p.categories).toHaveLength(14);
+    expect('categories' in buildMemberProfile(input)).toBe(false);
+    const cred = buildCredential({ profile: p, rows: [row], copy: registry.COPY, origin: 'https://capstone.example', digest: await sha256Text(profileJson(p)) });
+    expect(validate(cred, schema('credential'))).toEqual([]);
+    const results = cred.credentialSubject.result.filter((r) => r.resultDescription.startsWith('record '));
+    expect(results).toHaveLength(14);
+    expect(results.find((r) => r.resultDescription === 'record exam-domains')?.value).toBe('professional: 13 verified uses of 10');
+    expect(results.find((r) => r.resultDescription === 'record tools')?.value).toBe('building: 0 verified uses of 10');
   });
 });

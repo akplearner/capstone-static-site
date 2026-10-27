@@ -41,7 +41,9 @@
 | `submissionsRepo.submit` | `submitted` | `submission` | `sha256`, `categories` (the four rubric verdicts: the `rubric_score` event of the measurement plan, named without the word score) |
 | `reviewRepo.save` | `reviewed` | `review` | `status` |
 | `taskReportsRepo.save` | `reported` | `report` | — |
-| `stepNotesRepo.save` (the stuck flag only, never the note) | `flagged` | `flag` | — |
+| `stepNotesRepo.save` (the stuck flag only, never the note) | `flagged` / `unflagged` | `flag` | — (R132: `step_flag_events` already keeps both as rows) |
+| `docsRepo.save` with a decision block chosen (`decision:<id>`, `:by`, `:at`) | `decided` | `decision` | `chosen`, the options offered, `justified` (R132) |
+| `reviewRepo.saveMarks` | `marked` | `review` | `category`, `ok` (R132: `deliverable_review_marks` already keeps them as rows) |
 
 When the table lands, each site appends after its own write (dual-write, the outbox pattern of
 `src/lib/data/outbox.ts` on failure) and today's tables stay the first projection; nothing a page

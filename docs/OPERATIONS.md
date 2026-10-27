@@ -147,6 +147,15 @@ has failed silently in some deployment of some product; none takes more than a m
   has no issues section). The account page's **Export my data (JSON)** and the Deliverables page's
   **Export my work (.json)** (a handoff file with **Restore from file**) are still JSON on purpose.
   `docs/FIX_LIST.md` item F6.
+- [ ] **Scores, timing and the record by category (R134):** on `/courses/<id>/skills`, the KPI board shows
+  **Twenty-eight KPIs** in seven families, then **Scores, by a published method** (six cards, each opening its
+  components) and **Time to resolution** (the median, the steps timed, within the hour, over a day; "No step
+  carries both stamps yet" before any); "Teammate steps ticked" prints a count with no denominator; the table
+  prints the scores beneath the KPIs; the pack's read-out prints "n min over m" for the timing socket. On
+  `/instructor/<course>/cohort`, each KPI table's caption prints the score means and the group's timing. On
+  `/dashboard`, Download PDF prints "Record by category" after the figures and the scores on each progress line;
+  Copy JSON carries `categories`; a candidate link's page shows the categories as tier chips. On the cohort page,
+  a review cell has four category checkboxes that save as marks beside the verdict.
 - [ ] **The eight domains and the fourteen categories (R133):** on `/courses/<id>/skills`, between the
   competency map and the KPI board, **Eight domains** lists Technical capability first and open; with nothing
   verified every domain says "Nothing recorded in this domain yet" with "n not yet evidenced"; after a step is

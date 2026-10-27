@@ -2411,7 +2411,7 @@ describe('R107 — skills, tools, standards and the member profile', () => {
     expect(read('package.json'), 'no schema library: the subset validator is the contract').not.toMatch(/"(ajv|zod)"/);
     const register = read('docs/VALUE_REGISTER.md');
     for (const status of ['available now', 'needs validators', 'needs events', 'needs consent', 'needs legal change', 'Phase 4']) expect(register, status).toContain(status);
-    expect(register.match(/^\| \d+ \|/gm)?.length, 'three lists of ten, plus the R108 rows (14 + 12 + 13)').toBe(39);
+    expect(register.match(/^\| \d+ \|/gm)?.length, 'three lists of ten, plus the R108 rows (14 + 12 + 13), plus one R134 row each (15 + 13 + 14)').toBe(42);
     expect(read('docs/OPERATIONS.md')).toContain('(R107)');
     expect(read('docs/CURRENT_STATE.md')).toContain('Member profile');
     expect(read('content/README.md')).toContain('ontology/');
@@ -2964,7 +2964,7 @@ describe('R114 — candidate links and employer profiles', () => {
     expect(read('docs/CURRENT_STATE.md')).toContain('| Candidate links |');
     expect(read('docs/OPERATIONS.md')).toContain('(R114)');
     const register = read('docs/VALUE_REGISTER.md');
-    expect(register.match(/^\| \d+ \|/gm)?.length).toBe(39);
+    expect(register.match(/^\| \d+ \|/gm)?.length).toBe(42);
     expect(register).toContain('member-created link');
   });
 });
@@ -3910,5 +3910,54 @@ describe('R133 — the eight domains and the fourteen categories', () => {
     expect(read('docs/OPERATIONS.md')).toContain('**The eight domains and the fourteen categories (R133):**');
     expect(read('docs/FIX_LIST.md')).toContain('| F11 |');
     expect(read('docs/SCORING.md')).toContain('## The tier');
+  });
+});
+
+/**
+ * R134 — the scores and the timing reach every KPI surface, the cohort report
+ * folds them, the record by category travels in the export, the credential,
+ * the PDF and the shared page, and the instructor marks each rubric category.
+ */
+describe('R134 — scores, timing and the record by category on every surface', () => {
+  it('the KPI tiles, table and pack read the unit; the board prints the scores and the timing', () => {
+    const board = code('src/components/skills/KpiBoard.tsx');
+    for (const n of ['function ScoresSection(', 'function TimingSection(', 'data-kpi-scores', 'data-kpi-timing', "k.unit === 'minutes'", 'data-score-components']) expect(board, n).toContain(n);
+    expect(board, 'the capstone tile is gone with its KPI').not.toContain('kpi.outcome.capstone-filed');
+    const table = code('src/components/skills/KpiTable.tsx');
+    for (const n of ['data-kpi-scores-table', "k.unit === 'minutes'", "k.unit === 'count'"]) expect(table, n).toContain(n);
+    const pack = code('src/components/skills/KpiPack.tsx');
+    expect(pack).toContain("const figureOf = (k: KpiValue) => (k.unit === 'count'");
+    expect(pack).toContain("const HERO = 'kpi.technical.skills-verified'");
+  });
+
+  it('the cohort report folds score means and the timing, carries no member, and sums only ratios', () => {
+    const cohort = code('src/lib/cohortKpi.ts');
+    for (const n of ['scores: { id: string; mean: number; loaded: number }[]', 'timing: { timedSteps: number; withinHour: number; over24h: number; medianMinutes: number | null }', "if (k.unit === 'ratio')"]) expect(cohort, n).toContain(n);
+    expect(cohort, 'the running sums stay out of the report').toContain('interface Running');
+    expect(code('src/components/instructor/CohortKpiPanel.tsx')).toContain('data-cohort-scores');
+    expect(code('src/components/instructor/CohortKpiPanel.tsx')).toContain('data-cohort-timing');
+  });
+
+  it('the record by category travels: export, credential, PDF, shared page; the instructor marks each category', () => {
+    expect(code('src/lib/memberExport.ts')).toContain('categories?: RecordCategoryCard[]');
+    expect(code('src/lib/memberExport.ts')).toContain('resultDescription: `record ${c.id}`');
+    expect(read('content/schemas/member-profile.schema.json')).toContain('"recordCategory"');
+    expect(code('src/lib/recordPdf.ts')).toContain('function categoriesSection(');
+    expect(code('src/lib/recordPdf.ts')).toContain("scores: asArray(c.scores)");
+    expect(code('src/components/share/SharedProfile.tsx')).toContain('data-share-categories');
+    expect(code('src/app/dashboard/page.tsx')).toContain('categories: categoryCards');
+    const cell = code('src/components/instructor/ReviewCell.tsx');
+    expect(cell).toContain('reviewRepo.saveMarks(');
+    expect(cell).toContain('data-review-marks');
+    expect(cell).toContain('RUBRIC_CATEGORIES.map(');
+  });
+
+  it('the docs say it', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### The workforce-readiness pipeline (R132 to R134)');
+    expect(read('docs/EVENTS.md')).toContain('`decided`');
+    expect(read('docs/EVENTS.md')).toContain('`marked`');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| Scores, timing and the record by category on every surface |');
+    expect(read('docs/OPERATIONS.md')).toContain('**Scores, timing and the record by category (R134):**');
+    expect(read('docs/FIX_LIST.md')).toContain('| F12 |');
   });
 });

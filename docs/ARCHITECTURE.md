@@ -894,6 +894,42 @@ commands, tools and procedures) in the same panel the twelve progress figures us
 follow under "Progress figures", unchanged. The method behind the tier and the relevance is
 `docs/SCORING.md`; the card's shape is `content/schemas/record-category.schema.json`.
 
+### The workforce-readiness pipeline (R132 to R134)
+
+One picture of what the three rounds added, from the facts to the surfaces. Nothing in the
+middle is a source of truth: every box right of the facts is recomputed from the facts on every
+read, and every number names the fact it was counted from.
+
+```text
+ facts (tables, RLS)                 projections (pure, no clock)                     surfaces and documents
+ ──────────────────────              ─────────────────────────────────────────         ───────────────────────────────
+ step_evidence ─ stamps ──┐          skillProfile.ts                                   /courses/<id>/skills
+ step_completions         │   ┌──▶   rows: 7 registry dims + troubleshooting,          ├─ SkyMap (competency map)
+ evidence_artifacts       │   │      decisions, retention, execution                   ├─ DomainBoard   ◀── skillDomainsView.ts (8 domains)
+ verification_receipts    ├───┤      abilities (38 indicators), timing (2 stamps)      ├─ KpiBoard: 28 tiles, 6 scores, timing
+ deliverables (forms)     │   │              │                                          └─ KpiTable, Agent view (kpi-board/2)
+   decision blocks        │   │              ▼
+ deliverable_status       │   │      kpiBoard.ts ──▶ scores.ts (docs/scoring.ts)        /dashboard
+ deliverable_reviews      │   │      28 KPIs · 6 scores · timing                       ├─ RecordCategories ◀── recordCard.ts (14 categories, tier at 10)
+ deliverable_review_marks │   │              │                                          ├─ RecordStrip (12 progress figures)
+ step_flag_events         │   │              ▼                                          └─ KpiPack per course
+ cohorts (start date) ────┘   │      memberExport.ts ──▶ member-profile/2 + credential
+                              │      cohortKpi.ts   ──▶ cohort-kpis (bands, score means, timing)   /instructor/<id>/cohort
+                              │      recordPdf.ts   ──▶ the PDF (figures, categories, scores)     /share (SharedProfile)
+ registries (data) ───────────┘
+   skills · tools · sops · standards · certs · workRoles
+   kpis (7×4) · scoring (6) · skillDomains (8) · recordCategories (14, TROUBLE_GROUPS, CHANGE_GROUPS)
+```
+
+The method behind the scores, the timing and the tier is `docs/SCORING.md`; the published shapes
+are `content/schemas/` (`kpi-board`, `member-profile`, `skill-profile`, `scoring`,
+`record-category`, `decision-record`) and the ontology (2.0.0) carries the registries. R134 put
+the scores and the timing on the KPI board, the table and the pack (a count prints no
+denominator; a minutes row prints the median over the steps timed and the share within the hour),
+folded score means and the group's timing into the cohort report, carried the record by category
+into the export, the credential's results, the PDF and the shared page, and gave the instructor one
+mark per rubric category beside the verdict (`ReviewCell`, appended to `deliverable_review_marks`).
+
 ### Support codes and the support log (R129)
 
 A failure shows a person a support code and a time and nothing else; the detail stays on our side. `src/lib/reportError.ts`

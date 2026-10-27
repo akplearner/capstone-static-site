@@ -6,7 +6,7 @@ import type { BoardCopy } from '@/lib/docs/skillsCopy';
 
 /**
  * R108 — the cohort KPI report as tables: one per cohort (and the whole
- * course first when there is more than one), sixteen rows each, counts per
+ * course first when there is more than one), twenty-eight rows each, counts per
  * band with an icon beside every count so a band is never colour alone.
  * Nobody is ranked and no member is named; props only, no motion.
  */
@@ -30,6 +30,13 @@ export function CohortKpiPanel({ report, defs, families, copy }: { report: Cohor
           <table className="w-full text-sm" data-cohort-kpis={g.cohort}>
             <caption className="px-4 py-2 text-left text-xs font-medium text-body">
               {g.cohort} · {g.members}
+              {/* R134: the scores as means over the members whose score stood on something, and the timing across the group. */}
+              <span className="mt-1 block text-2xs font-normal text-muted" data-cohort-scores>
+                {g.scores.map((sc) => `${sc.id.replace('score.', '').replace(/-/g, ' ')} ${sc.loaded ? `${sc.mean}/100 (${sc.loaded})` : '—'}`).join(' · ')}
+              </span>
+              <span className="block text-2xs font-normal text-muted" data-cohort-timing>
+                {copy.timingHeading}: {g.timing.timedSteps > 0 ? `${g.timing.medianMinutes ?? '—'} min · ${g.timing.timedSteps} ${copy.timedSteps} · ${g.timing.withinHour} ${copy.withinHour} · ${g.timing.over24h} ${copy.over24h}` : copy.noTiming}
+              </span>
             </caption>
             <thead>
               <tr className="border-b border-line text-left text-xs text-muted">

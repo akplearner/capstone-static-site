@@ -4,6 +4,7 @@ import type { EvidenceArtifact } from './data/types';
 import type { KpiBoard } from './kpiBoard';
 import type { TimingFacts } from './skillProfile';
 import type { ScoreValue } from './scores';
+import type { RecordCategoryCard } from './recordCard';
 import type { WorkRoleDef } from './docs/workRoles';
 import type { SkillsCopy } from './docs/skillsCopy';
 import { MEMBER_PROFILE_SCHEMA, ONTOLOGY_VERSION } from './docs/ontology';
@@ -53,6 +54,8 @@ export interface MemberExportInput {
   rows: MemberCourseRow[];
   /** Passed in by the page: this module reads no clock. */
   generatedAt: string;
+  /** R134: the fourteen category cards across the courses, with the tier at ten verified uses; absent where a page has not built them. */
+  categories?: RecordCategoryCard[];
 }
 
 export interface MemberProfileCourse {
@@ -80,6 +83,8 @@ export interface MemberProfileExport {
   path: string | null;
   summary: PortfolioSummary & SkillPortfolio;
   courses: MemberProfileCourse[];
+  /** R134: the record by category, across the courses. */
+  categories?: RecordCategoryCard[];
   signature: null;
 }
 
@@ -106,6 +111,7 @@ export function buildMemberProfile(input: MemberExportInput): MemberProfileExpor
       scores: r.board.scores,
       timing: r.board.timing,
     })),
+    ...(input.categories ? { categories: input.categories } : {}),
     signature: null,
   };
 }
@@ -191,7 +197,10 @@ export function buildCredential(input: CredentialInput): CredentialExport {
         ...r.board.kpis.map((k) => ({ type: ['Result'] as ['Result'], resultDescription: `${r.courseId} ${k.id}`, value: !k.loaded ? '—' : k.unit === 'minutes' ? `${k.value} min over ${k.of}` : `${k.value} of ${k.of}${k.contribution && (k.contribution.value !== k.value || k.contribution.of !== k.of) ? ` (${copy.board.contribution} ${k.contribution.value} of ${k.contribution.of})` : ''}` })),
         // R132: the scores, each with how many of its components it stands on.
         ...r.board.scores.map((sc) => ({ type: ['Result'] as ['Result'], resultDescription: `${r.courseId} ${sc.id}`, value: !sc.loaded ? '—' : `${sc.value} of 100 (${sc.counted} of ${sc.of} components)` })),
-      ]),
+      ]).concat(
+        // R134: the record by category, across the courses: the tier and the verified uses behind it.
+        (profile.categories ?? []).map((c) => ({ type: ['Result'] as ['Result'], resultDescription: `record ${c.id}`, value: `${c.tier}: ${c.verifiedUses} verified uses of ${c.threshold}` }))
+      ),
     },
     evidence: [{ type: ['Evidence'], id: `sha256:${digest}`, name: PROFILE_FILENAME, description: copy.exportSchemaNote }],
     claim: copy.board.credentialClaim,

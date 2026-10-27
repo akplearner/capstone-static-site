@@ -3,9 +3,20 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { reviewRepo } from '@/lib/data';
-import type { DeliverableReview, ReviewStatus } from '@/lib/data/types';
+import type { DeliverableReview, DeliverableReviewMark, ReviewStatus } from '@/lib/data/types';
+import { RUBRIC_CATEGORIES } from '@/lib/docs/deliverableRubric';
 
-/** The instructor's side of the review loop: one verdict per form per week. */
+/** Clock read hoisted to module scope: the purity lint treats a `Date.now()` inside a component-body function as render work, even when it only runs from a click. */
+function nowMs(): number {
+  return Date.now();
+}
+
+/**
+ * The instructor's side of the review loop: one verdict per form per week.
+ * R134: beside the verdict, one mark per rubric category (completeness,
+ * correctness, authenticity, consistency), appended as history with every
+ * save (0021), so the record can read documentation quality per category.
+ */
 export function ReviewCell({
   courseId,
   teamId,
@@ -23,10 +34,13 @@ export function ReviewCell({
 }) {
   const [status, setStatus] = useState<ReviewStatus>(current?.status ?? 'pending');
   const [comment, setComment] = useState(current?.comment ?? '');
+  const [marks, setMarks] = useState<Record<DeliverableReviewMark['category'], boolean>>({ completeness: true, correctness: true, authenticity: true, consistency: true });
   const dirty = status !== (current?.status ?? 'pending') || comment !== (current?.comment ?? '');
 
   const save = () => {
-    reviewRepo.save({ courseId, teamId, deliverableId, week, status, comment, reviewer, at: Date.now() });
+    const at = nowMs();
+    reviewRepo.save({ courseId, teamId, deliverableId, week, status, comment, reviewer, at });
+    reviewRepo.saveMarks(RUBRIC_CATEGORIES.map((c) => ({ courseId, teamId, deliverableId, week, category: c.id, ok: marks[c.id], note: '', reviewer, at })));
   };
 
   return (
@@ -44,6 +58,15 @@ export function ReviewCell({
         aria-label="Review comment"
         className="text-sm"
       />
+      <fieldset className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-body" data-review-marks>
+        <legend className="sr-only">Marks per rubric category</legend>
+        {RUBRIC_CATEGORIES.map((c) => (
+          <label key={c.id} className="inline-flex items-center gap-1">
+            <input type="checkbox" checked={marks[c.id]} onChange={(e) => setMarks((m) => ({ ...m, [c.id]: e.target.checked }))} aria-label={`${c.label} met`} />
+            {c.label}
+          </label>
+        ))}
+      </fieldset>
       <Button size="sm" variant={dirty ? 'default' : 'secondary'} disabled={!dirty} onClick={save}>
         {current ? 'Update review' : 'Save review'}
       </Button>

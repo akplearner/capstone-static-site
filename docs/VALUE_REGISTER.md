@@ -20,7 +20,7 @@ R112 added the platform's own effectiveness view for instructors: the funnel fro
 capstone, active-weeks bands and the step friction map, counts only. The member profile is sent by the
 member, unsigned, and says so in its `claim`. R108 added rows 11 onward in each list: the Skill
 board's twenty-eight KPIs, the environment profile, the work roles, the credential envelope, the cohort
-report and the event contract.
+report and the event contract. R132 to R134 added the last row of each list: the record by category with its tier, the eight domains with the scores, and the decision, category and scoring shapes.
 
 ## For companies (the hiring pipeline)
 
@@ -40,6 +40,7 @@ report and the event contract.
 | 12 | The twenty-eight-KPI board per candidate (R132): technical capability, problem solving, execution, decision making, teamwork, professionalism and growth, each a ratio of counts (or a median of minutes between two recorded stamps) with its fact kind and, on team facts, the share on forms the candidate's role drafts, plus six scores by the published method, sent by the candidate | `/courses/<id>/skills`, the `KpiPack` and its chip on the Home card and every `/dashboard` card, the export's `courses[].kpis` and `courses[].scores` (`capstone-kpi-board/2`), `content/ontology/kpis.json`, `content/ontology/scoring.json` | the twenty-eight `kpi.*` rows of `src/lib/docs/kpis.ts`, the six `score.*` rows of `scoring.ts` | available now (member-sent, unsigned; by link, measured against an employer profile an instructor published, R114) |
 | 13 | A credential envelope a hiring system can parse: Open Badges 3.0 with alignment to competency, exam-domain and NICE work-role ids | Create link → credential (the function serves it; the shared page prints it as a PDF statement, R127), `content/schemas/credential.schema.json` | — | available now by link (unsigned, no `proof`); a signed attestation: needs validators |
 | 14 | The cohort KPI report: counts per band per cohort, nobody named | the instructor cohort page, its KPI CSV (`src/lib/cohortKpi.ts`) | the twenty-eight `kpi.*` rows | available now for a programme's own instructors; handing it to an employer: needs consent + legal change |
+| 15 | The record by category: fourteen professional categories across every course, each with verified uses, a success rate, the last activity, six months of trend, the evidence and the industry relevance, and a tier at ten verified uses (R133, R134) | the `/dashboard` record, the export's `categories` (`capstone-member-profile/2`), the credential's `record <category>` results, the PDF's "Record by category", a candidate link, `content/schemas/record-category.schema.json` | `metric.readiness-tier`, `metric.trouble-resolved`, `metric.decision-recorded` | available now (member-sent, unsigned) |
 
 ## For students
 
@@ -58,6 +59,7 @@ report and the event contract.
 | 10 | Ability indicators without speed: first-try beside persistence, partial progress, investigation, consistency | the Home card's indicators | `metric.ability-first-try`, `-persistence`, `-partial-progress`, `-investigation-reports`, `-consistency-days` | available now; recall, calibration, independence: needs events / validators; remediation from another platform: Phase 4 |
 | 11 | The Skill board: the competency map lit by level and the twenty-eight KPIs with the six scores, replayable, measured against a job role or a company profile with the untaught gap named; the same twenty-eight as the socket pack on the Home card and every dashboard card | `/courses/<id>/skills` (`SkyMap`, `KpiBoard`, `KpiTable`), `KpiPack` | the twenty-eight `kpi.*` rows, `metric.profile-coverage` | available now |
 | 12 | A credential beside the profile | Create link → credential (R127: no longer a downloaded file) | — | available now by link (unsigned) |
+| 13 | The eight domains: skills by course listed only where evidence stands behind a row, with how often, how consistently, what the role expects and the evidence, and the six scores by the published method (R133, R134) | `/courses/<id>/skills` (`DomainBoard`, the scores and timing on `KpiBoard`), `docs/SCORING.md` | the `kpi.*` and `score.*` rows | available now |
 
 ## For other AI platforms and agents (A2A and MCP consumers)
 
@@ -76,6 +78,7 @@ report and the event contract.
 | 11 | The KPI board as a document: twenty-eight ratios with catalogue ids, fact kinds, units and loaded flags, six scores with every component named, and the timing block, the Agent view of the Skill board | `content/ontology/kpis.json`, `content/ontology/scoring.json`, `content/schemas/kpi-board.schema.json` | the twenty-eight `kpi.*` rows | available now |
 | 12 | The event contract: the xAPI-shaped event every write site would append, with actor type, assist level and consent scope | `content/schemas/event.schema.json`, `docs/EVENTS.md` | `metric.ability-unassisted`, `metric.doc-rubric-events` | contract now; the log: ROADMAP Phase 1 item 1 |
 | 13 | The work-role crosswalk and the environment-profile schema, so a job posting or a company stack joins the ontology | `content/ontology/work-roles.json`, `content/schemas/work-role.schema.json`, `content/schemas/environment-profile.schema.json` | `metric.profile-coverage` | available now (NICE ids transcribed from the 2017 edition; confirm) |
+| 14 | The decision record and the record category as published shapes, and the scores with their weights, so an agent can read a choice among named options and a tier it can recompute (R132 to R134) | `content/schemas/decision-record.schema.json`, `record-category.schema.json`, `scoring.schema.json`, `content/ontology/scoring.json`, `record-categories.json`, `skill-domains.json` | `metric.decision-justified`, `metric.readiness-tier` | available now |
 
 ## What crosses a boundary
 
