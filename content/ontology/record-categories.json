@@ -1,0 +1,797 @@
+{
+  "schema": "capstone-ontology/1",
+  "version": "2.0.0",
+  "threshold": 10,
+  "categories": [
+    {
+      "id": "tools",
+      "label": "Tools",
+      "unit": "A verified step on a task that uses the tool.",
+      "success": "The pasted output held every expected token.",
+      "dimensions": [
+        "tools"
+      ],
+      "areas": [
+        "sysadmin",
+        "network",
+        "detect",
+        "recon",
+        "vuln",
+        "cloud",
+        "automation",
+        "observe"
+      ]
+    },
+    {
+      "id": "commands",
+      "label": "Commands",
+      "unit": "A verified required step that runs a command.",
+      "success": "The output matched on the first or a later paste.",
+      "dimensions": [],
+      "areas": [
+        "sysadmin",
+        "network",
+        "detect",
+        "recon",
+        "exploit",
+        "cloud",
+        "automation",
+        "virt"
+      ]
+    },
+    {
+      "id": "procedures",
+      "label": "Procedures",
+      "unit": "A procedure started: a mapped form with data or a mapped task ticked.",
+      "success": "Followed: every check due met and document control complete.",
+      "dimensions": [
+        "procedures"
+      ],
+      "areas": [
+        "ops",
+        "continuity",
+        "respond",
+        "sysadmin",
+        "docs"
+      ]
+    },
+    {
+      "id": "standards",
+      "label": "Standards",
+      "unit": "A standard tagged on ticked work or cited by a form of the role.",
+      "success": "Tagged on verified output or cited by an approved form.",
+      "dimensions": [
+        "standards"
+      ],
+      "areas": [
+        "grc",
+        "audit",
+        "risk",
+        "harden",
+        "docs"
+      ]
+    },
+    {
+      "id": "troubleshooting",
+      "label": "Troubleshooting",
+      "unit": "A fault, incident or triage row the team logged, or a step verified after a failed paste.",
+      "success": "The outcome column reads resolved, or the retry verified.",
+      "dimensions": [
+        "troubleshooting"
+      ],
+      "areas": [
+        "ops",
+        "respond",
+        "sysadmin",
+        "network",
+        "observe",
+        "hardware"
+      ]
+    },
+    {
+      "id": "investigations",
+      "label": "Investigations",
+      "unit": "A row on an investigation, triage, assessment or audit form, or a hashed evidence file.",
+      "success": "A verdict, a fix or a transfer recorded on the row.",
+      "dimensions": [
+        "evidence"
+      ],
+      "areas": [
+        "forensics",
+        "detect",
+        "respond",
+        "vuln",
+        "audit",
+        "recon"
+      ]
+    },
+    {
+      "id": "documentation",
+      "label": "Documentation",
+      "unit": "A form the member drafted, submitted, reviewed or issued.",
+      "success": "Approved by the team or by an instructor, or every check due met.",
+      "dimensions": [
+        "documentation"
+      ],
+      "areas": [
+        "docs",
+        "report",
+        "grc"
+      ]
+    },
+    {
+      "id": "architectures",
+      "label": "Architectures",
+      "unit": "A row on a design, topology, plan or architecture form of the role.",
+      "success": "The form reached approved or issued.",
+      "dimensions": [],
+      "areas": [
+        "arch",
+        "network",
+        "cloud",
+        "data",
+        "continuity"
+      ]
+    },
+    {
+      "id": "configurations",
+      "label": "Configurations",
+      "unit": "A row on a configuration, baseline or hardening form, or a verified configuration step.",
+      "success": "Verified from output or approved by the team.",
+      "dimensions": [],
+      "areas": [
+        "harden",
+        "sysadmin",
+        "network",
+        "identity",
+        "cloud",
+        "virt"
+      ]
+    },
+    {
+      "id": "communication",
+      "label": "Communication",
+      "unit": "A hand-off, a report filed, a note written, a peer review given or a handover form.",
+      "success": "The hand-off closed, the report resolved, the review sent.",
+      "dimensions": [
+        "collaboration"
+      ],
+      "areas": [
+        "report",
+        "docs",
+        "ops"
+      ]
+    },
+    {
+      "id": "collaboration",
+      "label": "Collaboration",
+      "unit": "A lifecycle move on a team form, or a step ticked on a teammate’s task.",
+      "success": "The move was made in the role the RACI names.",
+      "dimensions": [
+        "collaboration"
+      ],
+      "areas": [
+        "ops",
+        "docs",
+        "grc"
+      ]
+    },
+    {
+      "id": "decisions",
+      "label": "Decisions",
+      "unit": "A decision block chosen by this member, or a change row with its reason written.",
+      "success": "Justified: every required supporting question answered; approved by the team.",
+      "dimensions": [
+        "decisions"
+      ],
+      "areas": [
+        "arch",
+        "risk",
+        "grc",
+        "continuity",
+        "ops"
+      ]
+    },
+    {
+      "id": "projects",
+      "label": "Projects",
+      "unit": "A graded week sealed on a capstone.",
+      "success": "The capstone document issued.",
+      "dimensions": [],
+      "areas": [
+        "docs",
+        "ops",
+        "arch"
+      ]
+    },
+    {
+      "id": "exam-domains",
+      "label": "Exam domains",
+      "unit": "A verified step on a task that practises the domain.",
+      "success": "Verified; weighted by the published blueprint.",
+      "dimensions": [
+        "domains"
+      ],
+      "areas": [
+        "grc",
+        "harden",
+        "network",
+        "sysadmin",
+        "cloud",
+        "detect",
+        "respond",
+        "arch"
+      ]
+    }
+  ],
+  "formCategories": {
+    "scope_roe": [
+      "decisions"
+    ],
+    "asset_inventory": [
+      "architectures",
+      "investigations"
+    ],
+    "risk_register": [
+      "decisions",
+      "investigations"
+    ],
+    "hardening_baseline": [
+      "configurations"
+    ],
+    "change_log": [
+      "troubleshooting",
+      "configurations"
+    ],
+    "pentest_report": [
+      "investigations",
+      "communication"
+    ],
+    "incident_report": [
+      "investigations",
+      "troubleshooting",
+      "communication"
+    ],
+    "final_report": [
+      "communication",
+      "projects"
+    ],
+    "framework_mapping": [
+      "investigations"
+    ],
+    "security_policy": [
+      "decisions",
+      "configurations"
+    ],
+    "hardening_standard": [
+      "configurations"
+    ],
+    "vm_sop": [
+      "configurations"
+    ],
+    "ir_runbook": [
+      "troubleshooting"
+    ],
+    "evidence_log": [
+      "investigations"
+    ],
+    "mssp_engagement": [
+      "decisions",
+      "communication"
+    ],
+    "mssp_soa": [
+      "decisions",
+      "configurations"
+    ],
+    "mssp_control_matrix": [
+      "configurations"
+    ],
+    "mssp_retest": [
+      "investigations",
+      "troubleshooting"
+    ],
+    "mssp_gap_assessment": [
+      "investigations",
+      "decisions"
+    ],
+    "mssp_detection_rules": [
+      "configurations",
+      "investigations"
+    ],
+    "mssp_metrics": [
+      "communication"
+    ],
+    "mssp_internal_audit": [
+      "investigations",
+      "communication"
+    ],
+    "mssp_evidence_packet": [
+      "investigations",
+      "projects",
+      "communication"
+    ],
+    "cysa_soc_monitoring": [
+      "investigations"
+    ],
+    "cysa_threat_investigation": [
+      "investigations",
+      "troubleshooting"
+    ],
+    "cysa_vulnerability_assessment": [
+      "investigations",
+      "decisions"
+    ],
+    "cysa_incident_response": [
+      "investigations",
+      "troubleshooting",
+      "communication"
+    ],
+    "cysa_ioc_database": [
+      "investigations"
+    ],
+    "cysa_coverage_validation": [
+      "investigations",
+      "configurations"
+    ],
+    "cysa_alert_triage": [
+      "investigations",
+      "troubleshooting",
+      "decisions"
+    ],
+    "cysa_detection_record": [
+      "configurations",
+      "investigations"
+    ],
+    "cysa_exec_debrief": [
+      "communication",
+      "projects"
+    ],
+    "cysa_sensor_deployment": [
+      "configurations"
+    ],
+    "cysa_soc_findings": [
+      "investigations",
+      "troubleshooting"
+    ],
+    "cysa_scan_validation": [
+      "investigations"
+    ],
+    "srv_business_reqs": [
+      "architectures",
+      "decisions"
+    ],
+    "srv_hardware": [
+      "architectures",
+      "troubleshooting",
+      "decisions"
+    ],
+    "srv_bringup": [
+      "troubleshooting",
+      "configurations",
+      "decisions"
+    ],
+    "srv_rack_assets": [
+      "architectures"
+    ],
+    "srv_ip_plan": [
+      "architectures",
+      "configurations",
+      "troubleshooting"
+    ],
+    "srv_standards": [
+      "configurations",
+      "decisions"
+    ],
+    "srv_operations": [
+      "troubleshooting",
+      "decisions",
+      "configurations"
+    ],
+    "srv_as_built": [
+      "architectures",
+      "communication",
+      "projects"
+    ],
+    "ccna_kit": [
+      "architectures",
+      "decisions"
+    ],
+    "ccna_requirements": [
+      "architectures"
+    ],
+    "ccna_hld": [
+      "architectures",
+      "decisions"
+    ],
+    "ccna_lld": [
+      "architectures",
+      "configurations"
+    ],
+    "ccna_build_log": [
+      "configurations"
+    ],
+    "ccna_validation": [
+      "troubleshooting",
+      "investigations"
+    ],
+    "ccna_security": [
+      "configurations"
+    ],
+    "ccna_ops": [
+      "troubleshooting",
+      "decisions",
+      "configurations"
+    ],
+    "ccna_monitoring": [
+      "troubleshooting",
+      "investigations"
+    ],
+    "ccna_handover": [
+      "architectures",
+      "communication",
+      "projects"
+    ],
+    "ap_intake": [
+      "configurations"
+    ],
+    "ap_asset": [
+      "architectures",
+      "decisions"
+    ],
+    "ap_fault": [
+      "troubleshooting"
+    ],
+    "ap_os": [
+      "configurations",
+      "decisions"
+    ],
+    "ap_backup": [
+      "configurations",
+      "troubleshooting"
+    ],
+    "ap_tickets": [
+      "troubleshooting",
+      "communication"
+    ],
+    "ap_security": [
+      "configurations"
+    ],
+    "ap_handover": [
+      "communication",
+      "projects"
+    ],
+    "np_lab": [
+      "configurations"
+    ],
+    "np_design": [
+      "architectures",
+      "decisions"
+    ],
+    "np_ports": [
+      "architectures",
+      "configurations"
+    ],
+    "np_config": [
+      "configurations"
+    ],
+    "np_verify": [
+      "troubleshooting",
+      "investigations"
+    ],
+    "np_changes": [
+      "troubleshooting",
+      "decisions"
+    ],
+    "np_bom": [
+      "architectures",
+      "decisions"
+    ],
+    "np_handover": [
+      "architectures",
+      "communication",
+      "projects",
+      "decisions"
+    ],
+    "secai_lab_rule": [
+      "decisions"
+    ],
+    "secai_system_map": [
+      "architectures"
+    ],
+    "secai_attack_casebook": [
+      "investigations",
+      "troubleshooting"
+    ],
+    "secai_control_set": [
+      "configurations",
+      "decisions"
+    ],
+    "secai_watch_plan": [
+      "investigations",
+      "configurations"
+    ],
+    "secai_governance_pack": [
+      "decisions",
+      "investigations"
+    ],
+    "secai_release_note": [
+      "communication"
+    ],
+    "secai_release_package": [
+      "communication",
+      "projects"
+    ],
+    "cissp_d1": [
+      "decisions",
+      "investigations"
+    ],
+    "cissp_d2": [
+      "architectures"
+    ],
+    "cissp_d3": [
+      "architectures",
+      "decisions"
+    ],
+    "cissp_d4": [
+      "architectures",
+      "configurations"
+    ],
+    "cissp_d5": [
+      "configurations"
+    ],
+    "cissp_d6": [
+      "investigations"
+    ],
+    "cissp_d7": [
+      "troubleshooting",
+      "decisions"
+    ],
+    "cissp_d8": [
+      "configurations",
+      "decisions"
+    ],
+    "cissp_release_note": [
+      "communication"
+    ],
+    "cissp_questionnaire": [
+      "communication",
+      "investigations"
+    ],
+    "cissp_controls": [
+      "configurations",
+      "investigations"
+    ],
+    "cissp_ssp": [
+      "architectures",
+      "communication",
+      "projects",
+      "decisions"
+    ],
+    "foundation": [
+      "architectures",
+      "configurations",
+      "decisions"
+    ],
+    "sad": [
+      "architectures",
+      "decisions"
+    ],
+    "api": [
+      "architectures",
+      "configurations"
+    ],
+    "incident": [
+      "investigations",
+      "troubleshooting",
+      "communication",
+      "projects"
+    ],
+    "access": [
+      "configurations",
+      "investigations"
+    ],
+    "network": [
+      "architectures",
+      "configurations",
+      "troubleshooting"
+    ],
+    "server": [
+      "configurations",
+      "troubleshooting",
+      "decisions"
+    ],
+    "dr": [
+      "troubleshooting",
+      "decisions",
+      "projects",
+      "architectures"
+    ],
+    "iac": [
+      "configurations",
+      "architectures",
+      "decisions"
+    ],
+    "change": [
+      "decisions",
+      "troubleshooting"
+    ],
+    "governance": [
+      "investigations",
+      "decisions",
+      "communication"
+    ],
+    "handover": [
+      "communication",
+      "projects",
+      "troubleshooting"
+    ]
+  },
+  "troubleGroups": [
+    {
+      "form": "incident_report",
+      "group": "iocs",
+      "outcome": "attack_type",
+      "resolved": "."
+    },
+    {
+      "form": "change_log",
+      "group": "changes",
+      "outcome": "evidence",
+      "resolved": "."
+    },
+    {
+      "form": "mssp_retest",
+      "group": "findings",
+      "outcome": "retest",
+      "resolved": "pass|fixed|closed|resolved|remediated"
+    },
+    {
+      "form": "cysa_alert_triage",
+      "group": "alerts",
+      "outcome": "verdict",
+      "resolved": "."
+    },
+    {
+      "form": "cysa_soc_findings",
+      "group": "known",
+      "outcome": "remediation",
+      "resolved": "."
+    },
+    {
+      "form": "cysa_vulnerability_assessment",
+      "group": "findings",
+      "outcome": "fix",
+      "resolved": "."
+    },
+    {
+      "form": "cysa_incident_response",
+      "group": "timeline",
+      "outcome": "note",
+      "resolved": "contain|eradicat|recover|closed|resolved|blocked|isolated"
+    },
+    {
+      "form": "srv_bringup",
+      "group": "post",
+      "outcome": "result",
+      "resolved": "fixed|resolved|boots|pass|ok|clear|works|green"
+    },
+    {
+      "form": "srv_ip_plan",
+      "group": "proof",
+      "outcome": "verdict",
+      "resolved": "pass|match|ok|yes"
+    },
+    {
+      "form": "srv_operations",
+      "group": "changes",
+      "outcome": "result",
+      "resolved": "ok|done|success|pass|complete|applied"
+    },
+    {
+      "form": "ccna_validation",
+      "group": "tests",
+      "outcome": "result",
+      "resolved": "pass|ok|yes"
+    },
+    {
+      "form": "ccna_ops",
+      "group": "changes",
+      "outcome": "result",
+      "resolved": "ok|done|success|pass|complete|applied"
+    },
+    {
+      "form": "ap_fault",
+      "group": "attempts",
+      "outcome": "result",
+      "resolved": "fixed|resolved|works|pass|boots|ok|yes|solved"
+    },
+    {
+      "form": "ap_tickets",
+      "group": "tickets",
+      "outcome": "closed",
+      "resolved": "."
+    },
+    {
+      "form": "np_changes",
+      "group": "faults",
+      "outcome": "fix",
+      "resolved": "."
+    },
+    {
+      "form": "np_verify",
+      "group": "matrix",
+      "outcome": "ok",
+      "resolved": "yes|true|ok|pass"
+    },
+    {
+      "form": "secai_attack_casebook",
+      "group": "cases",
+      "outcome": "status",
+      "resolved": "closed|mitigated|blocked|fixed|controlled"
+    },
+    {
+      "form": "cissp_d1",
+      "group": "weaknesses",
+      "outcome": "status",
+      "resolved": "closed|fixed|resolved"
+    },
+    {
+      "form": "sad",
+      "group": "ssh_tests",
+      "outcome": "result",
+      "resolved": "pass|ok|yes|refused|denied|timed out|reached"
+    },
+    {
+      "form": "incident",
+      "group": "signals",
+      "outcome": "action",
+      "resolved": "."
+    },
+    {
+      "form": "access",
+      "group": "denials",
+      "outcome": "result",
+      "resolved": "denied|403|refused|forbidden|blocked|no"
+    },
+    {
+      "form": "network",
+      "group": "paths",
+      "outcome": "result",
+      "resolved": "pass|ok|200|reach|yes"
+    },
+    {
+      "form": "handover",
+      "group": "scenarios",
+      "outcome": "result",
+      "resolved": "pass|met|restored|ok|recovered"
+    }
+  ],
+  "changeGroups": [
+    {
+      "form": "srv_operations",
+      "group": "changes",
+      "rollback": "rollback"
+    },
+    {
+      "form": "srv_operations",
+      "group": "sops",
+      "rollback": "rollback"
+    },
+    {
+      "form": "ccna_ops",
+      "group": "changes",
+      "rollback": "rollback"
+    },
+    {
+      "form": "np_handover",
+      "group": "risks",
+      "rollback": "rollback"
+    },
+    {
+      "form": "azd_change",
+      "group": "runs",
+      "rollback": "result"
+    }
+  ],
+  "rationalePattern": "(^|_)(why|because|rationale|reason|justification|rejected|decision|treatment)($|_)"
+}

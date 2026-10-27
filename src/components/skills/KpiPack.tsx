@@ -22,7 +22,7 @@ import type { BoardCopy } from '@/lib/docs/skillsCopy';
  * breathes when the ratio is complete; a socket whose fact was not handed in
  * is dashed and dim and says so. Hover, focus or a tap prints the socket in
  * the read-out line; the hero figure counts up on mount. One tab stop per
- * pack: the arrow keys move between sockets. Nothing is scored or ranked.
+ * pack: the arrow keys move between sockets. Scores sit on the board page, by a published method; nothing is ranked.
  *
  * The arc is a stroke, which `MotionConfig` does not still, so the pack reads
  * the motion preference itself and renders the final state under reduce.
@@ -40,7 +40,7 @@ interface KpiPackProps {
 
 const R = 9;
 const C = 2 * Math.PI * R;
-const HERO = 'kpi.ability.skills-verified';
+const HERO = 'kpi.technical.skills-verified';
 
 const isLit = (k: KpiValue) => k.loaded && k.of > 0 && k.pct === 100;
 

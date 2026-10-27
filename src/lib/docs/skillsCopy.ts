@@ -23,6 +23,10 @@ export const DIMENSION_LABEL: Record<Dimension, string> = {
   documentation: 'Documentation',
   collaboration: 'Collaboration',
   ability: 'Ability',
+  execution: 'Execution',
+  troubleshooting: 'Troubleshooting',
+  decisions: 'Decisions',
+  retention: 'Retention',
 };
 
 const LEVELS: Record<SkillLevel, string> = {
@@ -45,6 +49,10 @@ export const LEVEL_LABEL: Record<Dimension, Record<SkillLevel, string>> = {
   documentation: { 'not-started': 'Not started', practised: 'Drafted', verified: 'Checks met', reviewed: 'Approved' },
   collaboration: LEVELS,
   ability: LEVELS,
+  execution: { 'not-started': 'No facts yet', practised: 'Measured', verified: 'Met at least once', reviewed: 'Met at least once' },
+  troubleshooting: { 'not-started': 'Nothing logged', practised: 'Logged', verified: 'Resolved', reviewed: 'Resolved on an approved form' },
+  decisions: { 'not-started': 'Not decided', practised: 'Decided', verified: 'Decided and justified', reviewed: 'Approved by the team' },
+  retention: { 'not-started': 'Not verified', practised: 'Verified once', verified: 'Verified again a week later', reviewed: 'Verified again a week later' },
 };
 
 export type BoardCopy = (typeof SKILLS_COPY)['board'];
@@ -121,11 +129,18 @@ export const SKILLS_COPY = {
   },
   dashboardSection: 'Skills by course',
   tiles: { skillsVerified: 'Skills verified', toolsUsed: 'Tools used', kpiBoard: 'Skill board', commandsVerified: 'Commands verified', proceduresToStandard: 'Procedures to standard' },
+  /** R132: the eight domains and the fourteen categories, as the surfaces print them. */
+  skillDomainsHeading: 'Eight domains',
+  skillDomainsLede: 'Rows appear only where evidence stands behind them: a verified step, an approved form, an authored decision, a resolved fault.',
+  domainEmpty: 'Nothing recorded in this domain yet.',
+  categoriesHeading: 'The record, by category',
+  categoryFigures: { utilization: 'Uses', verifiedUses: 'Verified uses', successRate: 'Success rate', lastActivity: 'Last activity', courses: 'Courses', projects: 'Projects', trend: 'Six months', evidence: 'Evidence', relevance: 'Industry relevance' },
+  relevanceNote: 'The share of the NICE work roles whose competency areas this category serves; a crosswalk, published in docs/SCORING.md.',
   /** R108: the Skill board page, its tiles, the constellation, the cohort report. */
   board: {
     title: 'Skill board',
-    lede: 'Sixteen numbers this course keeps for this member, each counted over facts that exist, and the competencies lit by level.',
-    familiesHeading: 'Four families of four',
+    lede: 'Twenty-eight numbers this course keeps for this member, counted over facts that exist, six scores by a published method, and the competencies lit by level.',
+    familiesHeading: 'Seven families of four',
     audience: { student: 'Student', hiring: 'Hiring', agent: 'Agent' },
     factOwn: 'Own fact: ticks, pastes and hashes by this member.',
     factTeam: 'Team fact: a document the team filled, approved or issued.',
@@ -141,14 +156,14 @@ export const SKILLS_COPY = {
     perTool: 'Verified steps on the tasks that use each tool',
     credentialName: 'Capstone member profile',
     issuer: 'Capstone Labs',
-    jsonCaption: 'The same sixteen as the capstone-kpi-board/1 document an agent reads.',
+    jsonCaption: 'The same twenty-eight, the scores and the timing as the capstone-kpi-board/2 document an agent reads.',
     schemaNote: 'The shape is published as content/schemas/kpi-board.schema.json.',
     copyJson: 'Copy JSON',
     mapTitle: 'Competency map',
     mapHowToRead: 'One star per competency this role practises, grouped by area; brighter means verified, a ring means the team approved the document.',
     mapIdle: 'Hover or focus a star to read it.',
     weeksLabel: 'Weeks cleared',
-    tableTitle: 'The sixteen, as a table',
+    tableTitle: 'The twenty-eight, as a table',
     nextTask: 'Next task',
     /** R114: a candidate link to a frozen copy of the export. */
     createLink: 'Create link',
@@ -158,7 +173,7 @@ export const SKILLS_COPY = {
     cohortColumns: ['KPI', 'Family', 'Fact', 'Members', 'Not started', 'In progress', 'Complete', 'No denominator', 'Sum'] as string[],
     bands: { notStarted: 'Not started', inProgress: 'In progress', complete: 'Complete', noDenominator: 'No denominator' },
     /** R109: the KPI pack on the Home card and the dashboard card, and the DTO chip beside it. */
-    packTitle: 'Sixteen KPIs',
+    packTitle: 'Twenty-eight KPIs',
     packIdle: 'Hover or focus a socket to read it.',
     packKeys: 'Arrow keys move between sockets. Enter pins the read-out.',
     download: 'Download PDF',
@@ -168,6 +183,20 @@ export const SKILLS_COPY = {
     lastVerified: 'Last verified',
     current: 'current',
     stale: 'verified earlier',
-    familyShort: { ability: 'Ability', execution: 'Execution', procedure: 'Procedure', outcome: 'Outcome' } as Record<KpiFamily, string>,
+    familyShort: { technical: 'Technical', 'problem-solving': 'Problem solving', execution: 'Execution', 'decision-making': 'Decisions', teamwork: 'Teamwork', professionalism: 'Professionalism', growth: 'Growth' } as Record<KpiFamily, string>,
+    /** R132: the scores, the timing and the tier. */
+    scoresHeading: 'Scores, by a published method',
+    scoreNote: 'A weighted mean of the KPIs named; the weights are published in docs/SCORING.md.',
+    scoreStandsOn: 'stands on',
+    scoreComponents: 'components',
+    timingHeading: 'Time to resolution',
+    timingNote: 'Minutes from the first paste to the verification, read from two recorded stamps; the median over steps resolved within a day.',
+    timedSteps: 'steps timed',
+    withinHour: 'within the hour',
+    over24h: 'left over a day',
+    noTiming: 'No step carries both stamps yet.',
+    tierProfessional: 'Professional',
+    tierBuilding: 'Building',
+    tierRule: 'Professional at ten verified uses across every course and retake; building below it, with the count.',
   },
 };

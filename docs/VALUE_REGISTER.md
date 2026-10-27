@@ -13,13 +13,13 @@ asset it rides on, the metrics that carry it (`src/lib/docs/metricCatalogue.ts`,
   (`src/app/legal/privacy/page.tsx`, `src/app/legal/terms/page.tsx`);
 - **Phase 4** — deliberately not built (ADR-0007: no MCP gateway now).
 
-Nothing here is scored, ranked or badged; speed is not measured. R110 added the consent grants
+Since R132 a number may be scored by a published method (`docs/SCORING.md`) and a duration is the difference of two recorded stamps; nothing ranks one member against another. R110 added the consent grants
 (`share-employer`, `benchmark`, `outcome`) and the consented outcome form: an item marked "needs
 consent" below now means "needs the member's grant", which the member can give from the account page.
 R112 added the platform's own effectiveness view for instructors: the funnel from enrolment to a filed
 capstone, active-weeks bands and the step friction map, counts only. The member profile is sent by the
 member, unsigned, and says so in its `claim`. R108 added rows 11 onward in each list: the Skill
-board's sixteen KPIs, the environment profile, the work roles, the credential envelope, the cohort
+board's twenty-eight KPIs, the environment profile, the work roles, the credential envelope, the cohort
 report and the event contract.
 
 ## For companies (the hiring pipeline)
@@ -37,9 +37,9 @@ report and the event contract.
 | 9 | The honest reading guide: what "verified" proves, every metric's definition and status | `content/ontology/metrics.json`, `SKILLS_COPY.exportClaim`, the legal pages | — | available now |
 | 10 | Named candidate shortlists or cohort data for an employer programme | the cohort CSV (`src/lib/cohort.ts`); one candidate at a time, the member's own link (`/share`) | `metric.platform-cohort-domain-coverage` | needs consent + legal change for shortlists; a member's own link is available now (R114) |
 | 11 | An Environment Profile: the stack, methodology, policies, ticket taxonomy and the competencies a company requires per work role, published as a file and measured against | `content/schemas/environment-profile.schema.json`, `content/profiles/sample-mssp.json`, the Skill board's "Measured against" picker | `metric.profile-coverage` | available now (published by file; over MCP: Phase 4) |
-| 12 | The sixteen-KPI board per candidate: ability, execution, procedure and standards, outcome, each a ratio of counts with its fact kind and, on team facts, the share on forms the candidate's role drafts, sent by the candidate | `/courses/<id>/skills`, the `KpiPack` and its chip on the Home card and every `/dashboard` card, the export's `courses[].kpis` (`capstone-kpi-board/1`), `content/ontology/kpis.json` | the sixteen `kpi.*` rows of `src/lib/docs/kpis.ts` | available now (member-sent, unsigned; by link, measured against an employer profile an instructor published, R114) |
+| 12 | The twenty-eight-KPI board per candidate (R132): technical capability, problem solving, execution, decision making, teamwork, professionalism and growth, each a ratio of counts (or a median of minutes between two recorded stamps) with its fact kind and, on team facts, the share on forms the candidate's role drafts, plus six scores by the published method, sent by the candidate | `/courses/<id>/skills`, the `KpiPack` and its chip on the Home card and every `/dashboard` card, the export's `courses[].kpis` and `courses[].scores` (`capstone-kpi-board/2`), `content/ontology/kpis.json`, `content/ontology/scoring.json` | the twenty-eight `kpi.*` rows of `src/lib/docs/kpis.ts`, the six `score.*` rows of `scoring.ts` | available now (member-sent, unsigned; by link, measured against an employer profile an instructor published, R114) |
 | 13 | A credential envelope a hiring system can parse: Open Badges 3.0 with alignment to competency, exam-domain and NICE work-role ids | Create link → credential (the function serves it; the shared page prints it as a PDF statement, R127), `content/schemas/credential.schema.json` | — | available now by link (unsigned, no `proof`); a signed attestation: needs validators |
-| 14 | The cohort KPI report: counts per band per cohort, nobody named | the instructor cohort page, its KPI CSV (`src/lib/cohortKpi.ts`) | the sixteen `kpi.*` rows | available now for a programme's own instructors; handing it to an employer: needs consent + legal change |
+| 14 | The cohort KPI report: counts per band per cohort, nobody named | the instructor cohort page, its KPI CSV (`src/lib/cohortKpi.ts`) | the twenty-eight `kpi.*` rows | available now for a programme's own instructors; handing it to an employer: needs consent + legal change |
 
 ## For students
 
@@ -56,7 +56,7 @@ report and the event contract.
 | 8b | A compact PDF of skills, progress and issues, to hand to anyone | "Download PDF" on `/dashboard`, `/portfolio`, the Home card and a shared copy (`src/lib/recordPdf.ts`) | — | available now (R127; unsigned) |
 | 9 | The documentation and collaboration record: drafted, reviewed, issued, rubric-green, hand-offs, RACI respected | the Home card's indicators | `metric.doc-drafted`, `-reviewed`, `-issued`, `metric.collab-handoffs`, `metric.collab-raci-respected` | available now (course facts) |
 | 10 | Ability indicators without speed: first-try beside persistence, partial progress, investigation, consistency | the Home card's indicators | `metric.ability-first-try`, `-persistence`, `-partial-progress`, `-investigation-reports`, `-consistency-days` | available now; recall, calibration, independence: needs events / validators; remediation from another platform: Phase 4 |
-| 11 | The Skill board: the competency map lit by level and the sixteen KPIs, replayable, measured against a job role or a company profile with the untaught gap named; the same sixteen as the socket pack on the Home card and every dashboard card | `/courses/<id>/skills` (`SkyMap`, `KpiBoard`, `KpiTable`), `KpiPack` | the sixteen `kpi.*` rows, `metric.profile-coverage` | available now |
+| 11 | The Skill board: the competency map lit by level and the twenty-eight KPIs with the six scores, replayable, measured against a job role or a company profile with the untaught gap named; the same twenty-eight as the socket pack on the Home card and every dashboard card | `/courses/<id>/skills` (`SkyMap`, `KpiBoard`, `KpiTable`), `KpiPack` | the twenty-eight `kpi.*` rows, `metric.profile-coverage` | available now |
 | 12 | A credential beside the profile | Create link → credential (R127: no longer a downloaded file) | — | available now by link (unsigned) |
 
 ## For other AI platforms and agents (A2A and MCP consumers)
@@ -73,7 +73,7 @@ report and the event contract.
 | 8 | Agent-readable Markdown: build, cert-coverage and skills sheets | `docs/courses/` | — | available now |
 | 9 | Verify tokens and Definition-of-Done predicates per step and form as a validator interface; environment templates (`azuredeploy.json`, `template.yaml`) as agent sandboxes | course DTOs, `src/lib/cloud/*Iac.ts`, `src/lib/docs/validators.ts` | `metric.platform-course-verifiability` | available now as content, with one browser validator (`ufw-least-privilege`, shown live, not recorded) and server receipts of stamps in cloud mode; state-reading validators: needs validators |
 | 10 | An MCP server or A2A federation over all of the above | ADR-0007 | — | Phase 4, deliberately not built |
-| 11 | The KPI board as a document: sixteen ratios with catalogue ids, fact kinds and loaded flags, the Agent view of the Skill board | `content/ontology/kpis.json`, `content/schemas/kpi-board.schema.json` | the sixteen `kpi.*` rows | available now |
+| 11 | The KPI board as a document: twenty-eight ratios with catalogue ids, fact kinds, units and loaded flags, six scores with every component named, and the timing block, the Agent view of the Skill board | `content/ontology/kpis.json`, `content/ontology/scoring.json`, `content/schemas/kpi-board.schema.json` | the twenty-eight `kpi.*` rows | available now |
 | 12 | The event contract: the xAPI-shaped event every write site would append, with actor type, assist level and consent scope | `content/schemas/event.schema.json`, `docs/EVENTS.md` | `metric.ability-unassisted`, `metric.doc-rubric-events` | contract now; the log: ROADMAP Phase 1 item 1 |
 | 13 | The work-role crosswalk and the environment-profile schema, so a job posting or a company stack joins the ontology | `content/ontology/work-roles.json`, `content/schemas/work-role.schema.json`, `content/schemas/environment-profile.schema.json` | `metric.profile-coverage` | available now (NICE ids transcribed from the 2017 edition; confirm) |
 

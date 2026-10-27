@@ -7,6 +7,7 @@ import type {
   Cohort,
   CohortRepository,
   DeliverableReview,
+  DeliverableReviewMark,
   DeliverableStatus,
   DeliverableSubmission,
   PeerReviewRow,
@@ -17,6 +18,7 @@ import type {
   StepNote,
   StepNotesRepository,
   StuckFlag,
+  StepFlagEvent,
   SubmissionProgress,
   SubmissionsRepository,
   TaskReport,
@@ -74,6 +76,24 @@ export const supabaseReviewRepo: ReviewRepository = {
         // instructor's own verdict read back as saved (R82).
         if (!res.error) notifyStore();
       });
+  },
+
+  // R132: one row per category per verdict, appended; the database stamps them.
+  marks(courseId: string, teamId: string): DeliverableReviewMark[] {
+    return cache.reviewMarks(courseId, teamId);
+  },
+
+  saveMarks(marks: DeliverableReviewMark[]): void {
+    if (!marks.length) return;
+    cache.addReviewMarks(marks);
+    notifyStore();
+    const supabase = getBrowserClient();
+    const reviewer_id = getCurrentUserId();
+    if (!supabase || !reviewer_id) return;
+    void supabase
+      .from('deliverable_review_marks')
+      .insert(marks.map((m) => ({ course_id: m.courseId, team_id: m.teamId, deliverable_id: m.deliverableId, week: m.week, category: m.category, ok: m.ok, note: m.note, reviewer: m.reviewer, reviewer_id })))
+      .then(report('review marks', 'Couldn’t save the category marks to the cloud — the database may need supabase/setup.sql re-run (0021).'));
   },
 };
 
@@ -136,13 +156,24 @@ export const supabaseStepNotesRepo: StepNotesRepository = {
   },
 
   save(_memberId: string, note: StepNote): void {
+    // R132: a change of the flag leaves an event beside the overwritten flag.
+    const before = cache.stepNotes(note.courseId)[`${note.taskId}::${note.stepId}`]?.stuck ?? false;
+    const me = getCurrentUserId();
+    const flagged = before !== note.stuck;
     cache.setStepNote(note);
+    if (flagged && me) cache.addFlagEvent({ courseId: note.courseId, memberId: me, taskId: note.taskId, stepId: note.stepId, kind: note.stuck ? 'raised' : 'cleared', at: note.at });
     notifyStore();
     const supabase = getBrowserClient();
     if (!supabase) return;
     const user_id = getCurrentUserId();
     if (!user_id) return;
     const at = new Date(note.at).toISOString();
+    if (flagged) {
+      void supabase
+        .from('step_flag_events')
+        .insert({ user_id, course_id: note.courseId, task_id: note.taskId, step_id: note.stepId, kind: note.stuck ? 'raised' : 'cleared' })
+        .then(report('flag history', 'Couldn’t record the flag change — the database may need supabase/setup.sql re-run (0022).'));
+    }
     const key = { user_id, course_id: note.courseId, task_id: note.taskId, step_id: note.stepId };
     // Two tables on purpose: the note is owner-only, the flag is team-readable.
     // RLS is row-level, so the split is the only way teammates can see "stuck"
@@ -160,6 +191,10 @@ export const supabaseStepNotesRepo: StepNotesRepository = {
   teamStuck(courseId: string, teamId: string): StuckFlag[] {
     const team = new Set(cache.roster(courseId).filter((m) => m.teamId === teamId).map((m) => m.memberId));
     return cache.stuckFlags(courseId).filter((f) => team.has(f.memberId));
+  },
+
+  flagEvents(courseId: string, memberId: string): StepFlagEvent[] {
+    return cache.flagEvents(courseId).filter((e) => e.memberId === memberId);
   },
 
   resetCourse(courseId: string): void {

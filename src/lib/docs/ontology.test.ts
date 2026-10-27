@@ -48,8 +48,13 @@ describe('content/ontology — current, additive, versioned', () => {
     expect(standards).not.toMatch(/"tone"|bg-[a-z]+-soft|text-[a-z]+/);
     expect((fresh.domains as { domains: { id: string }[] }).domains.map((d) => d.id)).toContain('SY0-701.d2');
     expect((fresh.competencies as { taughtBy: Record<string, unknown[]> }).taughtBy['comp.recon.port-scan'].length).toBeGreaterThanOrEqual(2);
-    // R108: the sixteen KPIs and the work roles travel with the ontology.
-    expect((fresh.kpis as { kpis: unknown[] }).kpis.length).toBe(16);
+    // R108/R132: the twenty-eight KPIs, the sixteen deprecated R108 ids, the domains, the categories and the scores travel with the ontology.
+    expect((fresh.kpis as { kpis: unknown[] }).kpis.length).toBe(28);
+    expect((fresh.kpis as { deprecated: { replacedBy: string | null }[] }).deprecated.length).toBe(16);
+    expect((fresh['skill-domains'] as { domains: unknown[] }).domains.length).toBe(8);
+    expect((fresh['record-categories'] as { categories: unknown[]; threshold: number }).categories.length).toBe(14);
+    expect((fresh['record-categories'] as { threshold: number }).threshold).toBe(10);
+    expect((fresh.scoring as { scores: unknown[] }).scores.length).toBe(6);
     expect((fresh['work-roles'] as { workRoles: { requiredCompetencies: string[] }[] }).workRoles.every((w) => w.requiredCompetencies.length > 0)).toBe(true);
   });
 });

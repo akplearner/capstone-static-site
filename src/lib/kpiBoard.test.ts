@@ -45,7 +45,7 @@ const boardOf = (profile: ReturnType<typeof profileOf>, over: Partial<KpiBoardIn
   kpiBoard({ profile, registry, cert, measure, outcome: { capstoneFiled: false, weeksCleared: 0, weeksTotal: 4 }, ontologyVersion: ONTOLOGY_VERSION, ...over });
 
 describe('kpiBoard', () => {
-  it('is sixteen values in registry order, validates against the schema, and names the work roles and the measure', () => {
+  it('is twenty-eight values in registry order, validates against the schema, and names the work roles and the measure', () => {
     const board = boardOf(profileOf());
     expect(board.schema).toBe(KPI_BOARD_SCHEMA);
     expect(board.kpis.map((k) => k.id)).toEqual(KPIS.map((k) => k.id));
@@ -66,22 +66,47 @@ describe('kpiBoard', () => {
     expect(board.kpis.filter((k) => k.beside).length).toBe(1);
   });
 
-  it('team facts read as not loaded without the team, and as loaded with it; own facts always load', () => {
+  // R132: four own facts need something beyond the ticks and pastes: the flag history, the review queue, the cohort calendar and the page clock.
+  const NEEDS_MORE = ['kpi.problem-solving.flags-cleared', 'kpi.teamwork.peer-reviews-given', 'kpi.professionalism.on-time', 'kpi.growth.learning-velocity'];
+  const EVERYTHING = { team: { docs: {}, status: [] as DeliverableStatus[], submissions: [], reviews: [], currentWeek: 1 }, own: { notes: [], reports: [], flagEvents: [], peerReviews: { done: 0, assigned: 0 } }, asOf: 10_000_000, weekDue: () => 9_000_000 };
+
+  it('team facts read as not loaded without the team, own facts that need more say so, and everything loads once it is handed in', () => {
     const alone = boardOf(profileOf());
-    for (const k of alone.kpis) expect(k.loaded, k.id).toBe(k.fact !== 'team');
-    const status: DeliverableStatus[] = [];
-    const withTeam = boardOf(profileOf({ team: { docs: {}, status, submissions: [], reviews: [], currentWeek: 1 } }));
-    for (const k of withTeam.kpis) expect(k.loaded, k.id).toBe(true);
-    const filed = boardOf(profileOf({ team: { docs: {}, status, submissions: [], reviews: [], currentWeek: 1 } }), { outcome: { capstoneFiled: true, weeksCleared: 4, weeksTotal: 4 } });
-    expect(filed.kpis.find((k) => k.id === 'kpi.outcome.capstone-filed')).toMatchObject({ value: 1, of: 1, pct: 100, loaded: true });
+    for (const k of alone.kpis) expect(k.loaded, k.id).toBe(k.fact !== 'team' && !NEEDS_MORE.includes(k.id));
+    const withTeam = boardOf(profileOf({ team: EVERYTHING.team }));
+    for (const k of withTeam.kpis) expect(k.loaded, k.id).toBe(!NEEDS_MORE.includes(k.id));
+    const all = boardOf(profileOf(EVERYTHING));
+    for (const k of all.kpis) expect(k.loaded, k.id).toBe(true);
+    expect(all.scores.map((s) => s.id)).toEqual(registry.SCORING.map((s) => s.id));
+    for (const s of all.scores) {
+      expect(s.value).toBeGreaterThanOrEqual(0);
+      expect(s.value).toBeLessThanOrEqual(100);
+      expect(s.components.map((c) => c.kpi)).toEqual(registry.SCORING.find((d) => d.id === s.id)!.components.map((c) => c.kpi));
+    }
+    expect(all.timing).toEqual({ timedSteps: 0, medianMinutes: null, withinHour: 0, over24h: 0 });
+  });
+
+  it('R132: the minutes between two stamps ride on the board as the median, and the scores stand only on components with a denominator', () => {
+    const keys = checkable.slice(0, 3);
+    const evidence = Object.fromEntries(keys.map((k, i) => [k, { ...verified(k, 1_000_000 + 60_000 * [5, 30, 3000][i]), firstAttemptAt: 1_000_000 }]));
+    const board = boardOf(profileOf({ done: keys, evidence }));
+    expect(board.timing).toEqual({ timedSteps: 3, medianMinutes: 18, withinHour: 2, over24h: 1 });
+    const ttr = board.kpis.find((k) => k.id === 'kpi.problem-solving.time-to-resolution')!;
+    expect(ttr).toMatchObject({ unit: 'minutes', value: 18, of: 3, pct: 67, loaded: true });
+    const judgment = board.scores.find((s) => s.id === 'score.judgment')!;
+    expect(judgment, 'team facts not handed in: the score stands on nothing').toMatchObject({ loaded: false, counted: 0, value: 0 });
+    const tool = board.scores.find((s) => s.id === 'score.tool-proficiency')!;
+    expect(tool.loaded).toBe(true);
+    expect(tool.counted).toBeGreaterThan(0);
+    for (const c of tool.components) if (c.counted) expect(c.pct).toBe(board.kpis.find((k) => k.id === c.kpi)!.pct);
   });
 
   it('verifying a step raises skills verified, exam weight, coverage and commands, and proving a skill on two tasks counts it once', () => {
     const find = (board: ReturnType<typeof boardOf>, id: string) => board.kpis.find((k) => k.id === id)!;
     const empty = boardOf(profileOf());
-    expect(find(empty, 'kpi.ability.skills-verified').value).toBe(0);
-    expect(find(empty, 'kpi.ability.skills-verified').of).toBeGreaterThan(0);
-    expect(find(empty, 'kpi.ability.exam-weight-verified').of).toBeGreaterThan(0);
+    expect(find(empty, 'kpi.technical.skills-verified').value).toBe(0);
+    expect(find(empty, 'kpi.technical.skills-verified').of).toBeGreaterThan(0);
+    expect(find(empty, 'kpi.technical.exam-weight-verified').of).toBeGreaterThan(0);
     // A skill two tasks of the role practise, each with a verifiable step.
     const tally = new Map<string, string[]>();
     for (const t of own) if (verifiableSteps(t.steps.filter((s) => !s.optional)).length > 0) for (const id of registry.SKILL_OF[t.id] ?? []) tally.set(id, [...(tally.get(id) ?? []), t.id]);
@@ -90,15 +115,15 @@ describe('kpiBoard', () => {
     const [skillId, tasks] = twice!;
     const keys = tasks.slice(0, 2).map((taskId) => checkable.find((k) => k.startsWith(`${taskId}::`))!);
     const one = boardOf(profileOf({ done: [keys[0]], evidence: { [keys[0]]: verified(keys[0], 100) } }));
-    expect(find(one, 'kpi.ability.skills-verified').value).toBeGreaterThanOrEqual(1);
-    expect(find(one, 'kpi.ability.exam-weight-verified').value).toBeGreaterThan(0);
-    expect(find(one, 'kpi.ability.skills-transferred')).toMatchObject({ value: 0 });
+    expect(find(one, 'kpi.technical.skills-verified').value).toBeGreaterThanOrEqual(1);
+    expect(find(one, 'kpi.technical.exam-weight-verified').value).toBeGreaterThan(0);
+    expect(find(one, 'kpi.growth.skills-transferred')).toMatchObject({ value: 0 });
     expect(find(one, 'kpi.execution.first-try')).toMatchObject({ value: 1, of: 1 });
     const both = boardOf(profileOf({ done: keys, evidence: { [keys[0]]: verified(keys[0], 100), [keys[1]]: verified(keys[1], 200, 2) } }));
-    expect(find(both, 'kpi.ability.skills-transferred').value).toBe(1);
+    expect(find(both, 'kpi.growth.skills-transferred').value).toBe(1);
     expect(find(both, 'kpi.execution.first-try')).toMatchObject({ value: 1, of: 2, beside: { value: 1, of: 2 } });
     expect(both.measuredAgainst.required).toBe(empty.measuredAgainst.required);
-    if (measure.requiredCompetencies.includes(skillId)) expect(find(both, 'kpi.ability.profile-coverage').value).toBeGreaterThanOrEqual(1);
+    if (measure.requiredCompetencies.includes(skillId)) expect(find(both, 'kpi.growth.profile-coverage').value).toBeGreaterThanOrEqual(1);
   });
 
   it('profileCoverage counts verified required ids and names the untaught ones; profileMeasure picks the matching work roles', () => {
@@ -118,7 +143,7 @@ describe('kpiBoard', () => {
   it('invariants over random facts: value ≤ of, pct in range, and a verification never lowers an own-fact value', () => {
     let seed = 11;
     const rand = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
-    const OWN = ['kpi.ability.skills-verified', 'kpi.ability.exam-weight-verified', 'kpi.ability.profile-coverage', 'kpi.ability.skills-transferred', 'kpi.execution.commands-verified', 'kpi.execution.evidence-named'];
+    const OWN = ['kpi.technical.skills-verified', 'kpi.technical.exam-weight-verified', 'kpi.growth.profile-coverage', 'kpi.growth.skills-transferred', 'kpi.technical.commands-verified', 'kpi.execution.evidence-named'];
     for (let i = 0; i < 200; i++) {
       const done = checkable.filter(() => rand() < 0.5);
       const evidence: Record<string, StepEvidence> = {};
@@ -154,22 +179,23 @@ describe('kpiBoard', () => {
   it('sumKpi adds value and denominator across boards, leaves a board whose row was not loaded out, and says so', () => {
     const a = boardOf(profileOf({ done: [checkable[0]], evidence: { [checkable[0]]: verified(checkable[0], 1_000) } }));
     const b = boardOf(profileOf({ done: checkable.slice(0, 3), evidence: Object.fromEntries(checkable.slice(0, 3).map((k, i) => [k, verified(k, 1_000 + i)])) }));
-    const id = 'kpi.execution.commands-verified';
+    const id = 'kpi.technical.commands-verified';
     const ka = a.kpis.find((k) => k.id === id)!;
     const kb = b.kpis.find((k) => k.id === id)!;
     expect(sumKpi([a, b], id)).toEqual({ value: ka.value + kb.value, of: ka.of + kb.of, loaded: true });
     expect(sumKpi([], id)).toEqual({ value: 0, of: 0, loaded: true });
     const alone = boardOf(profileOf());
-    const withTeam = boardOf(profileOf({ team: { docs: {}, status: [], submissions: [], reviews: [], currentWeek: 1 } }), { outcome: { capstoneFiled: true, weeksCleared: 1, weeksTotal: 4 } });
-    const filed = 'kpi.outcome.capstone-filed';
-    expect(alone.kpis.find((k) => k.id === filed)!.loaded).toBe(false);
-    expect(sumKpi([alone, withTeam], filed)).toEqual({ value: 1, of: 1, loaded: false });
+    const withTeam = boardOf(profileOf({ team: { docs: {}, status: [], submissions: [], reviews: [], currentWeek: 1 } }));
+    const teamFact = 'kpi.execution.dod-met';
+    expect(alone.kpis.find((k) => k.id === teamFact)!.loaded).toBe(false);
+    const kt = withTeam.kpis.find((k) => k.id === teamFact)!;
+    expect(sumKpi([alone, withTeam], teamFact)).toEqual({ value: kt.value, of: kt.of, loaded: false });
     expect(sumKpi([withTeam], 'kpi.nobody')).toEqual({ value: 0, of: 0, loaded: false });
   });
 
   // R111: the role's own share of each attributable team fact.
-  it('contribution sits on exactly the seven attributable team KPIs once the team is handed in, bounded by the value, and equals it where the count is already the role’s own', () => {
-    const SEVEN = ['kpi.procedure.followed-to-standard', 'kpi.procedure.dod-met', 'kpi.procedure.controls-cited', 'kpi.procedure.document-control', 'kpi.outcome.rubric-green', 'kpi.outcome.handoffs', 'kpi.outcome.instructor-approved'];
+  it('contribution sits on exactly the six attributable team KPIs once the team is handed in, bounded by the value, and equals it where the count is already the role’s own', () => {
+    const SEVEN = ['kpi.technical.procedures-to-standard', 'kpi.execution.dod-met', 'kpi.teamwork.handoffs', 'kpi.professionalism.document-control', 'kpi.professionalism.controls-cited', 'kpi.professionalism.instructor-approved'];
     const alone = boardOf(profileOf());
     expect(alone.kpis.filter((k) => k.contribution), 'nothing attributed without the team').toEqual([]);
     const withTeam = boardOf(profileOf({ done: checkable.slice(0, 2), evidence: Object.fromEntries(checkable.slice(0, 2).map((k, i) => [k, verified(k, 1_000 + i)])), team: { docs: {}, status: [], submissions: [], reviews: [], currentWeek: 1 } }));
@@ -178,11 +204,11 @@ describe('kpiBoard', () => {
       expect(k.contribution!.value, k.id).toBeLessThanOrEqual(k.value);
       expect(k.contribution!.of, k.id).toBeLessThanOrEqual(k.of);
     }
-    for (const id of ['kpi.procedure.controls-cited', 'kpi.outcome.rubric-green', 'kpi.outcome.handoffs']) {
+    for (const id of ['kpi.professionalism.controls-cited', 'kpi.teamwork.handoffs']) {
       const k = withTeam.kpis.find((x) => x.id === id)!;
       expect(k.contribution, id).toEqual({ value: k.value, of: k.of });
     }
-    expect(withTeam.kpis.find((k) => k.id === 'kpi.outcome.capstone-filed')?.contribution, 'the capstone is the whole team’s').toBeUndefined();
+    expect(withTeam.kpis.find((k) => k.id === 'kpi.decision-making.decisions-recorded')?.contribution, 'a decision is already the member’s own').toBeUndefined();
     expect(validate(withTeam, schema)).toEqual([]);
   });
 });

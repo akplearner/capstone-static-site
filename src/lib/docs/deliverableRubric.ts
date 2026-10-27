@@ -1,3 +1,4 @@
+import { decisionFields } from './types';
 import type { DeliverableData, DeliverableDef, FieldCheck, RubricCategory } from './types';
 import type { Course, Step } from '../types';
 import type { DeliverableReview, StepEvidence } from '../data/types';
@@ -119,6 +120,8 @@ function requiredFields(def: DeliverableDef): { field: string; label: string }[]
   const out: { field: string; label: string }[] = [];
   for (const s of def.sections) {
     if (s.kind === 'fields') for (const f of s.fields) if (f.required) out.push({ field: f.field, label: f.label });
+    // R132: a decision block's choice is required; its questions are required as marked.
+    if (s.kind === 'decision') for (const f of decisionFields(s.block)) if (f.required) out.push({ field: f.field, label: f.label });
   }
   return out;
 }

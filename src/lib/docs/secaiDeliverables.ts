@@ -1,5 +1,23 @@
 import { Column } from '../grc/templates';
-import { DeliverableDef } from './types';
+import { DeliverableDef, decisionDod, type DecisionBlock } from './types';
+
+/** R132 — the guardrail decision: where the first control against prompt injection sits. */
+const GUARDRAIL_DECISION: DecisionBlock = {
+  id: 'guardrail',
+  title: 'The first guardrail',
+  subject: 'control',
+  prompt: 'The casebook proves prompt injection through the retrieval tool. Where does the first control sit?',
+  options: [
+    { id: 'input', label: 'Filter the input', help: 'LLM Guard on every request before the model; cheap, misses what the retriever adds.' },
+    { id: 'output', label: 'Filter the output', help: 'Scan the answer for secrets and tool calls before it leaves; catches what the input filter missed.' },
+    { id: 'gate', label: 'A human approves tool calls', help: 'Every write through a tool waits for a person; slow, and nothing leaves unseen.' },
+  ],
+  questions: [
+    { field: 'guardrail_why', label: 'Why that control first', type: 'area', required: true, placeholder: 'The proven case rides on retrieved text, so the output filter sees it; the input filter alone did not.' },
+    { field: 'guardrail_rejected', label: 'The control rejected, and why', type: 'text', required: true, placeholder: 'Human approval: the help desk bot answers two hundred questions an hour.' },
+    { field: 'guardrail_risk', label: 'What stays uncovered', type: 'text', placeholder: 'A leak that fits no pattern passes the output filter; the watch plan logs every tool call.' },
+  ],
+};
 
 // Deliverable forms for the SecAI+ capstone (R101). Course-scoped
 // (`courseId: 'secai-plus'`) so they never surface on another course. The five
@@ -193,6 +211,7 @@ export const SECAI_DELIVERABLES: DeliverableDef[] = [
     howTo: 'Add a row per control with all five columns. v2 adds the access matrix and data rules; v4 gives each row a test result.',
     source: 'The cases the Red Team proved',
     sections: [
+      { kind: 'decision', block: GUARDRAIL_DECISION },
       {
         kind: 'group',
         group: {
@@ -263,6 +282,7 @@ export const SECAI_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
+      decisionDod(GUARDRAIL_DECISION),
       { label: 'At least three controls with all five columns', when: { group: 'controls', where: { filled: ['control', 'who', 'cadence', 'with', 'record'] }, atLeast: 3 } },
       { label: 'The four v1 configuration items have a value', when: { group: 'configuration', where: { filled: ['item', 'value'] }, atLeast: 4 } },
       { label: 'The access matrix has entries by v2', when: { group: 'access', where: { filled: ['subject', 'object', 'access'] }, atLeast: 3 }, week: 2 },

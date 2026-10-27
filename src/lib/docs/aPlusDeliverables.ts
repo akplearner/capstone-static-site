@@ -1,5 +1,23 @@
 import { Column } from '../grc/templates';
-import { DeliverableDef } from './types';
+import { DeliverableDef, decisionDod, type DecisionBlock } from './types';
+
+/** R132 — the one decision of the build: what to do with the disk the SMART counters describe. */
+const DISK_DECISION: DecisionBlock = {
+  id: 'disk',
+  title: 'The disk decision',
+  subject: 'component',
+  prompt: 'The SMART counters are in front of the team. What happens to this disk?',
+  options: [
+    { id: 'keep', label: 'Build on it', help: 'PASSED with clean counters; the user keeps the disk they have.' },
+    { id: 'image-replace', label: 'Image it, then replace it', help: 'Pending or reallocated sectors; the image protects the data while a new disk is fitted.' },
+    { id: 'replace', label: 'Replace it before any build', help: 'FAILED or not available; nothing is written to it.' },
+  ],
+  questions: [
+    { field: 'disk_why', label: 'Why that, from the counters', type: 'area', required: true, placeholder: 'Reallocated_Sector_Ct 0 and Current_Pending_Sector 0 at 15,214 hours: the disk is healthy and under three years old.' },
+    { field: 'disk_rejected', label: 'The option rejected, and why', type: 'text', required: true, placeholder: 'Replace now: no fault to justify the cost.' },
+    { field: 'disk_risk', label: 'The risk accepted', type: 'text', placeholder: 'A disk this age can still fail without warning; the Week 2 image covers it.' },
+  ],
+};
 import { custodySection, everyEvidenceHashed } from './custodyTemplate';
 
 /**
@@ -181,9 +199,9 @@ const A_PLUS_FORMS: DeliverableDef[] = [
         fields: [
           { field: 'smart_result', label: 'SMART overall result', type: 'select', required: true, options: ['PASSED', 'FAILED', 'Not available'] },
           { field: 'smart_line', label: 'The counters line', type: 'paste', required: true, placeholder: '5 Reallocated_Sector_Ct … 0 / 197 Current_Pending_Sector … 0 / 9 Power_On_Hours … 15214' },
-          { field: 'disk_decision', label: 'Build on it, or replace it', type: 'select', required: true, options: ['Build on it', 'Image it, then replace it'] },
         ],
       },
+      { kind: 'decision', block: DISK_DECISION },
       {
         kind: 'fields',
         title: 'Empty slots and the upgrade path',
@@ -195,7 +213,8 @@ const A_PLUS_FORMS: DeliverableDef[] = [
     ],
     dod: [
       { label: 'At least six parts are rows with a location and the model the live system reported', when: { group: 'parts', where: { filled: ['part', 'location', 'model'] }, atLeast: 6 } },
-      { label: 'The disk health is recorded with its counters and a decision', when: { fields: ['smart_result', 'smart_line', 'disk_decision'] } },
+      { label: 'The disk health is recorded with its counters', when: { fields: ['smart_result', 'smart_line'] } },
+      decisionDod(DISK_DECISION),
       { label: 'The empty slots are listed', when: { fields: ['empty_slots'] } },
     ],
   },

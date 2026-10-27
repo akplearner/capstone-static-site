@@ -225,8 +225,8 @@ export default function DashboardPage() {
   const skills = skillPortfolio(cards.map((c) => c.skills));
   // R109: two of the sixteen, summed across every capstone started.
   const boards = cards.map((c) => c.board);
-  const commands = sumKpi(boards, 'kpi.execution.commands-verified');
-  const procedures = sumKpi(boards, 'kpi.procedure.followed-to-standard');
+  const commands = sumKpi(boards, 'kpi.technical.commands-verified');
+  const procedures = sumKpi(boards, 'kpi.technical.procedures-to-standard');
   // R111: distinct skills whose last verification is inside the currency window, across courses.
   const currentSkills = new Set(cards.flatMap((c) => c.skills.rows.skills.filter((r) => r.current).map((r) => r.id))).size;
   // The words of the skills surfaces, off the first course's document (they are the same in every document).
@@ -256,7 +256,7 @@ export default function DashboardPage() {
         ]
       : []),
     { id: 'evidence', icon: FileCheck2, label: 'Evidence hashed', value: `${summary.artifacts}`, sub: 'files in the custody log' },
-    { id: 'days', icon: Compass, label: 'Days worked', value: `${summary.activeDays}`, sub: 'measured, never scored' },
+    { id: 'days', icon: Compass, label: 'Days worked', value: `${summary.activeDays}`, sub: 'distinct local days with activity' },
     ...(words
       ? [
           { id: 'skills' as const, icon: ShieldCheck, label: words.COPY.tiles.skillsVerified, value: `${skills.skillsVerified.length}`, sub: `${words.COPY.recordSkills} ${skills.skillsPractised.length} · ${currentSkills} ${words.COPY.board.current}`, ring: ratio(skills.skillsVerified.length, skills.skillsPractised.length) },

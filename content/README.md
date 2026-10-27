@@ -33,7 +33,7 @@ writes the weekly build sheets to `docs/courses/build-sheets/`.
 `ontology/` is the published ontology (R107): the competency nodes, tools, standards and
 controls, SOP kinds, tactics, practices, the metric catalogue and the exam domains as versioned
 JSON any platform can join on (`src/lib/docs/ontology.ts`; semver, additive, deprecate never
-remove); R108 adds `kpis.json` (the sixteen KPIs and their families) and `work-roles.json` (the
+remove); R108 adds `kpis.json` (the KPIs and their families; R132: twenty-eight, with the sixteen R108 ids deprecated) and `work-roles.json` (the
 NICE work roles and the course roles that prepare for them). `schemas/` holds a JSON Schema for
 every shape the platform publishes or exports (`content/schemas/README.md`). `profiles/` holds
 the published environment profiles (R108): what a company publishes to be measured against,
@@ -72,9 +72,10 @@ a seed changed without regenerating; CI runs the export and diffs this folder.
                         CONTROL_OF {formId: codes},                                                   // what each form's standard cites, parsed at export
                         SOPS[ {id, label, kind, definition, standardRefs} ], SOP_OF {formId: ids}, SOP_OF_TASK {taskId: ids},
                         TACTICS[ {id, matrix, label, url} ], TACTIC_OF, PRACTICES[ {id, label, anchor, definition} ], PRACTICE_OF,
-                        METRICS[ {id, label, dimension, definition, inputs, valueTo, status, scored: false} ],
+                        METRICS[ {id, label, dimension, definition, inputs, valueTo, status, scored, timing?} ],
                         COPY, LEVEL_LABEL, DIMENSION_LABEL,
-                        KPI_FAMILIES[ {id, label, definition} ], KPIS[ {id, family, label, metricId, numerator, denominator, fact, valueTo, whyMember, whyCompany, agentField} ],
+                        KPI_FAMILIES[ {id, label, definition, asks} ], KPIS[ {id, family, label, metricId, numerator, denominator, fact, unit, scored, valueTo, whyMember, whyCompany, agentField} ],
+                        DOMAINS[ eight skill domains ], CATEGORIES[ fourteen record categories ], SCORING[ six scores ], TROUBLE_GROUPS[ ], CHANGE_GROUPS[ ]  (R132),
                         WORK_ROLES[ {id, label, framework, niceId?, areas, requiredCompetencies} ], WORK_ROLE_OF {roleId: ids} },   // every course (R107, R108); the registry rows this course's maps reach
     "weekVisuals":    [ { week, builtThrough, highlight, process, caption } ],   // every course (R99)
     "custody":        { CUSTODY_COLUMNS, CUSTODY_RULES },            // every course

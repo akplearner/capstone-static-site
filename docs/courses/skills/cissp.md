@@ -216,20 +216,32 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 
 | KPI | Family | Reads | Denominator in this course |
 | --- | --- | --- | --- |
-| Skills verified `kpi.ability.skills-verified` | ability | metric.skill-verified (own) | govrisk: 11 skills with a verifiable step; archnet: 9 skills with a verifiable step; idops: 8 skills with a verifiable step |
-| Exam weight verified `kpi.ability.exam-weight-verified` | ability | metric.domain-weight-verified (own) | govrisk: 38 percent of the exam over 3 domains; archnet: 48 percent of the exam over 4 domains; idops: 38 percent of the exam over 3 domains |
-| Profile coverage `kpi.ability.profile-coverage` | ability | metric.profile-coverage (own) | govrisk: Information Systems Security Manager: 45 required, 30 not taught here; archnet: Security Architect: 69 required, 58 not taught here; idops: Systems Security Analyst: 34 required, 27 not taught here |
-| Skills proved twice `kpi.ability.skills-transferred` | ability | metric.skill-transfer (own) | govrisk: 0 skills on two or more tasks; archnet: 0 skills on two or more tasks; idops: 0 skills on two or more tasks |
+| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | govrisk: 11 skills with a verifiable step; archnet: 9 skills with a verifiable step; idops: 8 skills with a verifiable step |
+| Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | govrisk: 38 percent of the exam over 3 domains; archnet: 48 percent of the exam over 4 domains; idops: 38 percent of the exam over 3 domains |
+| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | govrisk: 4 verifiable steps that run a command; archnet: 5 verifiable steps that run a command; idops: 5 verifiable steps that run a command |
+| Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | govrisk: 20 procedures; archnet: 20 procedures; idops: 9 procedures |
+| Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | govrisk: 1 fault, incident or triage table; archnet: 0 fault, incident or triage tables; idops: 0 fault, incident or triage tables |
+| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | govrisk: 4 verifiable steps; archnet: 5 verifiable steps; idops: 5 verifiable steps |
+| Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
+| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | govrisk: 4 verifiable steps that can carry two stamps; archnet: 5 verifiable steps that can carry two stamps; idops: 5 verifiable steps that can carry two stamps |
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | govrisk: 0 tasks with two or more verifiable steps; archnet: 1 task with two or more verifiable steps; idops: 2 tasks with two or more verifiable steps |
 | First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | govrisk: 4 verifiable steps; archnet: 5 verifiable steps; idops: 5 verifiable steps |
-| Commands verified `kpi.execution.commands-verified` | execution | metric.tool-commands-verified (own) | govrisk: 4 verifiable steps that run a command; archnet: 5 verifiable steps that run a command; idops: 5 verifiable steps that run a command |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
-| Procedures to standard `kpi.procedure.followed-to-standard` | procedure | metric.procedure-to-standard (team) | govrisk: 20 procedures; archnet: 20 procedures; idops: 9 procedures |
-| Definition-of-Done met `kpi.procedure.dod-met` | procedure | metric.doc-dod-met (team) | govrisk: 24 checks on 7 forms; archnet: 11 checks on 3 forms; idops: 8 checks on 2 forms |
-| Controls cited `kpi.procedure.controls-cited` | procedure | metric.standard-controls-cited (team) | govrisk: 11 control codes on 7 forms; archnet: 5 control codes on 3 forms; idops: 6 control codes on 2 forms |
-| Document control complete `kpi.procedure.document-control` | procedure | metric.doc-control-complete (team) | govrisk: 7 forms; archnet: 3 forms; idops: 2 forms |
-| Submissions rubric-green `kpi.outcome.rubric-green` | outcome | metric.doc-rubric-green (team) | the submissions the member freezes; no content denominator |
-| Hand-offs completed `kpi.outcome.handoffs` | outcome | metric.collab-handoffs (team) | govrisk: 0 hand-offs; archnet: 0 hand-offs; idops: 0 hand-offs |
-| Instructor approved `kpi.outcome.instructor-approved` | outcome | metric.doc-instructor-approved (team) | govrisk: 7 forms; archnet: 3 forms; idops: 2 forms |
-| Capstone filed `kpi.outcome.capstone-filed` | outcome | metric.outcome-capstone-filed (team) | one capstone per course |
+| Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | govrisk: 25 checks on 7 forms; archnet: 11 checks on 3 forms; idops: 8 checks on 2 forms |
+| Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | govrisk: 1 decision block; archnet: 0 decision blocks; idops: 0 decision blocks |
+| Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | govrisk: 1 decision block; archnet: 0 decision blocks; idops: 0 decision blocks |
+| Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | govrisk: 1 decision block; archnet: 0 decision blocks; idops: 0 decision blocks |
+| Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | govrisk: 0 change tables with a rollback column; archnet: 0 change tables with a rollback column; idops: 0 change tables with a rollback column |
+| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | govrisk: 0 hand-offs; archnet: 0 hand-offs; idops: 0 hand-offs |
+| RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | govrisk: 12 forms with a RACI; archnet: 12 forms with a RACI; idops: 5 forms with a RACI |
+| Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
+| Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
+| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | govrisk: 6 tasks of the role; archnet: 6 tasks of the role; idops: 6 tasks of the role |
+| Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | govrisk: 7 forms; archnet: 3 forms; idops: 2 forms |
+| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | govrisk: 11 control codes on 7 forms; archnet: 5 control codes on 3 forms; idops: 6 control codes on 2 forms |
+| Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | govrisk: 7 forms; archnet: 3 forms; idops: 2 forms |
+| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | govrisk: 0 skills on two or more tasks; archnet: 0 skills on two or more tasks; idops: 0 skills on two or more tasks |
+| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | govrisk: 11 skills with a verifiable step; archnet: 9 skills with a verifiable step; idops: 8 skills with a verifiable step |
+| Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
+| Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | govrisk: Information Systems Security Manager: 45 required, 30 not taught here; archnet: Security Architect: 69 required, 58 not taught here; idops: Systems Security Analyst: 34 required, 27 not taught here |
 

@@ -104,7 +104,62 @@ export interface FieldGroup {
 
 export type Section =
   | { kind: 'fields'; title?: string; fields: Field[] }
-  | { kind: 'group'; group: FieldGroup };
+  | { kind: 'group'; group: FieldGroup }
+  /** R132 — a decision record: a choice among at least three options, then the questions that justify it. */
+  | { kind: 'decision'; block: DecisionBlock };
+
+/** What a decision is about; the record categories fold on it. */
+export type DecisionSubject = 'component' | 'configuration' | 'architecture' | 'vendor' | 'control' | 'response';
+
+export interface DecisionOption {
+  id: string;
+  /** Eight words or fewer. */
+  label: string;
+  /** What choosing it costs or buys; twenty-five words or fewer. */
+  help?: string;
+}
+
+/**
+ * R132 — a decision record inside a form. The member must pick ONE of at least
+ * three options before the supporting questions count; the choice, who made it
+ * and when are stored in the form's fields under `decisionKey(block.id)` and its
+ * `:by` and `:at` suffixes, the answers under their own field keys. A decision
+ * is "justified" when every required question is answered, "approved" when the
+ * form it sits on was approved or issued. The projection (`skillProfile.ts`)
+ * reads them as the Thought Process domain; nothing here is free text alone.
+ */
+export interface DecisionBlock {
+  id: string;
+  title: string;
+  subject: DecisionSubject;
+  /** The question being decided; twenty-five words or fewer. */
+  prompt: string;
+  /** At least three. */
+  options: DecisionOption[];
+  /** The supporting questions: rationale, the rejected options and why, risk, rollback, evidence. */
+  questions: Field[];
+}
+
+/** The field key the chosen option id is stored under; `:by` and `:at` follow it. */
+export function decisionKey(blockId: string): string {
+  return `decision:${blockId}`;
+}
+
+/** The field keys a decision block writes, so a rubric or an export can list them. */
+export function decisionFields(block: DecisionBlock): { field: string; label: string; required: boolean }[] {
+  return [{ field: decisionKey(block.id), label: block.title, required: true }, ...block.questions.map((q) => ({ field: q.field, label: q.label, required: !!q.required }))];
+}
+
+/** Every decision block of a form, in order. */
+export function decisionBlocksOf(def: Pick<DeliverableDef, 'sections'>): DecisionBlock[] {
+  return def.sections.flatMap((s) => (s.kind === 'decision' ? [s.block] : []));
+}
+
+/** The Definition-of-Done check a decision block implies: a choice made and every required question answered. */
+export function decisionDod(block: DecisionBlock): DodCheck {
+  const required = block.questions.filter((q) => q.required).map((q) => q.field);
+  return { label: `${block.title}: decided and justified`, when: required.length ? { all: [{ decision: block.id }, { fields: required }] } : { decision: block.id } };
+}
 
 export type DeliverableKind = 'template' | 'form' | 'checklist';
 

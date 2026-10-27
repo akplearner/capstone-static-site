@@ -1,6 +1,6 @@
 import type { Column } from '../grc/templates';
 import { CLOUD_RACI } from './raci';
-import type { DeliverableDef, Field, FieldCheck, Section } from './types';
+import { decisionDod, type DecisionBlock, type DeliverableDef, type Field, type FieldCheck, type Section } from './types';
 import { deriveChecks } from './derive';
 import type { Predicate } from './predicate';
 
@@ -114,6 +114,60 @@ const evidence = (v: CloudVocab, week: number, shot: string): Section => ({
 });
 
 const fields = (title: string, list: Field[]): Section => ({ kind: 'fields', title, fields: list });
+
+/** R132 — the first architecture decision: where the website's copies live, chosen among three. */
+const storageDecision = (v: CloudVocab): DecisionBlock => ({
+  id: 'storage',
+  title: 'Where the website lives · Architect',
+  subject: 'architecture',
+  prompt: 'The static site is read every day and re-uploaded from the repository. How many copies, and where?',
+  options: [
+    { id: 'local', label: v.key === 'az' ? 'Locally redundant, one region' : 'One region, standard storage', help: 'Three copies in one place; the cheapest; a regional outage takes the site down until it is re-uploaded.' },
+    { id: 'zone', label: v.key === 'az' ? 'Zone redundant, one region' : 'One region, versioned and replicated across zones', help: 'Copies across zones; a zone outage changes nothing; costs more than local.' },
+    { id: 'geo', label: 'Geo redundant, two regions', help: 'A second region holds a copy; double the storage cost for a site the repository can rebuild.' },
+  ],
+  questions: [
+    { field: 'storage_why', label: 'Why that, against the cost', type: 'area', required: true, placeholder: 'The site is re-uploaded from the repo in a minute; a regional outage is acceptable for the price.' },
+    { field: 'storage_rejected', label: 'The option rejected, and why', type: 'text', required: true, placeholder: 'Geo redundant: double the cost for a copy the repository already is.' },
+    { field: 'storage_risk', label: 'The risk accepted', type: 'text', placeholder: 'A regional outage takes the site down until the pipeline re-uploads it.' },
+  ],
+});
+
+/** R132 — the sizing decision in Week 7, as a choice the baseline numbers justify. */
+const sizingDecision = (v: CloudVocab): DecisionBlock => ({
+  id: 'sizing',
+  title: 'Sizing the tools machine · Architect',
+  subject: 'configuration',
+  prompt: 'The baseline has a week of metrics. Does the tools machine keep its size, grow or shrink?',
+  options: [
+    { id: 'keep', label: 'Keep the size', help: 'CPU and memory under the thresholds at the baseline; nothing to gain by moving.' },
+    { id: 'grow', label: 'Grow one size', help: 'A threshold was crossed; the next size costs more every month.' },
+    { id: 'shrink', label: 'Shrink one size', help: v.key === 'az' ? 'Standard_B1s is already the floor; shrinking means a cheaper family.' : 'A smaller instance saves money if the baseline stayed low.' },
+  ],
+  questions: [
+    { field: 'size_decision', label: 'Why that, from the baseline', type: 'area', required: true, placeholder: 'Keep: CPU under 10% at the baseline and memory at 40%.' },
+    { field: 'size_rejected', label: 'The option rejected, and why', type: 'text', required: true, placeholder: 'Shrink: the floor of the family is already in use.' },
+    { field: 'size_rollback', label: 'If the change is wrong', type: 'text', placeholder: 'Resize back in the portal; the VM restarts once.' },
+  ],
+});
+
+/** R132 — ADR-001 as a decision block: how the environment is kept, chosen among three ways. */
+const adrDecision = (v: CloudVocab): DecisionBlock => ({
+  id: 'adr1',
+  title: 'ADR-001: how the environment is kept · Architect',
+  subject: 'architecture',
+  prompt: 'Eight weeks of hand-built resources drift. From Week 9, how does the team keep the environment?',
+  options: [
+    { id: 'native', label: v.key === 'az' ? 'An ARM template in the repository' : 'A CloudFormation stack in the repository', help: 'The provider’s own language; the portal is for reading; one command rebuilds it.' },
+    { id: 'terraform', label: 'Terraform in the repository', help: 'One language across providers; a state file to keep and lock.' },
+    { id: 'manual', label: 'Keep building by hand, documented', help: 'No new tool; no record a machine can replay; every rebuild is a person.' },
+  ],
+  questions: [
+    { field: 'adr_context', label: 'Context', type: 'area', required: true, placeholder: 'Eight weeks of hand-built resources drift; a new team must get the same environment.' },
+    { field: 'adr_rejected', label: 'Rejected option, and why', type: 'text', required: true, placeholder: 'Keep building by hand: no record, no rebuild, no review.' },
+    { field: 'adr_consequence', label: 'Consequences', type: 'text', placeholder: 'Every change is a pull request from Week 10.' },
+  ],
+});
 const group = (
   name: string,
   label: string,
@@ -246,6 +300,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
           c('purpose', 'Purpose', 'text'),
           c('cost', 'Monthly cost', 'number', { unit: 'USD', help: `From the ${v.calculator}.` }),
         ]),
+        { kind: 'decision', block: storageDecision(v) },
         group('redundancy', 'Redundancy and tiers · Architect', [
           c('asset', 'Asset', 'text', { placeholder: v.key === 'az' ? 'Website storage account' : 'Site bucket' }),
           c('option', 'Option chosen', 'text', { placeholder: v.key === 'az' ? 'LRS, Hot tier' : 'S3 Standard' }),
@@ -272,6 +327,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
       dod: [
         controlDone,
         done('At least four components, each with a monthly cost', { group: 'components', where: { filled: ['service', 'name', 'cost'] }, atLeast: 4 }),
+        decisionDod(storageDecision(v)),
         done('Redundancy and tiers are chosen with an alternative', { group: 'redundancy', where: { filled: ['asset', 'option', 'rejected'] }, atLeast: 2 }),
         done('The VM is recorded with its size and private IP', { fields: ['vm_name', 'vm_size', 'vm_private_ip'] }),
         done('The website URL is HTTPS', { field: 'site_url', matches: '^https://' }),
@@ -477,9 +533,9 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
       pitfalls: ['A database with a public address “for now”.', 'A queue with no dead-letter queue.', 'Runbook steps that assume your laptop.'],
       sections: [
         control('CAP-DAT-001'),
+        { kind: 'decision', block: sizingDecision(v) },
         fields('Sizing and data decisions · Architect', [
           { field: 'size_now', label: 'Instance size now', type: 'text', required: true, placeholder: v.key === 'az' ? 'Standard_B1s' : 't3.micro' },
-          { field: 'size_decision', label: 'Keep, grow or shrink — and why', type: 'text', required: true, placeholder: 'Keep: CPU under 10% at the baseline.' },
           { field: 'data_decision', label: 'Which workloads use the table, which the database (ADR-003)', type: 'area', required: true, placeholder: `Counter stays on ${v.db}; orders and reports go to ${v.rdb}.` },
           { field: 'data_cost', label: 'Monthly cost of each store', type: 'text', required: true, placeholder: `${v.db} $0.00 · ${v.rdb} $26` },
         ]),
@@ -511,7 +567,8 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
       ],
       dod: [
         controlDone,
-        done('A sizing decision and the data-store decision, each costed', { fields: ['size_now', 'size_decision', 'data_decision', 'data_cost'] }),
+        decisionDod(sizingDecision(v)),
+        done('The data-store decision, costed', { fields: ['size_now', 'data_decision', 'data_cost'] }),
         done('The database ran with a standby, encrypted, with no public address', { fields: ['db_engine', 'db_ha', 'db_encrypted', 'db_public', 'db_access', 'db_snapshot'] }),
         done('The database has a standby in a second zone', { field: 'db_ha', equals: 'Standby in a second zone' }),
         done('The database has no public address', { field: 'db_public', equals: 'No' }),
@@ -591,12 +648,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
         fields('Portal vs code · Architect', [
           { field: 'portal_vs_code', label: 'One thing code does that the portal cannot', type: 'text', required: true, placeholder: 'Rebuild the whole environment identically in minutes.' },
         ]),
-        fields('ADR-001 · Architect', [
-          { field: 'adr_context', label: 'Context', type: 'area', required: true, placeholder: 'Eight weeks of hand-built resources drift; a new team must get the same environment.' },
-          { field: 'adr_decision', label: 'Decision', type: 'text', required: true, placeholder: v.key === 'az' ? 'The environment is an ARM template; the portal is for reading.' : 'The environment is a CloudFormation stack; the console is for reading.' },
-          { field: 'adr_rejected', label: 'Rejected option, and why', type: 'text', required: true, placeholder: 'Keep building by hand — no record, no rebuild, no review.' },
-          { field: 'adr_consequence', label: 'Consequences', type: 'text', placeholder: 'Every change is a pull request from Week 10.' },
-        ]),
+        { kind: 'decision', block: adrDecision(v) },
         group('inventory', 'CLI inventory · Infrastructure', [
           c('name', 'Resource', 'text'),
           c('type', 'Type', 'text'),
@@ -625,6 +677,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
         evidence(v, 9, 'deployment'),
       ],
       dod: [
+        decisionDod(adrDecision(v)),
         controlDone,
         done('At least five resources mapped to diagram nodes', { group: 'map', where: { filled: ['resource', 'node'] }, atLeast: 5 }),
         done('The portal-vs-code answer', { fields: ['portal_vs_code'] }),

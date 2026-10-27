@@ -9,6 +9,9 @@ import { METRICS } from './metricCatalogue';
 import { DIMENSION_LABEL, LEVEL_LABEL, SKILLS_COPY } from './skillsCopy';
 import { KPIS, KPI_FAMILIES } from './kpis';
 import { WORK_ROLES, WORK_ROLE_OF, type WorkRoleDef } from './workRoles';
+import { SKILL_DOMAINS } from './skillDomains';
+import { CATEGORY_DEFS, CHANGE_GROUPS, TROUBLE_GROUPS, formBase } from './recordCategories';
+import { SCORES } from './scoring';
 import type { SkillRegistry } from './skillCoverage';
 
 /**
@@ -21,7 +24,7 @@ import type { SkillRegistry } from './skillCoverage';
  *
  * Lowercase only: this is the writer's helper, never a table.
  */
-export function skillsSectionFor(course: Pick<Course, 'id' | 'tasks'>, forms: Pick<DeliverableDef, 'id' | 'standard'>[]): SkillRegistry & { AREAS: Record<string, string>; CONTROL_OF: Record<string, string[]>; METRICS: typeof METRICS; COPY: typeof SKILLS_COPY; LEVEL_LABEL: typeof LEVEL_LABEL; DIMENSION_LABEL: typeof DIMENSION_LABEL; KPI_FAMILIES: typeof KPI_FAMILIES; KPIS: typeof KPIS; WORK_ROLES: WorkRoleDef[]; WORK_ROLE_OF: Record<string, string[]> } {
+export function skillsSectionFor(course: Pick<Course, 'id' | 'tasks'>, forms: Pick<DeliverableDef, 'id' | 'standard'>[]): SkillRegistry & { AREAS: Record<string, string>; CONTROL_OF: Record<string, string[]>; METRICS: typeof METRICS; COPY: typeof SKILLS_COPY; LEVEL_LABEL: typeof LEVEL_LABEL; DIMENSION_LABEL: typeof DIMENSION_LABEL; KPI_FAMILIES: typeof KPI_FAMILIES; KPIS: typeof KPIS; WORK_ROLES: WorkRoleDef[]; WORK_ROLE_OF: Record<string, string[]>; DOMAINS: typeof SKILL_DOMAINS; CATEGORIES: typeof CATEGORY_DEFS; SCORING: typeof SCORES; TROUBLE_GROUPS: typeof TROUBLE_GROUPS; CHANGE_GROUPS: typeof CHANGE_GROUPS } {
   const id = course.id;
   const SKILL_OF = TASK_SKILLS[id] ?? {};
   const TOOL_OF = toolsByTask(course);
@@ -89,5 +92,11 @@ export function skillsSectionFor(course: Pick<Course, 'id' | 'tasks'>, forms: Pi
     KPIS,
     WORK_ROLES: WORK_ROLES.filter((w) => workRoleIds.has(w.id)),
     WORK_ROLE_OF: WORK_ROLE_OF_COURSE,
+    // R132: the domains, categories and scores travel whole; the group reads only for this course's forms.
+    DOMAINS: SKILL_DOMAINS,
+    CATEGORIES: CATEGORY_DEFS,
+    SCORING: SCORES,
+    TROUBLE_GROUPS: TROUBLE_GROUPS.filter((g) => forms.some((f) => f.id === g.form || formBase(f.id) === g.form)),
+    CHANGE_GROUPS: CHANGE_GROUPS.filter((g) => forms.some((f) => f.id === g.form || formBase(f.id) === g.form)),
   };
 }

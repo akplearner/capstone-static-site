@@ -1,5 +1,24 @@
 import { Column } from '../grc/templates';
-import { DeliverableDef } from './types';
+import { DeliverableDef, decisionDod, type DecisionBlock } from './types';
+
+/** R132 — the treatment decision on the highest gap: the four answers risk management allows. */
+const TREATMENT_DECISION: DecisionBlock = {
+  id: 'treatment',
+  title: 'Treating the highest gap',
+  subject: 'control',
+  prompt: 'The gap table has its highest severity row. What does the team recommend the client do about it?',
+  options: [
+    { id: 'mitigate', label: 'Mitigate with a control', help: 'A control row in the matrix, an owner and a retest date.' },
+    { id: 'accept', label: 'Accept, signed by the owner', help: 'The cost of the control exceeds the loss; the acceptance is recorded with a review date.' },
+    { id: 'transfer', label: 'Transfer to a provider or insurer', help: 'A contract carries the risk; the evidence is the contract clause.' },
+    { id: 'avoid', label: 'Avoid by removing the service', help: 'The exposed service is retired; the retest proves it gone.' },
+  ],
+  questions: [
+    { field: 'treatment_why', label: 'Why that treatment', type: 'area', required: true, placeholder: 'The VPN runs OpenVPN 2.4 with a known CVE; a patch closes it in a day and the client owns the box.' },
+    { field: 'treatment_rejected', label: 'The treatment rejected, and why', type: 'text', required: true, placeholder: 'Accept: a remotely exploitable VPN cannot be accepted by a clinic.' },
+    { field: 'treatment_risk', label: 'The residual risk', type: 'text', placeholder: 'Until the patch window, the VPN is reachable; the detection rule watches it.' },
+  ],
+};
 
 // Deliverable forms for the MSSP / SOC 2 + ISO 27001 engagement course.
 // These are course-scoped (`courseId: 'mssp'`) so they never surface on the
@@ -245,6 +264,7 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
           { field: 'method', label: 'How it was measured', type: 'text', required: true, placeholder: 'nmap -sV from outside; CIS-CAT Lite on two servers; interview with the IT lead' },
         ],
       },
+      { kind: 'decision', block: TREATMENT_DECISION },
       {
         kind: 'group',
         group: {
@@ -265,6 +285,7 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
     ],
     dod: [
       { label: 'The attack surface and the method are written', when: { fields: ['surface', 'method'] } },
+      decisionDod(TREATMENT_DECISION),
       { label: 'At least five gaps, each with a control, a severity and evidence', when: { group: 'gaps', where: { filled: ['gap', 'control', 'severity', 'evidence'] }, atLeast: 5 } },
     ],
   },

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://capstone.example/schemas/member-profile.schema.json",
   "title": "Member profile",
-  "description": "The portfolio export a member sends themselves: what they ticked and verified, the hashes of output and files, the documents the team filed, per course against the published ontology. Unsigned: signature is null until validators exist. The copy a candidate link serves (R124) is the same shape, kept small: a row carries its id and level and only the counters that are not zero (an absent counter is zero); since R130 a row's dimension, label and references are absent too and the reader restores them from the published ontology by id (a standards row keeps the references its forms cited), and a course may leave out the member’s gaps and raw indicators (abilities), which the KPIs already summarise.",
+  "description": "The portfolio export a member sends themselves: what they ticked and verified, the hashes of output and files, the documents the team filed, per course against the published ontology, and since R132 the twenty-eight KPIs, the six scores by the published method and the minutes between two recorded stamps per course (capstone-member-profile/2). Unsigned: signature is null until validators exist. The copy a candidate link serves (R124) is the same shape, kept small: a row carries its id and level and only the counters that are not zero (an absent counter is zero); a row's dimension, label and references are absent too and the reader restores them from the published ontology by id (a standards row keeps the references its forms cited; a fact row of the troubleshooting, decisions and execution dimensions keeps its label), and a course may leave out the member’s gaps and raw indicators (abilities), which the KPIs already summarise.",
   "$defs": {
     "skillProfile": {
       "type": "object",
@@ -38,7 +38,11 @@
             "evidence",
             "documentation",
             "collaboration",
-            "ability"
+            "ability",
+            "execution",
+            "troubleshooting",
+            "decisions",
+            "retention"
           ],
           "additionalProperties": false,
           "properties": {
@@ -107,6 +111,30 @@
               "items": {
                 "$ref": "#/$defs/row"
               }
+            },
+            "execution": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/row"
+              }
+            },
+            "troubleshooting": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/row"
+              }
+            },
+            "decisions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/row"
+              }
+            },
+            "retention": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/row"
+              }
             }
           }
         },
@@ -138,7 +166,19 @@
             "instructorApproved",
             "raciRespected",
             "receipted",
-            "rehashConfirmed"
+            "rehashConfirmed",
+            "faultsResolved",
+            "changeRollback",
+            "decisionsRecorded",
+            "decisionsJustified",
+            "decisionsApproved",
+            "rationaleWritten",
+            "reviewMarks",
+            "flagsCleared",
+            "onTime",
+            "retention",
+            "skillsCurrent",
+            "learningVelocity"
           ],
           "additionalProperties": false,
           "properties": {
@@ -219,6 +259,42 @@
             },
             "rehashConfirmed": {
               "$ref": "#/$defs/indicator"
+            },
+            "faultsResolved": {
+              "$ref": "#/$defs/indicator"
+            },
+            "changeRollback": {
+              "$ref": "#/$defs/indicator"
+            },
+            "decisionsRecorded": {
+              "$ref": "#/$defs/indicator"
+            },
+            "decisionsJustified": {
+              "$ref": "#/$defs/indicator"
+            },
+            "decisionsApproved": {
+              "$ref": "#/$defs/indicator"
+            },
+            "rationaleWritten": {
+              "$ref": "#/$defs/indicator"
+            },
+            "reviewMarks": {
+              "$ref": "#/$defs/indicator"
+            },
+            "flagsCleared": {
+              "$ref": "#/$defs/indicator"
+            },
+            "onTime": {
+              "$ref": "#/$defs/indicator"
+            },
+            "retention": {
+              "$ref": "#/$defs/indicator"
+            },
+            "skillsCurrent": {
+              "$ref": "#/$defs/indicator"
+            },
+            "learningVelocity": {
+              "$ref": "#/$defs/indicator"
             }
           }
         },
@@ -272,6 +348,37 @@
           "items": {
             "type": "string"
           }
+        },
+        "timing": {
+          "type": "object",
+          "required": [
+            "timedSteps",
+            "medianMinutes",
+            "withinHour",
+            "over24h"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "timedSteps": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "medianMinutes": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "withinHour": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "over24h": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
         }
       }
     },
@@ -295,7 +402,11 @@
             "evidence",
             "documentation",
             "collaboration",
-            "ability"
+            "ability",
+            "execution",
+            "troubleshooting",
+            "decisions",
+            "retention"
           ]
         },
         "id": {
@@ -418,6 +529,21 @@
         },
         "current": {
           "type": "boolean"
+        },
+        "firstVerifiedAt": {
+          "type": "number",
+          "minimum": 0
+        },
+        "retained": {
+          "type": "boolean"
+        },
+        "uses": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "successes": {
+          "type": "integer",
+          "minimum": 0
         }
       }
     },
@@ -624,7 +750,7 @@
   "additionalProperties": false,
   "properties": {
     "schema": {
-      "const": "capstone-member-profile/1"
+      "const": "capstone-member-profile/2"
     },
     "ontologyVersion": {
       "type": "string",
@@ -846,14 +972,12 @@
           },
           "kpis": {
             "type": "array",
-            "minItems": 16,
-            "maxItems": 16,
+            "minItems": 28,
+            "maxItems": 28,
             "items": {
               "type": "object",
               "required": [
                 "id",
-                "family",
-                "metricId",
                 "value",
                 "of",
                 "pct",
@@ -864,14 +988,17 @@
               "properties": {
                 "id": {
                   "type": "string",
-                  "pattern": "^kpi\\.(ability|execution|procedure|outcome)\\.[a-z][a-z0-9-]*$"
+                  "pattern": "^kpi\\.(technical|problem-solving|execution|decision-making|teamwork|professionalism|growth)\\.[a-z][a-z0-9-]*$"
                 },
                 "family": {
                   "enum": [
-                    "ability",
+                    "technical",
+                    "problem-solving",
                     "execution",
-                    "procedure",
-                    "outcome"
+                    "decision-making",
+                    "teamwork",
+                    "professionalism",
+                    "growth"
                   ]
                 },
                 "metricId": {
@@ -936,7 +1063,121 @@
                       "minimum": 0
                     }
                   }
+                },
+                "unit": {
+                  "enum": [
+                    "ratio",
+                    "count",
+                    "minutes"
+                  ]
+                },
+                "scored": {
+                  "type": "boolean"
                 }
+              }
+            },
+            "description": "The board's rows; the full export carries family, metricId, unit and scored, which a link's copy leaves out (the ontology restores them by id)."
+          },
+          "scores": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "value",
+                "counted",
+                "of",
+                "loaded"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^score\\.[a-z][a-z0-9-]*$"
+                },
+                "value": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "counted": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "of": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "loaded": {
+                  "type": "boolean"
+                },
+                "components": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "kpi",
+                      "weight",
+                      "pct",
+                      "counted"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "kpi": {
+                        "type": "string",
+                        "pattern": "^kpi\\.[a-z-]+\\.[a-z][a-z0-9-]*$"
+                      },
+                      "weight": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "pct": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ],
+                        "minimum": 0,
+                        "maximum": 100
+                      },
+                      "counted": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description": "The board's scores; a link's copy leaves out the components (the published weights and the KPIs restore them)."
+          },
+          "timing": {
+            "type": "object",
+            "required": [
+              "timedSteps",
+              "medianMinutes",
+              "withinHour",
+              "over24h"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "timedSteps": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "medianMinutes": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "withinHour": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "over24h": {
+                "type": "integer",
+                "minimum": 0
               }
             }
           }

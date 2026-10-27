@@ -166,7 +166,7 @@ function taskProblems(t: Task): string[] {
 
 function documentProblems(d: DeliverableDef): string[] {
   const out: string[] = [];
-  const titles = d.sections.map((s) => (s.kind === 'fields' ? s.title : s.group.label) ?? '');
+  const titles = d.sections.map((s) => (s.kind === 'fields' ? s.title : s.kind === 'group' ? s.group.label : s.block.title) ?? '');
   if (!titles[0]?.startsWith('Document control')) out.push(`${d.id}: does not open with Document control`);
   if (!titles[titles.length - 1]?.startsWith('Evidence')) out.push(`${d.id}: does not close with Evidence`);
   // Every section names who fills it ("Address plan · Infrastructure").

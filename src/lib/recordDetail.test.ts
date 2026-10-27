@@ -26,6 +26,7 @@ const roleOf = (c: Course) => c.roles[0].id;
 const graded = (c: Course) => getTasksByRole(c, roleOf(c)).filter((t) => isGradedWeek(c, t.week));
 const everything = (c: Course): Run => ({ ticked: () => true, verified: new Set(graded(c).flatMap((t) => verifiableSteps(t.steps.filter((s) => !s.optional)).map((s) => key(t.id, s.id)))) });
 const nothing: Run = { ticked: () => false, verified: new Set() };
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept beside `everything` and `nothing` as the third run shape a figure test may need
 const firstTasks = (c: Course, n: number): Run => {
   const ids = new Set(graded(c).slice(0, n).map((t) => t.id));
   return { ticked: (t) => ids.has(t), verified: new Set(graded(c).slice(0, n).flatMap((t) => verifiableSteps(t.steps.filter((s) => !s.optional)).map((s) => key(t.id, s.id)))) };
@@ -98,8 +99,8 @@ describe('every figure holds its list to its number — one course, everything d
   it('procedures: those reached, with the ones followed to standard marked, as many as the figure counts', () => {
     const d = detail('procedures');
     const followed = section(d, 'primary').filter((i) => i.marks?.includes('followed to standard')).length;
-    expect(followed).toBe(board.kpis.find((k) => k.id === 'kpi.procedure.followed-to-standard')!.value);
-    expect(primaryCount(d)).toBe(board.kpis.find((k) => k.id === 'kpi.procedure.followed-to-standard')!.of);
+    expect(followed).toBe(board.kpis.find((k) => k.id === 'kpi.technical.procedures-to-standard')!.value);
+    expect(primaryCount(d)).toBe(board.kpis.find((k) => k.id === 'kpi.technical.procedures-to-standard')!.of);
   });
 
   it('files hashed, newest first, and days worked as the figure counts them', () => {

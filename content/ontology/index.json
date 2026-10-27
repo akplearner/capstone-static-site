@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.6.0",
+  "version": "2.0.0",
   "generatedFrom": [
     "src/lib/docs/skills.ts",
     "src/lib/docs/tools.ts",
@@ -10,7 +10,10 @@
     "src/lib/docs/metricCatalogue.ts",
     "src/lib/docs/certs.ts",
     "src/lib/docs/kpis.ts",
-    "src/lib/docs/workRoles.ts"
+    "src/lib/docs/workRoles.ts",
+    "src/lib/docs/skillDomains.ts",
+    "src/lib/docs/recordCategories.ts",
+    "src/lib/docs/scoring.ts"
   ],
   "files": {
     "competencies": "competencies.json",
@@ -22,7 +25,10 @@
     "metrics": "metrics.json",
     "domains": "domains.json",
     "kpis": "kpis.json",
-    "work-roles": "work-roles.json"
+    "work-roles": "work-roles.json",
+    "skill-domains": "skill-domains.json",
+    "record-categories": "record-categories.json",
+    "scoring": "scoring.json"
   },
   "counts": {
     "competencies": 286,
@@ -32,10 +38,13 @@
     "sops": 43,
     "tactics": 28,
     "practices": 96,
-    "metrics": 100,
+    "metrics": 112,
     "domains": 77,
-    "kpis": 16,
-    "workRoles": 13
+    "kpis": 44,
+    "workRoles": 13,
+    "skillDomains": 8,
+    "recordCategories": 14,
+    "scores": 6
   },
   "idStyle": {
     "competency": "comp.<area>.<slug>",
@@ -47,7 +56,10 @@
     "metric": "metric.<slug>",
     "domain": "<examCode slugged>.<domainId>",
     "kpi": "kpi.<family>.<slug>",
-    "workRole": "role.<slug>"
+    "workRole": "role.<slug>",
+    "skillDomain": "<slug>",
+    "recordCategory": "<slug>",
+    "score": "score.<slug>"
   },
   "rules": [
     "additive",

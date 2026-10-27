@@ -27,6 +27,9 @@ import { METRICS, type MetricDef, type Dimension } from '@/lib/docs/metricCatalo
 import { DIMENSION_LABEL, LEVEL_LABEL, SKILLS_COPY, type SkillLevel } from '@/lib/docs/skillsCopy';
 import { KPIS, KPI_FAMILIES, type KpiDef, type KpiFamilyDef } from '@/lib/docs/kpis';
 import { WORK_ROLES, type WorkRoleDef } from '@/lib/docs/workRoles';
+import { SKILL_DOMAINS, type SkillDomainDef } from '@/lib/docs/skillDomains';
+import { CATEGORY_DEFS, CHANGE_GROUPS, TROUBLE_GROUPS, type ChangeGroup, type RecordCategoryDef, type TroubleGroup } from '@/lib/docs/recordCategories';
+import { SCORES, type ScoreDef } from '@/lib/docs/scoring';
 import type { CloudTopology, IacBundle } from '@/lib/cloud/model';
 import type { KitSpec } from '@/lib/diagrams/kitSpec';
 import type { BuildModel, WeekVisual } from '@/lib/weekVisual';
@@ -199,6 +202,12 @@ export interface SkillsContent {
   KPIS: KpiDef[];
   WORK_ROLES: WorkRoleDef[];
   WORK_ROLE_OF: Record<string, string[]>;
+  /** R132: the eight skill domains, the fourteen record categories, the published scores, and the form groups the projection reads (whole). */
+  DOMAINS: SkillDomainDef[];
+  CATEGORIES: RecordCategoryDef[];
+  SCORING: ScoreDef[];
+  TROUBLE_GROUPS: TroubleGroup[];
+  CHANGE_GROUPS: ChangeGroup[];
 }
 
 /**
@@ -212,6 +221,7 @@ export function skillsOf(doc: CourseDto): SkillsContent {
     SKILLS, SKILL_OF: {}, AREAS: AREA_LABEL, TOOLS, TOOL_OF: {}, STANDARDS, CONTROLS, CONTROL_OF: {}, SOPS, SOP_OF: {}, SOP_OF_TASK: {},
     TACTICS, TACTIC_OF: {}, PRACTICES, PRACTICE_OF: {}, METRICS, COPY: SKILLS_COPY, LEVEL_LABEL, DIMENSION_LABEL,
     KPI_FAMILIES, KPIS, WORK_ROLES, WORK_ROLE_OF: {},
+    DOMAINS: SKILL_DOMAINS, CATEGORIES: CATEGORY_DEFS, SCORING: SCORES, TROUBLE_GROUPS, CHANGE_GROUPS,
     ...section<Partial<SkillsContent>>(doc, 'skills'),
   };
 }

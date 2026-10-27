@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://capstone.example/schemas/scoring.schema.json",
+  "title": "Score definition",
+  "description": "R132: one published score: a weighted mean of KPI percentages, the weights summing to one, the result 0 to 100, with the caveat a hiring reader must read beside it. The computed value (`score` in kpi-board.schema.json) names every component and whether it counted.",
+  "type": "object",
+  "required": [
+    "id",
+    "label",
+    "definition",
+    "components",
+    "caveat"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^score\\.[a-z][a-z0-9-]*$"
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "definition": {
+      "type": "string",
+      "minLength": 1
+    },
+    "components": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "kpi",
+          "weight"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "kpi": {
+            "type": "string",
+            "pattern": "^kpi\\.[a-z-]+\\.[a-z][a-z0-9-]*$"
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      }
+    },
+    "caveat": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

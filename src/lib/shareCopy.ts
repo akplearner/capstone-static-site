@@ -26,7 +26,7 @@ import { SHARE_MAX_BYTES } from '../../supabase/functions/_shared/shareGuard';
  *    ids and the "next task" hint stay out: they are for the member, not for a reader;
  *  - the member chooses the courses, and the dialog shows the size before the click.
  *
- * It is still `capstone-member-profile/1` with `signature: null`: the published schema allows a row
+ * It is still the member profile (`capstone-member-profile/2` since R132) with `signature: null`: the published schema allows a row
  * to omit its dimension, label and a zero counter and a course to omit gaps and indicators, and says
  * so. Pure: no clock, no store, no window.
  */
@@ -37,10 +37,13 @@ import { SHARE_MAX_BYTES } from '../../supabase/functions/_shared/shareGuard';
  * (tasks exercised or done, self-attested, in order, form control, drafts) feed the member's own
  * pages and the KPIs, which the copy carries already computed.
  */
-const COUNTERS = ['tickedSteps', 'requiredSteps', 'verifiableSteps', 'verifiedSteps', 'verifiedTasks', 'artifacts', 'deliverablesApproved'] as const;
+const COUNTERS = ['tickedSteps', 'requiredSteps', 'verifiableSteps', 'verifiedSteps', 'verifiedTasks', 'artifacts', 'deliverablesApproved', 'uses', 'successes'] as const;
+
+/** R132: the dimensions whose rows are facts rather than registry ids, so a reader has no ontology to put the words back from. */
+const FACT_DIMENSIONS = new Set(['troubleshooting', 'decisions', 'execution']);
 
 export type ShareRow = Pick<ProfileRow, 'id' | 'level'> &
-  Partial<Pick<ProfileRow, 'dimension' | 'label' | (typeof COUNTERS)[number] | 'standardRefs' | 'lastVerifiedAt' | 'current'>>;
+  Partial<Pick<ProfileRow, 'dimension' | 'label' | (typeof COUNTERS)[number] | 'standardRefs' | 'lastVerifiedAt' | 'firstVerifiedAt' | 'current' | 'retained'>>;
 
 export interface ShareSkillProfile {
   courseId: string;
@@ -51,7 +54,12 @@ export interface ShareSkillProfile {
   draftedForms: string[];
 }
 
-export type ShareCourse = Omit<MemberProfileCourse, 'skills'> & { skills: ShareSkillProfile };
+/** R132: a KPI as a link carries it: the registry fields (family, metric, unit, scored) come back from the ontology by id. */
+export type ShareKpi = Pick<MemberProfileCourse['kpis'][number], 'id' | 'value' | 'of' | 'pct' | 'loaded' | 'fact' | 'beside' | 'contribution'> & Partial<Pick<MemberProfileCourse['kpis'][number], 'family' | 'metricId' | 'unit' | 'scored'>>;
+/** R132: a score as a link carries it: the value and what it stands on; the components come back from the published weights and the KPIs. */
+export type ShareScore = Pick<MemberProfileCourse['scores'][number], 'id' | 'value' | 'counted' | 'of' | 'loaded'> & Partial<Pick<MemberProfileCourse['scores'][number], 'components'>>;
+
+export type ShareCourse = Omit<MemberProfileCourse, 'skills' | 'kpis' | 'scores'> & { skills: ShareSkillProfile; kpis: ShareKpi[]; scores: ShareScore[] };
 
 export interface ShareProfile extends Omit<MemberProfileExport, 'courses'> {
   courses: ShareCourse[];
@@ -60,6 +68,8 @@ export interface ShareProfile extends Omit<MemberProfileExport, 'courses'> {
 /** One row as a link carries it. */
 export function shareRow(r: ProfileRow): ShareRow {
   const out: ShareRow = { id: r.id, level: r.level };
+  // R132: a fact row's label is its own (a form's table, a decision block's title): no registry holds it.
+  if (FACT_DIMENSIONS.has(r.dimension)) out.label = r.label;
   if (r.level === 'not-started') return out;
   // Only a standards row's references are the member's own (the codes their forms cited); every
   // other dimension's references are the registry's and come back from it.
@@ -67,15 +77,22 @@ export function shareRow(r: ProfileRow): ShareRow {
   for (const k of COUNTERS) if (r[k]) out[k] = r[k];
   if (r.lastVerifiedAt) out.lastVerifiedAt = r.lastVerifiedAt;
   if (r.current !== undefined) out.current = r.current;
+  // R132: the first stamp stays out; `retained` is the fact a reader uses, and it is carried only when true.
+  if (r.retained) out.retained = true;
   return out;
 }
 
+/** R132: rows a reader can derive: retention from the skills rows' stamps, execution from the KPIs. */
+const DERIVABLE_DIMENSIONS = new Set(['retention', 'execution']);
+
 export function shareCourse(c: MemberProfileCourse): ShareCourse {
   const rows: Record<string, ShareRow[]> = {};
-  for (const [dimension, list] of Object.entries(c.skills.rows)) rows[dimension] = list.map(shareRow);
+  for (const [dimension, list] of Object.entries(c.skills.rows)) rows[dimension] = DERIVABLE_DIMENSIONS.has(dimension) ? [] : list.map(shareRow);
   return {
     ...c,
     skills: { courseId: c.skills.courseId, role: c.skills.role, denominator: c.skills.denominator, rows, loaded: c.skills.loaded, draftedForms: c.skills.draftedForms },
+    kpis: c.kpis.map((k) => ({ id: k.id, value: k.value, of: k.of, pct: k.pct, loaded: k.loaded, fact: k.fact, ...(k.beside ? { beside: k.beside } : {}), ...(k.contribution ? { contribution: k.contribution } : {}) })),
+    scores: c.scores.map((sc) => ({ id: sc.id, value: sc.value, counted: sc.counted, of: sc.of, loaded: sc.loaded })),
   };
 }
 
@@ -110,6 +127,8 @@ export function hydrateShareCourse(skills: ShareSkillProfile, registry: ShareReg
   for (const p of registry.PRACTICES) words.set(`practices:${p.id}`, { label: p.label, refs: [p.anchor] });
   for (const s of registry.STANDARDS) words.set(`standards:${s.id}`, { label: s.label });
   for (const d of cert?.domains ?? []) words.set(`domains:${d.id}`, { label: d.name });
+  // R132: a retention row is a skill, by id.
+  for (const n of registry.SKILLS) words.set(`retention:${n.id}`, { label: n.label });
   const rows: Record<string, HydratedShareRow[]> = {};
   for (const [dimension, list] of Object.entries(skills.rows)) {
     rows[dimension] = list.map((r) => {

@@ -22,6 +22,8 @@ import type {
   SubmissionSnapshot,
   VerificationReceipt,
   RehashCheck,
+  DeliverableReviewMark,
+  StepFlagEvent,
 } from './types';
 import { getBrowserClient } from '../supabase/client';
 import { notifyStore } from '../useClientStore';
@@ -65,6 +67,9 @@ let chosenPath: { pathId: string; chosenAt: number } | null = null;
 // R68. Reviews are team-scoped like docs; a cohort is one row per (course,
 // cohort); notes are the caller's own (RLS); flags are everyone's on the course.
 const reviewsByTeam = new Map<string, DeliverableReview[]>(); // `${courseId}::${teamId}`
+// R132: the per-category review marks (team key → rows) and the stuck-flag history (course → rows).
+const marksByTeam = new Map<string, DeliverableReviewMark[]>();
+const flagEventsByCourse = new Map<string, StepFlagEvent[]>();
 const cohortsByKey = new Map<string, Cohort>(); // `${courseId}::${cohort}`
 const stepNotesByKey = new Map<string, StepNote>(); // `${courseId}::${taskId}::${stepId}`
 const stuckByCourse = new Map<string, StuckFlag[]>();
@@ -174,6 +179,8 @@ export function setCurrentUserId(id: string | null) {
     channels.forEach((ch) => ch.unsubscribe());
     channels.clear();
     reviewsByTeam.clear();
+    marksByTeam.clear();
+    flagEventsByCourse.clear();
     cohortsByKey.clear();
     stepNotesByKey.clear();
     stuckByCourse.clear();
@@ -311,6 +318,22 @@ export const cache = {
   },
   reviews(courseId: string, teamId: string): DeliverableReview[] {
     return reviewsByTeam.get(teamKey(courseId, teamId)) ?? [];
+  },
+  // R132: marks are history; adding never replaces.
+  reviewMarks(courseId: string, teamId: string): DeliverableReviewMark[] {
+    return marksByTeam.get(teamKey(courseId, teamId)) ?? [];
+  },
+  addReviewMarks(marks: DeliverableReviewMark[]) {
+    for (const m of marks) {
+      const k = teamKey(m.courseId, m.teamId);
+      marksByTeam.set(k, [...(marksByTeam.get(k) ?? []), m]);
+    }
+  },
+  flagEvents(courseId: string): StepFlagEvent[] {
+    return flagEventsByCourse.get(courseId) ?? [];
+  },
+  addFlagEvent(e: StepFlagEvent) {
+    flagEventsByCourse.set(e.courseId, [...(flagEventsByCourse.get(e.courseId) ?? []), e]);
   },
   setReview(review: DeliverableReview) {
     const k = teamKey(review.courseId, review.teamId);
@@ -581,7 +604,7 @@ export async function hydrateCourse(courseId: string): Promise<void> {
   const gen = (hydrateGen.get(courseId) ?? 0) + 1;
   hydrateGen.set(courseId, gen);
 
-  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts, reviews, cohorts, notes, flags, profiles, reports, submissions, peerReviews, docStatus, receipts, rehashes, fixes] =
+  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts, reviews, cohorts, notes, flags, profiles, reports, submissions, peerReviews, docStatus, receipts, rehashes, fixes, reviewMarksRows, flagEventRows] =
     await Promise.all([
       supabase.from('memberships').select('*').eq('course_id', courseId),
       supabase.from('step_completions').select('*').eq('course_id', courseId),
@@ -622,6 +645,11 @@ export async function hydrateCourse(courseId: string): Promise<void> {
       // R121: the course's content fixes, so the page never paints the old words first. A database
       // without 0017 answers with an error here, which reads as no fixes.
       supabase.from('content_fixes').select('*').eq('course_id', courseId).order('revision'),
+      // R132: the per-category review marks (team; instructor: the course) and the flag history (own and
+      // teammates'; instructor: the course). A database without 0021/0022 answers with an error here,
+      // which reads as no marks and no history.
+      supabase.from('deliverable_review_marks').select('*').eq('course_id', courseId),
+      supabase.from('step_flag_events').select('*').eq('course_id', courseId),
     ]);
 
   // A newer hydrate started while this one was on the wire: its data is
@@ -711,6 +739,11 @@ export async function hydrateCourse(courseId: string): Promise<void> {
     [...reviewsByTeam.keys()].filter((k) => k.startsWith(`${courseId}::`)).forEach((k) => reviewsByTeam.delete(k));
     reviews.data.forEach((r) => cache.setReview(reviewFromRow(r)));
   }
+  if (reviewMarksRows.data) {
+    [...marksByTeam.keys()].filter((k) => k.startsWith(`${courseId}::`)).forEach((k) => marksByTeam.delete(k));
+    cache.addReviewMarks(reviewMarksRows.data.map(reviewMarkFromRow));
+  }
+  if (flagEventRows.data) flagEventsByCourse.set(courseId, flagEventRows.data.map(flagEventFromRow));
   if (cohorts.data) cohorts.data.forEach((r) => cache.setCohort({ courseId, cohort: String(r.cohort), startsOn: String(r.starts_on) }));
   if (notes.data) {
     // The text from its own table; the flag is folded in from step_flags below.
@@ -780,6 +813,33 @@ export function reviewFromRow(r: Record<string, unknown>): DeliverableReview {
     comment: String(r.comment ?? ''),
     reviewer: String(r.reviewer ?? ''),
     at: r.reviewed_at ? Date.parse(String(r.reviewed_at)) : 0,
+  };
+}
+
+/** R132 */
+export function reviewMarkFromRow(r: Record<string, unknown>): DeliverableReviewMark {
+  return {
+    courseId: String(r.course_id),
+    teamId: String(r.team_id),
+    deliverableId: String(r.deliverable_id),
+    week: Number(r.week ?? 0),
+    category: String(r.category) as DeliverableReviewMark['category'],
+    ok: !!r.ok,
+    note: String(r.note ?? ''),
+    reviewer: String(r.reviewer ?? ''),
+    at: r.marked_at ? Date.parse(String(r.marked_at)) : 0,
+  };
+}
+
+/** R132 */
+export function flagEventFromRow(r: Record<string, unknown>): StepFlagEvent {
+  return {
+    courseId: String(r.course_id),
+    memberId: String(r.user_id),
+    taskId: String(r.task_id),
+    stepId: String(r.step_id),
+    kind: r.kind === 'cleared' ? 'cleared' : 'raised',
+    at: r.at ? Date.parse(String(r.at)) : 0,
   };
 }
 

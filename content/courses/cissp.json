@@ -6398,16 +6398,57 @@
       "source": "All eight sheets at v6 and the ledger",
       "sections": [
         {
+          "kind": "decision",
+          "block": {
+            "id": "authorization",
+            "title": "The authorization decision",
+            "subject": "control",
+            "prompt": "All eight sheets are at v6 and the ledger is full. What does the authorizing official sign?",
+            "options": [
+              {
+                "id": "approve",
+                "label": "Approve to operate",
+                "help": "Every requirement met with a ledger entry; no open condition."
+              },
+              {
+                "id": "conditions",
+                "label": "Approve with conditions",
+                "help": "Named gaps, each with an owner and a date; the system runs while they close."
+              },
+              {
+                "id": "deny",
+                "label": "Deny until fixed",
+                "help": "A basic safeguarding requirement unmet with no dated plan."
+              }
+            ],
+            "questions": [
+              {
+                "field": "decision",
+                "label": "Decision memo",
+                "type": "area",
+                "required": true,
+                "placeholder": "Approve with conditions; each condition with a date."
+              },
+              {
+                "field": "decision_rejected",
+                "label": "The answer rejected, and why",
+                "type": "text",
+                "required": true,
+                "placeholder": "Approve outright: two requirements still carry a dated plan, not evidence."
+              },
+              {
+                "field": "decision_risk",
+                "label": "The residual risk accepted",
+                "type": "text",
+                "placeholder": "Encryption at rest on the archive closes in thirty days; backups are offline until then."
+              }
+            ]
+          }
+        },
+        {
           "kind": "fields",
           "title": "The plan",
           "fields": [
-            {
-              "field": "decision",
-              "label": "Decision memo",
-              "type": "area",
-              "required": true,
-              "placeholder": "Approve with conditions; each condition with a date."
-            },
             {
               "field": "basic_evidence",
               "label": "Basic safeguarding: evidence or dated plan",
@@ -6460,10 +6501,25 @@
       ],
       "dod": [
         {
-          "label": "The decision memo and the basic-safeguarding evidence are written",
+          "label": "The authorization decision: decided and justified",
+          "when": {
+            "all": [
+              {
+                "decision": "authorization"
+              },
+              {
+                "fields": [
+                  "decision",
+                  "decision_rejected"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "label": "The basic-safeguarding evidence is written",
           "when": {
             "fields": [
-              "decision",
               "basic_evidence"
             ]
           }
@@ -7769,6 +7825,229 @@
         "docs": "Documentation and records",
         "cloud": "Cloud services"
       },
+      "CATEGORIES": [
+        {
+          "id": "tools",
+          "label": "Tools",
+          "unit": "A verified step on a task that uses the tool.",
+          "success": "The pasted output held every expected token.",
+          "dimensions": [
+            "tools"
+          ],
+          "areas": [
+            "sysadmin",
+            "network",
+            "detect",
+            "recon",
+            "vuln",
+            "cloud",
+            "automation",
+            "observe"
+          ]
+        },
+        {
+          "id": "commands",
+          "label": "Commands",
+          "unit": "A verified required step that runs a command.",
+          "success": "The output matched on the first or a later paste.",
+          "dimensions": [],
+          "areas": [
+            "sysadmin",
+            "network",
+            "detect",
+            "recon",
+            "exploit",
+            "cloud",
+            "automation",
+            "virt"
+          ]
+        },
+        {
+          "id": "procedures",
+          "label": "Procedures",
+          "unit": "A procedure started: a mapped form with data or a mapped task ticked.",
+          "success": "Followed: every check due met and document control complete.",
+          "dimensions": [
+            "procedures"
+          ],
+          "areas": [
+            "ops",
+            "continuity",
+            "respond",
+            "sysadmin",
+            "docs"
+          ]
+        },
+        {
+          "id": "standards",
+          "label": "Standards",
+          "unit": "A standard tagged on ticked work or cited by a form of the role.",
+          "success": "Tagged on verified output or cited by an approved form.",
+          "dimensions": [
+            "standards"
+          ],
+          "areas": [
+            "grc",
+            "audit",
+            "risk",
+            "harden",
+            "docs"
+          ]
+        },
+        {
+          "id": "troubleshooting",
+          "label": "Troubleshooting",
+          "unit": "A fault, incident or triage row the team logged, or a step verified after a failed paste.",
+          "success": "The outcome column reads resolved, or the retry verified.",
+          "dimensions": [
+            "troubleshooting"
+          ],
+          "areas": [
+            "ops",
+            "respond",
+            "sysadmin",
+            "network",
+            "observe",
+            "hardware"
+          ]
+        },
+        {
+          "id": "investigations",
+          "label": "Investigations",
+          "unit": "A row on an investigation, triage, assessment or audit form, or a hashed evidence file.",
+          "success": "A verdict, a fix or a transfer recorded on the row.",
+          "dimensions": [
+            "evidence"
+          ],
+          "areas": [
+            "forensics",
+            "detect",
+            "respond",
+            "vuln",
+            "audit",
+            "recon"
+          ]
+        },
+        {
+          "id": "documentation",
+          "label": "Documentation",
+          "unit": "A form the member drafted, submitted, reviewed or issued.",
+          "success": "Approved by the team or by an instructor, or every check due met.",
+          "dimensions": [
+            "documentation"
+          ],
+          "areas": [
+            "docs",
+            "report",
+            "grc"
+          ]
+        },
+        {
+          "id": "architectures",
+          "label": "Architectures",
+          "unit": "A row on a design, topology, plan or architecture form of the role.",
+          "success": "The form reached approved or issued.",
+          "dimensions": [],
+          "areas": [
+            "arch",
+            "network",
+            "cloud",
+            "data",
+            "continuity"
+          ]
+        },
+        {
+          "id": "configurations",
+          "label": "Configurations",
+          "unit": "A row on a configuration, baseline or hardening form, or a verified configuration step.",
+          "success": "Verified from output or approved by the team.",
+          "dimensions": [],
+          "areas": [
+            "harden",
+            "sysadmin",
+            "network",
+            "identity",
+            "cloud",
+            "virt"
+          ]
+        },
+        {
+          "id": "communication",
+          "label": "Communication",
+          "unit": "A hand-off, a report filed, a note written, a peer review given or a handover form.",
+          "success": "The hand-off closed, the report resolved, the review sent.",
+          "dimensions": [
+            "collaboration"
+          ],
+          "areas": [
+            "report",
+            "docs",
+            "ops"
+          ]
+        },
+        {
+          "id": "collaboration",
+          "label": "Collaboration",
+          "unit": "A lifecycle move on a team form, or a step ticked on a teammate’s task.",
+          "success": "The move was made in the role the RACI names.",
+          "dimensions": [
+            "collaboration"
+          ],
+          "areas": [
+            "ops",
+            "docs",
+            "grc"
+          ]
+        },
+        {
+          "id": "decisions",
+          "label": "Decisions",
+          "unit": "A decision block chosen by this member, or a change row with its reason written.",
+          "success": "Justified: every required supporting question answered; approved by the team.",
+          "dimensions": [
+            "decisions"
+          ],
+          "areas": [
+            "arch",
+            "risk",
+            "grc",
+            "continuity",
+            "ops"
+          ]
+        },
+        {
+          "id": "projects",
+          "label": "Projects",
+          "unit": "A graded week sealed on a capstone.",
+          "success": "The capstone document issued.",
+          "dimensions": [],
+          "areas": [
+            "docs",
+            "ops",
+            "arch"
+          ]
+        },
+        {
+          "id": "exam-domains",
+          "label": "Exam domains",
+          "unit": "A verified step on a task that practises the domain.",
+          "success": "Verified; weighted by the published blueprint.",
+          "dimensions": [
+            "domains"
+          ],
+          "areas": [
+            "grc",
+            "harden",
+            "network",
+            "sysadmin",
+            "cloud",
+            "detect",
+            "respond",
+            "arch"
+          ]
+        }
+      ],
+      "CHANGE_GROUPS": [],
       "CONTROLS": [
         {
           "code": "NIST.CSF",
@@ -8940,10 +9219,26 @@
           "commandsVerified": "Commands verified",
           "proceduresToStandard": "Procedures to standard"
         },
+        "skillDomainsHeading": "Eight domains",
+        "skillDomainsLede": "Rows appear only where evidence stands behind them: a verified step, an approved form, an authored decision, a resolved fault.",
+        "domainEmpty": "Nothing recorded in this domain yet.",
+        "categoriesHeading": "The record, by category",
+        "categoryFigures": {
+          "utilization": "Uses",
+          "verifiedUses": "Verified uses",
+          "successRate": "Success rate",
+          "lastActivity": "Last activity",
+          "courses": "Courses",
+          "projects": "Projects",
+          "trend": "Six months",
+          "evidence": "Evidence",
+          "relevance": "Industry relevance"
+        },
+        "relevanceNote": "The share of the NICE work roles whose competency areas this category serves; a crosswalk, published in docs/SCORING.md.",
         "board": {
           "title": "Skill board",
-          "lede": "Sixteen numbers this course keeps for this member, each counted over facts that exist, and the competencies lit by level.",
-          "familiesHeading": "Four families of four",
+          "lede": "Twenty-eight numbers this course keeps for this member, counted over facts that exist, six scores by a published method, and the competencies lit by level.",
+          "familiesHeading": "Seven families of four",
           "audience": {
             "student": "Student",
             "hiring": "Hiring",
@@ -8963,14 +9258,14 @@
           "perTool": "Verified steps on the tasks that use each tool",
           "credentialName": "Capstone member profile",
           "issuer": "Capstone Labs",
-          "jsonCaption": "The same sixteen as the capstone-kpi-board/1 document an agent reads.",
+          "jsonCaption": "The same twenty-eight, the scores and the timing as the capstone-kpi-board/2 document an agent reads.",
           "schemaNote": "The shape is published as content/schemas/kpi-board.schema.json.",
           "copyJson": "Copy JSON",
           "mapTitle": "Competency map",
           "mapHowToRead": "One star per competency this role practises, grouped by area; brighter means verified, a ring means the team approved the document.",
           "mapIdle": "Hover or focus a star to read it.",
           "weeksLabel": "Weeks cleared",
-          "tableTitle": "The sixteen, as a table",
+          "tableTitle": "The twenty-eight, as a table",
           "nextTask": "Next task",
           "createLink": "Create link",
           "credentialClaim": "An Open Badges 3.0 envelope around the member profile, unsigned: it carries no proof and claims none.",
@@ -8993,7 +9288,7 @@
             "complete": "Complete",
             "noDenominator": "No denominator"
           },
-          "packTitle": "Sixteen KPIs",
+          "packTitle": "Twenty-eight KPIs",
           "packIdle": "Hover or focus a socket to read it.",
           "packKeys": "Arrow keys move between sockets. Enter pins the read-out.",
           "download": "Download PDF",
@@ -9003,11 +9298,27 @@
           "current": "current",
           "stale": "verified earlier",
           "familyShort": {
-            "ability": "Ability",
+            "technical": "Technical",
+            "problem-solving": "Problem solving",
             "execution": "Execution",
-            "procedure": "Procedure",
-            "outcome": "Outcome"
-          }
+            "decision-making": "Decisions",
+            "teamwork": "Teamwork",
+            "professionalism": "Professionalism",
+            "growth": "Growth"
+          },
+          "scoresHeading": "Scores, by a published method",
+          "scoreNote": "A weighted mean of the KPIs named; the weights are published in docs/SCORING.md.",
+          "scoreStandsOn": "stands on",
+          "scoreComponents": "components",
+          "timingHeading": "Time to resolution",
+          "timingNote": "Minutes from the first paste to the verification, read from two recorded stamps; the median over steps resolved within a day.",
+          "timedSteps": "steps timed",
+          "withinHour": "within the hour",
+          "over24h": "left over a day",
+          "noTiming": "No step carries both stamps yet.",
+          "tierProfessional": "Professional",
+          "tierBuilding": "Building",
+          "tierRule": "Professional at ten verified uses across every course and retake; building below it, with the count."
         }
       },
       "DIMENSION_LABEL": {
@@ -9021,17 +9332,195 @@
         "evidence": "Evidence",
         "documentation": "Documentation",
         "collaboration": "Collaboration",
-        "ability": "Ability"
+        "ability": "Ability",
+        "execution": "Execution",
+        "troubleshooting": "Troubleshooting",
+        "decisions": "Decisions",
+        "retention": "Retention"
       },
+      "DOMAINS": [
+        {
+          "id": "technical-capability",
+          "label": "Technical capability",
+          "definition": "Skills, tools, commands and exam domains proven by pasted output that held every expected token.",
+          "asks": "Can this member operate the tools and run the commands the job needs?",
+          "dimensions": [
+            "skills",
+            "tools",
+            "domains"
+          ],
+          "categories": [
+            "tools",
+            "commands",
+            "exam-domains"
+          ],
+          "kpis": [
+            "kpi.technical.skills-verified",
+            "kpi.technical.commands-verified",
+            "kpi.technical.exam-weight-verified"
+          ],
+          "score": "score.tool-proficiency",
+          "evidence": "A verification record per step: the output hash, the tokens matched, the attempts, and a receipt in cloud mode."
+        },
+        {
+          "id": "professional-execution",
+          "label": "Professional execution",
+          "definition": "Procedures followed to standard, steps in order, first pastes, evidence named, checks met, documents controlled, work on time.",
+          "asks": "Does this member follow the runbook as written and deliver on the calendar?",
+          "dimensions": [
+            "procedures",
+            "standards",
+            "execution"
+          ],
+          "categories": [
+            "procedures",
+            "standards",
+            "configurations"
+          ],
+          "kpis": [
+            "kpi.technical.procedures-to-standard",
+            "kpi.execution.steps-in-order",
+            "kpi.execution.dod-met",
+            "kpi.professionalism.on-time"
+          ],
+          "score": "score.reliability",
+          "evidence": "The order of verification stamps, the attempts, the file names, the Definition-of-Done checks, the control block and the cohort due dates."
+        },
+        {
+          "id": "problem-solving",
+          "label": "Problem solving",
+          "definition": "Faults logged and resolved, steps verified after a failed paste, stuck flags cleared, and the minutes from first paste to proof.",
+          "asks": "When something breaks, does this member find and fix it, and how long does it take?",
+          "dimensions": [
+            "troubleshooting"
+          ],
+          "categories": [
+            "troubleshooting",
+            "investigations"
+          ],
+          "kpis": [
+            "kpi.problem-solving.faults-resolved",
+            "kpi.problem-solving.persistence",
+            "kpi.problem-solving.flags-cleared",
+            "kpi.problem-solving.time-to-resolution"
+          ],
+          "score": "score.troubleshooting-success",
+          "evidence": "Fault, incident and triage rows with their outcome column, retries that verified, the append-only flag history and two stamps per step."
+        },
+        {
+          "id": "thought-process",
+          "label": "Thought process",
+          "definition": "Decisions recorded against at least three options with rationale, rejected options, risk and rollback, and reasons written on change rows.",
+          "asks": "Does this member weigh options, say why, and plan the way back?",
+          "dimensions": [
+            "decisions"
+          ],
+          "categories": [
+            "decisions"
+          ],
+          "kpis": [
+            "kpi.decision-making.decisions-recorded",
+            "kpi.decision-making.decisions-justified",
+            "kpi.decision-making.decisions-approved",
+            "kpi.decision-making.change-rollback"
+          ],
+          "score": "score.judgment",
+          "evidence": "Decision blocks with the option chosen, who chose it and when, the answers to the supporting questions, and the form lifecycle."
+        },
+        {
+          "id": "architecture-design",
+          "label": "Architecture and design",
+          "definition": "Design briefs, topologies, IP plans, bills of materials, decision records and as-built documents drafted, approved and issued.",
+          "asks": "Can this member design a system and write it down so another team can build it?",
+          "dimensions": [
+            "documentation"
+          ],
+          "categories": [
+            "architectures",
+            "configurations"
+          ],
+          "kpis": [
+            "kpi.execution.dod-met",
+            "kpi.professionalism.document-control",
+            "kpi.decision-making.decisions-approved"
+          ],
+          "evidence": "The architecture and configuration forms of the role: rows filled, checks met, approved or issued, with the decisions on them."
+        },
+        {
+          "id": "team-communication",
+          "label": "Team and communication",
+          "definition": "Hand-offs closed, RACI respected, peer reviews given, steps ticked for teammates, reports filed, notes written, handovers issued.",
+          "asks": "Does this member hand work on cleanly, review others and hold their lane?",
+          "dimensions": [
+            "collaboration",
+            "documentation"
+          ],
+          "categories": [
+            "communication",
+            "collaboration"
+          ],
+          "kpis": [
+            "kpi.teamwork.handoffs",
+            "kpi.teamwork.raci-respected",
+            "kpi.teamwork.peer-reviews-given",
+            "kpi.teamwork.teammate-steps"
+          ],
+          "score": "score.collaboration",
+          "evidence": "The lifecycle rows with who moved what, the hand-offs and their forms, the peer review queue, the reports and the notes."
+        },
+        {
+          "id": "learning-retention",
+          "label": "Learning and retention",
+          "definition": "Skills proved on a second task, verified again a week or more later, reused in another course, and the pace month on month.",
+          "asks": "Is this member still learning, and keeping what was learned?",
+          "dimensions": [
+            "retention"
+          ],
+          "categories": [
+            "tools",
+            "commands",
+            "procedures"
+          ],
+          "kpis": [
+            "kpi.growth.skills-transferred",
+            "kpi.growth.retention",
+            "kpi.growth.learning-velocity"
+          ],
+          "evidence": "The verification stamps of every skill: first and last, the tasks and courses between them, and the last two months of them."
+        },
+        {
+          "id": "professional-readiness",
+          "label": "Professional readiness",
+          "definition": "The tier per record item at ten verified uses, the exam weight verified, the work-role coverage and the readiness score.",
+          "asks": "Can this member consistently perform at a professional level in a real work environment?",
+          "dimensions": [
+            "skills",
+            "domains"
+          ],
+          "categories": [
+            "projects",
+            "exam-domains",
+            "tools"
+          ],
+          "kpis": [
+            "kpi.technical.exam-weight-verified",
+            "kpi.growth.profile-coverage",
+            "kpi.growth.retention"
+          ],
+          "score": "score.readiness",
+          "evidence": "Every category of the record with its verified uses across courses, the published exam weights and the work roles’ required competencies."
+        }
+      ],
       "KPIS": [
         {
-          "id": "kpi.ability.skills-verified",
-          "family": "ability",
+          "id": "kpi.technical.skills-verified",
+          "family": "technical",
           "label": "Skills verified",
           "metricId": "metric.skill-verified",
           "numerator": "Skills with at least one step verified from pasted output.",
           "denominator": "Skills the role practises that carry a verifiable step.",
           "fact": "own",
+          "unit": "ratio",
           "valueTo": [
             "member",
             "company",
@@ -9040,16 +9529,17 @@
           "whyMember": "Each verified skill names a task where the pasted output held every expected token.",
           "whyCompany": "Skills backed by matched output rather than a tick, with the task behind each one named.",
           "agentField": "/kpis/0",
-          "scored": false
+          "scored": true
         },
         {
-          "id": "kpi.ability.exam-weight-verified",
-          "family": "ability",
+          "id": "kpi.technical.exam-weight-verified",
+          "family": "technical",
           "label": "Exam weight verified",
           "metricId": "metric.domain-weight-verified",
           "numerator": "The published exam weight of every domain with a verified step, summed.",
           "denominator": "The published exam weight of every domain the role practises, summed.",
           "fact": "own",
+          "unit": "ratio",
           "valueTo": [
             "member",
             "company",
@@ -9058,43 +9548,117 @@
           "whyMember": "Shows which share of the exam blueprint the verified work already touches.",
           "whyCompany": "Reads the verified work against the published exam domains and their weights.",
           "agentField": "/kpis/1",
-          "scored": false
+          "scored": true
         },
         {
-          "id": "kpi.ability.profile-coverage",
-          "family": "ability",
-          "label": "Profile coverage",
-          "metricId": "metric.profile-coverage",
-          "numerator": "Required competencies of the selected work role or environment profile at verified or better.",
-          "denominator": "Required competencies the selected work role or environment profile names.",
+          "id": "kpi.technical.commands-verified",
+          "family": "technical",
+          "label": "Commands verified",
+          "metricId": "metric.tool-commands-verified",
+          "numerator": "Verified required steps that run a command.",
+          "denominator": "Verifiable required steps that run a command.",
           "fact": "own",
+          "unit": "ratio",
           "valueTo": [
             "member",
-            "company",
-            "platform"
+            "company"
           ],
-          "whyMember": "Measures the verified skills against a job role or a published company profile, with the untaught gap named.",
-          "whyCompany": "Coverage of the competencies a work role or an environment profile requires, read from verified steps.",
+          "whyMember": "Command steps proven by their output; the table below splits them by tool.",
+          "whyCompany": "Tool use proven by output, per command step, split by tool in the table.",
           "agentField": "/kpis/2",
-          "scored": false
+          "scored": true
         },
         {
-          "id": "kpi.ability.skills-transferred",
-          "family": "ability",
-          "label": "Skills proved twice",
-          "metricId": "metric.skill-transfer",
-          "numerator": "Skills with verified steps on two or more distinct tasks.",
-          "denominator": "Skills with at least one verified step.",
-          "fact": "own",
+          "id": "kpi.technical.procedures-to-standard",
+          "family": "technical",
+          "label": "Procedures to standard",
+          "metricId": "metric.procedure-to-standard",
+          "numerator": "Followed procedures whose form cites a control code and was approved or issued.",
+          "denominator": "Procedures followed: every check due met and document control complete.",
+          "fact": "team",
+          "unit": "ratio",
           "valueTo": [
             "member",
             "company",
             "platform"
           ],
-          "whyMember": "A skill verified on two different tasks was carried from one context to another.",
-          "whyCompany": "Verification repeated on a second task is harder to reach by luck or by copying.",
+          "whyMember": "A runbook followed to a named control and approved by the team; a team fact.",
+          "whyCompany": "Procedures run to a cited NIST, ISO or SOC 2 control and approved by the team.",
           "agentField": "/kpis/3",
           "scored": false
+        },
+        {
+          "id": "kpi.problem-solving.faults-resolved",
+          "family": "problem-solving",
+          "label": "Faults resolved",
+          "metricId": "metric.trouble-resolved",
+          "numerator": "Fault, incident and triage rows whose outcome column reads resolved.",
+          "denominator": "Fault, incident and triage rows the team filled on the forms of the role.",
+          "fact": "team",
+          "unit": "ratio",
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "whyMember": "Every fault the team logged, and how many ended resolved; a team fact.",
+          "whyCompany": "Troubleshooting success read from the fault and incident records the team kept.",
+          "agentField": "/kpis/4",
+          "scored": true
+        },
+        {
+          "id": "kpi.problem-solving.persistence",
+          "family": "problem-solving",
+          "label": "Verified after retry",
+          "metricId": "metric.ability-persistence",
+          "numerator": "Verified steps that took more than one paste.",
+          "denominator": "Verified steps.",
+          "fact": "own",
+          "unit": "ratio",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "A step that failed once and was then proven: the fault was found and fixed.",
+          "whyCompany": "How often a failed first paste was followed by a verified fix.",
+          "agentField": "/kpis/5",
+          "scored": true
+        },
+        {
+          "id": "kpi.problem-solving.flags-cleared",
+          "family": "problem-solving",
+          "label": "Stuck flags cleared",
+          "metricId": "metric.ability-flags-cleared",
+          "numerator": "Stuck flags the member raised and later cleared.",
+          "denominator": "Stuck flags the member raised.",
+          "fact": "own",
+          "unit": "ratio",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "Asking for help and then getting past it both count; a flag never cleared says so.",
+          "whyCompany": "Blockers raised and worked through, from the append-only flag history.",
+          "agentField": "/kpis/6",
+          "scored": true
+        },
+        {
+          "id": "kpi.problem-solving.time-to-resolution",
+          "family": "problem-solving",
+          "label": "Time to resolution",
+          "metricId": "metric.time-to-verify",
+          "numerator": "The median minutes from the first paste to the verification, per verified step with both stamps.",
+          "denominator": "Verified steps with both stamps; the share within the hour is the percentage.",
+          "fact": "own",
+          "unit": "minutes",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "The median, so one long gap moves nothing; a step left over a day is counted apart.",
+          "whyCompany": "Minutes from first attempt to proof, read from two recorded stamps, never a clock.",
+          "agentField": "/kpis/7",
+          "scored": true
         },
         {
           "id": "kpi.execution.steps-in-order",
@@ -9104,14 +9668,15 @@
           "numerator": "Tasks whose verifiable steps were verified in the authored order.",
           "denominator": "Tasks with two or more verification records, so an order exists.",
           "fact": "own",
+          "unit": "ratio",
           "valueTo": [
             "member",
             "company"
           ],
-          "whyMember": "The procedure was run as written, step after step: a sequence fact, never a duration.",
-          "whyCompany": "Runbooks followed in order, read from the sequence of verification records alone.",
-          "agentField": "/kpis/4",
-          "scored": false
+          "whyMember": "The procedure was run as written, step after step.",
+          "whyCompany": "Runbooks followed in order, read from the sequence of verification records.",
+          "agentField": "/kpis/8",
+          "scored": true
         },
         {
           "id": "kpi.execution.first-try",
@@ -9121,31 +9686,15 @@
           "numerator": "Verified steps whose first paste held every expected token.",
           "denominator": "Verified steps.",
           "fact": "own",
+          "unit": "ratio",
           "valueTo": [
             "member",
             "company"
           ],
-          "whyMember": "Shown beside persistence: a step verified after several pastes counts for as much.",
+          "whyMember": "Shown beside retries: a step verified after several pastes counts for as much.",
           "whyCompany": "How often the first paste matched, printed beside how often it took more than one.",
-          "agentField": "/kpis/5",
+          "agentField": "/kpis/9",
           "beside": "persistence",
-          "scored": false
-        },
-        {
-          "id": "kpi.execution.commands-verified",
-          "family": "execution",
-          "label": "Commands verified",
-          "metricId": "metric.tool-commands-verified",
-          "numerator": "Verified required steps that run a command.",
-          "denominator": "Verifiable required steps that run a command.",
-          "fact": "own",
-          "valueTo": [
-            "member",
-            "company"
-          ],
-          "whyMember": "Command steps proven by their output; the table below splits them by tool.",
-          "whyCompany": "Tool use proven by output, per command step, split by tool in the table.",
-          "agentField": "/kpis/6",
           "scored": false
         },
         {
@@ -9156,41 +9705,25 @@
           "numerator": "Hashed files named to the evidence convention.",
           "denominator": "Hashed files.",
           "fact": "own",
+          "unit": "ratio",
           "valueTo": [
             "member",
             "company"
           ],
           "whyMember": "Evidence an auditor can find: date, team, tool and subject in every file name.",
           "whyCompany": "Chain-of-custody hygiene: hashed files that follow the naming convention.",
-          "agentField": "/kpis/7",
+          "agentField": "/kpis/10",
           "scored": false
         },
         {
-          "id": "kpi.procedure.followed-to-standard",
-          "family": "procedure",
-          "label": "Procedures to standard",
-          "metricId": "metric.procedure-to-standard",
-          "numerator": "Followed procedures whose form cites a control code and was approved or issued.",
-          "denominator": "Procedures followed: every check due met and document control complete.",
-          "fact": "team",
-          "valueTo": [
-            "member",
-            "company",
-            "platform"
-          ],
-          "whyMember": "A runbook followed to a named control and approved by the team; a team fact.",
-          "whyCompany": "Procedures run to a cited NIST, ISO or SOC 2 control and approved by the team.",
-          "agentField": "/kpis/8",
-          "scored": false
-        },
-        {
-          "id": "kpi.procedure.dod-met",
-          "family": "procedure",
+          "id": "kpi.execution.dod-met",
+          "family": "execution",
           "label": "Definition-of-Done met",
           "metricId": "metric.doc-dod-met",
           "numerator": "Definition-of-Done checks met on the forms of the role.",
           "denominator": "Checks due on those forms through the current week.",
           "fact": "team",
+          "unit": "ratio",
           "valueTo": [
             "member",
             "company",
@@ -9198,133 +9731,345 @@
           ],
           "whyMember": "Every check a form must pass this week, met or not, counted for the team.",
           "whyCompany": "Work products measured against their own acceptance checks, week by week.",
-          "agentField": "/kpis/9",
-          "scored": false
-        },
-        {
-          "id": "kpi.procedure.controls-cited",
-          "family": "procedure",
-          "label": "Controls cited",
-          "metricId": "metric.standard-controls-cited",
-          "numerator": "Distinct control codes on approved or issued forms the role drafts.",
-          "denominator": "Distinct control codes the forms of the role cite.",
-          "fact": "team",
-          "valueTo": [
-            "member",
-            "company"
-          ],
-          "whyMember": "The published controls the approved documents cite, by code.",
-          "whyCompany": "Control codes practised through approved documents, by standard.",
-          "agentField": "/kpis/10",
-          "scored": false
-        },
-        {
-          "id": "kpi.procedure.document-control",
-          "family": "procedure",
-          "label": "Document control complete",
-          "metricId": "metric.doc-control-complete",
-          "numerator": "Forms with data whose document-control block is complete.",
-          "denominator": "Forms of the role with data.",
-          "fact": "team",
-          "valueTo": [
-            "member",
-            "company"
-          ],
-          "whyMember": "Id, version, owner, date and status on every document the team filled.",
-          "whyCompany": "Document control kept on every filled form: id, version, owner, date, status.",
           "agentField": "/kpis/11",
           "scored": false
         },
         {
-          "id": "kpi.outcome.rubric-green",
-          "family": "outcome",
-          "label": "Submissions rubric-green",
-          "metricId": "metric.doc-rubric-green",
-          "numerator": "Frozen submissions by the member with all four rubric categories true.",
-          "denominator": "Frozen submissions by the member.",
+          "id": "kpi.decision-making.decisions-recorded",
+          "family": "decision-making",
+          "label": "Decisions recorded",
+          "metricId": "metric.decision-recorded",
+          "numerator": "Decision blocks with an option chosen by this member.",
+          "denominator": "Decision blocks on the forms of the role, each with at least three options.",
           "fact": "team",
+          "unit": "ratio",
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "whyMember": "Each decision names the options weighed, the one chosen, who chose and when.",
+          "whyCompany": "Component, configuration and architecture choices made against named alternatives.",
+          "agentField": "/kpis/12",
+          "scored": true
+        },
+        {
+          "id": "kpi.decision-making.decisions-justified",
+          "family": "decision-making",
+          "label": "Decisions justified",
+          "metricId": "metric.decision-justified",
+          "numerator": "Recorded decisions with every required supporting question answered.",
+          "denominator": "Decisions recorded by this member.",
+          "fact": "team",
+          "unit": "ratio",
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "whyMember": "A choice with its reason, the rejected options and the risk accepted.",
+          "whyCompany": "Judgment shown in writing: rationale, rejected options, risk and rollback per decision.",
+          "agentField": "/kpis/13",
+          "scored": true
+        },
+        {
+          "id": "kpi.decision-making.decisions-approved",
+          "family": "decision-making",
+          "label": "Decisions approved",
+          "metricId": "metric.decision-approved",
+          "numerator": "Recorded decisions on a form the team approved or issued.",
+          "denominator": "Decisions recorded by this member.",
+          "fact": "team",
+          "unit": "ratio",
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "whyMember": "The team stood behind the choice; a team fact.",
+          "whyCompany": "Decisions that passed the team’s review and were issued.",
+          "agentField": "/kpis/14",
+          "scored": true
+        },
+        {
+          "id": "kpi.decision-making.change-rollback",
+          "family": "decision-making",
+          "label": "Changes with rollback",
+          "metricId": "metric.procedure-change-recorded",
+          "numerator": "Change-record rows with a rollback or back-out written.",
+          "denominator": "Change-record rows on the forms of the role.",
+          "fact": "team",
+          "unit": "ratio",
           "valueTo": [
             "member",
             "company"
           ],
-          "whyMember": "A frozen submission that met all four rubric categories at once.",
-          "whyCompany": "Submissions that met every rubric category when frozen.",
-          "agentField": "/kpis/12",
-          "scored": false
+          "whyMember": "Every change the team logged, and how many had a way back written down first.",
+          "whyCompany": "Change discipline: a rollback plan on every recorded change.",
+          "agentField": "/kpis/15",
+          "scored": true
         },
         {
-          "id": "kpi.outcome.handoffs",
-          "family": "outcome",
+          "id": "kpi.teamwork.handoffs",
+          "family": "teamwork",
           "label": "Hand-offs completed",
           "metricId": "metric.collab-handoffs",
           "numerator": "Hand-offs whose named deliverable reached approved or issued.",
           "denominator": "Hand-offs of the tasks of the role.",
           "fact": "team",
+          "unit": "ratio",
           "valueTo": [
             "member",
             "company"
           ],
           "whyMember": "Work handed to another role that the team then approved or issued.",
           "whyCompany": "Cross-role hand-offs closed by an approved document.",
-          "agentField": "/kpis/13",
+          "agentField": "/kpis/16",
+          "scored": true
+        },
+        {
+          "id": "kpi.teamwork.raci-respected",
+          "family": "teamwork",
+          "label": "RACI respected",
+          "metricId": "metric.collab-raci-respected",
+          "numerator": "Lifecycle moves the member made in the role the RACI names for that move.",
+          "denominator": "Lifecycle moves the member made on forms with a RACI.",
+          "fact": "team",
+          "unit": "ratio",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "Submitting as the drafter, approving as the approver: the lane was held.",
+          "whyCompany": "Role discipline on documents, read from who moved what.",
+          "agentField": "/kpis/17",
+          "scored": true
+        },
+        {
+          "id": "kpi.teamwork.peer-reviews-given",
+          "family": "teamwork",
+          "label": "Peer reviews given",
+          "metricId": "metric.collab-peer-reviews-given",
+          "numerator": "Blind peer reviews the member completed.",
+          "denominator": "Peer reviews assigned to the member.",
+          "fact": "own",
+          "unit": "ratio",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "Reviews of other teams’ frozen work, answered question by question.",
+          "whyCompany": "Review work done for others, from the blind review queue.",
+          "agentField": "/kpis/18",
+          "scored": true
+        },
+        {
+          "id": "kpi.teamwork.teammate-steps",
+          "family": "teamwork",
+          "label": "Teammate steps ticked",
+          "metricId": "metric.collab-teammate-steps",
+          "numerator": "Required steps the member ticked on another role’s tasks.",
+          "denominator": "No denominator: a count.",
+          "fact": "own",
+          "unit": "count",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "Steps done on a teammate’s task, so a lane short of hands still finished.",
+          "whyCompany": "Help given across roles, counted in steps.",
+          "agentField": "/kpis/19",
           "scored": false
         },
         {
-          "id": "kpi.outcome.instructor-approved",
-          "family": "outcome",
+          "id": "kpi.professionalism.on-time",
+          "family": "professionalism",
+          "label": "On time",
+          "metricId": "metric.ability-deadline-adherence",
+          "numerator": "Tasks whose last verification fell on or before the week due date.",
+          "denominator": "Tasks with a verification; needs the cohort start date.",
+          "fact": "own",
+          "unit": "ratio",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "The due date comes from the cohort calendar; without one the row says so.",
+          "whyCompany": "Reliability against a calendar, read from the verification stamps and the cohort start.",
+          "agentField": "/kpis/20",
+          "scored": true
+        },
+        {
+          "id": "kpi.professionalism.document-control",
+          "family": "professionalism",
+          "label": "Document control complete",
+          "metricId": "metric.doc-control-complete",
+          "numerator": "Forms with data whose document-control block is complete.",
+          "denominator": "Forms of the role with data.",
+          "fact": "team",
+          "unit": "ratio",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "Id, version, owner, date and status on every document the team filled.",
+          "whyCompany": "Document control kept on every filled form: id, version, owner, date, status.",
+          "agentField": "/kpis/21",
+          "scored": true
+        },
+        {
+          "id": "kpi.professionalism.controls-cited",
+          "family": "professionalism",
+          "label": "Controls cited",
+          "metricId": "metric.standard-controls-cited",
+          "numerator": "Distinct control codes on approved or issued forms the role drafts.",
+          "denominator": "Distinct control codes the forms of the role cite.",
+          "fact": "team",
+          "unit": "ratio",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "The published controls the approved documents cite, by code.",
+          "whyCompany": "Control codes practised through approved documents, by standard.",
+          "agentField": "/kpis/22",
+          "scored": true
+        },
+        {
+          "id": "kpi.professionalism.instructor-approved",
+          "family": "professionalism",
           "label": "Instructor approved",
           "metricId": "metric.doc-instructor-approved",
           "numerator": "Forms of the role whose latest instructor review is approved.",
           "denominator": "Forms of the role.",
           "fact": "team",
+          "unit": "ratio",
           "valueTo": [
             "member",
             "company"
           ],
           "whyMember": "Forms an instructor reviewed and approved; the latest review per form counts.",
           "whyCompany": "Forms with an instructor verdict of approved, the latest review per form.",
-          "agentField": "/kpis/14",
-          "scored": false
+          "agentField": "/kpis/23",
+          "scored": true
         },
         {
-          "id": "kpi.outcome.capstone-filed",
-          "family": "outcome",
-          "label": "Capstone filed",
-          "metricId": "metric.outcome-capstone-filed",
-          "numerator": "The capstone document, issued.",
-          "denominator": "One capstone per course.",
-          "fact": "team",
+          "id": "kpi.growth.skills-transferred",
+          "family": "growth",
+          "label": "Skills proved twice",
+          "metricId": "metric.skill-transfer",
+          "numerator": "Skills with verified steps on two or more distinct tasks.",
+          "denominator": "Skills with at least one verified step.",
+          "fact": "own",
+          "unit": "ratio",
           "valueTo": [
             "member",
             "company",
             "platform"
           ],
-          "whyMember": "The final document issued; the weeks cleared are printed beside it.",
-          "whyCompany": "The course capstone filed by the team, with the weeks cleared beside it.",
-          "agentField": "/kpis/15",
+          "whyMember": "A skill verified on two different tasks was carried from one context to another.",
+          "whyCompany": "Verification repeated on a second task is harder to reach by luck or by copying.",
+          "agentField": "/kpis/24",
+          "scored": true
+        },
+        {
+          "id": "kpi.growth.retention",
+          "family": "growth",
+          "label": "Skills retained",
+          "metricId": "metric.ability-recall",
+          "numerator": "Skills verified again seven or more days after their first verification.",
+          "denominator": "Skills with at least one verified step.",
+          "fact": "own",
+          "unit": "ratio",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "Proof a week or more apart: the skill stayed.",
+          "whyCompany": "Retention read from the gap between two verification stamps on the same skill.",
+          "agentField": "/kpis/25",
+          "scored": true
+        },
+        {
+          "id": "kpi.growth.learning-velocity",
+          "family": "growth",
+          "label": "Learning velocity",
+          "metricId": "metric.time-learning-velocity",
+          "numerator": "Verified steps in the twenty-eight days before the page clock.",
+          "denominator": "Verified steps in the twenty-eight days before those; the percentage caps at one hundred.",
+          "fact": "own",
+          "unit": "ratio",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "This month against last: rising, level or slowing, from the verification stamps.",
+          "whyCompany": "Pace of verified work, month on month, from recorded stamps.",
+          "agentField": "/kpis/26",
           "scored": false
+        },
+        {
+          "id": "kpi.growth.profile-coverage",
+          "family": "growth",
+          "label": "Profile coverage",
+          "metricId": "metric.profile-coverage",
+          "numerator": "Required competencies of the selected work role or environment profile at verified or better.",
+          "denominator": "Required competencies the selected work role or environment profile names.",
+          "fact": "own",
+          "unit": "ratio",
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "whyMember": "Measures the verified skills against a job role or a published company profile, with the untaught gap named.",
+          "whyCompany": "Coverage of the competencies a work role or an environment profile requires, read from verified steps.",
+          "agentField": "/kpis/27",
+          "scored": true
         }
       ],
       "KPI_FAMILIES": [
         {
-          "id": "ability",
-          "label": "Ability",
-          "definition": "What the member can do, read from verified steps against the exam, a work role or a published profile."
+          "id": "technical",
+          "label": "Technical capability",
+          "definition": "What the member can do: skills, commands and procedures proven by output against the exam and the role.",
+          "asks": "Can this member operate the tools and run the procedures the job needs?"
+        },
+        {
+          "id": "problem-solving",
+          "label": "Problem solving",
+          "definition": "Faults logged and resolved, verifications reached after a failed paste, stuck flags cleared, and the minutes between first paste and proof.",
+          "asks": "When something breaks, does this member find and fix it, and how long does it take?"
         },
         {
           "id": "execution",
-          "label": "Execution",
-          "definition": "How the work was done: steps in order, first pastes, commands proven by output, evidence hygiene."
+          "label": "Professional execution",
+          "definition": "How the work was done: steps in order, first pastes, evidence named to convention, every check due met.",
+          "asks": "Does this member follow the runbook as written and leave evidence an auditor can find?"
         },
         {
-          "id": "procedure",
-          "label": "Procedure and standards",
-          "definition": "Runbooks followed to a cited standard, checks met, controls cited, documents controlled; team facts, labelled as such."
+          "id": "decision-making",
+          "label": "Decision making",
+          "definition": "Decisions recorded against at least three options, justified, approved by the team, and changes with a rollback written.",
+          "asks": "Does this member weigh options, say why, and plan the way back?"
         },
         {
-          "id": "outcome",
-          "label": "Outcome",
-          "definition": "What the team delivered: rubric categories met, hand-offs closed, instructor approval and the capstone filed."
+          "id": "teamwork",
+          "label": "Teamwork",
+          "definition": "Hand-offs closed, RACI respected, peer reviews given and steps ticked on teammates’ tasks.",
+          "asks": "Does this member hand work on cleanly and hold their lane in a team?"
+        },
+        {
+          "id": "professionalism",
+          "label": "Professionalism",
+          "definition": "On time against the cohort calendar, documents controlled, controls cited, instructor approval earned.",
+          "asks": "Does this member deliver on time, to standard, and to the reviewer’s satisfaction?"
+        },
+        {
+          "id": "growth",
+          "label": "Growth",
+          "definition": "Skills proved twice, retained across weeks, verified faster week on week, and the gap to a work role closing.",
+          "asks": "Is this member still learning, and keeping what was learned?"
         }
       ],
       "LEVEL_LABEL": {
@@ -9393,6 +10138,30 @@
           "practised": "Practised",
           "verified": "Verified from output",
           "reviewed": "Team document approved"
+        },
+        "execution": {
+          "not-started": "No facts yet",
+          "practised": "Measured",
+          "verified": "Met at least once",
+          "reviewed": "Met at least once"
+        },
+        "troubleshooting": {
+          "not-started": "Nothing logged",
+          "practised": "Logged",
+          "verified": "Resolved",
+          "reviewed": "Resolved on an approved form"
+        },
+        "decisions": {
+          "not-started": "Not decided",
+          "practised": "Decided",
+          "verified": "Decided and justified",
+          "reviewed": "Approved by the team"
+        },
+        "retention": {
+          "not-started": "Not verified",
+          "practised": "Verified once",
+          "verified": "Verified again a week later",
+          "reviewed": "Verified again a week later"
         }
       },
       "METRICS": [
@@ -9446,7 +10215,7 @@
             "platform"
           ],
           "status": "computed",
-          "scored": false
+          "scored": true
         },
         {
           "id": "metric.skill-fully-verified",
@@ -9575,7 +10344,7 @@
             "company"
           ],
           "status": "computed",
-          "scored": false
+          "scored": true
         },
         {
           "id": "metric.tool-evidenced",
@@ -9696,13 +10465,13 @@
             "company"
           ],
           "status": "computed",
-          "scored": false
+          "scored": true
         },
         {
           "id": "metric.procedure-change-recorded",
-          "label": "Change rows complete",
-          "dimension": "procedures",
-          "definition": "Change-record rows with what, where, backup, approval and rollback filled, over change rows on the role’s forms.",
+          "label": "Change rows with rollback",
+          "dimension": "decisions",
+          "definition": "Change-record rows with a rollback or back-out filled, over change rows on the forms of the role.",
           "inputs": [
             "deliverables",
             "course"
@@ -9712,7 +10481,7 @@
             "company"
           ],
           "status": "computed",
-          "scored": false,
+          "scored": true,
           "note": "Loads on the course page."
         },
         {
@@ -9981,7 +10750,7 @@
             "company"
           ],
           "status": "computed",
-          "scored": false,
+          "scored": true,
           "note": "Loads on the course page."
         },
         {
@@ -10052,7 +10821,7 @@
             "platform"
           ],
           "status": "computed",
-          "scored": false
+          "scored": true
         },
         {
           "id": "metric.domain-gap-next",
@@ -10309,7 +11078,7 @@
             "company"
           ],
           "status": "computed",
-          "scored": false,
+          "scored": true,
           "note": "A team fact; loads on the course page."
         },
         {
@@ -10325,7 +11094,7 @@
             "company"
           ],
           "status": "computed",
-          "scored": false,
+          "scored": true,
           "note": "Loads on the course page."
         },
         {
@@ -10358,7 +11127,7 @@
             "company"
           ],
           "status": "computed",
-          "scored": false,
+          "scored": true,
           "note": "Loads on the course page."
         },
         {
@@ -10375,14 +11144,14 @@
             "company"
           ],
           "status": "computed",
-          "scored": false,
+          "scored": true,
           "note": "Loads on the course page."
         },
         {
           "id": "metric.collab-peer-reviews-given",
           "label": "Peer reviews given",
           "dimension": "collaboration",
-          "definition": "Blind peer reviews the member completed.",
+          "definition": "Blind peer reviews the member completed, over reviews assigned to the member.",
           "inputs": [
             "peer_review_assignments"
           ],
@@ -10390,9 +11159,9 @@
             "member",
             "company"
           ],
-          "status": "deferred",
-          "scored": false,
-          "note": "Read asynchronously by the review bench today."
+          "status": "computed",
+          "scored": true,
+          "note": "Loads when the page hands the queue in."
         },
         {
           "id": "metric.collab-stuck-helped",
@@ -10438,7 +11207,7 @@
             "company"
           ],
           "status": "computed",
-          "scored": false
+          "scored": true
         },
         {
           "id": "metric.ability-partial-progress",
@@ -10490,14 +11259,17 @@
           "label": "Independence",
           "dimension": "ability",
           "definition": "Steps verified with no stuck flag ever raised, over verified steps.",
-          "inputs": [],
+          "inputs": [
+            "step_flag_events",
+            "step_evidence"
+          ],
           "valueTo": [
             "member",
             "company"
           ],
-          "status": "needs-events",
+          "status": "computed",
           "scored": false,
-          "note": "A cleared flag leaves no trace."
+          "note": "R132: flag events keep the raise and the clear. Loads on the course page."
         },
         {
           "id": "metric.ability-consistency-days",
@@ -10531,16 +11303,20 @@
         },
         {
           "id": "metric.ability-recall",
-          "label": "Recall",
-          "dimension": "ability",
-          "definition": "A verified step re-verified after seven or more days, over verified steps.",
-          "inputs": [],
+          "label": "Retention",
+          "dimension": "retention",
+          "definition": "Skills verified again on a later task seven or more days after the first, over skills verified.",
+          "inputs": [
+            "step_evidence",
+            "registry"
+          ],
           "valueTo": [
             "member",
             "company"
           ],
-          "status": "needs-events",
-          "scored": false
+          "status": "computed",
+          "scored": true,
+          "note": "R132: read from the stamps of verification records."
         },
         {
           "id": "metric.ability-calibration",
@@ -10581,12 +11357,30 @@
         },
         {
           "id": "metric.ability-deadline-adherence",
-          "label": "Deadline adherence",
-          "dimension": "ability",
-          "definition": "Weeks cleared on or before the cohort due date, over graded weeks.",
+          "label": "On time",
+          "dimension": "execution",
+          "definition": "Tasks whose last verification fell on or before the week due date, over tasks verified; needs the cohort start date.",
           "inputs": [
             "cohorts",
-            "step_completions"
+            "step_evidence",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": true,
+          "note": "R132: two recorded stamps, the verification and the due date.",
+          "timing": true
+        },
+        {
+          "id": "metric.time-on-task",
+          "label": "Time on task",
+          "dimension": "ability",
+          "definition": "Minutes from the first paste to the last verification of a task.",
+          "inputs": [
+            "step_evidence"
           ],
           "valueTo": [
             "member",
@@ -10594,40 +11388,43 @@
           ],
           "status": "deferred",
           "scored": false,
-          "note": "No clock is read this round."
-        },
-        {
-          "id": "metric.time-on-task",
-          "label": "Time on task",
-          "dimension": "ability",
-          "definition": "Minutes spent per task.",
-          "inputs": [],
-          "valueTo": [],
-          "status": "excluded",
-          "scored": false,
-          "note": "Speed is not measured."
+          "note": "R132: a step has no start stamp; the first paste is the earliest fact.",
+          "timing": true
         },
         {
           "id": "metric.time-to-verify",
-          "label": "Time to verify",
-          "dimension": "ability",
-          "definition": "Minutes from first attempt to verification.",
-          "inputs": [],
-          "valueTo": [],
-          "status": "excluded",
-          "scored": false,
-          "note": "Speed is not measured."
+          "label": "Time to resolution",
+          "dimension": "troubleshooting",
+          "definition": "Median minutes from the first paste to the verification per verified step with both stamps; over 24 hours counted apart.",
+          "inputs": [
+            "step_evidence"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": true,
+          "note": "R132: two recorded stamps; the median, so one long gap moves nothing.",
+          "timing": true
         },
         {
           "id": "metric.time-vs-estimate",
           "label": "Time against estimate",
           "dimension": "ability",
-          "definition": "Minutes spent against the authored estimate.",
-          "inputs": [],
-          "valueTo": [],
-          "status": "excluded",
+          "definition": "Minutes from first paste to verification against the authored estimate of the task.",
+          "inputs": [
+            "step_evidence",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "deferred",
           "scored": false,
-          "note": "Speed is not measured."
+          "note": "R132: computable from the same stamps; not wired this round.",
+          "timing": true
         },
         {
           "id": "metric.rank-any",
@@ -10639,6 +11436,216 @@
           "status": "excluded",
           "scored": false,
           "note": "Nothing is ranked."
+        },
+        {
+          "id": "metric.trouble-logged",
+          "label": "Faults logged",
+          "dimension": "troubleshooting",
+          "definition": "Fault, incident and triage rows the team filled on the forms of the role, over such rows the course expects.",
+          "inputs": [
+            "deliverables",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "A team fact; loads on the course page."
+        },
+        {
+          "id": "metric.trouble-resolved",
+          "label": "Faults resolved",
+          "dimension": "troubleshooting",
+          "definition": "Fault, incident and triage rows whose outcome column reads resolved, over rows filled.",
+          "inputs": [
+            "deliverables",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": true,
+          "note": "A team fact; loads on the course page."
+        },
+        {
+          "id": "metric.ability-flags-cleared",
+          "label": "Stuck flags cleared",
+          "dimension": "troubleshooting",
+          "definition": "Stuck flags the member raised and later cleared, over flags raised.",
+          "inputs": [
+            "step_flag_events"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": true,
+          "note": "R132: the flag history is append-only. Loads on the course page."
+        },
+        {
+          "id": "metric.decision-offered",
+          "label": "Decisions offered",
+          "dimension": "decisions",
+          "definition": "Decision blocks on the forms of the role, each with at least three options.",
+          "inputs": [
+            "deliverables",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.decision-recorded",
+          "label": "Decisions recorded",
+          "dimension": "decisions",
+          "definition": "Decision blocks with an option chosen by this member, over decision blocks on the forms of the role.",
+          "inputs": [
+            "deliverables",
+            "decision_records"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": true,
+          "note": "The choice carries who made it and when. Loads on the course page."
+        },
+        {
+          "id": "metric.decision-justified",
+          "label": "Decisions justified",
+          "dimension": "decisions",
+          "definition": "Recorded decisions with every required supporting question answered, over decisions recorded.",
+          "inputs": [
+            "deliverables",
+            "decision_records"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": true,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.decision-approved",
+          "label": "Decisions approved",
+          "dimension": "decisions",
+          "definition": "Recorded decisions on a form the team approved or issued, over decisions recorded.",
+          "inputs": [
+            "deliverables",
+            "deliverable_status",
+            "decision_records"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": true,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.decision-unstructured",
+          "label": "Reasons written",
+          "dimension": "decisions",
+          "definition": "Free-text rationale fields filled on the forms of the role, over such fields.",
+          "inputs": [
+            "deliverables"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Team rows carry no author. Loads on the course page."
+        },
+        {
+          "id": "metric.doc-review-marks",
+          "label": "Review marks met",
+          "dimension": "documentation",
+          "definition": "Instructor marks per rubric category that passed, over marks given on the forms of the role.",
+          "inputs": [
+            "deliverable_review_marks"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "R132: one mark per category per verdict, kept as history. Loads on the course page."
+        },
+        {
+          "id": "metric.execution-rows",
+          "label": "Execution rows",
+          "dimension": "execution",
+          "definition": "In order, first try, evidence named, checks met, control complete and on time, as rows of the Professional Execution domain.",
+          "inputs": [
+            "step_evidence",
+            "evidence_artifacts",
+            "deliverables",
+            "cohorts"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.retention-cross-course",
+          "label": "Skills reused across courses",
+          "dimension": "retention",
+          "definition": "Skills verified in two or more courses, over skills verified anywhere.",
+          "inputs": [
+            "step_evidence",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "A portfolio fact: read across the member’s courses."
+        },
+        {
+          "id": "metric.readiness-tier",
+          "label": "Professional tier",
+          "dimension": "skills",
+          "definition": "Record items with ten or more verified uses across every course and retake, over items with any verified use.",
+          "inputs": [
+            "step_evidence",
+            "deliverables",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "R132: the threshold is ten; below it the item reads as building, with the count."
         },
         {
           "id": "metric.platform-cohort-domain-coverage",
@@ -10766,7 +11773,7 @@
             "platform"
           ],
           "status": "computed",
-          "scored": false
+          "scored": true
         },
         {
           "id": "metric.skill-transfer",
@@ -10784,7 +11791,7 @@
             "platform"
           ],
           "status": "computed",
-          "scored": false
+          "scored": true
         },
         {
           "id": "metric.skill-currency",
@@ -10939,35 +11946,52 @@
         {
           "id": "metric.time-to-competency",
           "label": "Time to competency",
-          "dimension": "ability",
-          "definition": "Hours to proficiency per objective.",
-          "inputs": [],
-          "valueTo": [],
-          "status": "excluded",
+          "dimension": "retention",
+          "definition": "Days from the first verification of a skill to its tenth verified use.",
+          "inputs": [
+            "step_evidence",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "deferred",
           "scored": false,
-          "note": "Speed is not measured."
+          "note": "R132: the professional threshold is ten verified uses across courses.",
+          "timing": true
         },
         {
           "id": "metric.time-task-vs-benchmark",
           "label": "Task time against benchmark",
-          "dimension": "ability",
-          "definition": "Minutes to resolve a task against an expert or service-level baseline.",
+          "dimension": "troubleshooting",
+          "definition": "Minutes to resolve a task against a published service-level baseline.",
           "inputs": [],
-          "valueTo": [],
-          "status": "excluded",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "needs-validators",
           "scored": false,
-          "note": "Speed is not measured."
+          "note": "R132: no baseline is published yet.",
+          "timing": true
         },
         {
           "id": "metric.time-learning-velocity",
           "label": "Learning velocity",
-          "dimension": "ability",
-          "definition": "Ability gained per study hour.",
-          "inputs": [],
-          "valueTo": [],
-          "status": "excluded",
+          "dimension": "retention",
+          "definition": "Verified steps in the twenty-eight days before the page clock, over verified steps in the twenty-eight days before those.",
+          "inputs": [
+            "step_evidence"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
           "scored": false,
-          "note": "Speed is not measured."
+          "note": "R132: the page passes the clock; the projection reads none.",
+          "timing": true
         }
       ],
       "PRACTICES": [
@@ -11287,6 +12311,144 @@
           "practice.write-for-leadership"
         ]
       },
+      "SCORING": [
+        {
+          "id": "score.tool-proficiency",
+          "label": "Tool proficiency",
+          "definition": "Commands and skills proven by output, and skills proved on a second task, weighted.",
+          "components": [
+            {
+              "kpi": "kpi.technical.commands-verified",
+              "weight": 0.4
+            },
+            {
+              "kpi": "kpi.technical.skills-verified",
+              "weight": 0.3
+            },
+            {
+              "kpi": "kpi.growth.skills-transferred",
+              "weight": 0.3
+            }
+          ],
+          "caveat": "Reads browser checks and receipts of stamps, not proof of the machine; the per-tool table names each command."
+        },
+        {
+          "id": "score.troubleshooting-success",
+          "label": "Troubleshooting success",
+          "definition": "Faults resolved, retries that verified, stuck flags cleared and steps resolved within the hour, weighted.",
+          "components": [
+            {
+              "kpi": "kpi.problem-solving.faults-resolved",
+              "weight": 0.4
+            },
+            {
+              "kpi": "kpi.problem-solving.persistence",
+              "weight": 0.2
+            },
+            {
+              "kpi": "kpi.problem-solving.flags-cleared",
+              "weight": 0.2
+            },
+            {
+              "kpi": "kpi.problem-solving.time-to-resolution",
+              "weight": 0.2
+            }
+          ],
+          "caveat": "Faults are team rows; the minutes are a median between two recorded stamps, so a step left open overnight is counted apart."
+        },
+        {
+          "id": "score.judgment",
+          "label": "Judgment",
+          "definition": "Decisions recorded, justified and approved, and changes with a rollback written, equally weighted.",
+          "components": [
+            {
+              "kpi": "kpi.decision-making.decisions-recorded",
+              "weight": 0.25
+            },
+            {
+              "kpi": "kpi.decision-making.decisions-justified",
+              "weight": 0.25
+            },
+            {
+              "kpi": "kpi.decision-making.decisions-approved",
+              "weight": 0.25
+            },
+            {
+              "kpi": "kpi.decision-making.change-rollback",
+              "weight": 0.25
+            }
+          ],
+          "caveat": "Counts what was written against named options; it does not judge whether the choice was right."
+        },
+        {
+          "id": "score.collaboration",
+          "label": "Collaboration",
+          "definition": "Hand-offs closed, RACI respected and peer reviews given, weighted.",
+          "components": [
+            {
+              "kpi": "kpi.teamwork.handoffs",
+              "weight": 0.35
+            },
+            {
+              "kpi": "kpi.teamwork.raci-respected",
+              "weight": 0.35
+            },
+            {
+              "kpi": "kpi.teamwork.peer-reviews-given",
+              "weight": 0.3
+            }
+          ],
+          "caveat": "Team facts count for the team; the role share on the KPIs says what this member moved."
+        },
+        {
+          "id": "score.reliability",
+          "label": "Reliability",
+          "definition": "On time against the cohort calendar, document control complete, controls cited and instructor approval, weighted.",
+          "components": [
+            {
+              "kpi": "kpi.professionalism.on-time",
+              "weight": 0.4
+            },
+            {
+              "kpi": "kpi.professionalism.document-control",
+              "weight": 0.2
+            },
+            {
+              "kpi": "kpi.professionalism.controls-cited",
+              "weight": 0.2
+            },
+            {
+              "kpi": "kpi.professionalism.instructor-approved",
+              "weight": 0.2
+            }
+          ],
+          "caveat": "On time needs the cohort start date; without one the score stands on the other three and says so."
+        },
+        {
+          "id": "score.readiness",
+          "label": "Readiness",
+          "definition": "Exam weight verified, work-role coverage, skills retained and steps in order, weighted.",
+          "components": [
+            {
+              "kpi": "kpi.technical.exam-weight-verified",
+              "weight": 0.3
+            },
+            {
+              "kpi": "kpi.growth.profile-coverage",
+              "weight": 0.3
+            },
+            {
+              "kpi": "kpi.growth.retention",
+              "weight": 0.2
+            },
+            {
+              "kpi": "kpi.execution.steps-in-order",
+              "weight": 0.2
+            }
+          ],
+          "caveat": "A reading of the record against an exam and a work role, not a prediction of a pass or a hire."
+        }
+      ],
       "SKILLS": [
         {
           "id": "comp.vuln.config-scan",
@@ -13040,6 +14202,14 @@
           "tool.notes"
         ]
       },
+      "TROUBLE_GROUPS": [
+        {
+          "form": "cissp_d1",
+          "group": "weaknesses",
+          "outcome": "status",
+          "resolved": "closed|fixed|resolved"
+        }
+      ],
       "WORK_ROLES": [
         {
           "id": "role.incident-responder",

@@ -92,6 +92,11 @@ export function toDeliverableMarkdown(def: DeliverableDef, data: DeliverableData
     if (s.kind === 'fields') {
       if (s.title) parts.push(`## ${s.title}`, '');
       s.fields.forEach((f) => parts.push(`**${f.label}:** ${fieldValue(f, data.fields) || '_—_'}`, ''));
+    } else if (s.kind === 'decision') {
+      const chosen = data.fields[`decision:${s.block.id}`];
+      const option = s.block.options.find((o) => o.id === chosen);
+      parts.push(`## ${s.block.title}`, '', `**Decision:** ${option ? mdCell(option.label) : '_—_'}`, '', `**Options weighed:** ${s.block.options.map((o) => mdCell(o.label)).join(' · ')}`, '');
+      s.block.questions.forEach((f) => parts.push(`**${f.label}:** ${fieldValue(f, data.fields) || '_—_'}`, ''));
     } else {
       parts.push(`## ${s.group.label}`, '', mdTable(s.group.columns, data.groups[s.group.group] ?? []), '');
     }
@@ -141,6 +146,16 @@ function renderDeliverableSectionsHTML(def: DeliverableDef, data: DeliverableDat
           .map((f) => `<div class="kv"><div class="k">${esc(f.label)}</div><div class="v">${escMultiline(fieldValue(f, data.fields)) || '—'}</div></div>`)
           .join('');
         return `${s.title ? `<h2>${esc(s.title)}</h2>` : ''}<div class="fields">${rows}</div>`;
+      }
+      if (s.kind === 'decision') {
+        const chosen = data.fields[`decision:${s.block.id}`];
+        const option = s.block.options.find((o) => o.id === chosen);
+        const rows = [
+          `<div class="kv"><div class="k">Decision</div><div class="v">${option ? esc(option.label) : '—'}</div></div>`,
+          `<div class="kv"><div class="k">Options weighed</div><div class="v">${s.block.options.map((o) => esc(o.label)).join(' · ')}</div></div>`,
+          ...s.block.questions.map((f) => `<div class="kv"><div class="k">${esc(f.label)}</div><div class="v">${escMultiline(fieldValue(f, data.fields)) || '—'}</div></div>`),
+        ].join('');
+        return `<h2>${esc(s.block.title)}</h2><div class="fields">${rows}</div>`;
       }
       return `<h2>${esc(s.group.label)}</h2>${htmlTable(s.group.columns, data.groups[s.group.group] ?? [])}`;
     })

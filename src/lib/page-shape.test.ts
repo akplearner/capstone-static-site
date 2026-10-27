@@ -2342,7 +2342,8 @@ describe('R107 — skills, tools, standards and the member profile', () => {
     expect(src).not.toMatch(/^import (?!type )[^\n]*from '\.\/data\//m);
     expect(src).not.toMatch(/localStorage|supabase|Repo\b|fetch\(/);
     expect(src).not.toMatch(/estimatedTime|parseEstimatedMinutes|Date\.now\(\)|new Date\(/);
-    expect(src).not.toMatch(/\brank(ing|ed)?\b|leaderboard|\bscore[sd]?\b|badge|\bXP\b/i);
+    // R132: scores exist now, by a published method; nothing ranks one member against another.
+    expect(src).not.toMatch(/\brank(ing|ed)?\b|leaderboard|badge|\bXP\b/i);
     expect(src).toContain('export function skillProfile(');
     expect(src).toContain('export function skillPortfolio(');
     expect(src).toContain('export function levelOf(');
@@ -2376,7 +2377,7 @@ describe('R107 — skills, tools, standards and the member profile', () => {
     // R109: the export is built in one place; the page only downloads it.
     expect(code('src/lib/memberExport.ts')).toContain('schema: MEMBER_PROFILE_SCHEMA');
     expect(code('src/lib/memberExport.ts')).toContain('signature: null');
-    expect(code('src/lib/docs/ontology.ts')).toContain("MEMBER_PROFILE_SCHEMA = 'capstone-member-profile/1'");
+    expect(code('src/lib/docs/ontology.ts')).toContain("MEMBER_PROFILE_SCHEMA = 'capstone-member-profile/2'");
     expect(code('src/app/page.tsx')).not.toContain('the output they printed');
     // The cross-course hydrate reads the four tables the profile needs and never the single-user ones.
     const cache = code('src/lib/data/supabaseCache.ts');
@@ -2478,7 +2479,7 @@ describe('R108 — the skill board, the KPI board, the profiles and the cohort r
       expect(src, `${f}: no runtime data import`).not.toMatch(/^import (?!type )[^\n]*from '\.\/data\//m);
       expect(src, `${f}: no storage`).not.toMatch(/localStorage|supabase|Repo\b|fetch\(/);
       expect(src, `${f}: no clock`).not.toMatch(/estimatedTime|parseEstimatedMinutes|Date\.now\(\)|new Date\(/);
-      expect(src, `${f}: no ranking`).not.toMatch(/\brank(ing|ed)?\b|leaderboard|\bscore[sd]?\b|badge|\bXP\b/i);
+      expect(src, `${f}: no ranking`).not.toMatch(/\brank(ing|ed)?\b|leaderboard|badge|\bXP\b/i);
       expect(src, `${f}: registries arrive as values`).not.toMatch(/^import (?!type )[^\n]*from '\.\/docs\/(skills|tools|standards|sops|tactics|metricCatalogue|skillsCopy|kpis|workRoles|environmentProfile)'/m);
     }
     const cohort = code('src/lib/cohortKpi.ts');
@@ -2486,8 +2487,10 @@ describe('R108 — the skill board, the KPI board, the profiles and the cohort r
     expect(shapes, 'the report carries no member').not.toMatch(/memberId|displayName/);
     expect(cohort, 'nobody is ordered by a value').not.toMatch(/\.sort\([^)]*(value|pct|sum)/);
     expect(code('src/lib/cohort.ts'), 'the marking CSV is untouched').not.toContain('kpi');
-    expect(code('src/lib/kpiBoard.ts')).toContain("KPI_BOARD_SCHEMA = 'capstone-kpi-board/1'");
-    expect(code('src/lib/docs/kpis.ts')).toContain('scored: false');
+    expect(code('src/lib/kpiBoard.ts')).toContain("KPI_BOARD_SCHEMA = 'capstone-kpi-board/2'");
+    // R132: a KPI may be scored by the published method; the flag is a boolean, never a bare true.
+    expect(code('src/lib/docs/kpis.ts')).toContain('scored: boolean');
+    expect(code('src/lib/docs/scoring.ts')).toContain('export const SCORES');
   });
 
   it('the surfaces link to the board, the exports carry the sixteen, and the credential admits no proof', () => {
@@ -2523,7 +2526,7 @@ describe('R108 — the skill board, the KPI board, the profiles and the cohort r
     expect(read('docs/ARCHITECTURE.md')).toContain('### The KPI board, profiles and work roles (R108)');
     expect(read('docs/OPERATIONS.md')).toContain('(R108)');
     expect(read('docs/CURRENT_STATE.md')).toContain('KPI board');
-    expect(read('docs/VALUE_REGISTER.md')).toContain('capstone-kpi-board/1');
+    expect(read('docs/VALUE_REGISTER.md')).toContain('capstone-kpi-board/2');
     expect(read('content/README.md')).toContain('profiles/');
     expect(read('content/schemas/README.md')).toContain('kpi-board.schema.json');
     expect(existsSync('docs/EVENTS.md')).toBe(true);
@@ -2595,7 +2598,7 @@ describe('R109 — the KPI pack and the DTO chips', () => {
     expect(src, 'no runtime data import').not.toMatch(/^import (?!type )[^\n]*from '\.\/data\//m);
     expect(src, 'no storage, no window').not.toMatch(/localStorage|supabase|Repo\b|fetch\(|window\.|document\./);
     expect(src, 'no clock: the page stamps the export').not.toMatch(/Date\.now\(\)|new Date\(|toISOString/);
-    expect(src, 'no ranking').not.toMatch(/\brank(ing|ed)?\b|leaderboard|\bscore[sd]?\b|\bbadge[sd]?\b|\bXP\b/i);
+    expect(src, 'no ranking').not.toMatch(/\brank(ing|ed)?\b|leaderboard|\bbadge[sd]?\b|\bXP\b/i);
     for (const n of ['export function buildMemberProfile(', 'export function buildCredential(', 'export function profileJson(', 'generatedAt: input.generatedAt']) expect(src, n).toContain(n);
     const board = code('src/lib/kpiBoard.ts');
     expect(board).toContain('export function sumKpi(');
@@ -2701,7 +2704,8 @@ describe('R111 — attribution and currency', () => {
     expect(src).toContain('export const CURRENT_WINDOW_DAYS = 180');
     expect(src, 'never defaults the clock inside the module').not.toMatch(/asOf\s*\?\?\s*Date|Date\.now\(\)/);
     for (const n of ['lastVerifiedAt', 'current:', 'own: dodOver(draftForms)', 'own: controlOver(draftForms)', 'own: approvedOver(draftForms)', 'raciRespected: teamOr(', 'draftedForms:']) expect(src, n).toContain(n);
-    expect(read('src/lib/skillProfile.ts'), 'the docblock says what timestamps are for').toContain('no duration is ever reported');
+    // R132: a duration is the difference of two recorded stamps; the module still reads no clock.
+    expect(read('src/lib/skillProfile.ts'), 'the docblock says what timestamps are for').toContain('the difference of two stamps the platform recorded');
     const board = code('src/lib/kpiBoard.ts');
     expect(board).toContain('contribution?: { value: number; of: number }');
     expect(board, 'an unloaded team fact attributes nothing').toContain('v.contribution && v.loaded');

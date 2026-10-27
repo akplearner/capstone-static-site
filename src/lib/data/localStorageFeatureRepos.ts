@@ -21,6 +21,8 @@ import type {
   TaskReport,
   TaskReportsRepository,
   TaskReportUpdate,
+  DeliverableReviewMark,
+  StepFlagEvent,
 } from './types';
 
 // localStorage implementations of the three R68 stores, used when Supabase is
@@ -60,6 +62,18 @@ export const localStorageReviewRepo: ReviewRepository = {
     );
     next.push(review);
     safeSetItem(key, JSON.stringify(next));
+    notifyStore();
+  },
+
+  // R132: marks are appended, never replaced.
+  marks(courseId: string, teamId: string): DeliverableReviewMark[] {
+    return readJson<DeliverableReviewMark[]>(KEYS.reviewMarks(courseId, teamId), []);
+  },
+
+  saveMarks(marks: DeliverableReviewMark[]): void {
+    if (!hasWindow() || !marks.length) return;
+    const key = KEYS.reviewMarks(marks[0].courseId, marks[0].teamId);
+    safeSetItem(key, JSON.stringify([...readJson<DeliverableReviewMark[]>(key, []), ...marks]));
     notifyStore();
   },
 };
@@ -104,9 +118,19 @@ export const localStorageStepNotesRepo: StepNotesRepository = {
     if (!hasWindow()) return;
     const key = KEYS.stepNotes(note.courseId, memberId);
     const all = readJson<Record<string, StepNote>>(key, {});
+    const before = all[stepNoteKey(note.taskId, note.stepId)]?.stuck ?? false;
     all[stepNoteKey(note.taskId, note.stepId)] = note;
     safeSetItem(key, JSON.stringify(all));
+    // R132: a change of the flag leaves an event; the history survives a reset like the earned ledger.
+    if (before !== note.stuck) {
+      const ek = KEYS.flagEvents(note.courseId, memberId);
+      safeSetItem(ek, JSON.stringify([...readJson<StepFlagEvent[]>(ek, []), { courseId: note.courseId, memberId, taskId: note.taskId, stepId: note.stepId, kind: note.stuck ? 'raised' : 'cleared', at: note.at }]));
+    }
     notifyStore();
+  },
+
+  flagEvents(courseId: string, memberId: string): StepFlagEvent[] {
+    return readJson<StepFlagEvent[]>(KEYS.flagEvents(courseId, memberId), []);
   },
 
   // On one device the "team" is whoever joined on this browser, which is the

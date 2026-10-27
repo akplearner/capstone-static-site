@@ -1,5 +1,23 @@
 import { Column } from '../grc/templates';
-import { DeliverableDef } from './types';
+import { DeliverableDef, decisionDod, type DecisionBlock } from './types';
+
+/** R132 — the containment decision: three ways to stop an attacker, each with a cost the report must own. */
+const CONTAINMENT_DECISION: DecisionBlock = {
+  id: 'containment',
+  title: 'The containment decision',
+  subject: 'response',
+  prompt: 'The attacker IP is known and the SQL injection is live. What does the responder do first?',
+  options: [
+    { id: 'isolate', label: 'Isolate the web host', help: 'Stops everything, including the service; evidence on the host stays intact.' },
+    { id: 'block', label: 'Block the attacker at the firewall', help: 'The service stays up; the attacker returns from another address.' },
+    { id: 'watch', label: 'Monitor and collect first', help: 'More evidence, more exposure; only with leadership’s say-so.' },
+  ],
+  questions: [
+    { field: 'containment_why', label: 'Why that first', type: 'area', required: true, placeholder: 'The host serves one lab app and the access.log already shows the payload; isolation costs nothing and keeps the evidence.' },
+    { field: 'containment_rejected', label: 'The option rejected, and why', type: 'text', required: true, placeholder: 'Block the IP only: the injection works from any address.' },
+    { field: 'containment_rollback', label: 'How the service comes back', type: 'text', placeholder: 'DVWA security set to High, apache2 restarted, the scan rerun clean.' },
+  ],
+};
 import { custodySection, everyEvidenceHashed } from './custodyTemplate';
 
 // Deliverable forms for the CySA+ SOC Capstone (CS0-003). Course-scoped
@@ -288,6 +306,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
           { field: 'exec_summary', label: 'Executive summary (5 sentences)', type: 'area', required: true, placeholder: 'What happened, what was hit, what you did, the impact, what you need.', help: 'Five sentences a manager can act on. Someone outside your team should be able to read it and explain the incident back to you.' },
         ],
       },
+      { kind: 'decision', block: CONTAINMENT_DECISION },
       {
         kind: 'group',
         group: {
@@ -317,6 +336,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
     ],
     dod: [
       { label: 'Executive summary and attacker IP are filled in', when: { fields: ['exec_summary', 'attacker_ip'] }},
+      decisionDod(CONTAINMENT_DECISION),
       { label: 'Timeline has rows and every evidence item is hashed with a full custody entry', when: { all: [{ group: 'timeline', atLeast: 1 }, everyEvidenceHashed()] }},
     ],
   },

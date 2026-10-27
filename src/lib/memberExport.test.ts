@@ -56,7 +56,7 @@ describe('memberExport', () => {
     expect(p.signature).toBeNull();
     expect(p.subject.display).toBe('me');
     expect(p.courses).toHaveLength(1);
-    expect(p.courses[0].kpis).toHaveLength(16);
+    expect(p.courses[0].kpis).toHaveLength(28);
     expect(p.courses[0].workRoles).toEqual(workRoles.map((w) => w.id));
     expect(workRoles.length).toBeGreaterThan(0);
     expect('board' in p.courses[0]).toBe(false);
@@ -66,7 +66,7 @@ describe('memberExport', () => {
     expect(PROFILE_FILENAME).toBe('capstone-portfolio.json');
   });
 
-  it('wraps the profile in an Open Badges 3.0 envelope with no proof, the caller’s digest, one result per KPI and de-duplicated alignment', async () => {
+  it('wraps the profile in an Open Badges 3.0 envelope with no proof, the caller’s digest, one result per KPI and per score and de-duplicated alignment', async () => {
     const p = buildMemberProfile(input);
     const digest = await sha256Text(profileJson(p));
     const cred = buildCredential({ profile: p, rows: [row], copy: registry.COPY, origin: 'https://capstone.example', digest });
@@ -77,7 +77,7 @@ describe('memberExport', () => {
     expect(cred.validFrom).toBe(p.generatedAt);
     expect(cred.evidence[0].id).toBe(`sha256:${digest}`);
     expect(cred.evidence[0].name).toBe(PROFILE_FILENAME);
-    expect(cred.credentialSubject.result).toHaveLength(16);
+    expect(cred.credentialSubject.result).toHaveLength(28 + 6);
     expect(cred.credentialSubject.result[0].resultDescription).toBe(`${course.id} ${board.kpis[0].id}`);
     expect(cred.claim).toBe(registry.COPY.board.credentialClaim);
     const codes = cred.credentialSubject.achievement.alignment.map((a) => a.targetCode);
@@ -95,7 +95,7 @@ describe('memberExport', () => {
     expect(cred.credentialSubject.achievement.alignment.filter((a) => a.targetFramework === 'NICE')).toHaveLength(0);
     const codes = cred.credentialSubject.achievement.alignment.map((a) => a.targetCode);
     expect(new Set(codes).size).toBe(codes.length);
-    expect(cred.credentialSubject.result).toHaveLength(32);
+    expect(cred.credentialSubject.result).toHaveLength(2 * (28 + 6));
     expect(cred.evidence[0].id).toBe(`sha256:${'b'.repeat(64)}`);
   });
 });

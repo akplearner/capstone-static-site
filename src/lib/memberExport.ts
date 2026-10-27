@@ -2,6 +2,8 @@ import type { SkillProfile, SkillPortfolio } from './skillProfile';
 import type { CourseMetrics, PortfolioSummary } from './metrics';
 import type { EvidenceArtifact } from './data/types';
 import type { KpiBoard } from './kpiBoard';
+import type { TimingFacts } from './skillProfile';
+import type { ScoreValue } from './scores';
 import type { WorkRoleDef } from './docs/workRoles';
 import type { SkillsCopy } from './docs/skillsCopy';
 import { MEMBER_PROFILE_SCHEMA, ONTOLOGY_VERSION } from './docs/ontology';
@@ -13,9 +15,11 @@ import { MEMBER_PROFILE_SCHEMA, ONTOLOGY_VERSION } from './docs/ontology';
  * the timestamp and, for the credential, the origin and the digest, so this
  * module reads no clock, no window and no repository.
  *
- * The profile is `content/schemas/member-profile.schema.json`; the credential
- * is `content/schemas/credential.schema.json`, an Open Badges 3.0 envelope
- * that carries no proof and claims none. Both stay member-initiated.
+ * The profile is `content/schemas/member-profile.schema.json`
+ * (`capstone-member-profile/2` since R132: the board's scores and timing ride
+ * on each course); the credential is `content/schemas/credential.schema.json`,
+ * an Open Badges 3.0 envelope that carries no proof and claims none. Both stay
+ * member-initiated.
  */
 
 /** What the credential's evidence entry names: the profile a link carries. R127: the files themselves are PDFs now (`recordPdf.ts`). */
@@ -62,6 +66,9 @@ export interface MemberProfileCourse {
   artifacts: EvidenceArtifact[];
   workRoles: string[];
   kpis: KpiBoard['kpis'];
+  /** R132: the scores by the published method and the minutes between two recorded stamps. */
+  scores: ScoreValue[];
+  timing: TimingFacts;
 }
 
 export interface MemberProfileExport {
@@ -96,6 +103,8 @@ export function buildMemberProfile(input: MemberExportInput): MemberProfileExpor
       artifacts: r.artifacts,
       workRoles: r.workRoles.map((w) => w.id),
       kpis: r.board.kpis,
+      scores: r.board.scores,
+      timing: r.board.timing,
     })),
     signature: null,
   };
@@ -178,7 +187,11 @@ export function buildCredential(input: CredentialInput): CredentialExport {
         alignment: alignment.filter((a) => (seen.has(a.targetCode) ? false : (seen.add(a.targetCode), true))),
       },
       // R111: a team KPI says how much of it sits on the forms the member's role drafts, where that differs.
-      result: rows.flatMap((r) => r.board.kpis.map((k) => ({ type: ['Result'] as ['Result'], resultDescription: `${r.courseId} ${k.id}`, value: !k.loaded ? '—' : `${k.value} of ${k.of}${k.contribution && (k.contribution.value !== k.value || k.contribution.of !== k.of) ? ` (${copy.board.contribution} ${k.contribution.value} of ${k.contribution.of})` : ''}` }))),
+      result: rows.flatMap((r) => [
+        ...r.board.kpis.map((k) => ({ type: ['Result'] as ['Result'], resultDescription: `${r.courseId} ${k.id}`, value: !k.loaded ? '—' : k.unit === 'minutes' ? `${k.value} min over ${k.of}` : `${k.value} of ${k.of}${k.contribution && (k.contribution.value !== k.value || k.contribution.of !== k.of) ? ` (${copy.board.contribution} ${k.contribution.value} of ${k.contribution.of})` : ''}` })),
+        // R132: the scores, each with how many of its components it stands on.
+        ...r.board.scores.map((sc) => ({ type: ['Result'] as ['Result'], resultDescription: `${r.courseId} ${sc.id}`, value: !sc.loaded ? '—' : `${sc.value} of 100 (${sc.counted} of ${sc.of} components)` })),
+      ]),
     },
     evidence: [{ type: ['Evidence'], id: `sha256:${digest}`, name: PROFILE_FILENAME, description: copy.exportSchemaNote }],
     claim: copy.board.credentialClaim,

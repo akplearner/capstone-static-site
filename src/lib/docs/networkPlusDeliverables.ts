@@ -1,5 +1,23 @@
 import { Column } from '../grc/templates';
-import { DeliverableDef } from './types';
+import { DeliverableDef, decisionDod, type DecisionBlock } from './types';
+
+/** R132 — the buying decision: which set the team recommends, against the two it costed. */
+const SET_DECISION: DecisionBlock = {
+  id: 'set',
+  title: 'The recommended set',
+  subject: 'vendor',
+  prompt: 'Three sets meet the design. Which one does the team put in front of the practice?',
+  options: [
+    { id: 'new', label: 'All new, under warranty', help: 'Highest price; one vendor, one support contract, replacement parts for years.' },
+    { id: 'mixed', label: 'New switches, a used router', help: 'The router does one simple job; the switches carry every desk and the guest WiFi.' },
+    { id: 'used', label: 'All used, tested on arrival', help: 'Cheapest; no warranty, so a spare of each class is part of the set.' },
+  ],
+  questions: [
+    { field: 'why_recommended', label: 'Why the recommended set', type: 'area', required: true, placeholder: 'New switches with warranty; the router used, because its capability is simple and the saving is large.' },
+    { field: 'set_rejected', label: 'The set rejected, and why', type: 'text', required: true, placeholder: 'All used: a dead switch on day one takes the whole reception down.' },
+    { field: 'set_risk', label: 'The risk the practice accepts', type: 'text', placeholder: 'A used router fails outside warranty; the migration plan names the spare.' },
+  ],
+};
 import { custodySection, everyEvidenceHashed } from './custodyTemplate';
 import { COMPANY, DEVICES, LINKS, POLICY, VLANS, WAN, dhcpRangeOf, gatewayOf, mgmtAddress, prefixOf, vlan } from '../networkPlusTopology';
 import { BAND_LABEL, BUYING_GUIDE } from './ccnaKit';
@@ -524,16 +542,17 @@ const NETWORK_PLUS_FORMS: DeliverableDef[] = [
         fields: [
           { field: 'total_cheapest', label: 'Cheapest set that meets the design', type: 'number', required: true, unit: 'USD' },
           { field: 'total_recommended', label: 'Recommended set', type: 'number', required: true, unit: 'USD' },
-          { field: 'why_recommended', label: 'Why the recommended set', type: 'area', required: true, placeholder: 'New switches with warranty; the router used, because its capability is simple and the saving is large.' },
         ],
       },
+      { kind: 'decision', block: SET_DECISION },
     ],
     dod: [
       { label: 'Every device class has its capabilities traced to the design', when: { group: 'capabilities', where: { filled: ['cls', 'qty', 'must', 'traced'] }, atLeast: 5 } },
       { label: 'Two candidates per device class, each with a datasheet line and a check', when: { group: 'candidates', where: { filled: ['cls', 'model', 'proves', 'check'] }, atLeast: 6 } },
       { label: 'Every bill line is priced, dated and sourced', when: { group: 'bom', atLeast: 6, every: { filled: ['item', 'qty', 'price', 'date', 'source'] } } },
       { label: 'Cables, cabinet and the ISP service are lines', when: { group: 'bom', where: { column: 'item', matches: 'cable|patch|cabinet|rack|ISP' }, atLeast: 2 } },
-      { label: 'Two totals and the reason for the recommended set', when: { fields: ['total_cheapest', 'total_recommended', 'why_recommended'] } },
+      { label: 'Two totals', when: { fields: ['total_cheapest', 'total_recommended'] } },
+      decisionDod(SET_DECISION),
     ],
   },
 

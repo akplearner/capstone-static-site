@@ -39,8 +39,15 @@ export function validateDeliverableDef(raw: unknown): DefCheck {
       if (!g || !isStr(g.group) || !Array.isArray(g.columns) || (g.columns as unknown[]).length === 0) {
         return { ok: false, error: `sections[${i}]: a group section needs group.group and group.columns.` };
       }
+    } else if (sec?.kind === 'decision') {
+      // R132: a decision block needs a title, a prompt, at least three options with ids and labels, and a questions array.
+      const b = sec.block as Record<string, unknown> | undefined;
+      const opts = (b?.options as unknown[] | undefined) ?? [];
+      if (!b || !isStr(b.id) || !isStr(b.title) || !isStr(b.prompt) || opts.length < 3 || opts.some((o) => !isStr((o as Record<string, unknown>)?.id) || !isStr((o as Record<string, unknown>)?.label)) || !Array.isArray(b.questions)) {
+        return { ok: false, error: `sections[${i}]: a decision section needs block.id, block.title, block.prompt, three or more options with id and label, and block.questions.` };
+      }
     } else {
-      return { ok: false, error: `sections[${i}]: kind must be “fields” or “group”.` };
+      return { ok: false, error: `sections[${i}]: kind must be “fields”, “group” or “decision”.` };
     }
   }
   if (d.dod !== undefined) {

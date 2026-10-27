@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.6.0",
+  "version": "2.0.0",
   "inputs": [
     "course",
     "registry",
@@ -17,7 +17,10 @@
     "task_reports",
     "step_notes",
     "step_flags",
+    "step_flag_events",
     "cohorts",
+    "decision_records",
+    "deliverable_review_marks",
     "environment_profile",
     "work_roles",
     "learner_outcomes",
@@ -76,7 +79,7 @@
         "platform"
       ],
       "status": "computed",
-      "scored": false
+      "scored": true
     },
     {
       "id": "metric.skill-fully-verified",
@@ -205,7 +208,7 @@
         "company"
       ],
       "status": "computed",
-      "scored": false
+      "scored": true
     },
     {
       "id": "metric.tool-evidenced",
@@ -326,13 +329,13 @@
         "company"
       ],
       "status": "computed",
-      "scored": false
+      "scored": true
     },
     {
       "id": "metric.procedure-change-recorded",
-      "label": "Change rows complete",
-      "dimension": "procedures",
-      "definition": "Change-record rows with what, where, backup, approval and rollback filled, over change rows on the role’s forms.",
+      "label": "Change rows with rollback",
+      "dimension": "decisions",
+      "definition": "Change-record rows with a rollback or back-out filled, over change rows on the forms of the role.",
       "inputs": [
         "deliverables",
         "course"
@@ -342,7 +345,7 @@
         "company"
       ],
       "status": "computed",
-      "scored": false,
+      "scored": true,
       "note": "Loads on the course page."
     },
     {
@@ -611,7 +614,7 @@
         "company"
       ],
       "status": "computed",
-      "scored": false,
+      "scored": true,
       "note": "Loads on the course page."
     },
     {
@@ -682,7 +685,7 @@
         "platform"
       ],
       "status": "computed",
-      "scored": false
+      "scored": true
     },
     {
       "id": "metric.domain-gap-next",
@@ -939,7 +942,7 @@
         "company"
       ],
       "status": "computed",
-      "scored": false,
+      "scored": true,
       "note": "A team fact; loads on the course page."
     },
     {
@@ -955,7 +958,7 @@
         "company"
       ],
       "status": "computed",
-      "scored": false,
+      "scored": true,
       "note": "Loads on the course page."
     },
     {
@@ -988,7 +991,7 @@
         "company"
       ],
       "status": "computed",
-      "scored": false,
+      "scored": true,
       "note": "Loads on the course page."
     },
     {
@@ -1005,14 +1008,14 @@
         "company"
       ],
       "status": "computed",
-      "scored": false,
+      "scored": true,
       "note": "Loads on the course page."
     },
     {
       "id": "metric.collab-peer-reviews-given",
       "label": "Peer reviews given",
       "dimension": "collaboration",
-      "definition": "Blind peer reviews the member completed.",
+      "definition": "Blind peer reviews the member completed, over reviews assigned to the member.",
       "inputs": [
         "peer_review_assignments"
       ],
@@ -1020,9 +1023,9 @@
         "member",
         "company"
       ],
-      "status": "deferred",
-      "scored": false,
-      "note": "Read asynchronously by the review bench today."
+      "status": "computed",
+      "scored": true,
+      "note": "Loads when the page hands the queue in."
     },
     {
       "id": "metric.collab-stuck-helped",
@@ -1068,7 +1071,7 @@
         "company"
       ],
       "status": "computed",
-      "scored": false
+      "scored": true
     },
     {
       "id": "metric.ability-partial-progress",
@@ -1120,14 +1123,17 @@
       "label": "Independence",
       "dimension": "ability",
       "definition": "Steps verified with no stuck flag ever raised, over verified steps.",
-      "inputs": [],
+      "inputs": [
+        "step_flag_events",
+        "step_evidence"
+      ],
       "valueTo": [
         "member",
         "company"
       ],
-      "status": "needs-events",
+      "status": "computed",
       "scored": false,
-      "note": "A cleared flag leaves no trace."
+      "note": "R132: flag events keep the raise and the clear. Loads on the course page."
     },
     {
       "id": "metric.ability-consistency-days",
@@ -1161,16 +1167,20 @@
     },
     {
       "id": "metric.ability-recall",
-      "label": "Recall",
-      "dimension": "ability",
-      "definition": "A verified step re-verified after seven or more days, over verified steps.",
-      "inputs": [],
+      "label": "Retention",
+      "dimension": "retention",
+      "definition": "Skills verified again on a later task seven or more days after the first, over skills verified.",
+      "inputs": [
+        "step_evidence",
+        "registry"
+      ],
       "valueTo": [
         "member",
         "company"
       ],
-      "status": "needs-events",
-      "scored": false
+      "status": "computed",
+      "scored": true,
+      "note": "R132: read from the stamps of verification records."
     },
     {
       "id": "metric.ability-calibration",
@@ -1211,12 +1221,30 @@
     },
     {
       "id": "metric.ability-deadline-adherence",
-      "label": "Deadline adherence",
-      "dimension": "ability",
-      "definition": "Weeks cleared on or before the cohort due date, over graded weeks.",
+      "label": "On time",
+      "dimension": "execution",
+      "definition": "Tasks whose last verification fell on or before the week due date, over tasks verified; needs the cohort start date.",
       "inputs": [
         "cohorts",
-        "step_completions"
+        "step_evidence",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": true,
+      "note": "R132: two recorded stamps, the verification and the due date.",
+      "timing": true
+    },
+    {
+      "id": "metric.time-on-task",
+      "label": "Time on task",
+      "dimension": "ability",
+      "definition": "Minutes from the first paste to the last verification of a task.",
+      "inputs": [
+        "step_evidence"
       ],
       "valueTo": [
         "member",
@@ -1224,40 +1252,43 @@
       ],
       "status": "deferred",
       "scored": false,
-      "note": "No clock is read this round."
-    },
-    {
-      "id": "metric.time-on-task",
-      "label": "Time on task",
-      "dimension": "ability",
-      "definition": "Minutes spent per task.",
-      "inputs": [],
-      "valueTo": [],
-      "status": "excluded",
-      "scored": false,
-      "note": "Speed is not measured."
+      "note": "R132: a step has no start stamp; the first paste is the earliest fact.",
+      "timing": true
     },
     {
       "id": "metric.time-to-verify",
-      "label": "Time to verify",
-      "dimension": "ability",
-      "definition": "Minutes from first attempt to verification.",
-      "inputs": [],
-      "valueTo": [],
-      "status": "excluded",
-      "scored": false,
-      "note": "Speed is not measured."
+      "label": "Time to resolution",
+      "dimension": "troubleshooting",
+      "definition": "Median minutes from the first paste to the verification per verified step with both stamps; over 24 hours counted apart.",
+      "inputs": [
+        "step_evidence"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": true,
+      "note": "R132: two recorded stamps; the median, so one long gap moves nothing.",
+      "timing": true
     },
     {
       "id": "metric.time-vs-estimate",
       "label": "Time against estimate",
       "dimension": "ability",
-      "definition": "Minutes spent against the authored estimate.",
-      "inputs": [],
-      "valueTo": [],
-      "status": "excluded",
+      "definition": "Minutes from first paste to verification against the authored estimate of the task.",
+      "inputs": [
+        "step_evidence",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "deferred",
       "scored": false,
-      "note": "Speed is not measured."
+      "note": "R132: computable from the same stamps; not wired this round.",
+      "timing": true
     },
     {
       "id": "metric.rank-any",
@@ -1269,6 +1300,216 @@
       "status": "excluded",
       "scored": false,
       "note": "Nothing is ranked."
+    },
+    {
+      "id": "metric.trouble-logged",
+      "label": "Faults logged",
+      "dimension": "troubleshooting",
+      "definition": "Fault, incident and triage rows the team filled on the forms of the role, over such rows the course expects.",
+      "inputs": [
+        "deliverables",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "A team fact; loads on the course page."
+    },
+    {
+      "id": "metric.trouble-resolved",
+      "label": "Faults resolved",
+      "dimension": "troubleshooting",
+      "definition": "Fault, incident and triage rows whose outcome column reads resolved, over rows filled.",
+      "inputs": [
+        "deliverables",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": true,
+      "note": "A team fact; loads on the course page."
+    },
+    {
+      "id": "metric.ability-flags-cleared",
+      "label": "Stuck flags cleared",
+      "dimension": "troubleshooting",
+      "definition": "Stuck flags the member raised and later cleared, over flags raised.",
+      "inputs": [
+        "step_flag_events"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": true,
+      "note": "R132: the flag history is append-only. Loads on the course page."
+    },
+    {
+      "id": "metric.decision-offered",
+      "label": "Decisions offered",
+      "dimension": "decisions",
+      "definition": "Decision blocks on the forms of the role, each with at least three options.",
+      "inputs": [
+        "deliverables",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.decision-recorded",
+      "label": "Decisions recorded",
+      "dimension": "decisions",
+      "definition": "Decision blocks with an option chosen by this member, over decision blocks on the forms of the role.",
+      "inputs": [
+        "deliverables",
+        "decision_records"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": true,
+      "note": "The choice carries who made it and when. Loads on the course page."
+    },
+    {
+      "id": "metric.decision-justified",
+      "label": "Decisions justified",
+      "dimension": "decisions",
+      "definition": "Recorded decisions with every required supporting question answered, over decisions recorded.",
+      "inputs": [
+        "deliverables",
+        "decision_records"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": true,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.decision-approved",
+      "label": "Decisions approved",
+      "dimension": "decisions",
+      "definition": "Recorded decisions on a form the team approved or issued, over decisions recorded.",
+      "inputs": [
+        "deliverables",
+        "deliverable_status",
+        "decision_records"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": true,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.decision-unstructured",
+      "label": "Reasons written",
+      "dimension": "decisions",
+      "definition": "Free-text rationale fields filled on the forms of the role, over such fields.",
+      "inputs": [
+        "deliverables"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Team rows carry no author. Loads on the course page."
+    },
+    {
+      "id": "metric.doc-review-marks",
+      "label": "Review marks met",
+      "dimension": "documentation",
+      "definition": "Instructor marks per rubric category that passed, over marks given on the forms of the role.",
+      "inputs": [
+        "deliverable_review_marks"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "R132: one mark per category per verdict, kept as history. Loads on the course page."
+    },
+    {
+      "id": "metric.execution-rows",
+      "label": "Execution rows",
+      "dimension": "execution",
+      "definition": "In order, first try, evidence named, checks met, control complete and on time, as rows of the Professional Execution domain.",
+      "inputs": [
+        "step_evidence",
+        "evidence_artifacts",
+        "deliverables",
+        "cohorts"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.retention-cross-course",
+      "label": "Skills reused across courses",
+      "dimension": "retention",
+      "definition": "Skills verified in two or more courses, over skills verified anywhere.",
+      "inputs": [
+        "step_evidence",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "A portfolio fact: read across the member’s courses."
+    },
+    {
+      "id": "metric.readiness-tier",
+      "label": "Professional tier",
+      "dimension": "skills",
+      "definition": "Record items with ten or more verified uses across every course and retake, over items with any verified use.",
+      "inputs": [
+        "step_evidence",
+        "deliverables",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "R132: the threshold is ten; below it the item reads as building, with the count."
     },
     {
       "id": "metric.platform-cohort-domain-coverage",
@@ -1396,7 +1637,7 @@
         "platform"
       ],
       "status": "computed",
-      "scored": false
+      "scored": true
     },
     {
       "id": "metric.skill-transfer",
@@ -1414,7 +1655,7 @@
         "platform"
       ],
       "status": "computed",
-      "scored": false
+      "scored": true
     },
     {
       "id": "metric.skill-currency",
@@ -1569,35 +1810,52 @@
     {
       "id": "metric.time-to-competency",
       "label": "Time to competency",
-      "dimension": "ability",
-      "definition": "Hours to proficiency per objective.",
-      "inputs": [],
-      "valueTo": [],
-      "status": "excluded",
+      "dimension": "retention",
+      "definition": "Days from the first verification of a skill to its tenth verified use.",
+      "inputs": [
+        "step_evidence",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "deferred",
       "scored": false,
-      "note": "Speed is not measured."
+      "note": "R132: the professional threshold is ten verified uses across courses.",
+      "timing": true
     },
     {
       "id": "metric.time-task-vs-benchmark",
       "label": "Task time against benchmark",
-      "dimension": "ability",
-      "definition": "Minutes to resolve a task against an expert or service-level baseline.",
+      "dimension": "troubleshooting",
+      "definition": "Minutes to resolve a task against a published service-level baseline.",
       "inputs": [],
-      "valueTo": [],
-      "status": "excluded",
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "needs-validators",
       "scored": false,
-      "note": "Speed is not measured."
+      "note": "R132: no baseline is published yet.",
+      "timing": true
     },
     {
       "id": "metric.time-learning-velocity",
       "label": "Learning velocity",
-      "dimension": "ability",
-      "definition": "Ability gained per study hour.",
-      "inputs": [],
-      "valueTo": [],
-      "status": "excluded",
+      "dimension": "retention",
+      "definition": "Verified steps in the twenty-eight days before the page clock, over verified steps in the twenty-eight days before those.",
+      "inputs": [
+        "step_evidence"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
       "scored": false,
-      "note": "Speed is not measured."
+      "note": "R132: the page passes the clock; the projection reads none.",
+      "timing": true
     }
   ]
 }

@@ -85,7 +85,12 @@ describe('what the copy keeps and drops', () => {
   it('keeps the member’s figures, the KPIs, the files hashed and the work roles, and drops what only their own pages use', () => {
     const full = ALL.courses.find((c) => c.courseId === 'security-plus')!;
     expect(course.metrics).toEqual(full.metrics);
-    expect(course.kpis).toEqual(full.kpis);
+    // R132: a KPI keeps its figures; family, metric, unit and scored come back from the ontology by id; a score keeps its value and what it stands on.
+    expect(course.kpis.map((k) => [k.id, k.value, k.of, k.pct, k.loaded, k.fact])).toEqual(full.kpis.map((k) => [k.id, k.value, k.of, k.pct, k.loaded, k.fact]));
+    expect(course.kpis.every((k) => !('family' in k) && !('unit' in k))).toBe(true);
+    expect(course.scores.map((x) => [x.id, x.value, x.counted, x.of, x.loaded])).toEqual(full.scores.map((x) => [x.id, x.value, x.counted, x.of, x.loaded]));
+    expect(course.scores.every((x) => !('components' in x))).toBe(true);
+    expect(course.timing).toEqual(full.timing);
     expect(course.artifacts).toEqual(full.artifacts);
     expect(course.workRoles).toEqual(full.workRoles);
     expect(course.skills.denominator).toBe(full.skills.denominator);
@@ -105,7 +110,8 @@ describe('what the copy keeps and drops', () => {
     const full = ROWS.find((r) => r.courseId === 'security-plus')!.skills;
     const doc = courseDto('security-plus');
     const back = hydrateShareCourse(course.skills, skillsOf(doc), certOf(doc).CERT);
-    for (const dim of Object.keys(full.rows) as (keyof typeof full.rows)[]) {
+    // R132: the retention and execution rows stay out of a copy (a reader derives them from the skills rows and the KPIs).
+    for (const dim of (Object.keys(full.rows) as (keyof typeof full.rows)[]).filter((d) => d !== 'retention' && d !== 'execution')) {
       expect(back.rows[dim].map((r) => [r.dimension, r.id, r.label])).toEqual(full.rows[dim].map((r) => [r.dimension, r.id, r.label]));
       for (const r of back.rows[dim]) {
         const orig = full.rows[dim].find((x) => x.id === r.id)!;
@@ -121,7 +127,7 @@ describe('what the copy keeps and drops', () => {
     const base = ROWS[0].skills.rows.skills[0];
     expect(shareRow({ ...base, level: 'not-started', tickedSteps: 0, verifiedSteps: 0, artifacts: 0, lastVerifiedAt: undefined, current: undefined })).toEqual({ id: base.id, level: 'not-started' });
     const started = course.skills.rows;
-    for (const dimension of Object.keys(ROWS[0].skills.rows)) expect(started[dimension].length, dimension).toBe(ROWS.find((r) => r.courseId === 'security-plus')!.skills.rows[dimension as keyof (typeof ROWS)[0]['skills']['rows']].length);
+    for (const dimension of Object.keys(ROWS[0].skills.rows).filter((d) => d !== 'retention' && d !== 'execution')) expect(started[dimension].length, dimension).toBe(ROWS.find((r) => r.courseId === 'security-plus')!.skills.rows[dimension as keyof (typeof ROWS)[0]['skills']['rows']].length);
   });
 
   it('chooses courses by id, in the member’s order, and leaves the rest out', () => {

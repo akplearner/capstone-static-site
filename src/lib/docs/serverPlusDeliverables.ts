@@ -1,5 +1,24 @@
 import { Column } from '../grc/templates';
-import { DeliverableDef } from './types';
+import { DeliverableDef, decisionDod, type DecisionBlock } from './types';
+
+/** R132 — the RAID decision: every level gives something up; the block makes the trade-off a choice among named options. */
+const RAID_DECISION: DecisionBlock = {
+  id: 'raid',
+  title: 'The RAID level',
+  subject: 'configuration',
+  prompt: 'One server, four disks, one controller. Which level does the team build the hypervisor on?',
+  options: [
+    { id: 'raid1', label: 'RAID 1, a mirror', help: 'Two disks, half the capacity, the simplest rebuild; what an LSI SAS BIOS usually offers.' },
+    { id: 'raid5', label: 'RAID 5, parity', help: 'Survives one failure with the least wasted space; a rebuild is slow and loads the disks.' },
+    { id: 'raid10', label: 'RAID 10, striped mirrors', help: 'Four disks, half the capacity, the fastest rebuild and the best write speed for the VMs.' },
+    { id: 'raid6', label: 'RAID 6, double parity', help: 'Survives two failures; the slowest writes; needs four disks and a controller that offers it.' },
+  ],
+  questions: [
+    { field: 'raid_why', label: 'Why that level, and the trade-off accepted', type: 'area', required: true, placeholder: 'RAID 10 across four 600 GB SAS disks: this is the only server, so a rebuild has to be fast and cannot slow the VMs down. I traded capacity for that.', help: 'Name the trade-off you accepted. Every RAID level gives up something.' },
+    { field: 'raid_rejected', label: 'The level rejected, and why', type: 'text', required: true, placeholder: 'RAID 5: a rebuild on 600 GB SAS disks takes hours and slows every VM while it runs.' },
+    { field: 'raid_rollback', label: 'If the array fails to build', type: 'text', placeholder: 'Delete the virtual disk in the controller utility and build RAID 1 on bays 0 and 1.' },
+  ],
+};
 import { custodySection, everyEvidenceHashed } from './custodyTemplate';
 import { PUBLISHED_PORTS, vm } from '@/lib/serverTopology';
 
@@ -384,13 +403,13 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
           { field: 'virt_where', label: 'Where that setting lives', type: 'text', placeholder: 'System BIOS → Processor Settings → Virtualization Technology', help: 'Write the menu path down — the next technician will need it.' },
         ],
       },
+      { kind: 'decision', block: RAID_DECISION },
       {
         kind: 'fields',
         title: 'RAID array',
         fields: [
           { field: 'raid_controller', label: 'Controller', type: 'text', placeholder: 'Dell PERC H730 Mini', help: 'Enter its configuration utility during POST — Ctrl+C on an LSI SAS card, Ctrl+R on a Dell PERC. Watch the screen for which prompt you get.' },
-          { field: 'raid_level', label: 'RAID level chosen', type: 'select', options: ['RAID 0', 'RAID 1', 'RAID 1E', 'RAID 5', 'RAID 6', 'RAID 10'], required: true, help: 'Pick what your controller actually offered. RAID 1 mirrors two disks. RAID 5 survives one failure with less wasted space. RAID 10 is fastest to rebuild. An LSI SAS BIOS usually lists only 0, 1 and 1E.' },
-          { field: 'raid_why', label: 'Why that level', type: 'area', required: true, placeholder: 'RAID 10 across four 600 GB SAS disks: this is the only server, so a rebuild has to be fast and cannot slow the VMs down. I traded capacity for that.', help: 'Name the trade-off you accepted. Every RAID level gives up something.' },
+          { field: 'raid_level', label: 'What the controller offered', type: 'text', placeholder: 'RAID 0, 1, 1E', help: 'An LSI SAS BIOS usually lists only 0, 1 and 1E; a PERC offers 5, 6 and 10 too.' },
           { field: 'raid_members', label: 'Member disks', type: 'text', placeholder: '4× 600 GB SAS 10k, bays 0–3', help: 'Which physical disks joined the array.' },
           { field: 'raid_spare', label: 'Hot spare', type: 'select', options: ['Yes — one assigned', 'No — none available', 'No — deliberate choice'], help: 'A hot spare rebuilds automatically without anyone visiting the rack.' },
           { field: 'raid_verified', label: 'How you verified the array is healthy', type: 'text', required: true, placeholder: 'Controller utility shows the virtual disk Optimal after initialisation completed', help: 'An array that exists is not the same as an array that is healthy.' },
@@ -438,7 +457,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
       { label: 'At least one POST fault is worked through to a verified fix', when: { group: 'post', some: { column: 'result', equals: 'Fixed it' } }},
       { label: 'The log keeps the reasoning: symptom, theory and action on every row', when: { all: [{ group: 'post', atLeast: 1 }, { group: 'post', every: { filled: ['symptom', 'theory', 'action'] } }] }},
       { label: 'Virtualization extensions are enabled and the menu path recorded', when: { all: [{ field: 'virt_enabled', equals: 'Yes' }, { fields: ['virt_where'] }] }},
-      { label: 'The RAID level is chosen and the trade-off justified in writing', when: { fields: ['raid_level', 'raid_why'] }},
+      decisionDod(RAID_DECISION),
       { label: 'The array is verified healthy', when: { fields: ['raid_verified'] }},
       { label: 'The hypervisor is installed and reachable on its management address', when: { fields: ['hv_version', 'hv_address', 'hv_proof'] }},
       { label: 'The host has a remote-access address, and it was proved from off campus', when: { fields: ['remote_host_ip', 'remote_proof'] }},

@@ -260,7 +260,7 @@ describe('R127 — fit', () => {
 
 describe('R127 — a shared copy', () => {
   const copy = {
-    schema: 'capstone-member-profile/1',
+    schema: 'capstone-member-profile/2',
     subject: { display: 'Ada Lovelace' },
     summary: { verified: 12, verifiable: 19, receipted: 3, artifacts: 7, skillsVerified: ['a', 'b', 'c'], skillsPractised: ['a', 'b', 'c', 'd'] },
     courses: [

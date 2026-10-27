@@ -46,6 +46,10 @@ export function deriveChecks(def: DeliverableDef): FieldCheck[] {
         if (f.type === 'select' && f.options?.length) add({ field: f.field, rule: 'oneOf', value: f.options, hint: `${f.label}: one of the listed options` });
         if (f.type === 'area' && f.required) add({ field: f.field, rule: 'minLength', value: 40, hint: `${f.label}: a real answer, not a placeholder (40+ characters)` });
       }
+    } else if (s.kind === 'decision') {
+      // R132: the chosen option must be one of the block's; a required area question is a real answer.
+      add({ field: `decision:${s.block.id}`, rule: 'oneOf', value: s.block.options.map((o) => o.id), hint: `${s.block.title}: one of the options offered` });
+      for (const q of s.block.questions) if (q.type === 'area' && q.required) add({ field: q.field, rule: 'minLength', value: 40, hint: `${q.label}: a real answer, not a placeholder (40+ characters)` });
     } else {
       for (const col of s.group.columns) {
         if (col.type === 'ipv4') add({ group: s.group.group, column: col.field, rule: 'pattern', value: IPV4, hint: `${col.label}: a valid IPv4 address in every row` });

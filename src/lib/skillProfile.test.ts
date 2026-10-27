@@ -66,6 +66,11 @@ const REGISTRY: SkillsContent = {
   KPIS: [],
   WORK_ROLES: [],
   WORK_ROLE_OF: {},
+  DOMAINS: [],
+  CATEGORIES: [],
+  SCORING: [],
+  TROUBLE_GROUPS: [],
+  CHANGE_GROUPS: [],
   SKILLS: [
     { id: 'comp.a.one', version: '1.0.0', label: 'Do one', area: 'a', objectiveRefs: ['X.d1'] },
     { id: 'comp.a.two', version: '1.0.0', label: 'Do two', area: 'a', objectiveRefs: ['X.d2'] },

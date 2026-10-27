@@ -1,0 +1,177 @@
+{
+  "schema": "capstone-ontology/1",
+  "version": "2.0.0",
+  "domains": [
+    {
+      "id": "technical-capability",
+      "label": "Technical capability",
+      "definition": "Skills, tools, commands and exam domains proven by pasted output that held every expected token.",
+      "asks": "Can this member operate the tools and run the commands the job needs?",
+      "dimensions": [
+        "skills",
+        "tools",
+        "domains"
+      ],
+      "categories": [
+        "tools",
+        "commands",
+        "exam-domains"
+      ],
+      "kpis": [
+        "kpi.technical.skills-verified",
+        "kpi.technical.commands-verified",
+        "kpi.technical.exam-weight-verified"
+      ],
+      "score": "score.tool-proficiency",
+      "evidence": "A verification record per step: the output hash, the tokens matched, the attempts, and a receipt in cloud mode."
+    },
+    {
+      "id": "professional-execution",
+      "label": "Professional execution",
+      "definition": "Procedures followed to standard, steps in order, first pastes, evidence named, checks met, documents controlled, work on time.",
+      "asks": "Does this member follow the runbook as written and deliver on the calendar?",
+      "dimensions": [
+        "procedures",
+        "standards",
+        "execution"
+      ],
+      "categories": [
+        "procedures",
+        "standards",
+        "configurations"
+      ],
+      "kpis": [
+        "kpi.technical.procedures-to-standard",
+        "kpi.execution.steps-in-order",
+        "kpi.execution.dod-met",
+        "kpi.professionalism.on-time"
+      ],
+      "score": "score.reliability",
+      "evidence": "The order of verification stamps, the attempts, the file names, the Definition-of-Done checks, the control block and the cohort due dates."
+    },
+    {
+      "id": "problem-solving",
+      "label": "Problem solving",
+      "definition": "Faults logged and resolved, steps verified after a failed paste, stuck flags cleared, and the minutes from first paste to proof.",
+      "asks": "When something breaks, does this member find and fix it, and how long does it take?",
+      "dimensions": [
+        "troubleshooting"
+      ],
+      "categories": [
+        "troubleshooting",
+        "investigations"
+      ],
+      "kpis": [
+        "kpi.problem-solving.faults-resolved",
+        "kpi.problem-solving.persistence",
+        "kpi.problem-solving.flags-cleared",
+        "kpi.problem-solving.time-to-resolution"
+      ],
+      "score": "score.troubleshooting-success",
+      "evidence": "Fault, incident and triage rows with their outcome column, retries that verified, the append-only flag history and two stamps per step."
+    },
+    {
+      "id": "thought-process",
+      "label": "Thought process",
+      "definition": "Decisions recorded against at least three options with rationale, rejected options, risk and rollback, and reasons written on change rows.",
+      "asks": "Does this member weigh options, say why, and plan the way back?",
+      "dimensions": [
+        "decisions"
+      ],
+      "categories": [
+        "decisions"
+      ],
+      "kpis": [
+        "kpi.decision-making.decisions-recorded",
+        "kpi.decision-making.decisions-justified",
+        "kpi.decision-making.decisions-approved",
+        "kpi.decision-making.change-rollback"
+      ],
+      "score": "score.judgment",
+      "evidence": "Decision blocks with the option chosen, who chose it and when, the answers to the supporting questions, and the form lifecycle."
+    },
+    {
+      "id": "architecture-design",
+      "label": "Architecture and design",
+      "definition": "Design briefs, topologies, IP plans, bills of materials, decision records and as-built documents drafted, approved and issued.",
+      "asks": "Can this member design a system and write it down so another team can build it?",
+      "dimensions": [
+        "documentation"
+      ],
+      "categories": [
+        "architectures",
+        "configurations"
+      ],
+      "kpis": [
+        "kpi.execution.dod-met",
+        "kpi.professionalism.document-control",
+        "kpi.decision-making.decisions-approved"
+      ],
+      "evidence": "The architecture and configuration forms of the role: rows filled, checks met, approved or issued, with the decisions on them."
+    },
+    {
+      "id": "team-communication",
+      "label": "Team and communication",
+      "definition": "Hand-offs closed, RACI respected, peer reviews given, steps ticked for teammates, reports filed, notes written, handovers issued.",
+      "asks": "Does this member hand work on cleanly, review others and hold their lane?",
+      "dimensions": [
+        "collaboration",
+        "documentation"
+      ],
+      "categories": [
+        "communication",
+        "collaboration"
+      ],
+      "kpis": [
+        "kpi.teamwork.handoffs",
+        "kpi.teamwork.raci-respected",
+        "kpi.teamwork.peer-reviews-given",
+        "kpi.teamwork.teammate-steps"
+      ],
+      "score": "score.collaboration",
+      "evidence": "The lifecycle rows with who moved what, the hand-offs and their forms, the peer review queue, the reports and the notes."
+    },
+    {
+      "id": "learning-retention",
+      "label": "Learning and retention",
+      "definition": "Skills proved on a second task, verified again a week or more later, reused in another course, and the pace month on month.",
+      "asks": "Is this member still learning, and keeping what was learned?",
+      "dimensions": [
+        "retention"
+      ],
+      "categories": [
+        "tools",
+        "commands",
+        "procedures"
+      ],
+      "kpis": [
+        "kpi.growth.skills-transferred",
+        "kpi.growth.retention",
+        "kpi.growth.learning-velocity"
+      ],
+      "evidence": "The verification stamps of every skill: first and last, the tasks and courses between them, and the last two months of them."
+    },
+    {
+      "id": "professional-readiness",
+      "label": "Professional readiness",
+      "definition": "The tier per record item at ten verified uses, the exam weight verified, the work-role coverage and the readiness score.",
+      "asks": "Can this member consistently perform at a professional level in a real work environment?",
+      "dimensions": [
+        "skills",
+        "domains"
+      ],
+      "categories": [
+        "projects",
+        "exam-domains",
+        "tools"
+      ],
+      "kpis": [
+        "kpi.technical.exam-weight-verified",
+        "kpi.growth.profile-coverage",
+        "kpi.growth.retention"
+      ],
+      "score": "score.readiness",
+      "evidence": "Every category of the record with its verified uses across courses, the published exam weights and the work roles’ required competencies."
+    }
+  ]
+}

@@ -104,18 +104,18 @@ has failed silently in some deployment of some product; none takes more than a m
   `schema: "capstone-member-profile/1"` with `signature: null` (the file a member saves is the PDF, R127).
 - [ ] **Skill board (R108):** joined on a course, the Home skills card, the status surface and the
   dashboard card link to `/courses/<id>/skills`; the competency map draws its edges in and lights
-  the stars in course order, the sixteen tiles count up once and a sweep crosses them; Replay
+  the stars in course order, the twenty-eight tiles count up once and a sweep crosses them; Replay
   repeats both; with reduced motion nothing moves and Replay is hidden; Student, Hiring and Agent
-  switch the captions, and Agent prints JSON with `"schema": "capstone-kpi-board/1"` and sixteen
-  `kpis`; Measured against switches the coverage tile between the work roles and the sample
+  switch the captions, and Agent prints JSON with `"schema": "capstone-kpi-board/2"`, twenty-eight
+  `kpis`, six `scores` and a `timing` block; Measured against switches the coverage tile between the work roles and the sample
   profile, a bad imported file shows an error and a good one survives a reload; `/portfolio`
   shows a KPI table per capstone, and the dashboard's Copy JSON carries `courses[].kpis`; the credential a
   link serves has no `proof` field.
 - [ ] **Cohort KPIs (R108):** `/instructor/<course>/cohort` shows a KPI bands table per cohort
   under the submissions summary, the Team, Focus and Review week selects change the counts, and
-  KPI CSV downloads sixteen rows per cohort plus the whole course, naming nobody.
-- [ ] **KPI pack (R109):** the course Home's skills card and every `/dashboard` card show sixteen
-  sockets in four groups; hovering or focusing one prints it in the read-out, the arrow keys move
+  KPI CSV downloads twenty-eight rows per cohort plus the whole course, naming nobody.
+- [ ] **KPI pack (R109):** the course Home's skills card and every `/dashboard` card show twenty-eight
+  sockets in seven groups; hovering or focusing one prints it in the read-out, the arrow keys move
   across them, a complete ratio is lit; the chip beside the pack copies and downloads the
   `capstone-kpi-board/1` JSON; the dashboard's record grid has eight tiles and its member-profile
   chip downloads the profile and the credential (no `proof`); under reduced motion nothing breathes.

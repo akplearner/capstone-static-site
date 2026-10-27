@@ -11,7 +11,7 @@ import { gradedWeeksCleared } from './course-helpers';
 import { toCsv } from './csv';
 
 /**
- * R108 — the cohort KPI report: the sixteen numbers of every member of a
+ * R108 — the cohort KPI report: the KPI board of every member of a
  * course, folded into bands per cohort. An instructor reads how many members
  * have started, are in progress or are complete on each KPI, and the sums
  * behind them; nothing orders members against each other, and the report
@@ -41,7 +41,7 @@ export interface CohortKpiRow {
 export interface CohortKpiGroup {
   cohort: string;
   members: number;
-  /** Sixteen, in registry order. */
+  /** In registry order. */
   kpis: CohortKpiRow[];
 }
 
@@ -151,9 +151,9 @@ export function cohortKpiReport(input: CohortKpiInput): CohortKpiReport {
   };
 }
 
-/** The sixteen as empty values, for a report with nobody in it. */
+/** The twenty-eight as empty values, for a report with nobody in it. */
 function kpiBoardTemplate(registry: SkillsContent): KpiValue[] {
-  return registry.KPIS.map((k) => ({ id: k.id, family: k.family, metricId: k.metricId, value: 0, of: 0, pct: 0, loaded: false, fact: k.fact }));
+  return registry.KPIS.map((k) => ({ id: k.id, family: k.family, metricId: k.metricId, value: 0, of: 0, pct: 0, unit: k.unit, scored: k.scored, loaded: false, fact: k.fact }));
 }
 
 export const COHORT_KPI_CSV_HEADER = ['course', 'cohort', 'week', 'kpi', 'family', 'metric', 'fact', 'members', 'loaded', ...BANDS.map((b) => b.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`)), 'sum_value', 'sum_of'];

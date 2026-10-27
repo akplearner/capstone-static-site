@@ -2,75 +2,328 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://capstone.example/schemas/kpi-board.schema.json",
   "title": "KPI board",
-  "description": "The sixteen numbers one course keeps for one member (capstone-kpi-board/1): four families of four, each a ratio of counts with the kind of fact it reads and whether that fact was loaded. Nothing is scored, ranked or timed.",
+  "description": "The twenty-eight numbers one course keeps for one member (capstone-kpi-board/2): seven families of four, each a ratio of counts (or a count, or a median of minutes between two recorded stamps) with the kind of fact it reads and whether that fact was loaded; six scores by the published method with every component named; and the timing block. Nothing ranks one member against another.",
   "type": "object",
-  "required": ["schema", "ontologyVersion", "courseId", "role", "workRoles", "measuredAgainst", "families", "kpis"],
+  "required": [
+    "schema",
+    "ontologyVersion",
+    "courseId",
+    "role",
+    "workRoles",
+    "measuredAgainst",
+    "families",
+    "kpis",
+    "scores",
+    "timing"
+  ],
   "additionalProperties": false,
   "properties": {
-    "schema": { "const": "capstone-kpi-board/1" },
-    "ontologyVersion": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
-    "courseId": { "type": "string", "minLength": 1 },
-    "role": { "type": "string", "minLength": 1 },
-    "workRoles": { "type": "array", "items": { "type": "string", "pattern": "^role\\.[a-z0-9][a-z0-9-]*$" } },
+    "schema": {
+      "const": "capstone-kpi-board/2"
+    },
+    "ontologyVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "courseId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "role": {
+      "type": "string",
+      "minLength": 1
+    },
+    "workRoles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^role\\.[a-z0-9][a-z0-9-]*$"
+      }
+    },
     "measuredAgainst": {
       "type": "object",
-      "required": ["kind", "id", "label", "required", "untaught"],
+      "required": [
+        "kind",
+        "id",
+        "label",
+        "required",
+        "untaught"
+      ],
       "additionalProperties": false,
       "properties": {
-        "kind": { "enum": ["work-role", "profile"] },
-        "id": { "type": "string", "minLength": 1 },
-        "label": { "type": "string" },
-        "required": { "type": "integer", "minimum": 0 },
-        "untaught": { "type": "integer", "minimum": 0 }
+        "kind": {
+          "enum": [
+            "work-role",
+            "profile"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string"
+        },
+        "required": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "untaught": {
+          "type": "integer",
+          "minimum": 0
+        }
       }
     },
     "families": {
       "type": "array",
-      "minItems": 4,
-      "maxItems": 4,
+      "minItems": 7,
+      "maxItems": 7,
       "items": {
         "type": "object",
-        "required": ["id", "label"],
+        "required": [
+          "id",
+          "label"
+        ],
         "additionalProperties": false,
         "properties": {
-          "id": { "enum": ["ability", "execution", "procedure", "outcome"] },
-          "label": { "type": "string" }
+          "id": {
+            "enum": [
+              "technical",
+              "problem-solving",
+              "execution",
+              "decision-making",
+              "teamwork",
+              "professionalism",
+              "growth"
+            ]
+          },
+          "label": {
+            "type": "string"
+          }
         }
       }
     },
-    "kpis": { "type": "array", "minItems": 16, "maxItems": 16, "items": { "$ref": "#/$defs/kpiValue" } }
+    "kpis": {
+      "type": "array",
+      "minItems": 28,
+      "maxItems": 28,
+      "items": {
+        "$ref": "#/$defs/kpiValue"
+      }
+    },
+    "scores": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "$ref": "#/$defs/score"
+      }
+    },
+    "timing": {
+      "type": "object",
+      "required": [
+        "timedSteps",
+        "medianMinutes",
+        "withinHour",
+        "over24h"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "timedSteps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "medianMinutes": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "withinHour": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "over24h": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
   },
   "$defs": {
     "kpiValue": {
       "type": "object",
-      "required": ["id", "family", "metricId", "value", "of", "pct", "loaded", "fact"],
+      "required": [
+        "id",
+        "family",
+        "metricId",
+        "value",
+        "of",
+        "pct",
+        "unit",
+        "scored",
+        "loaded",
+        "fact"
+      ],
       "additionalProperties": false,
       "properties": {
-        "id": { "type": "string", "pattern": "^kpi\\.(ability|execution|procedure|outcome)\\.[a-z][a-z0-9-]*$" },
-        "family": { "enum": ["ability", "execution", "procedure", "outcome"] },
-        "metricId": { "type": "string", "pattern": "^metric\\.[a-z][a-z0-9-]*$" },
-        "value": { "type": "integer", "minimum": 0 },
-        "of": { "type": "integer", "minimum": 0 },
-        "pct": { "type": "integer", "minimum": 0, "maximum": 100 },
-        "loaded": { "type": "boolean" },
-        "fact": { "enum": ["own", "team", "content"] },
+        "id": {
+          "type": "string",
+          "pattern": "^kpi\\.(technical|problem-solving|execution|decision-making|teamwork|professionalism|growth)\\.[a-z][a-z0-9-]*$"
+        },
+        "family": {
+          "enum": [
+            "technical",
+            "problem-solving",
+            "execution",
+            "decision-making",
+            "teamwork",
+            "professionalism",
+            "growth"
+          ]
+        },
+        "metricId": {
+          "type": "string",
+          "pattern": "^metric\\.[a-z][a-z0-9-]*$"
+        },
+        "value": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "of": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pct": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "loaded": {
+          "type": "boolean"
+        },
+        "fact": {
+          "enum": [
+            "own",
+            "team",
+            "content"
+          ]
+        },
         "beside": {
           "type": "object",
-          "required": ["value", "of"],
+          "required": [
+            "value",
+            "of"
+          ],
           "additionalProperties": false,
           "properties": {
-            "value": { "type": "integer", "minimum": 0 },
-            "of": { "type": "integer", "minimum": 0 }
+            "value": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "of": {
+              "type": "integer",
+              "minimum": 0
+            }
           }
         },
         "contribution": {
-          "description": "R111: the same count on the forms the member's role drafts (the RACI drafter); on the seven attributable team KPIs only.",
+          "description": "R111: the same count on the forms the member's role drafts (the RACI drafter); on the attributable team KPIs only.",
           "type": "object",
-          "required": ["value", "of"],
+          "required": [
+            "value",
+            "of"
+          ],
           "additionalProperties": false,
           "properties": {
-            "value": { "type": "integer", "minimum": 0 },
-            "of": { "type": "integer", "minimum": 0 }
+            "value": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "of": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "unit": {
+          "enum": [
+            "ratio",
+            "count",
+            "minutes"
+          ]
+        },
+        "scored": {
+          "type": "boolean"
+        }
+      }
+    },
+    "score": {
+      "type": "object",
+      "required": [
+        "id",
+        "value",
+        "counted",
+        "of",
+        "loaded",
+        "components"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^score\\.[a-z][a-z0-9-]*$"
+        },
+        "value": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "counted": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "of": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "loaded": {
+          "type": "boolean"
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "kpi",
+              "weight",
+              "pct",
+              "counted"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "kpi": {
+                "type": "string",
+                "pattern": "^kpi\\.[a-z-]+\\.[a-z][a-z0-9-]*$"
+              },
+              "weight": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "pct": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0,
+                "maximum": 100
+              },
+              "counted": {
+                "type": "boolean"
+              }
+            }
           }
         }
       }

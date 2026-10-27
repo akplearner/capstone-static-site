@@ -1,5 +1,23 @@
 import { Column } from '../grc/templates';
-import { DeliverableDef } from './types';
+import { DeliverableDef, decisionDod, type DecisionBlock } from './types';
+
+/** R132 — the authorization decision on the system security plan, as a choice among the three answers an authorizing official can give. */
+const AUTHORIZATION_DECISION: DecisionBlock = {
+  id: 'authorization',
+  title: 'The authorization decision',
+  subject: 'control',
+  prompt: 'All eight sheets are at v6 and the ledger is full. What does the authorizing official sign?',
+  options: [
+    { id: 'approve', label: 'Approve to operate', help: 'Every requirement met with a ledger entry; no open condition.' },
+    { id: 'conditions', label: 'Approve with conditions', help: 'Named gaps, each with an owner and a date; the system runs while they close.' },
+    { id: 'deny', label: 'Deny until fixed', help: 'A basic safeguarding requirement unmet with no dated plan.' },
+  ],
+  questions: [
+    { field: 'decision', label: 'Decision memo', type: 'area', required: true, placeholder: 'Approve with conditions; each condition with a date.' },
+    { field: 'decision_rejected', label: 'The answer rejected, and why', type: 'text', required: true, placeholder: 'Approve outright: two requirements still carry a dated plan, not evidence.' },
+    { field: 'decision_risk', label: 'The residual risk accepted', type: 'text', placeholder: 'Encryption at rest on the archive closes in thirty days; backups are offline until then.' },
+  ],
+};
 
 // Deliverable forms for the CISSP capstone (R101). Course-scoped
 // (`courseId: 'cissp'`) so they never surface on another course. The eight
@@ -626,10 +644,10 @@ export const CISSP_DELIVERABLES: DeliverableDef[] = [
     howTo: 'Assemble the plan, fill the traceability table so no ledger cell is empty, and write the decision memo with each accepted risk and condition.',
     source: 'All eight sheets at v6 and the ledger',
     sections: [
+      { kind: 'decision', block: AUTHORIZATION_DECISION },
       {
         kind: 'fields', title: 'The plan',
         fields: [
-          { field: 'decision', label: 'Decision memo', type: 'area', required: true, placeholder: 'Approve with conditions; each condition with a date.' },
           { field: 'basic_evidence', label: 'Basic safeguarding: evidence or dated plan', type: 'area', required: true, placeholder: 'All 15 requirements: met with a ledger entry, or a dated plan.' },
         ],
       },
@@ -649,7 +667,8 @@ export const CISSP_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'The decision memo and the basic-safeguarding evidence are written', when: { fields: ['decision', 'basic_evidence'] } },
+      decisionDod(AUTHORIZATION_DECISION),
+      { label: 'The basic-safeguarding evidence is written', when: { fields: ['basic_evidence'] } },
       { label: 'The traceability table has no empty ledger cell', when: { group: 'trace', every: { filled: ['control', 'ledger'] }, atLeast: 1 } },
     ],
   },

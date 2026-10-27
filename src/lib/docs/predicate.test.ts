@@ -166,7 +166,7 @@ describe('predicateErrors', () => {
     // Nested, so the path says which branch — with no recognised key at all,
     // the one message that matters is that the branch says nothing.
     expect(predicateErrors({ all: [{ fields: ['a'] }, { grp: 'g' }] })).toEqual([
-      'when.all[1]: none of all, any, not, fields, field or group',
+      'when.all[1]: none of all, any, not, fields, decision, field or group',
     ]);
     expect(rowPredicateErrors({ colum: 'a', equals: 'x' }, 'where')).toEqual([
       'where: none of filled, all, any or column',
@@ -227,7 +227,7 @@ describe('every check and computed column in the course content is well-formed',
     for (const d of DELIVERABLES)
       for (const s of d.sections) {
         const cols =
-          s.kind === 'group' ? s.group.columns : s.fields;
+          s.kind === 'group' ? s.group.columns : s.kind === 'fields' ? s.fields : s.block.questions;
         for (const c of cols) {
           if (!c.derived) continue;
           seen++;
@@ -249,6 +249,8 @@ describe('every check and computed column in the course content is well-formed',
       if (o.not) names(o.not, out);
       if (Array.isArray(o.fields)) out.fields.push(...(o.fields as string[]));
       if (typeof o.field === 'string') out.fields.push(o.field);
+      // R132: a decision check names its block; the choice is stored under `decision:<id>`.
+      if (typeof o.decision === 'string') out.fields.push(`decision:${o.decision}`);
       if (typeof o.group === 'string') out.groups.push(o.group);
       return out;
     };
@@ -258,7 +260,11 @@ describe('every check and computed column in the course content is well-formed',
       const groups = new Set<string>();
       for (const s of d.sections) {
         if (s.kind === 'group') groups.add(s.group.group);
-        else s.fields.forEach((f) => fields.add(f.field));
+        else if (s.kind === 'fields') s.fields.forEach((f) => fields.add(f.field));
+        else {
+          fields.add(`decision:${s.block.id}`);
+          s.block.questions.forEach((f) => fields.add(f.field));
+        }
       }
       for (const c of d.dod ?? []) {
         const used = names(c.when, { fields: [], groups: [] });

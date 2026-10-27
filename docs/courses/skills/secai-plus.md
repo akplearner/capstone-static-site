@@ -171,20 +171,32 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 
 | KPI | Family | Reads | Denominator in this course |
 | --- | --- | --- | --- |
-| Skills verified `kpi.ability.skills-verified` | ability | metric.skill-verified (own) | redteam: 10 skills with a verifiable step; defender: 9 skills with a verifiable step; governance: 10 skills with a verifiable step |
-| Exam weight verified `kpi.ability.exam-weight-verified` | ability | metric.domain-weight-verified (own) | redteam: 50 percent of the exam over 2 domains; defender: 50 percent of the exam over 2 domains; governance: 50 percent of the exam over 2 domains |
-| Profile coverage `kpi.ability.profile-coverage` | ability | metric.profile-coverage (own) | redteam: Exploitation Analyst: 29 required, 20 not taught here; defender: Systems Security Analyst: 34 required, 26 not taught here; governance: Cyber Policy and Strategy Planner: 47 required, 40 not taught here |
-| Skills proved twice `kpi.ability.skills-transferred` | ability | metric.skill-transfer (own) | redteam: 0 skills on two or more tasks; defender: 0 skills on two or more tasks; governance: 0 skills on two or more tasks |
+| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | redteam: 10 skills with a verifiable step; defender: 9 skills with a verifiable step; governance: 10 skills with a verifiable step |
+| Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | redteam: 50 percent of the exam over 2 domains; defender: 50 percent of the exam over 2 domains; governance: 50 percent of the exam over 2 domains |
+| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | redteam: 6 verifiable steps that run a command; defender: 10 verifiable steps that run a command; governance: 5 verifiable steps that run a command |
+| Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | redteam: 10 procedures; defender: 16 procedures; governance: 15 procedures |
+| Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | redteam: 1 fault, incident or triage table; defender: 0 fault, incident or triage tables; governance: 0 fault, incident or triage tables |
+| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | redteam: 6 verifiable steps; defender: 10 verifiable steps; governance: 5 verifiable steps |
+| Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
+| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | redteam: 6 verifiable steps that can carry two stamps; defender: 10 verifiable steps that can carry two stamps; governance: 5 verifiable steps that can carry two stamps |
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | redteam: 2 tasks with two or more verifiable steps; defender: 4 tasks with two or more verifiable steps; governance: 1 task with two or more verifiable steps |
 | First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | redteam: 6 verifiable steps; defender: 10 verifiable steps; governance: 5 verifiable steps |
-| Commands verified `kpi.execution.commands-verified` | execution | metric.tool-commands-verified (own) | redteam: 6 verifiable steps that run a command; defender: 10 verifiable steps that run a command; governance: 5 verifiable steps that run a command |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
-| Procedures to standard `kpi.procedure.followed-to-standard` | procedure | metric.procedure-to-standard (team) | redteam: 10 procedures; defender: 16 procedures; governance: 15 procedures |
-| Definition-of-Done met `kpi.procedure.dod-met` | procedure | metric.doc-dod-met (team) | redteam: 5 checks on 1 form; defender: 8 checks on 2 forms; governance: 15 checks on 5 forms |
-| Controls cited `kpi.procedure.controls-cited` | procedure | metric.standard-controls-cited (team) | redteam: 2 control codes on 1 form; defender: 3 control codes on 2 forms; governance: 4 control codes on 5 forms |
-| Document control complete `kpi.procedure.document-control` | procedure | metric.doc-control-complete (team) | redteam: 1 form; defender: 2 forms; governance: 5 forms |
-| Submissions rubric-green `kpi.outcome.rubric-green` | outcome | metric.doc-rubric-green (team) | the submissions the member freezes; no content denominator |
-| Hand-offs completed `kpi.outcome.handoffs` | outcome | metric.collab-handoffs (team) | redteam: 0 hand-offs; defender: 0 hand-offs; governance: 0 hand-offs |
-| Instructor approved `kpi.outcome.instructor-approved` | outcome | metric.doc-instructor-approved (team) | redteam: 1 form; defender: 2 forms; governance: 5 forms |
-| Capstone filed `kpi.outcome.capstone-filed` | outcome | metric.outcome-capstone-filed (team) | one capstone per course |
+| Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | redteam: 5 checks on 1 form; defender: 9 checks on 2 forms; governance: 15 checks on 5 forms |
+| Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | redteam: 0 decision blocks; defender: 1 decision block; governance: 0 decision blocks |
+| Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | redteam: 0 decision blocks; defender: 1 decision block; governance: 0 decision blocks |
+| Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | redteam: 0 decision blocks; defender: 1 decision block; governance: 0 decision blocks |
+| Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | redteam: 0 change tables with a rollback column; defender: 0 change tables with a rollback column; governance: 0 change tables with a rollback column |
+| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | redteam: 0 hand-offs; defender: 0 hand-offs; governance: 0 hand-offs |
+| RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | redteam: 4 forms with a RACI; defender: 7 forms with a RACI; governance: 8 forms with a RACI |
+| Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
+| Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
+| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | redteam: 4 tasks of the role; defender: 4 tasks of the role; governance: 4 tasks of the role |
+| Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | redteam: 1 form; defender: 2 forms; governance: 5 forms |
+| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | redteam: 2 control codes on 1 form; defender: 3 control codes on 2 forms; governance: 4 control codes on 5 forms |
+| Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | redteam: 1 form; defender: 2 forms; governance: 5 forms |
+| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | redteam: 0 skills on two or more tasks; defender: 0 skills on two or more tasks; governance: 0 skills on two or more tasks |
+| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | redteam: 10 skills with a verifiable step; defender: 9 skills with a verifiable step; governance: 10 skills with a verifiable step |
+| Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
+| Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | redteam: Exploitation Analyst: 29 required, 20 not taught here; defender: Systems Security Analyst: 34 required, 26 not taught here; governance: Cyber Policy and Strategy Planner: 47 required, 40 not taught here |
 

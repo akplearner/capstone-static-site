@@ -30,7 +30,7 @@ const schema = (name: string) => JSON.parse(readFileSync(resolve(DIR, `${name}.s
 describe('content/schemas — the published shapes validate', () => {
   it('every schema file is draft 2020-12 and inside the subset', () => {
     const files = readdirSync(DIR).filter((f) => f.endsWith('.schema.json'));
-    expect(files.sort()).toEqual(['competency-node', 'content-fix', 'content-fixes', 'course-index-entry', 'credential', 'environment-profile', 'event', 'issue', 'kpi-board', 'member-profile', 'skill-profile', 'sop', 'standard', 'tool', 'work-role', 'xapi-statement'].map((n) => `${n}.schema.json`));
+    expect(files.sort()).toEqual(['competency-node', 'content-fix', 'content-fixes', 'course-index-entry', 'credential', 'decision-record', 'environment-profile', 'event', 'issue', 'kpi-board', 'member-profile', 'record-category', 'scoring', 'skill-profile', 'sop', 'standard', 'tool', 'work-role', 'xapi-statement'].map((n) => `${n}.schema.json`));
     for (const f of files) {
       const s = schema(f.replace('.schema.json', ''));
       expect(s.$schema, f).toBe('https://json-schema.org/draft/2020-12/schema');
@@ -178,7 +178,7 @@ describe('content/schemas — the published shapes validate', () => {
           criteria: { narrative: 'The steps verified and the documents filed, as the member profile lists them.' },
           alignment: [{ type: ['Alignment'], targetName: 'Scan ports and services with nmap', targetCode: 'comp.recon.port-scan', targetFramework: 'capstone-ontology' }],
         },
-        result: [{ type: ['Result'], resultDescription: 'kpi.ability.skills-verified', value: '1 of 2' }],
+        result: [{ type: ['Result'], resultDescription: 'kpi.technical.skills-verified', value: '1 of 2' }],
       },
       evidence: [{ type: ['Evidence'], id: `sha256:${'a'.repeat(64)}`, name: 'capstone-portfolio.json' }],
       claim: 'unsigned',

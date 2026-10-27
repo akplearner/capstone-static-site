@@ -45,6 +45,8 @@ export type Predicate =
   /** `matches` is a regex SOURCE, with optional flags — a RegExp is not JSON. */
   | { field: string; matches: string; flags?: string }
   | { field: string; atLeast: number }
+  /** R132: a decision block has a chosen option (stored under `decision:<id>`). */
+  | { decision: string }
   | {
       group: string;
       /** How many rows must qualify. Defaults to 1 when a row test is given. */
@@ -74,6 +76,7 @@ export function evaluate(p: Predicate, d: DeliverableData): boolean {
   if ('any' in p) return p.any.some((x) => evaluate(x, d));
   if ('not' in p) return !evaluate(p.not, d);
   if ('fields' in p) return p.fields.every((f) => nonEmpty(d.fields[f]));
+  if ('decision' in p) return nonEmpty(d.fields[`decision:${p.decision}`]);
   if ('field' in p) {
     const v = d.fields[p.field] ?? '';
     if ('equals' in p) return v === p.equals;
@@ -164,6 +167,8 @@ export function predicateErrors(p: unknown, at = 'when'): string[] {
   if (has('any')) return [...extra(['any']), ...listOf('any')];
   if (has('not')) return [...extra(['not']), ...predicateErrors(o.not, `${at}.not`)];
   if (has('fields')) return [...extra(['fields']), ...strings('fields')];
+  // R132: a decision block has its choice.
+  if (has('decision')) return [...extra(['decision']), ...(typeof o.decision === 'string' && o.decision ? [] : [`${at}.decision: expected a decision block id`])];
   if (has('field')) {
     const out = extra(['field', 'equals', 'matches', 'flags', 'atLeast']);
     if (typeof o.field !== 'string' || !o.field) out.push(`${at}.field: expected a field name`);
@@ -190,7 +195,7 @@ export function predicateErrors(p: unknown, at = 'when'): string[] {
       out.push(`${at}: some is evaluated alone — where/every beside it would be ignored`);
     return out;
   }
-  return [`${at}: none of all, any, not, fields, field or group`];
+  return [`${at}: none of all, any, not, fields, decision, field or group`];
 }
 
 /** The same, for a test applied to one row of a table. */

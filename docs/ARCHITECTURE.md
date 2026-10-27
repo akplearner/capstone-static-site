@@ -266,8 +266,9 @@ marked approximate, never a price.
 What a course teaches a person to DO is written once, as registries under `src/lib/docs/`, and
 reaches every document as `content.skills` (the course's maps and the registry rows they reach;
 `skillsSection.ts` cuts them); the member's own standing against them is a pure projection over
-facts the platform already records. Nothing is scored, ranked or badged, and
-speed is not measured.
+facts the platform already records. Since R132 a number may be scored by the published method
+(`docs/SCORING.md`, `src/lib/docs/scoring.ts`) and a duration is the difference of two recorded
+stamps; nothing ranks one member against another.
 
 | Fact | Home | Reaches |
 |---|---|---|
@@ -302,10 +303,12 @@ output (a procedure is "followed" when every Definition-of-Done check due is met
 document-control block is complete); `reviewed` is a team document on the mapped work approved
 or issued, and the labels say it is a team fact. Team facts can only raise a row that was earned.
 The denominator is the member's own ticks on required steps of the role's graded and advanced
-tasks; timestamps are read only to order verified steps, never for a duration; nothing is
-scored, ranked or badged. The Home card (`SkillsCard`, inside the role surface), the dashboard
-(`DomainStrip`, "Skills by course") and the portfolio (six sections) render it; the portfolio's
-export is `capstone-member-profile/1`, unsigned (`signature: null`) until validators exist.
+tasks; timestamps are read to order verified steps, to measure the minutes between a step's
+first paste and its verification (R132, `timing`), and against the cohort calendar the page hands
+in; nothing ranks one member against another. The Home card (`SkillsCard`, inside the role
+surface), the dashboard (`DomainStrip`, "Skills by course") and the portfolio (six sections)
+render it; the portfolio's export is `capstone-member-profile/2`, unsigned (`signature: null`)
+until validators exist.
 The cross-course hydrate reads the four team and own tables the profile needs
 (`deliverable_status`, `deliverable_submissions` without the frozen form, `task_reports`,
 `step_notes`), RLS-scoped exactly as the course hydrate is.
@@ -317,7 +320,8 @@ and `docs/VALUE_REGISTER.md` (what each asset is worth to companies, students an
 platforms, with an honest status). The metric catalogue is the contract: every metric the
 platform keeps or could keep, with its definition, inputs, audience and status
 (`computed`, `deferred`, `needs-events`, `needs-validators`, `needs-consent`, `excluded`), and
-`scored: false` on every row. Known gap: the Home page's completion percent (`game.ts`) counts
+`scored` (true on the rows a published score reads) and `timing` (true on a row computed between
+two recorded stamps) on every row. Known gap: the Home page's completion percent (`game.ts`) counts
 optional and setup steps where the profile counts required steps of graded and advanced weeks;
 the two read differently by design and the captions say which is which.
 
@@ -335,13 +339,17 @@ data.
 
 ### The KPI board, profiles and work roles (R108)
 
-Sixteen numbers a course keeps per member, four families of four, each a ratio of counts the
-metric catalogue already defines; a competency map lit by level; and three things a hiring reader
-or an agent can join on: a work role, an environment profile and a credential envelope.
+The numbers a course keeps per member (since R132 twenty-eight, seven families of four, each a
+ratio of counts the metric catalogue already defines, or a median of minutes between two recorded
+stamps, with six scores by the published method, `capstone-kpi-board/2`); a competency map lit by
+level; and three things a hiring reader or an agent can join on: a work role, an environment
+profile and a credential envelope.
 
 | Fact | Home | Reaches |
 |---|---|---|
-| the sixteen KPIs and four families (ids, numerator and denominator in words, fact kind, why lines) | `src/lib/docs/kpis.ts` `KPIS`, `KPI_FAMILIES` | `content.skills.KPIS`, `content/ontology/kpis.json`, the skills sheet's KPI section, every tile |
+| the twenty-eight KPIs and seven families (ids, numerator and denominator in words, fact kind, unit, scored, why lines), and the sixteen deprecated R108 ids with the row that replaced each | `src/lib/docs/kpis.ts` `KPIS`, `KPI_FAMILIES`, `DEPRECATED_KPIS` | `content.skills.KPIS`, `content/ontology/kpis.json`, the skills sheet's KPI section, every tile |
+| the six scores: weighted means of KPI percentages, weights summing to one, each component named on the board (R132) | `src/lib/docs/scoring.ts` `SCORES`; `src/lib/scores.ts` computes them | `content.skills.SCORING`, `content/ontology/scoring.json`, the board's `scores`, the export, the credential's results |
+| the eight skill domains (dimensions, categories, KPIs, score and evidence per domain) and the fourteen record categories with the form tables the projection reads and the professional threshold of ten verified uses (R132) | `src/lib/docs/skillDomains.ts`, `src/lib/docs/recordCategories.ts` | `content.skills.DOMAINS/CATEGORIES/TROUBLE_GROUPS/CHANGE_GROUPS`, `skill-domains.json`, `record-categories.json` |
 | NICE work roles (SP 800-181; 2017 ids, transcribed) with their competency areas and nodes; course role → work roles | `src/lib/docs/workRoles.ts` `WORK_ROLES`, `WORK_ROLE_OF` | `content.skills.WORK_ROLES/WORK_ROLE_OF`, `work-roles.json`, the board, the export, the credential |
 | the environment profile a company publishes (infrastructure, tools, methodology, policies, ticket taxonomy, competencies per work role) | `src/lib/docs/environmentProfile.ts` (the shape and the one sample, built from the MSSP course); `content/profiles/`, `src/lib/content/profiles.ts` | the board's "measured against" picker; a file a reader imports is kept on the device only |
 | the board projection | `src/lib/kpiBoard.ts` (pure; `capstone-kpi-board/1`) | `/courses/<id>/skills`, the dashboard and portfolio, the export's `courses[].kpis`, the cohort report |
@@ -379,11 +387,11 @@ positional, so `MotionConfig` stills it; the count-up reads the preference itsel
 
 ### The KPI pack and the DTO chips (R109)
 
-The sixteen KPIs reach the two surfaces a member lives on without a second projection:
+The KPIs reach the two surfaces a member lives on without a second projection:
 `SkillsCard` (the course Home's role surface) and every `/dashboard` course card call `kpiBoard()`
 against the role's default measure (`defaultMeasure`, the first NICE work role the course maps, else
-one sentinel) and render the result with `src/components/skills/KpiPack.tsx`: sixteen 32 px socket
-buttons in four family groups of four, each a ring whose arc sweeps to its ratio in the course tint
+one sentinel) and render the result with `src/components/skills/KpiPack.tsx`: twenty-eight 32 px socket
+buttons in seven family groups of four, each a ring whose arc sweeps to its ratio in the course tint
 (`ACC`, which the region and seam tokens already set on both surfaces, so the pack matches the seal
 ledger beside it) inside the meter budget, a lit disc with a `qa-breathe` halo when a ratio is
 complete, a dashed dim socket when a team fact was not handed in. Hover, focus or a tap prints the

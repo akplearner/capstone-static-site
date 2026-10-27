@@ -1,5 +1,23 @@
 import { Column } from '../grc/templates';
-import { DeliverableDef } from './types';
+import { DeliverableDef, decisionDod, type DecisionBlock } from './types';
+
+/** R132 — the first design decision, as a choice: where inter-VLAN routing happens. */
+const ROUTING_DECISION: DecisionBlock = {
+  id: 'routing',
+  title: 'Where routing happens',
+  subject: 'architecture',
+  prompt: 'Two sites, four VLANs each, one router and the kit in the register. Where does traffic between VLANs get routed?',
+  options: [
+    { id: 'stick', label: 'Router on a stick', help: 'One trunk into the router; simplest with a layer-2 kit; every inter-VLAN packet crosses one link.' },
+    { id: 'l3-switch', label: 'The core switch routes', help: 'SVIs on a layer-3 switch; wire speed between VLANs; the router only reaches the WAN.' },
+    { id: 'per-site', label: 'A router at each site', help: 'Each site routes its own VLANs; two devices to configure and keep.' },
+  ],
+  questions: [
+    { field: 'routing_why', label: 'Why that, from the requirements and the kit', type: 'area', required: true, placeholder: 'The register shows a layer-2 kit only, so the router routes; the camera VLAN never crosses to users.' },
+    { field: 'routing_rejected', label: 'The option rejected, and why', type: 'text', required: true, placeholder: 'Core switch routing: no layer-3 switch in the kit.' },
+    { field: 'routing_risk', label: 'The risk accepted', type: 'text', placeholder: 'One trunk carries every inter-VLAN flow; the validation matrix tests it under load.' },
+  ],
+};
 import { COMPANY, POLICY, SITES, VLANS, gatewayOf, dhcpRangeOf, prefixOf, vlan } from '../ccnaTopology';
 import { CAPABILITIES, CLASS_OPTIONS, EMULATORS, PATHS, UNLOCKS_BY_OPTION } from './ccnaKit';
 
@@ -348,6 +366,7 @@ const CCNA_FORMS: DeliverableDef[] = [
       'Redundancy nobody asked for. Say what you left single, and why that is acceptable.',
     ],
     sections: [
+      { kind: 'decision', block: ROUTING_DECISION },
       {
         kind: 'group',
         group: {
@@ -372,6 +391,7 @@ const CCNA_FORMS: DeliverableDef[] = [
       },
     ],
     dod: [
+      decisionDod(ROUTING_DECISION),
       { label: 'The sites, the boundaries and the internet path are described', when: { fields: ['sites', 'boundaries', 'internet'] } },
       { label: 'At least four design decisions, each traced to a requirement', when: { group: 'decisions', where: { filled: ['decision', 'because'] }, atLeast: 4 } },
       { label: 'Every decision says what was rejected', when: { group: 'decisions', atLeast: 1, every: { filled: ['rejected'] } } },

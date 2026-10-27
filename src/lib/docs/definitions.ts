@@ -1,5 +1,23 @@
 import { Column } from '../grc/templates';
-import { DeliverableData, DeliverableDef } from './types';
+import { DeliverableData, DeliverableDef, decisionDod, type DecisionBlock } from './types';
+
+/** R132 — the hardening decision: how administrators reach the servers, chosen among three ways. */
+const REMOTE_ACCESS_DECISION: DecisionBlock = {
+  id: 'remote-access',
+  title: 'How administrators get in',
+  subject: 'configuration',
+  prompt: 'The baseline closes every port it can. How do the Blue Team reach the servers to run it?',
+  options: [
+    { id: 'keys', label: 'SSH with keys only', help: 'Password login off; a lost key is one line to revoke.' },
+    { id: 'mfa', label: 'SSH with keys and a second factor', help: 'A TOTP prompt after the key; more to set up, nothing a stolen key can do alone.' },
+    { id: 'bastion', label: 'A bastion host, then SSH', help: 'One hardened door the firewall allows; every session is logged there.' },
+  ],
+  questions: [
+    { field: 'remote_why', label: 'Why that way', type: 'area', required: true, placeholder: 'Two admins, two keys, one lab: keys only is enough and leaves one fewer service to break.' },
+    { field: 'remote_rejected', label: 'The way rejected, and why', type: 'text', required: true, placeholder: 'A bastion: a third host to harden in a two-host lab.' },
+    { field: 'remote_risk', label: 'The risk accepted', type: 'text', placeholder: 'A key copied off a laptop opens the box; fail2ban and the change log watch for it.' },
+  ],
+};
 import { CUSTODY_RULES } from './custodyTemplate';
 import { MSSP_DELIVERABLES } from './msspDeliverables';
 import { CYSA_DELIVERABLES } from './cysaDeliverables';
@@ -191,6 +209,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
     howTo: 'For each control, mark Done and cite the command/screenshot evidence and CIS mapping.',
     source: 'From your hardening work (UFW, fail2ban, Lynis, Defender, …).',
     sections: [
+      { kind: 'decision', block: REMOTE_ACCESS_DECISION },
       {
         kind: 'group',
         group: {
@@ -210,6 +229,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
+      decisionDod(REMOTE_ACCESS_DECISION),
       {
         label: 'Firewall and logging controls marked done with evidence',
         when: {

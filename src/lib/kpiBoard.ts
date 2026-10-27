@@ -1,18 +1,23 @@
-import type { ProfileRow, SkillProfile } from './skillProfile';
+import type { ProfileRow, SkillProfile, TimingFacts } from './skillProfile';
 import { levelRank } from './skillProfile';
 import type { CertContent, SkillsContent } from './content/read';
-import type { KpiDef, KpiFact, KpiFamily } from './docs/kpis';
+import type { KpiDef, KpiFact, KpiFamily, KpiUnit } from './docs/kpis';
 import type { WorkRoleDef } from './docs/workRoles';
 import type { EnvironmentProfile } from './docs/environmentProfile';
+import { scoreValues, type ScoreValue } from './scores';
 
 /**
- * R108 — the KPI board: sixteen numbers read off one member's skill profile,
- * each a ratio of counts the registry (`content.skills.KPIS`) defines, with
- * the kind of fact it reads and whether that fact was handed in. A pure
- * projection with the honesty rules of `skillProfile.ts`: nothing is scored,
- * ranked or badged, no clock is read, a team fact is labelled as one, and a
- * number whose facts were not loaded says so rather than printing zero as
- * if it were measured.
+ * R108 — the KPI board: the numbers read off one member's skill profile, each
+ * a ratio of counts the registry (`content.skills.KPIS`) defines, with the
+ * kind of fact it reads and whether that fact was handed in.
+ *
+ * R132 — `capstone-kpi-board/2`: seven families of four (twenty-eight KPIs),
+ * six scores computed by the published method (`content.skills.SCORING`,
+ * `scores.ts`) and the timing block (minutes between two recorded stamps). A
+ * pure projection: no clock is read (the profile carries the stamps and the
+ * page's `asOf`), a team fact is labelled as one, a number whose facts were
+ * not loaded says so rather than printing zero as if it were measured, and
+ * nothing orders one member against another.
  *
  * "Measured against" is a work role (the nodes of its competency areas) or
  * an environment profile (the competencies it requires); the coverage tile
@@ -20,7 +25,7 @@ import type { EnvironmentProfile } from './docs/environmentProfile';
  * so a low fraction reads as a gap in the syllabus, never as a failure.
  */
 
-export const KPI_BOARD_SCHEMA = 'capstone-kpi-board/1';
+export const KPI_BOARD_SCHEMA = 'capstone-kpi-board/2';
 
 export interface MeasureAgainst {
   kind: 'work-role' | 'profile';
@@ -34,10 +39,15 @@ export interface KpiValue {
   id: string;
   family: KpiFamily;
   metricId: string;
+  /** ratio and count: a count; minutes: the median minutes. */
   value: number;
+  /** ratio: the denominator; count: 0; minutes: the steps timed. */
   of: number;
-  /** 0..100; 0 when there is no denominator. */
+  /** 0..100; 0 when there is no denominator. For minutes: the share of timed steps resolved within the hour. */
   pct: number;
+  unit: KpiUnit;
+  /** R132: a published score reads this row. */
+  scored: boolean;
   /** False when the fact behind it was not handed in (team facts load on the course page). */
   loaded: boolean;
   fact: KpiFact;
@@ -62,13 +72,17 @@ export interface KpiBoard {
   workRoles: string[];
   measuredAgainst: { kind: MeasureAgainst['kind']; id: string; label: string; required: number; untaught: number };
   families: { id: KpiFamily; label: string }[];
-  /** Exactly sixteen, in registry order. */
+  /** Exactly twenty-eight, in registry order. */
   kpis: KpiValue[];
+  /** R132: the six scores, in registry order, each with its components. */
+  scores: ScoreValue[];
+  /** R132: minutes between two recorded stamps per verified step. */
+  timing: TimingFacts;
 }
 
 export interface KpiBoardInput {
   profile: SkillProfile;
-  registry: Pick<SkillsContent, 'KPIS' | 'KPI_FAMILIES' | 'CONTROL_OF' | 'WORK_ROLE_OF'>;
+  registry: Pick<SkillsContent, 'KPIS' | 'KPI_FAMILIES' | 'CONTROL_OF' | 'WORK_ROLE_OF' | 'SCORING'>;
   cert: Pick<CertContent, 'CERT'>;
   measure: MeasureAgainst;
   /** From `isCapstoneFiled` and `deriveCrewProgress`; team facts. */
@@ -106,7 +120,7 @@ export function profileMeasure(profile: EnvironmentProfile, workRoleIds: string[
 }
 
 export function kpiBoard(input: KpiBoardInput): KpiBoard {
-  const { profile, registry, cert, measure, outcome } = input;
+  const { profile, registry, cert, measure } = input;
   const { rows, abilities } = profile;
   const team = profile.loaded.team;
   const skills = rows.skills;
@@ -121,20 +135,16 @@ export function kpiBoard(input: KpiBoardInput): KpiBoard {
   const ownRow = (r: ProfileRow) => r.deliverables.some((id) => drafted.has(id));
   const same = (i: { value: number; of?: number }) => ({ value: i.value, of: i.of ?? 0 });
   const ownOf = (i: { value: number; of?: number; own?: { value: number; of: number } }) => i.own ?? same(i);
-  const values: Record<string, { value: number; of: number; loaded: boolean; beside?: { value: number; of: number }; contribution?: { value: number; of: number } }> = {
-    'kpi.ability.skills-verified': { value: skills.filter(atLeastVerified).length, of: skills.filter((r) => r.verifiableSteps > 0).length, loaded: true },
-    'kpi.ability.exam-weight-verified': {
+  const values: Record<string, { value: number; of: number; loaded: boolean; pct?: number; beside?: { value: number; of: number }; contribution?: { value: number; of: number } }> = {
+    // ── technical ──
+    'kpi.technical.skills-verified': { value: skills.filter(atLeastVerified).length, of: skills.filter((r) => r.verifiableSteps > 0).length, loaded: true },
+    'kpi.technical.exam-weight-verified': {
       value: practisedDomains.filter(atLeastVerified).reduce((n, r) => n + (weightOf.get(r.id) ?? 0), 0),
       of: practisedDomains.reduce((n, r) => n + (weightOf.get(r.id) ?? 0), 0),
       loaded: true,
     },
-    'kpi.ability.profile-coverage': { value: coverage.value, of: coverage.of, loaded: true },
-    'kpi.ability.skills-transferred': { value: skills.filter((r) => atLeastVerified(r) && r.verifiedTasks >= 2).length, of: skills.filter(atLeastVerified).length, loaded: true },
-    'kpi.execution.steps-in-order': indicator(abilities.inOrder),
-    'kpi.execution.first-try': { ...indicator(abilities.firstTry), beside: { value: abilities.persistence.value, of: abilities.persistence.of ?? 0 } },
-    'kpi.execution.commands-verified': indicator(abilities.commandSteps),
-    'kpi.execution.evidence-named': indicator(abilities.evidenceNaming),
-    'kpi.procedure.followed-to-standard': {
+    'kpi.technical.commands-verified': indicator(abilities.commandSteps),
+    'kpi.technical.procedures-to-standard': {
       value: rows.procedures.filter((r) => r.level === 'reviewed' && citing(r)).length,
       of: rows.procedures.filter(atLeastVerified).length,
       loaded: team,
@@ -143,13 +153,38 @@ export function kpiBoard(input: KpiBoardInput): KpiBoard {
         of: rows.procedures.filter((r) => atLeastVerified(r) && ownRow(r)).length,
       },
     },
-    'kpi.procedure.dod-met': { ...indicator(abilities.dodMet), contribution: ownOf(abilities.dodMet) },
-    'kpi.procedure.controls-cited': { ...indicator(abilities.controlsCited), contribution: same(abilities.controlsCited) },
-    'kpi.procedure.document-control': { ...indicator(abilities.docControl), contribution: ownOf(abilities.docControl) },
-    'kpi.outcome.rubric-green': { ...indicator(abilities.rubricAllGreen), contribution: same(abilities.rubricAllGreen) },
-    'kpi.outcome.handoffs': { ...indicator(abilities.handoffsCompleted), contribution: same(abilities.handoffsCompleted) },
-    'kpi.outcome.instructor-approved': { ...indicator(abilities.instructorApproved), contribution: ownOf(abilities.instructorApproved) },
-    'kpi.outcome.capstone-filed': { value: outcome.capstoneFiled ? 1 : 0, of: 1, loaded: team },
+    // ── problem solving ──
+    'kpi.problem-solving.faults-resolved': indicator(abilities.faultsResolved),
+    'kpi.problem-solving.persistence': indicator(abilities.persistence),
+    'kpi.problem-solving.flags-cleared': indicator(abilities.flagsCleared),
+    // Minutes: the median is the value, the steps timed the denominator, and the share within the hour the percentage.
+    'kpi.problem-solving.time-to-resolution': { value: profile.timing.medianMinutes ?? 0, of: profile.timing.timedSteps, loaded: true, pct: pctOf(profile.timing.withinHour, profile.timing.timedSteps) },
+    // ── execution ──
+    'kpi.execution.steps-in-order': indicator(abilities.inOrder),
+    'kpi.execution.first-try': { ...indicator(abilities.firstTry), beside: { value: abilities.persistence.value, of: abilities.persistence.of ?? 0 } },
+    'kpi.execution.evidence-named': indicator(abilities.evidenceNaming),
+    'kpi.execution.dod-met': { ...indicator(abilities.dodMet), contribution: ownOf(abilities.dodMet) },
+    // ── decision making ──
+    'kpi.decision-making.decisions-recorded': indicator(abilities.decisionsRecorded),
+    'kpi.decision-making.decisions-justified': indicator(abilities.decisionsJustified),
+    'kpi.decision-making.decisions-approved': indicator(abilities.decisionsApproved),
+    'kpi.decision-making.change-rollback': indicator(abilities.changeRollback),
+    // ── teamwork ──
+    'kpi.teamwork.handoffs': { ...indicator(abilities.handoffsCompleted), contribution: same(abilities.handoffsCompleted) },
+    'kpi.teamwork.raci-respected': indicator(abilities.raciRespected),
+    'kpi.teamwork.peer-reviews-given': indicator(abilities.peerReviewsGiven),
+    'kpi.teamwork.teammate-steps': { value: abilities.teammateStepsTicked.value, of: 0, loaded: abilities.teammateStepsTicked.loaded },
+    // ── professionalism ──
+    'kpi.professionalism.on-time': indicator(abilities.onTime),
+    'kpi.professionalism.document-control': { ...indicator(abilities.docControl), contribution: ownOf(abilities.docControl) },
+    'kpi.professionalism.controls-cited': { ...indicator(abilities.controlsCited), contribution: same(abilities.controlsCited) },
+    'kpi.professionalism.instructor-approved': { ...indicator(abilities.instructorApproved), contribution: ownOf(abilities.instructorApproved) },
+    // ── growth ──
+    'kpi.growth.skills-transferred': { value: skills.filter((r) => atLeastVerified(r) && r.verifiedTasks >= 2).length, of: skills.filter(atLeastVerified).length, loaded: true },
+    'kpi.growth.retention': indicator(abilities.retention),
+    // Velocity: this window's verified steps over the previous window's; the percentage caps at one hundred.
+    'kpi.growth.learning-velocity': { ...indicator(abilities.learningVelocity), pct: abilities.learningVelocity.loaded ? Math.min(100, Math.round((100 * abilities.learningVelocity.value) / Math.max(1, abilities.learningVelocity.of ?? 0))) : 0 },
+    'kpi.growth.profile-coverage': { value: coverage.value, of: coverage.of, loaded: true },
   };
 
   const kpis: KpiValue[] = registry.KPIS.map((def: KpiDef) => {
@@ -160,7 +195,9 @@ export function kpiBoard(input: KpiBoardInput): KpiBoard {
       metricId: def.metricId,
       value: v.value,
       of: v.of,
-      pct: pctOf(v.value, v.of),
+      pct: v.pct ?? pctOf(v.value, v.of),
+      unit: def.unit,
+      scored: def.scored,
       loaded: v.loaded,
       fact: def.fact,
       ...(v.beside ? { beside: v.beside } : {}),
@@ -178,6 +215,8 @@ export function kpiBoard(input: KpiBoardInput): KpiBoard {
     measuredAgainst: { kind: measure.kind, id: measure.id, label: measure.label, required: coverage.of, untaught: coverage.untaught },
     families: registry.KPI_FAMILIES.map((f) => ({ id: f.id, label: f.label })),
     kpis,
+    scores: scoreValues(registry.SCORING, kpis),
+    timing: profile.timing,
   };
 }
 

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { derive } from '@/lib/docs/predicate';
 import { AlertTriangle, ArrowDownToLine, ExternalLink } from 'lucide-react';
-import { DeliverableData, DeliverableDef, Field, FieldGroup, emptyFormContext, type FormContext } from '@/lib/docs/types';
+import { DeliverableData, DeliverableDef, Field, FieldGroup, decisionKey, emptyFormContext, type DecisionBlock, type FormContext } from '@/lib/docs/types';
 import { DURATION_UNITS, fitsInput, formatDuration, isIpv4OrCidr, parseDuration } from '@/lib/docs/formContext';
 import { RegisterTable } from '@/components/grc/RegisterTable';
 import { deliverableTitle } from '@/lib/docs/definitions';
@@ -229,9 +229,12 @@ export function DeliverableForm({
   ctx = emptyFormContext(),
   carried = {},
   onChange,
+  memberId,
 }: {
   def: DeliverableDef;
   data: DeliverableData;
+  /** R132: who is deciding; stamped on a decision block's choice. Absent on a read-only view. */
+  memberId?: string;
   /** What this form can see beyond itself: the team's other documents, the
    *  hostnames they name, and the artifacts this member has hashed. Defaulted
    *  so a caller that does not care still renders. */
@@ -249,10 +252,18 @@ export function DeliverableForm({
 
   // One neutral line instead of a page of premature red: how many required
   // fields still need a value. Field-level red appears per field after a visit.
-  const requiredLeft = def.sections
-    .filter((s): s is Extract<typeof s, { kind: 'fields' }> => s.kind === 'fields')
-    .flatMap((s) => s.fields)
-    .filter((f) => f.required && !f.derived && !(data.fields[f.field] ?? '').trim()).length;
+  const requiredLeft =
+    def.sections
+      .filter((s): s is Extract<typeof s, { kind: 'fields' }> => s.kind === 'fields')
+      .flatMap((s) => s.fields)
+      .filter((f) => f.required && !f.derived && !(data.fields[f.field] ?? '').trim()).length +
+    // R132: a decision block's choice, and its required questions once a choice is made.
+    def.sections
+      .filter((s): s is Extract<typeof s, { kind: 'decision' }> => s.kind === 'decision')
+      .reduce((n, s) => {
+        const chosen = (data.fields[decisionKey(s.block.id)] ?? '').trim() !== '';
+        return n + (chosen ? s.block.questions.filter((q) => q.required && !(data.fields[q.field] ?? '').trim()).length : 1);
+      }, 0);
 
   const hasCvss = def.sections.some(
     (s) =>
@@ -279,6 +290,8 @@ export function DeliverableForm({
               ))}
             </div>
           </div>
+        ) : s.kind === 'decision' ? (
+          <DecisionSection key={i} block={s.block} fields={data.fields} ctx={ctx} memberId={memberId} onChange={(patch) => onChange({ ...data, fields: { ...data.fields, ...patch } })} />
         ) : (
           <div key={i} className="space-y-1">
             <div className="text-sm font-semibold text-ink">{s.group.label}</div>
@@ -313,5 +326,55 @@ export function DeliverableForm({
         </a>
       )}
     </div>
+  );
+}
+
+/** Clock read hoisted to module scope, as `GuidedTaskRunner` does: the purity lint treats a `Date.now()` inside a component as a render-time read, and this one runs at the click. */
+function stampNow(): number {
+  return Date.now();
+}
+
+/**
+ * R132 — a decision record: the member picks ONE of at least three options, then answers the
+ * supporting questions. The choice is stored under `decision:<id>` with `:by` (who) and `:at`
+ * (when) beside it; the questions are ordinary fields and are shown only once a choice is made,
+ * so a form cannot carry a rationale for nothing. The projection reads all three.
+ */
+function DecisionSection({ block, fields, ctx, memberId, onChange }: { block: DecisionBlock; fields: Record<string, string>; ctx: FormContext; memberId?: string; onChange: (patch: Record<string, string>) => void }) {
+  const k = decisionKey(block.id);
+  const chosen = fields[k] ?? '';
+  const by = fields[`${k}:by`];
+  const at = Number(fields[`${k}:at`]);
+  const choose = (id: string) => onChange({ [k]: id, [`${k}:by`]: memberId ?? by ?? '', [`${k}:at`]: String(stampNow()) });
+  return (
+    <fieldset data-decision-block={block.id} className="space-y-3 rounded-xl depth-edge bg-panel-2 p-4">
+      <legend className="px-1 text-sm font-semibold text-ink">{block.title}</legend>
+      <p className="text-sm text-body">{block.prompt}</p>
+      <div className="grid gap-2 md:grid-cols-3">
+        {block.options.map((o) => (
+          <label key={o.id} className={`flex cursor-pointer items-start gap-2 rounded-lg border px-3 py-2 text-sm ${chosen === o.id ? 'border-accent bg-panel text-ink' : 'border-line bg-panel text-body hover:border-accent/60'}`}>
+            <input type="radio" name={k} value={o.id} checked={chosen === o.id} onChange={() => choose(o.id)} className="mt-0.5" />
+            <span>
+              <span className="block font-medium">{o.label}</span>
+              {o.help && <span className="block text-xs text-muted">{o.help}</span>}
+            </span>
+          </label>
+        ))}
+      </div>
+      {chosen ? (
+        <>
+          <p className="text-xs text-muted" data-decision-stamp>
+            Decided{by ? (by === memberId ? ' by you' : ' by a teammate') : ''}{Number.isFinite(at) && at > 0 ? ` on ${new Date(at).toLocaleString()}` : ''}. Now say why.
+          </p>
+          <div className="grid gap-4 md:grid-cols-2">
+            {block.questions.map((q) => (
+              <SingleField key={q.field} f={q} fields={fields} ctx={ctx} onChange={(v) => onChange({ [q.field]: v })} />
+            ))}
+          </div>
+        </>
+      ) : (
+        <p className="text-xs text-muted">Choose one option before the questions count.</p>
+      )}
+    </fieldset>
   );
 }

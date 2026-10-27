@@ -24,10 +24,10 @@ vi.mock('@/lib/shares', async (orig) => {
 import { ShareLinkDialog } from './ShareLinkDialog';
 
 const TOKEN = 'c'.repeat(43);
-const buildProfile = vi.fn((ids?: readonly string[]) => ({ schema: 'capstone-member-profile/1', signature: null, subject: { display: 'Grace' }, courses: ids ?? 'all' }));
+const buildProfile = vi.fn((ids?: readonly string[]) => ({ schema: 'capstone-member-profile/2', signature: null, subject: { display: 'Grace' }, courses: ids ?? 'all' }));
 const buildCredential = vi.fn(async () => ({ type: ['OpenBadgeCredential'] }));
 /** Each course in the copy is 100 KB: two fit in 256 KB, three do not. */
-const heavy = vi.fn((ids?: readonly string[]) => ({ schema: 'capstone-member-profile/1', signature: null, subject: { display: 'Grace' }, ids: ids ?? [], blob: 'x'.repeat((ids ?? []).length * 100 * 1024) }));
+const heavy = vi.fn((ids?: readonly string[]) => ({ schema: 'capstone-member-profile/2', signature: null, subject: { display: 'Grace' }, ids: ids ?? [], blob: 'x'.repeat((ids ?? []).length * 100 * 1024) }));
 const COURSES = [
   { id: 'a', title: 'Server+' },
   { id: 'b', title: 'CCNA' },

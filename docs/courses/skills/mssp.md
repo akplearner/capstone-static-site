@@ -132,20 +132,32 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 
 | KPI | Family | Reads | Denominator in this course |
 | --- | --- | --- | --- |
-| Skills verified `kpi.ability.skills-verified` | ability | metric.skill-verified (own) | red: 2 skills with a verifiable step; blue: 5 skills with a verifiable step; grc: 0 skills with a verifiable step |
-| Exam weight verified `kpi.ability.exam-weight-verified` | ability | metric.domain-weight-verified (own) | red: 60 percent of the exam over 3 domains; blue: 60 percent of the exam over 3 domains; grc: 60 percent of the exam over 3 domains |
-| Profile coverage `kpi.ability.profile-coverage` | ability | metric.profile-coverage (own) | red: Exploitation Analyst: 29 required, 24 not taught here; blue: Cyber Defense Analyst: 29 required, 25 not taught here; grc: Information Systems Security Manager: 45 required, 37 not taught here |
-| Skills proved twice `kpi.ability.skills-transferred` | ability | metric.skill-transfer (own) | red: 1 skill on two or more tasks; blue: 0 skills on two or more tasks; grc: 0 skills on two or more tasks |
+| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | red: 2 skills with a verifiable step; blue: 5 skills with a verifiable step; grc: 0 skills with a verifiable step |
+| Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | red: 60 percent of the exam over 3 domains; blue: 60 percent of the exam over 3 domains; grc: 60 percent of the exam over 3 domains |
+| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | red: 1 verifiable step that runs a command; blue: 3 verifiable steps that run a command; grc: 0 verifiable steps that run a command |
+| Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | red: 8 procedures; blue: 11 procedures; grc: 11 procedures |
+| Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | red: 1 fault, incident or triage table; blue: 0 fault, incident or triage tables; grc: 0 fault, incident or triage tables |
+| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | red: 1 verifiable step; blue: 3 verifiable steps; grc: 0 verifiable steps |
+| Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
+| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | red: 1 verifiable step that can carry two stamps; blue: 3 verifiable steps that can carry two stamps; grc: 0 verifiable steps that can carry two stamps |
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | red: 0 tasks with two or more verifiable steps; blue: 0 tasks with two or more verifiable steps; grc: 0 tasks with two or more verifiable steps |
 | First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | red: 1 verifiable step; blue: 3 verifiable steps; grc: 0 verifiable steps |
-| Commands verified `kpi.execution.commands-verified` | execution | metric.tool-commands-verified (own) | red: 1 verifiable step that runs a command; blue: 3 verifiable steps that run a command; grc: 0 verifiable steps that run a command |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
-| Procedures to standard `kpi.procedure.followed-to-standard` | procedure | metric.procedure-to-standard (team) | red: 8 procedures; blue: 11 procedures; grc: 11 procedures |
-| Definition-of-Done met `kpi.procedure.dod-met` | procedure | metric.doc-dod-met (team) | red: 4 checks on 2 forms; blue: 4 checks on 2 forms; grc: 10 checks on 5 forms |
-| Controls cited `kpi.procedure.controls-cited` | procedure | metric.standard-controls-cited (team) | red: 3 control codes on 2 forms; blue: 3 control codes on 2 forms; grc: 5 control codes on 5 forms |
-| Document control complete `kpi.procedure.document-control` | procedure | metric.doc-control-complete (team) | red: 2 forms; blue: 2 forms; grc: 5 forms |
-| Submissions rubric-green `kpi.outcome.rubric-green` | outcome | metric.doc-rubric-green (team) | the submissions the member freezes; no content denominator |
-| Hand-offs completed `kpi.outcome.handoffs` | outcome | metric.collab-handoffs (team) | red: 0 hand-offs; blue: 0 hand-offs; grc: 0 hand-offs |
-| Instructor approved `kpi.outcome.instructor-approved` | outcome | metric.doc-instructor-approved (team) | red: 2 forms; blue: 2 forms; grc: 5 forms |
-| Capstone filed `kpi.outcome.capstone-filed` | outcome | metric.outcome-capstone-filed (team) | one capstone per course |
+| Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | red: 5 checks on 2 forms; blue: 4 checks on 2 forms; grc: 10 checks on 5 forms |
+| Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | red: 1 decision block; blue: 0 decision blocks; grc: 0 decision blocks |
+| Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | red: 1 decision block; blue: 0 decision blocks; grc: 0 decision blocks |
+| Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | red: 1 decision block; blue: 0 decision blocks; grc: 0 decision blocks |
+| Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | red: 0 change tables with a rollback column; blue: 0 change tables with a rollback column; grc: 0 change tables with a rollback column |
+| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | red: 0 hand-offs; blue: 0 hand-offs; grc: 0 hand-offs |
+| RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | red: 5 forms with a RACI; blue: 8 forms with a RACI; grc: 9 forms with a RACI |
+| Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
+| Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
+| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | red: 4 tasks of the role; blue: 4 tasks of the role; grc: 5 tasks of the role |
+| Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | red: 2 forms; blue: 2 forms; grc: 5 forms |
+| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | red: 3 control codes on 2 forms; blue: 3 control codes on 2 forms; grc: 5 control codes on 5 forms |
+| Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | red: 2 forms; blue: 2 forms; grc: 5 forms |
+| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | red: 1 skill on two or more tasks; blue: 0 skills on two or more tasks; grc: 0 skills on two or more tasks |
+| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | red: 2 skills with a verifiable step; blue: 5 skills with a verifiable step; grc: 0 skills with a verifiable step |
+| Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
+| Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | red: Exploitation Analyst: 29 required, 24 not taught here; blue: Cyber Defense Analyst: 29 required, 25 not taught here; grc: Information Systems Security Manager: 45 required, 37 not taught here |
 

@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://capstone.example/schemas/record-category.schema.json",
+  "title": "Record category card",
+  "description": "R132: one of the fourteen subcards of a member's record, across every course: the uses and the verified uses, the success rate as a ratio of counts, the last activity stamp, the courses and projects behind it, six monthly counts, the evidence count, the industry relevance (the share of the NICE work roles whose competency areas the category serves, 0 to 100) and the tier: professional at the threshold of verified uses, building below it with the count shown.",
+  "type": "object",
+  "required": [
+    "id",
+    "utilization",
+    "verifiedUses",
+    "successRate",
+    "courses",
+    "projects",
+    "trend",
+    "evidenceCount",
+    "relevance",
+    "tier",
+    "threshold"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "enum": [
+        "tools",
+        "commands",
+        "procedures",
+        "standards",
+        "troubleshooting",
+        "investigations",
+        "documentation",
+        "architectures",
+        "configurations",
+        "communication",
+        "collaboration",
+        "decisions",
+        "projects",
+        "exam-domains"
+      ]
+    },
+    "utilization": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "verifiedUses": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "successRate": {
+      "type": "object",
+      "required": [
+        "value",
+        "of"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "of": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "lastActivityAt": {
+      "type": "number",
+      "minimum": 0
+    },
+    "courses": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "trend": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "evidenceCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "relevance": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "tier": {
+      "enum": [
+        "professional",
+        "building"
+      ]
+    },
+    "threshold": {
+      "type": "integer",
+      "minimum": 1
+    }
+  }
+}

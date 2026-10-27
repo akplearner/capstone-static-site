@@ -297,11 +297,29 @@ export interface DeliverableReview {
   at: number;
 }
 
+/** R132: one instructor mark per rubric category per verdict, kept as history
+ *  (append-only, 0021). The verdict row is overwritten; the marks are not. */
+export interface DeliverableReviewMark {
+  courseId: string;
+  teamId: string;
+  deliverableId: string;
+  week: number;
+  category: 'completeness' | 'correctness' | 'authenticity' | 'consistency';
+  ok: boolean;
+  note: string;
+  reviewer: string;
+  at: number;
+}
+
 /** Team-scoped, like deliverables: every member reads their team's reviews;
  *  only an instructor writes them (RLS in 0004). */
 export interface ReviewRepository {
   list(courseId: string, teamId: string): DeliverableReview[];
   save(review: DeliverableReview): void;
+  /** R132: the per-category marks of the team's reviews, every verdict kept. */
+  marks(courseId: string, teamId: string): DeliverableReviewMark[];
+  /** R132: append one mark per category beside a verdict. */
+  saveMarks(marks: DeliverableReviewMark[]): void;
 }
 
 /** R103: the team's document lifecycle — append-only transitions (draft →
@@ -344,6 +362,18 @@ export interface StuckFlag {
   memberId: string;
   taskId: string;
   stepId: string;
+  at: number;
+}
+
+/** R132: the flag's history, append-only (0022): a raise and a clear each leave
+ *  a row, so "asked for help and got past it" can be read later. The current
+ *  flag (`step_flags`) is still overwritten; this is beside it. */
+export interface StepFlagEvent {
+  courseId: string;
+  memberId: string;
+  taskId: string;
+  stepId: string;
+  kind: 'raised' | 'cleared';
   at: number;
 }
 
@@ -498,5 +528,7 @@ export interface StepNotesRepository {
   save(memberId: string, note: StepNote): void;
   /** Who on the team is stuck where. Flags only — no note text, ever. */
   teamStuck(courseId: string, teamId: string): StuckFlag[];
+  /** R132: the member's own flag history for a course (raised and cleared). */
+  flagEvents(courseId: string, memberId: string): StepFlagEvent[];
   resetCourse(courseId: string, memberId: string): void;
 }

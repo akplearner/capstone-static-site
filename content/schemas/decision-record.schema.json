@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://capstone.example/schemas/decision-record.schema.json",
+  "title": "Decision record",
+  "description": "R132: one decision as a form stores it: the block (a title, a subject, a prompt and at least three options), the option chosen, who chose it and when (a millisecond stamp written by the browser at the click), and the answers to the supporting questions by field key. A decision is justified when every required question is answered, approved when the form it sits on was approved or issued.",
+  "type": "object",
+  "required": [
+    "blockId",
+    "subject",
+    "options",
+    "chosen",
+    "by",
+    "at",
+    "answers"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "blockId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subject": {
+      "enum": [
+        "component",
+        "configuration",
+        "architecture",
+        "vendor",
+        "control",
+        "response"
+      ]
+    },
+    "options": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "label"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "help": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "chosen": {
+      "type": "string",
+      "minLength": 1
+    },
+    "by": {
+      "type": "string"
+    },
+    "at": {
+      "type": "number",
+      "minimum": 0
+    },
+    "answers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  }
+}

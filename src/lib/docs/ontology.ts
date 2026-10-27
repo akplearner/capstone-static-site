@@ -5,8 +5,11 @@ import { CONTROLS, CONTROL_EXCEPTIONS, STANDARDS } from './standards';
 import { DELIVERABLE_SOPS, SOPS, TASK_SOPS } from './sops';
 import { PRACTICES, TACTICS, TASK_PRACTICES, TASK_TACTICS } from './tactics';
 import { METRICS, METRIC_INPUTS } from './metricCatalogue';
-import { KPIS, KPI_FAMILIES } from './kpis';
+import { DEPRECATED_KPIS, KPIS, KPI_FAMILIES } from './kpis';
 import { WORK_ROLES, WORK_ROLE_OF } from './workRoles';
+import { SKILL_DOMAINS } from './skillDomains';
+import { CATEGORY_DEFS, CHANGE_GROUPS, FORM_CATEGORY, PROFESSIONAL_THRESHOLD, RATIONALE_PATTERN, TROUBLE_GROUPS } from './recordCategories';
+import { SCORES } from './scoring';
 
 /**
  * R107 — the published ontology: the registries under `src/lib/docs/` as
@@ -20,14 +23,21 @@ import { WORK_ROLES, WORK_ROLE_OF } from './workRoles';
  * minor bump and deprecated with a flag, never removed. The member-profile
  * export and, later, any statement that crosses to another platform name the
  * version they were read against.
+ *
+ * R132 — 2.0.0: the KPI board changed shape (seven families, twenty-eight
+ * rows, scores and timing; the sixteen R108 ids are kept as `deprecated` with
+ * the row that replaced each), `scored` became a boolean on every metric, and
+ * three files joined: the eight skill domains, the fourteen record categories
+ * (with the form groups the projection reads and the professional threshold)
+ * and the published scores.
  */
 export const ONTOLOGY_SCHEMA = 'capstone-ontology/1';
-export const ONTOLOGY_VERSION = '1.6.0';
-export const MEMBER_PROFILE_SCHEMA = 'capstone-member-profile/1';
+export const ONTOLOGY_VERSION = '2.0.0';
+export const MEMBER_PROFILE_SCHEMA = 'capstone-member-profile/2';
 
-const GENERATED_FROM = ['src/lib/docs/skills.ts', 'src/lib/docs/tools.ts', 'src/lib/docs/standards.ts', 'src/lib/docs/sops.ts', 'src/lib/docs/tactics.ts', 'src/lib/docs/metricCatalogue.ts', 'src/lib/docs/certs.ts', 'src/lib/docs/kpis.ts', 'src/lib/docs/workRoles.ts'];
+const GENERATED_FROM = ['src/lib/docs/skills.ts', 'src/lib/docs/tools.ts', 'src/lib/docs/standards.ts', 'src/lib/docs/sops.ts', 'src/lib/docs/tactics.ts', 'src/lib/docs/metricCatalogue.ts', 'src/lib/docs/certs.ts', 'src/lib/docs/kpis.ts', 'src/lib/docs/workRoles.ts', 'src/lib/docs/skillDomains.ts', 'src/lib/docs/recordCategories.ts', 'src/lib/docs/scoring.ts'];
 
-export const ONTOLOGY_FILES = ['index', 'competencies', 'tools', 'standards', 'sops', 'tactics', 'practices', 'metrics', 'domains', 'kpis', 'work-roles'] as const;
+export const ONTOLOGY_FILES = ['index', 'competencies', 'tools', 'standards', 'sops', 'tactics', 'practices', 'metrics', 'domains', 'kpis', 'work-roles', 'skill-domains', 'record-categories', 'scoring'] as const;
 export type OntologyFile = (typeof ONTOLOGY_FILES)[number];
 
 const stamp = () => ({ schema: ONTOLOGY_SCHEMA, version: ONTOLOGY_VERSION });
@@ -52,9 +62,13 @@ export function ontologyFiles(): Record<OntologyFile, Record<string, unknown>> {
     practices: { ...stamp(), practices: PRACTICES, tasksByCourse: TASK_PRACTICES },
     metrics: { ...stamp(), inputs: METRIC_INPUTS, metrics: METRICS },
     domains: { ...stamp(), domains },
-    // R108: the sixteen KPIs with their families, and the NICE work roles with the course roles that prepare for them.
-    kpis: { ...stamp(), families: KPI_FAMILIES, kpis: KPIS },
+    // R108/R132: the KPIs with their families and the deprecated R108 ids, and the NICE work roles with the course roles that prepare for them.
+    kpis: { ...stamp(), families: KPI_FAMILIES, kpis: KPIS, deprecated: DEPRECATED_KPIS },
     'work-roles': { ...stamp(), workRoles: WORK_ROLES, byCourse: WORK_ROLE_OF },
+    // R132: the eight domains, the fourteen categories with the group reads and the threshold, and the scores with their weights.
+    'skill-domains': { ...stamp(), domains: SKILL_DOMAINS },
+    'record-categories': { ...stamp(), threshold: PROFESSIONAL_THRESHOLD, categories: CATEGORY_DEFS, formCategories: FORM_CATEGORY, troubleGroups: TROUBLE_GROUPS, changeGroups: CHANGE_GROUPS, rationalePattern: RATIONALE_PATTERN },
+    scoring: { ...stamp(), scores: SCORES },
   };
   const index = {
     ...stamp(),
@@ -70,8 +84,12 @@ export function ontologyFiles(): Record<OntologyFile, Record<string, unknown>> {
       practices: PRACTICES.length,
       metrics: METRICS.length,
       domains: domains.length,
-      kpis: KPIS.length,
+      // Published ids, deprecated ones included: an id is never removed.
+      kpis: KPIS.length + DEPRECATED_KPIS.length,
       workRoles: WORK_ROLES.length,
+      skillDomains: SKILL_DOMAINS.length,
+      recordCategories: CATEGORY_DEFS.length,
+      scores: SCORES.length,
     },
     idStyle: {
       competency: 'comp.<area>.<slug>',
@@ -84,6 +102,9 @@ export function ontologyFiles(): Record<OntologyFile, Record<string, unknown>> {
       domain: '<examCode slugged>.<domainId>',
       kpi: 'kpi.<family>.<slug>',
       workRole: 'role.<slug>',
+      skillDomain: '<slug>',
+      recordCategory: '<slug>',
+      score: 'score.<slug>',
     },
     rules: ['additive', 'deprecate never remove', 'semver: minor on add, major on a shape change'],
   };
@@ -103,8 +124,12 @@ export function ontologyIds(files: Record<OntologyFile, Record<string, unknown>>
     practices: ids(files.practices.practices, 'id'),
     metrics: ids(files.metrics.metrics, 'id'),
     domains: ids(files.domains.domains, 'id'),
-    kpis: ids(files.kpis.kpis, 'id'),
+    // R132: a deprecated KPI id is still published, so the R108 ids stay in the list.
+    kpis: [...ids(files.kpis.kpis, 'id'), ...ids(files.kpis.deprecated, 'id')],
     workRoles: ids(files['work-roles'].workRoles, 'id'),
+    skillDomains: ids(files['skill-domains']?.domains, 'id'),
+    recordCategories: ids(files['record-categories']?.categories, 'id'),
+    scores: ids(files.scoring?.scores, 'id'),
   };
 }
 

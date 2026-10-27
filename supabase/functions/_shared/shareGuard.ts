@@ -14,7 +14,7 @@ export const LABEL_MAX = 60;
 export const MEASURE_MAX = 120;
 /** 32 random bytes, base64url, no padding. */
 export const TOKEN_RE = /^[A-Za-z0-9_-]{43}$/;
-export const PROFILE_SCHEMA = 'capstone-member-profile/1';
+export const PROFILE_SCHEMA = 'capstone-member-profile/2';
 
 const FORBIDDEN_KEYS = new Set(['memberId', 'userId', 'user_id', 'email', 'teamId', 'submittedBy']);
 const EMAIL_RE = /[^\s@"'<>()]+@[^\s@"'<>()]+\.[a-z]{2,}/i;
