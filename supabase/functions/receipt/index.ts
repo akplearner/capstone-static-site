@@ -9,7 +9,7 @@
 //
 // DEPLOY (you, once): paste supabase/dashboard/receipt.ts into the Supabase
 // dashboard (SUPABASE_SETUP.md), or run `supabase functions deploy receipt`.
-// No secrets (_shared/env.ts); APP_ORIGIN is optional, as for `stamp`.
+// No secrets (_shared/env.ts); APP_ORIGIN is required, as for `stamp` (R135).
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { json, preflight } from '../_shared/cors.ts';

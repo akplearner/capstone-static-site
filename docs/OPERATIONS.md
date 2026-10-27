@@ -147,6 +147,11 @@ has failed silently in some deployment of some product; none takes more than a m
   has no issues section). The account page's **Export my data (JSON)** and the Deliverables page's
   **Export my work (.json)** (a handoff file with **Restore from file**) are still JSON on purpose.
   `docs/FIX_LIST.md` item F6.
+- [ ] **Ownership and hardening (R135):** sign out on a machine with an unsent form → localStorage has
+  no `capstone_outbox_deliverables`; a Google or GitHub avatar renders on `/account` (the CSP allows the two
+  hosts); an instructor CSV export opened in a spreadsheet shows a cell that began `=` as text; a share
+  request past 20 live links answers `too-many-links`; a function called with no `APP_ORIGIN` secret
+  answers `app-origin-unset`.
 - [ ] **Scores, timing and the record by category (R134):** on `/courses/<id>/skills`, the KPI board shows
   **Twenty-eight KPIs** in seven families, then **Scores, by a published method** (six cards, each opening its
   components) and **Time to resolution** (the median, the steps timed, within the hour, over a day; "No step
@@ -299,6 +304,33 @@ has failed silently in some deployment of some product; none takes more than a m
   the natural hook is `src/app/global-error.tsx`, which already exists.
 
 ---
+
+## Security settings the owner keeps (R135)
+
+The code enforces what it can (`SECURITY.md` lists it). These are the switches only the repository's
+owner can flip, in the order that matters:
+
+1. **Make the repository private.** GitHub → the repository's **Settings → General → Danger Zone →
+   Change visibility → Private**. Forks made while it was public keep their copies; **Settings →
+   Forks** (or the repository's "Forks" page) lists them, and GitHub's support form takes requests to
+   remove a fork of a now-private repository.
+2. **Secret scanning and push protection.** **Settings → Code security → Secret scanning: enable**,
+   and **Push protection: enable**. Nothing is in the history today (the `security` CI job runs
+   gitleaks on every push to keep it that way); this stops the first mistake at the push.
+3. **Dependabot.** **Settings → Code security → Dependabot alerts: enable** and **Dependabot security
+   updates: enable**. `.github/dependabot.yml` already asks for weekly version updates of npm packages
+   and actions; the alerts are the half GitHub has to switch on.
+4. **Branch protection on `main`.** **Settings → Branches → Add rule** for `main`: require the
+   `verify`, `db`, `functions` and `security` checks to pass, and require a pull request (so a force
+   push cannot rewrite history). `.github/CODEOWNERS` names you for every path.
+5. **Rotate the lab passwords.** The shared SOC login and the classroom Proxmox root password were in
+   the public source until R135. The app now says "set by the instructor" and the handout carries the
+   real values: pick new ones, set them on the lab, and hand them out — never commit them.
+6. **Set `APP_ORIGIN` on the functions.** Supabase → **Edge Functions → Secrets → `APP_ORIGIN` =
+   `https://<your-site>`**, then redeploy the six functions (`SUPABASE_SETUP.md`, "Deploy the server
+   functions"). Since R135 a function without it refuses every browser call.
+7. **Paste `supabase/setup.sql` again** for migration 0023 (safe to repeat): the self-promotion hole,
+   the daily caps and the size limits are in the database, not the app.
 
 ## Still open — decisions only you can make
 

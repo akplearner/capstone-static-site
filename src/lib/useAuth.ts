@@ -5,6 +5,7 @@ import type { User } from '@supabase/supabase-js';
 import { getBrowserClient } from './supabase/client';
 import { setCurrentUserId } from './data/supabaseCache';
 import { clearOfflineCaches } from './pwa';
+import { clearDeliverableOutbox } from './data/outbox';
 
 // Auth state as a module-level external store (same pattern as useClientStore):
 // one Supabase auth listener is shared app-wide, and useSyncExternalStore keeps it
@@ -124,6 +125,8 @@ export function useAuth() {
       setCurrentUserId(null);
       // And the worker's page cache, for the same reason.
       clearOfflineCaches();
+      // R135: and the unsent team forms — the next student on this machine is not this one.
+      clearDeliverableOutbox();
     },
   };
 }

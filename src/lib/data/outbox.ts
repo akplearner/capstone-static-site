@@ -54,6 +54,15 @@ export function queueDeliverable(row: OutboxRow): void {
   write(keep);
 }
 
+/**
+ * R135: forget everything owed. Called on sign-out: on a shared classroom
+ * machine the next student must not be able to re-send, or read, the previous
+ * student's unsent team form from localStorage.
+ */
+export function clearDeliverableOutbox(): void {
+  write([]);
+}
+
 let flushing = false;
 
 /** Re-send everything owed. Safe to call often; no-ops when empty or offline. */

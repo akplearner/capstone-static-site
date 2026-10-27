@@ -930,7 +930,7 @@
             ],
             "title": "Log into the SOC dashboard",
             "description": "Confirm you can reach the shared SOC in a browser.",
-            "instruction": "Open https://10.10.100.100 in a browser and sign in — username student, password @Pass@2026 (your shared class login). The SOC is already set up and running.",
+            "instruction": "Open https://10.10.100.100 in a browser and sign in — username student and the shared class password your instructor gave you. The SOC is already set up and running.",
             "whatItMeans": "The dashboard is where you do almost all of your work — alerts, searches, and evidence all live here.",
             "expectedOutput": "The Wazuh dashboard loads and you can see the Security events view.",
             "frameworks": [
@@ -1003,7 +1003,7 @@
             ],
             "title": "Log into the SOC dashboard",
             "description": "Confirm you can reach the shared SOC in a browser.",
-            "instruction": "Open https://10.10.100.100 in a browser and sign in — username student, password @Pass@2026 (your shared class login). The SOC is already set up and running.",
+            "instruction": "Open https://10.10.100.100 in a browser and sign in — username student and the shared class password your instructor gave you. The SOC is already set up and running.",
             "whatItMeans": "The dashboard and its search bar are where you pivot on a suspicious source to prove what happened.",
             "expectedOutput": "The Wazuh dashboard loads and you can use the search bar.",
             "fixes": [
@@ -1053,7 +1053,7 @@
           "10_Sensor_Deployment_Record.md"
         ],
         "prerequisites": [
-          "The SOC is up at https://10.10.100.100 (sign in: student / @Pass@2026)",
+          "The SOC is up at https://10.10.100.100 (sign in: student, with the class password from your instructor)",
           "Your Windows 11 PC already exists (the OS was set up for you)",
           "You can sign in to Windows as an administrator",
           "Your pod IPs (set them in the Lab access panel)"
@@ -6419,9 +6419,9 @@
     "SOC_IP": "10.10.100.100",
     "SOC_LOGIN": {
       "user": "student",
-      "password": "@Pass@2026"
+      "password": "set by the instructor"
     },
-    "SOC_LOGIN_LABEL": "student / @Pass@2026",
+    "SOC_LOGIN_LABEL": "student / password set by the instructor",
     "SOC_URL": "https://10.10.100.100",
     "WEEK_WIRE": {
       "1": {
@@ -7491,7 +7491,7 @@
         }
       ],
       "LAB_PREFLIGHT": [
-        "The classroom SOC is already running — open https://10.10.100.100 and sign in with student / @Pass@2026",
+        "The classroom SOC is already running — open https://10.10.100.100 and sign in with student / password set by the instructor",
         "Both of your pods (Ubuntu 10.10.100.N and Windows 10.10.20.N) exist and you can sign in to them",
         "You can SSH into your Ubuntu pod as the student user",
         "Your pod numbers are recorded in the Lab access panel (Tasks); Rules of Engagement read"
@@ -7687,7 +7687,7 @@
           "name": "Wazuh dashboard",
           "where": "https://10.10.100.100 · both pods",
           "what": "The web SIEM every role shares. Agents ship their logs here and you read, search and prove everything from the browser.",
-          "config": "No config for students — sign in with student / @Pass@2026. Each machine runs a Wazuh agent that forwards its logs to 10.10.100.100 over port 1514 (Linux: /var/log; Windows: the Application/Security/System event channels), plus the Suricata and Sysmon blocks you add. Confirm a machine is actually connected with the \"Connected to the server\" line in its ossec.log. Left menu: Agents (which machines report + status), Security events (one agent’s feed), and the modules Vulnerabilities, SCA, Integrity monitoring (FIM) and MITRE ATT&CK. The search bar takes field:value queries.",
+          "config": "No config for students — sign in with student / password set by the instructor. Each machine runs a Wazuh agent that forwards its logs to 10.10.100.100 over port 1514 (Linux: /var/log; Windows: the Application/Security/System event channels), plus the Suricata and Sysmon blocks you add. Confirm a machine is actually connected with the \"Connected to the server\" line in its ossec.log. Left menu: Agents (which machines report + status), Security events (one agent’s feed), and the modules Vulnerabilities, SCA, Integrity monitoring (FIM) and MITRE ATT&CK. The search bar takes field:value queries.",
           "rowsTitle": "Searches you reuse",
           "rows": [
             {

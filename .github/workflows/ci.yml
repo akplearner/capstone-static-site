@@ -5,12 +5,18 @@ on:
     branches: ['**']
   pull_request:
 
+# R135: the workflow token can read the checkout and nothing else. Every
+# action is pinned to a commit (the tag it was resolved from is beside it), so
+# a moved tag cannot change what runs here.
+permissions:
+  contents: read
+
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20
           cache: npm
@@ -40,7 +46,7 @@ jobs:
           --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
         ports: ['5432:5432']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - run: PGURL=postgres://postgres:postgres@localhost:5432/postgres bash scripts/db-check.sh
 
   # The edge functions, on Deno (R113). The shared helpers — the CORS
@@ -53,11 +59,31 @@ jobs:
       # The repository's package.json belongs to the Next app; Deno must not resolve it.
       DENO_NO_PACKAGE_JSON: '1'
     steps:
-      - uses: actions/checkout@v4
-      - uses: denoland/setup-deno@v2
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
         with:
           deno-version: v2.x
       - run: deno test --no-config supabase/functions/_shared
       - run: deno check --no-config supabase/functions/*/index.ts
       # The paste-ready copies the setup guide deploys from the dashboard (R115).
       - run: deno check --no-config supabase/dashboard/*.ts
+
+  # R135: what a public-facing codebase has to prove every push — no secret in
+  # any commit of the history, and no known high-severity hole in what ships.
+  # `--omit=dev` keeps the audit to the runtime dependencies; dev tooling is
+  # Dependabot's weekly job (.github/dependabot.yml).
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm audit --omit=dev --audit-level=high
+      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

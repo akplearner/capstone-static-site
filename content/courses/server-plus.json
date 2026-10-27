@@ -1131,7 +1131,7 @@
           "The RAID virtual disk created and Optimal",
           "Your team number",
           "The boot mode you recorded from System Setup",
-          "The classroom root password: Pass@2026"
+          "The classroom root password (your instructor sets it on install day)"
         ],
         "definitionOfDone": [
           "The server boots the installer and Proxmox lands on the RAID virtual disk",
@@ -10958,7 +10958,7 @@
           "explain": "There should be exactly one sensible target, because the controller presents the array as a single disk."
         },
         {
-          "gui": "Set the country, time zone and keyboard layout, then set the root password to Pass@2026 and add an administrative email address.",
+          "gui": "Set the country, time zone and keyboard layout, then set the root password to the classroom one (set by the instructor, on the handout) and add an administrative email address.",
           "explain": "One classroom password for every team, so an instructor can help at any bench. Record it in the Server Bring-Up Log anyway — a real deployment rotates it during hardening."
         },
         {
@@ -10982,7 +10982,7 @@
           "sample": "PING 10.10.10.1 (10.10.10.1) 56(84) bytes of data.\n64 bytes from 10.10.10.1: icmp_seq=1 ttl=64 time=0.412 ms\n64 bytes from 10.10.10.1: icmp_seq=2 ttl=64 time=0.389 ms\n...\n--- 10.10.10.1 ping statistics ---\n4 packets transmitted, 4 received, 0% packet loss, time 3045ms\nrtt min/avg/max/mdev = 0.389/0.431/0.502/0.041 ms"
         },
         {
-          "gui": "From a school desktop, browse to https://10.10.30.T:8006, accept the self-signed certificate warning, set Realm to \"Linux PAM standard authentication\" and log in as root / Pass@2026.",
+          "gui": "From a school desktop, browse to https://10.10.30.T:8006, accept the self-signed certificate warning, set Realm to \"Linux PAM standard authentication\" and log in as root with the classroom password (set by the instructor).",
           "explain": "This is the console every remaining procedure in the course is driven from."
         },
         {
@@ -11148,8 +11148,8 @@
           "explain": "You can now reach this server from anywhere, which means you can also lock yourself out of it from anywhere. Week 4 hardens SSH deliberately, with a way back."
         },
         {
-          "gui": "Last: change the root password away from the classroom one (Pass@2026) now that everyone has their own account, and record in the Bring-Up Log that you did.",
-          "explain": "It was typed in front of the room on install day and is written in the course material. Rotating it is the moment the named accounts start to mean something."
+          "gui": "Last: change the root password away from the classroom one (set by the instructor, on the handout) now that everyone has their own account, and record in the Bring-Up Log that you did.",
+          "explain": "It was typed in front of the room on install day and is on the handout. Rotating it is the moment the named accounts start to mean something."
         }
       ]
     },
@@ -13653,7 +13653,7 @@
     "HOST_CONSOLE_URL": "https://10.10.30.T:8006",
     "HOST_ROOT_LOGIN": {
       "user": "root",
-      "password": "Pass@2026"
+      "password": "set by the instructor"
     },
     "HOST_RULES_FILE": "/etc/iptables/rules.v4",
     "MACHINES": {

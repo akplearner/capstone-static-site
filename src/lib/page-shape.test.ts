@@ -163,7 +163,6 @@ const REGISTRY: {
   commandsExempt?: boolean;
 }[] = [
   { literal: '10.10.100.100', home: 'src/lib/labTopology.ts' },
-  { literal: '@Pass@2026', home: 'src/lib/labTopology.ts' },
   {
     literal: 'YYYYMMDD_TeamXX_',
     home: 'src/lib/evidence.ts',
@@ -206,7 +205,7 @@ const REGISTRY: {
   // twelve places across six files and asserted by nothing, which is precisely
   // how it drifted and stayed wrong.
   //
-  // `alsoAllowed` is load-bearing here for the same reason it is on Pass@2026:
+  // `alsoAllowed` is load-bearing here:
   // this row matches by plain substring, and 10.10.10.1 is already in the repo
   // twice for unrelated reasons — as a generic ping example in the shared
   // command content, and INSIDE the CySA attacker box's 10.10.10.10. Neither is
@@ -229,19 +228,8 @@ const REGISTRY: {
   { literal: '10.255.255.', home: 'src/lib/ccnaTopology.ts', commandsExempt: true },
   { literal: '198.51.100.', home: 'src/lib/ccnaTopology.ts', commandsExempt: true },
   { literal: 'northgate.local', home: 'src/lib/ccnaTopology.ts', commandsExempt: true },
-  // The Proxmox root password every team sets in Week 1.
-  //
-  // `alsoAllowed` is load-bearing, not defensive: the CySA SOC password is the
-  // string '@Pass@2026', which CONTAINS 'Pass@2026', so this row matches
-  // labTopology.ts on sight. Allowing that one file is what lets the two
-  // passwords coexist; without it this row fails the moment it is added, on a
-  // file that has nothing to do with Server+.
-  {
-    literal: 'Pass@2026',
-    home: 'src/lib/serverTopology.ts',
-    alsoAllowed: ['src/lib/labTopology.ts'],
-    commandsExempt: true,
-  },
+  // The lab passwords used to have rows here (`@Pass@2026`, `Pass@2026`). R135
+  // removed the literals from source altogether — see the R135 pins below.
 ];
 
 describe('single source of truth', () => {
@@ -3959,5 +3947,96 @@ describe('R134 — scores, timing and the record by category on every surface', 
     expect(read('docs/CURRENT_STATE.md')).toContain('| Scores, timing and the record by category on every surface |');
     expect(read('docs/OPERATIONS.md')).toContain('**Scores, timing and the record by category (R134):**');
     expect(read('docs/FIX_LIST.md')).toContain('| F12 |');
+  });
+});
+
+describe('R135 — ownership and hardening', () => {
+  it('the work is owned: a proprietary licence, the package says so, and every path has an owner', () => {
+    const licence = read('LICENSE');
+    expect(licence).toContain('Copyright (c) 2026 akplearner');
+    expect(licence).toContain('All rights reserved');
+    expect(licence).not.toMatch(/MIT License|Apache License|GNU General Public/);
+    const pkg = JSON.parse(read('package.json')) as { private?: boolean; license?: string; author?: string };
+    expect(pkg.private).toBe(true);
+    expect(pkg.license).toBe('UNLICENSED');
+    expect(pkg.author).toBe('akplearner');
+    expect(read('.github/CODEOWNERS')).toContain('* @akplearner');
+    expect(read('README.md')).toContain('## Ownership');
+    for (const f of ['NOTICE.md', 'SECURITY.md', '.github/dependabot.yml']) expect(read(f).length, f).toBeGreaterThan(100);
+  });
+
+  it('no lab password literal is anywhere in src; the placeholder is the single source', () => {
+    const files = collectSourceFiles('src');
+    const offenders = files.filter((f) => /Pass@2026/.test(read(f)) && !f.endsWith('page-shape.test.ts'));
+    expect(offenders).toEqual([]);
+    expect(code('src/lib/labTopology.ts')).toContain("password: 'set by the instructor'");
+    expect(code('src/lib/serverTopology.ts')).toContain("password: 'set by the instructor'");
+  });
+
+  it('CI runs read-only, pinned, with a security job', () => {
+    const ci = read('.github/workflows/ci.yml');
+    expect(ci).toContain('permissions:\n  contents: read');
+    expect(ci).not.toMatch(/uses: [\w-]+\/[\w-]+@v\d/);
+    expect(ci.match(/uses: [\w-]+\/[\w-]+@[0-9a-f]{40}/g)?.length).toBeGreaterThanOrEqual(7);
+    expect(ci).toContain('security:');
+    expect(ci).toContain('npm audit --omit=dev --audit-level=high');
+    expect(ci).toContain('gitleaks/gitleaks-action@');
+  });
+
+  it('the database closes the holes: migration 0023 is in setup.sql and rls.sql proves each refusal', () => {
+    const m = read('supabase/migrations/0023_hardening.sql');
+    for (const n of [
+      'revoke insert on public.profiles from anon, authenticated',
+      'function public.team_has_review(u uuid, c text)',
+      "new.level := 'verified'",
+      'task_reports_cap',
+      'client_errors_guard',
+      'profiles_avatar_https',
+      'updated_by is null or updated_by = auth.uid()',
+      'public.on_team(course_id, team_id)',
+      'alter table public.deliverable_review_marks alter column reviewer_id drop not null',
+    ]) expect(m, n).toContain(n);
+    expect(read('supabase/setup.sql')).toContain('0023_hardening.sql');
+    const t = read('supabase/tests/rls.sql');
+    for (const n of ['zed inserted his own profile row', 'cy: reviewed without a review is verified', 'ada filed a 51st report in one day', 'ada set a javascript: avatar', 'ada signed a form as bob', 'has no search_path']) expect(t, n).toContain(n);
+  });
+
+  it('the functions fail closed on origin and cap what they mint; the dashboard copies carry it', () => {
+    const cors = read('supabase/functions/_shared/cors.ts');
+    expect(cors).toContain("'app-origin-unset'");
+    expect(cors).not.toContain("requestOrigin ?? '*'");
+    const limits = read('supabase/functions/_shared/limits.ts');
+    expect(limits).toContain('SHARE_MAX_LIVE = 20');
+    expect(limits).toContain('STAMPS_PER_HOUR = 120');
+    expect(limits).toContain('NOTIFY_PER_DAY = 10');
+    expect(read('supabase/functions/share/index.ts')).toContain("'too-many-links'");
+    expect(read('supabase/functions/stamp/index.ts')).toContain("'too-many-stamps'");
+    const notify = read('supabase/functions/report-notify/index.ts');
+    expect(notify).toContain('notifyMessage(');
+    expect(notify).not.toContain('body.note');
+    expect(notify).not.toContain('body.displayName');
+    expect(read('supabase/functions/delete-account/index.ts')).toContain("'delete-failed'");
+    expect(read('supabase/functions/delete-account/index.ts')).not.toContain('error: error.message');
+    for (const f of ['share', 'stamp', 'report-notify']) expect(read(`supabase/dashboard/${f}.ts`), f).toContain('overCap(');
+  });
+
+  it('the app: one formula-safe CSV helper, the avatar hosts in the CSP, the outbox cleared on sign-out', () => {
+    expect(code('src/lib/csv.ts')).toContain('export const FORMULA_START');
+    expect(code('src/lib/docs/report.ts')).toContain("import { csvEscape } from '../csv'");
+    expect(code('src/lib/docs/report.ts')).not.toContain('function csvEscape(');
+    const csp = read('next.config.ts');
+    expect(csp).toContain("img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com");
+    expect(code('src/lib/data/outbox.ts')).toContain('export function clearDeliverableOutbox()');
+    expect(code('src/lib/useAuth.ts')).toContain('clearDeliverableOutbox();');
+  });
+
+  it('the docs say it', () => {
+    expect(read('SUPABASE_SETUP.md')).toContain('**Migration 0023**');
+    expect(read('SUPABASE_SETUP.md')).toContain('`app-origin-unset`');
+    expect(read('docs/OPERATIONS.md')).toContain('## Security settings the owner keeps (R135)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| Ownership and hardening |');
+    expect(read('docs/FIX_LIST.md')).toContain('| F13 |');
+    expect(read('docs/ARCHITECTURE.md')).toContain('### Ownership and the hardening layer (R135)');
+    expect(read('SECURITY.md')).toContain('## What the code enforces (R135)');
   });
 });

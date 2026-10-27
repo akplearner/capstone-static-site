@@ -1504,6 +1504,134 @@ do $$ begin
 end $$;
 reset role;
 
+-- ── R135: the limits an open-sign-up platform needs ─────────────────────────
+-- Zed signed up and joined nothing; he has a profile row from the trigger. Nobody inserts a profile
+-- by request any more — not even their own — so a user with no row cannot write one with is_admin.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000e';
+do $$ begin
+  begin
+    delete from public.profiles where id = '00000000-0000-4000-8000-00000000000e';
+    insert into public.profiles (id, display_name, is_admin) values ('00000000-0000-4000-8000-00000000000e', 'Zed', true);
+    raise exception 'zed inserted his own profile row';
+  exception when insufficient_privilege then null; end;
+  begin
+    insert into public.profiles (id, display_name) values ('00000000-0000-4000-8000-00000000000e', 'Zed');
+    raise exception 'zed inserted a plain profile row';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+
+-- An avatar is https or nothing: a plain-http or javascript: URL is refused, a long https one too.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+do $$ begin
+  update public.profiles set avatar_url = 'https://lh3.googleusercontent.com/a/ada=s96' where id = '00000000-0000-4000-8000-00000000000a';
+  assert (select avatar_url from public.profiles where id = '00000000-0000-4000-8000-00000000000a') like 'https://%', 'ada: an https avatar is kept';
+  begin
+    update public.profiles set avatar_url = 'http://lh3.googleusercontent.com/a/ada' where id = '00000000-0000-4000-8000-00000000000a';
+    raise exception 'ada set a plain-http avatar';
+  exception when check_violation then null; end;
+  begin
+    update public.profiles set avatar_url = 'javascript:alert(1)' where id = '00000000-0000-4000-8000-00000000000a';
+    raise exception 'ada set a javascript: avatar';
+  exception when check_violation then null; end;
+  begin
+    update public.profiles set avatar_url = 'https://x.example/' || repeat('a', 2000) where id = '00000000-0000-4000-8000-00000000000a';
+    raise exception 'ada set a 2 KB avatar url';
+  exception when check_violation then null; end;
+  update public.profiles set avatar_url = null where id = '00000000-0000-4000-8000-00000000000a';
+end $$;
+
+-- A deliverable write names its author as the writer, or not at all — never as a teammate.
+do $$ begin
+  update public.deliverables set updated_by = '00000000-0000-4000-8000-00000000000a' where team_id = '2026-01-T01' and deliverable_id = 'as-built';
+  begin
+    update public.deliverables set updated_by = '00000000-0000-4000-8000-00000000000b' where team_id = '2026-01-T01' and deliverable_id = 'as-built';
+    raise exception 'ada signed a form as bob';
+  exception when insufficient_privilege then null; end;
+  -- Sizes: a form past 512 KB, a step note past 4,000 characters, a report note past 2,000.
+  begin
+    update public.deliverables set data = jsonb_build_object('blob', repeat('x', 600000)) where team_id = '2026-01-T01' and deliverable_id = 'as-built';
+    raise exception 'ada saved a 600 KB form';
+  exception when check_violation then null; end;
+  begin
+    update public.step_notes set note = repeat('n', 4001) where user_id = '00000000-0000-4000-8000-00000000000a';
+    raise exception 'ada saved a 4,001-character note';
+  exception when check_violation then null; end;
+  begin
+    insert into public.task_reports (user_id, course_id, task_id, team_id, kind, note)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', 't1', '2026-01-T01', 'question', repeat('r', 2001));
+    raise exception 'ada filed a 2,001-character report';
+  exception when check_violation then null; end;
+  -- A report names a team she is on.
+  begin
+    insert into public.task_reports (user_id, course_id, task_id, team_id, kind)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', 't1', '2026-01-T02', 'question');
+    raise exception 'ada filed a report under team 02';
+  exception when insufficient_privilege then null; end;
+end $$;
+
+-- The daily report cap: Ada has filed 2 reports above; 48 more are fine, the 51st is refused.
+do $$
+declare i int;
+begin
+  for i in 1..48 loop
+    insert into public.task_reports (user_id, course_id, task_id, team_id, kind)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', 't1', '2026-01-T01', 'question');
+  end loop;
+  begin
+    insert into public.task_reports (user_id, course_id, task_id, team_id, kind)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', 't1', '2026-01-T01', 'question');
+    raise exception 'ada filed a 51st report in one day';
+  exception when check_violation then null; end;
+  assert (select count(*) from public.task_reports where user_id = '00000000-0000-4000-8000-00000000000a') = 50, 'ada: exactly 50 reports today';
+end $$;
+
+-- The support log carries the account's own email, whatever the client wrote.
+insert into public.client_errors (support_code, user_id, user_email, area)
+  values ('E-R13500', '00000000-0000-4000-8000-00000000000a', 'someone-else@example.com', 'agreements');
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000f';
+do $$ begin
+  assert (select user_email from public.client_errors where support_code = 'E-R13500') = 'ada@example.com', 'ana: the email on the row is the account''s own, not the body''s';
+end $$;
+reset role;
+
+-- `reviewed` needs a review: Cy's team (02) has none, so his claim is stored as `verified`;
+-- Ada's team (01) was graded, so hers stands (asserted above).
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000c';
+insert into public.earned_skills (user_id, dimension, skill_id, course_id, level) values ('00000000-0000-4000-8000-00000000000c', 'skills', 'comp.recon.osint', 'security-plus', 'reviewed');
+do $$ begin
+  assert (select level from public.earned_skills where user_id = '00000000-0000-4000-8000-00000000000c') = 'verified', 'cy: reviewed without a review is verified';
+  update public.earned_skills set level = 'reviewed' where user_id = '00000000-0000-4000-8000-00000000000c';
+  assert (select level from public.earned_skills where user_id = '00000000-0000-4000-8000-00000000000c') = 'verified', 'cy: nor by a raise';
+end $$;
+reset role;
+
+-- The signed-out call none of the review functions.
+set local role anon;
+do $$ begin
+  assert not has_function_privilege('anon', 'public.get_review_queue()', 'execute'), 'anon: no review queue';
+  assert not has_function_privilege('anon', 'public.submit_peer_review(uuid, jsonb, boolean)', 'execute'), 'anon: no review submit';
+  assert not has_function_privilege('anon', 'public.team_has_review(uuid, text)', 'execute'), 'anon: no review check';
+end $$;
+reset role;
+
+-- Every trigger function pins its search_path.
+do $$
+declare f record;
+begin
+  for f in select p.proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+           where n.nspname = 'public' and p.prorettype = 'trigger'::regtype loop
+    assert exists (select 1 from pg_proc p2 where p2.proname = f.proname and p2.pronamespace = 'public'::regnamespace
+                   and exists (select 1 from unnest(coalesce(p2.proconfig, '{}')) c where c like 'search_path=%')),
+      'trigger function ' || f.proname || ' has no search_path';
+  end loop;
+end $$;
+
 -- ── The realtime publication carries every stream the app subscribes to ────
 -- (Run as the table owner — RLS does not apply to this catalog view.)
 do $$

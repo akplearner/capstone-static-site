@@ -63,7 +63,9 @@ Deno.serve(async (req: Request) => {
   const admin = createClient(url, serviceRole);
   const { error } = await admin.auth.admin.deleteUser(user.id);
   if (error) {
-    return json({ error: error.message }, 500, req, origin);
+    // R135: the detail goes to the function log; the caller gets a fixed code.
+    console.error('delete-account failed', error.message);
+    return json({ error: 'delete-failed' }, 500, req, origin);
   }
 
   return json({ deleted: user.id }, 200, req, origin);

@@ -23,35 +23,67 @@
 //
 // DEPLOY (you, once): paste supabase/dashboard/share.ts into the Supabase
 // dashboard (SUPABASE_SETUP.md), or run `supabase functions deploy share`.
-// No secrets (_shared/env.ts); APP_ORIGIN is optional.
+// No secrets (_shared/env.ts). APP_ORIGIN is required (R135, _shared/cors.ts).
+// R135: at most SHARE_MAX_LIVE live links per member (_shared/limits.ts).
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 // ─── supabase/functions/_shared/cors.ts, copied in ────────────────────
-// cors.ts — the browser preflight every function must answer (R113).
+// cors.ts — the browser preflight every function must answer (R113), and the
+// origin check that answers it (R135).
 //
 // `supabase.functions.invoke` from the app sends an OPTIONS preflight before
 // the POST; a function that answers it with 405 fails in the browser before
-// it runs. Pure: no Deno API here, so it is unit-tested anywhere. The caller
-// passes the configured app origin (`APP_ORIGIN`); without one the request's
-// own origin is echoed, which is safe because every function authenticates
-// by the caller's bearer token, never by a cookie.
+// it runs. Pure: no Deno API here, so it is unit-tested anywhere.
+//
+// R135: the configured app origin (`APP_ORIGIN`) is the ONLY origin a browser
+// may call from. Until R135 an unset APP_ORIGIN echoed the request's own
+// origin, which let any site a signed-in member visited call the functions
+// with that member's token (a page cannot read the token, but it can be
+// handed one by a careless integration). Now an unset APP_ORIGIN, or an
+// origin that is not it, is refused with 403 and one log line — fail closed.
+// A request with no Origin header (a server, curl, the Supabase CLI) is not a
+// browser; the bearer token alone decides it, as before.
 
 export const CORS_ALLOW_HEADERS = 'authorization, apikey, content-type, x-client-info';
 
+function allowed(allowedOrigin?: string): string {
+  return (allowedOrigin ?? '').trim();
+}
+
+/** The CORS headers. `Access-Control-Allow-Origin` is present only for the configured origin; nothing is echoed. */
 export function corsHeaders(requestOrigin: string | null, allowedOrigin?: string): Record<string, string> {
-  const origin = allowedOrigin && allowedOrigin.trim() !== '' ? allowedOrigin.trim() : requestOrigin ?? '*';
-  return {
-    'Access-Control-Allow-Origin': origin,
+  const origin = allowed(allowedOrigin);
+  const headers: Record<string, string> = {
     'Access-Control-Allow-Headers': CORS_ALLOW_HEADERS,
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     Vary: 'Origin',
   };
+  if (origin && requestOrigin === origin) headers['Access-Control-Allow-Origin'] = origin;
+  return headers;
 }
 
-/** The 204 answer to a preflight, or null for any other method. */
+/** Why a browser request is refused, or null when it may proceed. */
+export function originProblem(requestOrigin: string | null, allowedOrigin?: string): 'app-origin-unset' | 'origin-not-allowed' | null {
+  if (!requestOrigin) return null;
+  const origin = allowed(allowedOrigin);
+  if (!origin) return 'app-origin-unset';
+  return requestOrigin === origin ? null : 'origin-not-allowed';
+}
+
+/**
+ * The answer a request gets before the function runs: 403 for a browser origin
+ * that is not the configured one (or when none is configured), 204 for an
+ * allowed preflight, null for any request that may proceed.
+ */
 export function preflight(req: Request, allowedOrigin?: string): Response | null {
+  const requestOrigin = req.headers.get('Origin');
+  const problem = originProblem(requestOrigin, allowedOrigin);
+  if (problem) {
+    console.warn(problem === 'app-origin-unset' ? 'APP_ORIGIN is not set: browser calls are refused' : `origin refused: ${requestOrigin}`);
+    return json({ error: problem }, 403, req, allowedOrigin);
+  }
   if (req.method !== 'OPTIONS') return null;
-  return new Response(null, { status: 204, headers: corsHeaders(req.headers.get('Origin'), allowedOrigin) });
+  return new Response(null, { status: 204, headers: corsHeaders(requestOrigin, allowedOrigin) });
 }
 
 /** A JSON response that carries the CORS headers (and any extra headers, such as Cache-Control). */
@@ -98,6 +130,56 @@ export function projectKey(kind: KeyKind, get: (name: string) => string | undefi
   return null;
 }
 // ─── end of supabase/functions/_shared/env.ts ────────────────────
+// ─── supabase/functions/_shared/limits.ts, copied in ────────────────────
+// limits.ts — the per-member caps the functions enforce (R135). Pure, no imports.
+//
+// An open-sign-up platform has to assume one account will try to make a
+// thousand links, a stamp a second, or an email per click. The database caps
+// the tables it owns (0023); these are the caps on what the functions mint or
+// send. Each is counted by the database and compared here, so the number sits
+// in one place and a test can read it.
+
+/** Live (unexpired, unrevoked) candidate links one member may hold. */
+export const SHARE_MAX_LIVE = 20;
+/** Verification stamps one member may be issued in an hour. */
+export const STAMPS_PER_HOUR = 120;
+/** Report emails one member may cause in a day. */
+export const NOTIFY_PER_DAY = 10;
+
+/** True when a count (as PostgREST returns it: possibly null) has reached the cap. */
+export function overCap(count: number | null | undefined, cap: number): boolean {
+  return (count ?? 0) >= cap;
+}
+
+/** ISO time `ms` before `nowMs`, for a `gt('created_at', …)` filter. */
+export function sinceIso(nowMs: number, ms: number): string {
+  return new Date(nowMs - ms).toISOString();
+}
+
+/** One line of untrusted text for an email: no line breaks, capped. */
+export function emailLine(v: unknown, cap: number): string {
+  return String(v ?? '')
+    .replace(/[\r\n\t]+/g, ' ')
+    .trim()
+    .slice(0, cap);
+}
+
+/**
+ * The report email, as a fixed template. It names who, what kind, which task
+ * and course; it never carries the note — the dashboard has it, and an email
+ * body that quotes a free-text field is a way to send arbitrary content.
+ */
+export function notifyMessage(p: { who: string; kind: string; task: string; course: string }): { subject: string; text: string } {
+  const who = emailLine(p.who, 80) || 'A member';
+  const kind = emailLine(p.kind, 20) || 'question';
+  const task = emailLine(p.task, 80);
+  const course = emailLine(p.course, 60);
+  return {
+    subject: `[${course}] task issue: ${kind} on ${task}`,
+    text: `${who} reported a ${kind} issue on task ${task} (${course}).\n\nOpen the cohort dashboard to read the note and resolve it.`,
+  };
+}
+// ─── end of supabase/functions/_shared/limits.ts ────────────────────
 // ─── supabase/functions/_shared/shareGuard.ts, copied in ────────────────────
 // shareGuard.ts — what a candidate link may carry, and its token (R114).
 //
@@ -225,6 +307,15 @@ Deno.serve(async (req: Request) => {
 
   // One clock for both ends, so a 90-day link meets the table's 90-day check exactly.
   const now = Date.now();
+  // R135: a member holds at most SHARE_MAX_LIVE live links; revoking or expiry frees a slot.
+  const { count: live, error: countError } = await admin
+    .from('profile_shares')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .is('revoked_at', null)
+    .gt('expires_at', new Date(now).toISOString());
+  if (countError) return json({ error: 'share-unavailable' }, 503, req, origin);
+  if (overCap(live, SHARE_MAX_LIVE)) return json({ error: 'too-many-links', max: SHARE_MAX_LIVE }, 429, req, origin);
   const token = newToken();
   const { data, error } = await admin
     .from('profile_shares')

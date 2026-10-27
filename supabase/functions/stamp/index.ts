@@ -13,11 +13,13 @@
 // dashboard (SUPABASE_SETUP.md, "Deploy the server functions from your
 // browser"), or run `supabase functions deploy stamp`. No secrets: Supabase
 // gives every function the project's URL and keys (_shared/env.ts). The
-// APP_ORIGIN secret is optional (_shared/cors.ts).
+// APP_ORIGIN secret is required (R135, _shared/cors.ts). R135: at most
+// STAMPS_PER_HOUR new stamps per member per hour (_shared/limits.ts).
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { json, preflight } from '../_shared/cors.ts';
 import { projectKey } from '../_shared/env.ts';
+import { STAMPS_PER_HOUR, overCap, sinceIso } from '../_shared/limits.ts';
 import { ID_RE, STAMP_MINUTES, STAMP_REUSE_MINUTES, randomStamp } from '../_shared/stampCodec.ts';
 
 const env = (name: string) => Deno.env.get(name);
@@ -62,6 +64,15 @@ Deno.serve(async (req: Request) => {
     .limit(1)
     .maybeSingle();
   if (live) return json({ stamp: live.stamp, expiresAt: live.expires_at }, 200, req, origin);
+
+  // R135: a reused stamp costs nothing; a NEW one counts against the hourly cap.
+  const { count: issued, error: countError } = await admin
+    .from('verification_stamps')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .gt('issued_at', sinceIso(now, 3_600_000));
+  if (countError) return json({ error: 'stamp-failed' }, 500, req, origin);
+  if (overCap(issued, STAMPS_PER_HOUR)) return json({ error: 'too-many-stamps', max: STAMPS_PER_HOUR }, 429, req, origin);
 
   const expiresAt = new Date(now + STAMP_MINUTES * 60_000).toISOString();
   for (let attempt = 0; attempt < 3; attempt++) {

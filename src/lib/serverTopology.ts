@@ -65,12 +65,14 @@ export const HOST_CONSOLE_URL = `https://${HOST.rule}:${HOST.consolePort}`;
  * benches cannot help with a console nobody can open, and a password students
  * invent on install day is the thing most often lost by Week 4.
  *
- * `page-shape.test.ts` asserts this literal appears nowhere else, so the guide,
- * the week steps and the forms all read it from here. Week 4 hardening is where
- * a real deployment would rotate it — the course says so rather than pretending
- * a shared password is good practice.
+ * R135: the password itself is NOT in source — the repository was public, and
+ * `page-shape.test.ts` asserts no lab password literal is anywhere in `src`.
+ * The instructor sets it on install day and the handout carries it; the guide,
+ * the week steps and the forms all read the placeholder from here. Week 4
+ * hardening is where a real deployment would rotate it — the course says so
+ * rather than pretending a shared password is good practice.
  */
-export const HOST_ROOT_LOGIN = { user: 'root', password: 'Pass@2026' };
+export const HOST_ROOT_LOGIN = { user: 'root', password: 'set by the instructor' };
 
 export interface Bridge {
   id: 'vmbr0' | 'vmbr1' | 'vmbr2';

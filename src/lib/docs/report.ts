@@ -1,4 +1,5 @@
 import type { RoleDef } from '../types';
+import { csvEscape } from '../csv';
 import { Column, cellValue } from '../grc/templates';
 import { derive } from './predicate';
 import { DeliverableData, DeliverableDef, Field } from './types';
@@ -46,9 +47,6 @@ function fieldValue(f: Field, fields: Record<string, string>): string {
   return f.derived ? derive(f.derived, fields) : fields[f.field] ?? '';
 }
 
-function csvEscape(v: string): string {
-  return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
-}
 
 /** Keep multi-line / pipe-containing cell content from breaking an MD table. */
 function mdCell(v: string): string {

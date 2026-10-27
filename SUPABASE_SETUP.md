@@ -445,12 +445,23 @@ or `supabase functions deploy delete-account`); there is no secret to set.
 Until this is deployed, `/account` still deletes all of a student's work and then
 honestly reports that the login itself could not be removed.
 
-Every function answers the browser's preflight request itself. To limit which
-site may call them, also add the optional `APP_ORIGIN` secret on **Edge Functions
-→ Secrets**, set to your site's address (`https://<your-site>`; or
-`supabase secrets set APP_ORIGIN=https://<your-site>`). Without it a function
-echoes the caller's origin, which is safe because each one still requires the
-caller's own sign-in token.
+Every function answers the browser's preflight request itself, and **only for
+your site**: add the `APP_ORIGIN` secret on **Edge Functions → Secrets**, set to
+your site's address (`https://<your-site>`; or
+`supabase secrets set APP_ORIGIN=https://<your-site>`). Since the R135 update
+this is required: without it every function refuses browser calls with
+`app-origin-unset` (the function log says so), and a call from any other site
+gets `origin-not-allowed`. A call with no browser origin (the Supabase CLI, a
+server) is still decided by the caller's sign-in token alone.
+
+**Migration 0023** (in `supabase/setup.sql`, the R135 update) adds the limits an
+open-sign-up platform needs: nobody inserts their own profile row (the signup
+trigger does), a `reviewed` skill level needs an instructor's approval of the
+team's work, at most 50 issue reports and 100 support-log rows per member per
+day, size caps on forms, notes and snapshots, https-only avatars, and a form
+write that names its author only as the writer. The functions add their own:
+20 live candidate links per member, 120 stamps an hour, 10 report emails a day.
+Paste `supabase/setup.sql` again (safe to repeat) and redeploy the functions.
 
 ## Server stamps and verification receipts
 

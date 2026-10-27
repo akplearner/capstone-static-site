@@ -930,6 +930,26 @@ folded score means and the group's timing into the cohort report, carried the re
 into the export, the credential's results, the PDF and the shared page, and gave the instructor one
 mark per rubric category beside the verdict (`ReviewCell`, appended to `deliverable_review_marks`).
 
+### Ownership and the hardening layer (R135)
+
+The repository is proprietary (`LICENSE`, `NOTICE.md`, `SECURITY.md`, `CODEOWNERS`; the owner makes it private). The
+security model has three layers and each is tested where it lives. **The database** (migration 0023, proven by
+`supabase/tests/rls.sql`): nobody inserts a profile row by request (the signup trigger, security definer, does), so no
+account can arrive as admin; a `reviewed` skill level is clamped to `verified` unless an instructor approved the team's
+work (`team_has_review`); at most 50 reports and 100 support rows per member per day, counted by triggers that run as
+the owner so a row policy cannot hide rows from the count; size checks on forms, snapshots, state and notes (added NOT
+VALID, so rows already there are left alone); an avatar is https or null; a form write names its author only as the
+writer; a report names a team the reporter is on; every trigger function pins `search_path`. **The functions**
+(`_shared/cors.ts`, `_shared/limits.ts`, Deno-tested): `APP_ORIGIN` is required and nothing is echoed — a browser
+origin that is not it is refused with 403 before the function runs; a member holds at most 20 live candidate links, is
+issued at most 120 stamps an hour and causes at most 10 report emails a day; the email is a fixed template that names
+who, what kind, which task and course, never the note; `delete-account` answers a fixed code and logs the detail. **The
+app**: a CSV cell that begins `= + - @`, tab or CR is prefixed with an apostrophe before quoting (`csvEscape`, the one
+helper both writers use), the CSP names the two avatar hosts, and sign-out clears the deliverables outbox. **CI** runs
+with a read-only token, every action pinned to a commit, plus a `security` job (`npm audit` on runtime dependencies and
+gitleaks over the full history). The lab passwords left the source: the app says "set by the instructor" and
+`page-shape.test.ts` asserts no literal is anywhere in `src`.
+
 ### Support codes and the support log (R129)
 
 A failure shows a person a support code and a time and nothing else; the detail stays on our side. `src/lib/reportError.ts`

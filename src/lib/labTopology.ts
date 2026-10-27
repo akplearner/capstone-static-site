@@ -120,7 +120,12 @@ const SOC = SOC_TOPOLOGY_BY_COURSE['cysa-plus'].soc;
 export const SOC_IP = SOC.ip;
 /** What a student types into the browser to reach the dashboard. */
 export const SOC_URL = `https://${SOC.ip}`;
-/** The shared classroom credentials handed out with the pod. */
-export const SOC_LOGIN = { user: 'student', password: '@Pass@2026' };
-/** "student / @Pass@2026" — the form used in prose and pre-flight lists. */
-export const SOC_LOGIN_LABEL = `${SOC_LOGIN.user} / ${SOC_LOGIN.password}`;
+/**
+ * The shared classroom credentials handed out with the pod. R135: the password
+ * itself is NOT in source — the repository was public and a lab password is a
+ * secret even when the lab is on a private network. The instructor's handout
+ * carries it; the app says where to find it.
+ */
+export const SOC_LOGIN = { user: 'student', password: 'set by the instructor' };
+/** "student / password set by the instructor" — the form used in prose and pre-flight lists. */
+export const SOC_LOGIN_LABEL = `${SOC_LOGIN.user} / password ${SOC_LOGIN.password}`;

@@ -1,7 +1,8 @@
 // Deno tests for the shared, pure helpers (CI: `deno test --no-config supabase/functions/_shared`).
 // No remote imports, so the job needs no network beyond the runtime itself.
-import { CORS_ALLOW_HEADERS, corsHeaders, json, preflight } from './cors.ts';
+import { CORS_ALLOW_HEADERS, corsHeaders, json, originProblem, preflight } from './cors.ts';
 import { projectKey } from './env.ts';
+import { NOTIFY_PER_DAY, SHARE_MAX_LIVE, STAMPS_PER_HOUR, emailLine, notifyMessage, overCap, sinceIso } from './limits.ts';
 import { STAMP_ALPHABET, STAMP_RE, randomStamp, receiptProblem, stampVerdict } from './stampCodec.ts';
 
 function ok(cond: unknown, msg: string): void {
@@ -12,11 +13,38 @@ Deno.test('a preflight is answered with 204 and the allowed headers; other metho
   const pre = preflight(new Request('https://f.example/stamp', { method: 'OPTIONS', headers: { Origin: 'https://app.example' } }), 'https://app.example');
   ok(pre && pre.status === 204, 'preflight 204');
   ok(pre!.headers.get('Access-Control-Allow-Headers') === CORS_ALLOW_HEADERS, 'allow headers');
-  ok(preflight(new Request('https://f.example/stamp', { method: 'POST' })) === null, 'POST passes through');
-  const res = json({ a: 1 }, 409, new Request('https://f.example', { headers: { Origin: 'https://x.example' } }));
-  ok(res.status === 409 && res.headers.get('Access-Control-Allow-Origin') === 'https://x.example', 'echo the origin without APP_ORIGIN');
+  ok(preflight(new Request('https://f.example/stamp', { method: 'POST' })) === null, 'a POST without an Origin (not a browser) passes through');
+  ok(preflight(new Request('https://f.example/stamp', { method: 'POST', headers: { Origin: 'https://app.example' } }), 'https://app.example') === null, 'a POST from the app origin passes through');
+  const res = json({ a: 1 }, 409, new Request('https://f.example', { headers: { Origin: 'https://app.example' } }), 'https://app.example');
+  ok(res.status === 409 && res.headers.get('Access-Control-Allow-Origin') === 'https://app.example', 'the configured origin is allowed');
   ok((await res.json()).a === 1, 'json body');
-  ok(corsHeaders('https://x.example', 'https://app.example')['Access-Control-Allow-Origin'] === 'https://app.example', 'APP_ORIGIN wins');
+});
+
+Deno.test('R135: the functions fail closed on origin — nothing is echoed, and no APP_ORIGIN means no browser', async () => {
+  ok(corsHeaders('https://x.example', 'https://app.example')['Access-Control-Allow-Origin'] === undefined, 'another origin gets no Allow-Origin');
+  ok(corsHeaders('https://x.example')['Access-Control-Allow-Origin'] === undefined, 'without APP_ORIGIN nothing is echoed');
+  ok(corsHeaders(null, 'https://app.example')['Access-Control-Allow-Origin'] === undefined, 'no Origin, no Allow-Origin');
+  ok(originProblem(null) === null, 'a request without an Origin is not a browser');
+  ok(originProblem('https://x.example') === 'app-origin-unset', 'unset: refused');
+  ok(originProblem('https://x.example', 'https://app.example') === 'origin-not-allowed', 'another origin: refused');
+  ok(originProblem('https://app.example', ' https://app.example ') === null, 'the configured origin, trimmed');
+  const refused = preflight(new Request('https://f.example/stamp', { method: 'OPTIONS', headers: { Origin: 'https://x.example' } }));
+  ok(refused?.status === 403 && (await refused.json()).error === 'app-origin-unset', 'a preflight without APP_ORIGIN is 403');
+  const other = preflight(new Request('https://f.example/stamp', { method: 'POST', headers: { Origin: 'https://evil.example' } }), 'https://app.example');
+  ok(other?.status === 403 && (await other.json()).error === 'origin-not-allowed', 'a POST from another origin is 403');
+});
+
+Deno.test('R135: the caps are counted by the database and compared here; the report email is a fixed template', () => {
+  ok(SHARE_MAX_LIVE === 20 && STAMPS_PER_HOUR === 120 && NOTIFY_PER_DAY === 10, 'the published numbers');
+  ok(overCap(null, 20) === false && overCap(19, 20) === false && overCap(20, 20) === true, 'at the cap is over it; null is zero');
+  ok(sinceIso(Date.parse('2026-10-14T10:00:00Z'), 3_600_000) === '2026-10-14T09:00:00.000Z', 'an hour before');
+  ok(emailLine(' a\r\nb\tc ', 80) === 'a b c', 'one line');
+  ok(emailLine('x'.repeat(100), 80).length === 80, 'capped');
+  const m = notifyMessage({ who: 'Ada\nBcc: x@y', kind: 'broken', task: 'red-w1-osint', course: 'security-plus' });
+  ok(m.subject === '[security-plus] task issue: broken on red-w1-osint', 'subject');
+  ok(m.text.startsWith('Ada Bcc: x@y reported a broken issue on task red-w1-osint (security-plus).'), 'who, kind, task, course — on one line');
+  ok(!m.text.includes('\nBcc'), 'no line break from the name');
+  ok(notifyMessage({ who: '', kind: '', task: 't', course: 'c' }).text.startsWith('A member reported a question issue'), 'defaults');
 });
 
 Deno.test('stamps have the client stamp shape, use every symbol, and receipts need every token matched', () => {

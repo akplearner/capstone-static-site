@@ -12,11 +12,13 @@
 //
 // DEPLOY (you, once): paste supabase/dashboard/share.ts into the Supabase
 // dashboard (SUPABASE_SETUP.md), or run `supabase functions deploy share`.
-// No secrets (_shared/env.ts); APP_ORIGIN is optional.
+// No secrets (_shared/env.ts). APP_ORIGIN is required (R135, _shared/cors.ts).
+// R135: at most SHARE_MAX_LIVE live links per member (_shared/limits.ts).
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import { json, preflight } from '../_shared/cors.ts';
 import { projectKey } from '../_shared/env.ts';
+import { SHARE_MAX_LIVE, overCap } from '../_shared/limits.ts';
 import { identityLeaks, newToken, sha256HexText, shareProblem, withSubject, type ShareRequest } from '../_shared/shareGuard.ts';
 
 const env = (name: string) => Deno.env.get(name);
@@ -59,6 +61,15 @@ Deno.serve(async (req: Request) => {
 
   // One clock for both ends, so a 90-day link meets the table's 90-day check exactly.
   const now = Date.now();
+  // R135: a member holds at most SHARE_MAX_LIVE live links; revoking or expiry frees a slot.
+  const { count: live, error: countError } = await admin
+    .from('profile_shares')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .is('revoked_at', null)
+    .gt('expires_at', new Date(now).toISOString());
+  if (countError) return json({ error: 'share-unavailable' }, 503, req, origin);
+  if (overCap(live, SHARE_MAX_LIVE)) return json({ error: 'too-many-links', max: SHARE_MAX_LIVE }, 429, req, origin);
   const token = newToken();
   const { data, error } = await admin
     .from('profile_shares')

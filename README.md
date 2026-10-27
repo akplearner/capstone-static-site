@@ -1,5 +1,12 @@
 # Capstone Lab Platform
 
+## Ownership
+
+This is proprietary software. Copyright (c) 2026 akplearner. All rights reserved.
+No use, copy, modification or distribution is permitted without written permission;
+see [`LICENSE`](LICENSE). Third-party terms that still apply are listed in
+[`NOTICE.md`](NOTICE.md). To report a security problem, see [`SECURITY.md`](SECURITY.md).
+
 A polished, interactive platform for hands-on, role-based cyber ranges. Ships with a
 Security+ capstone course and supports **multiple courses** plus an **instructor studio**
 to author new ones. Built with Next.js 16, Tailwind CSS, and Framer Motion.

@@ -56,7 +56,9 @@ const csp = [
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   // Tailwind and next/font emit inline <style>; there is no hash-stable form.
   `style-src 'self' 'unsafe-inline'`,
-  `img-src 'self' data: blob:`,
+  // R135: the two avatar hosts the sign-in providers serve pictures from. The
+  // database allows any https avatar URL; which hosts actually render is decided here.
+  `img-src 'self' data: blob: https://lh3.googleusercontent.com https://avatars.githubusercontent.com`,
   `font-src 'self' data:`,
   [`connect-src 'self'`, supabaseOrigin, supabaseWs].filter(Boolean).join(" "),
   `frame-ancestors 'none'`,

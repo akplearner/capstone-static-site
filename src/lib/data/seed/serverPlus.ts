@@ -732,7 +732,7 @@ const sharedTasks: Task[] = [
     difficulty: 3,
     learn: ['Writing a hybrid ISO', 'Boot order and firmware', 'Hypervisor installation', 'Management addressing', 'Remote access without port-forwarding', 'Named accounts and least privilege'],
     tools: ['Rufus', 'A USB drive of at least 4 GB', 'Proxmox VE', 'Tailscale', 'Server Bring-Up Log form', 'Configuration guide (in platform)'],
-    prerequisites: ['The RAID virtual disk created and Optimal', 'Your team number', 'The boot mode you recorded from System Setup', 'The classroom root password: Pass@2026'],
+    prerequisites: ['The RAID virtual disk created and Optimal', 'Your team number', 'The boot mode you recorded from System Setup', 'The classroom root password (your instructor sets it on install day)'],
     definitionOfDone: [
       'The server boots the installer and Proxmox lands on the RAID virtual disk',
       'The host holds 10.10.30.T for your team number, on a /16',
