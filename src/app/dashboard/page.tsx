@@ -25,8 +25,11 @@ import { buildCredential, buildMemberProfile, profileJson, type MemberCourseRow 
 import { shareProfileCopy } from '@/lib/shareCopy';
 import { useBankEarned } from '@/lib/earnedBank';
 import { applyEarned, earnedKey, keptFromEarlier } from '@/lib/earnedSkills';
-import { metricDetail, type MetricDetail, type RecordMetric } from '@/lib/recordDetail';
-import { courseFactsOf, ownIssues } from '@/lib/recordFacts';
+import { categoryDetail, metricDetail, type MetricDetail, type RecordMetric } from '@/lib/recordDetail';
+import { courseFactsOf, ownIssues, recordCourseInputOf } from '@/lib/recordFacts';
+import { recordCards, type RecordCategoryCard } from '@/lib/recordCard';
+import type { RecordCategory } from '@/lib/docs/recordCategories';
+import { RecordCategories } from '@/components/skills/RecordCategories';
 import { buildRecordPdf, recordPdfName } from '@/lib/recordPdf';
 import { RecordDetailPanel, RecordStrip, type RecordTile } from '@/components/skills/RecordStrip';
 import { sha256Text } from '@/lib/evidenceLedger';
@@ -72,6 +75,16 @@ interface CourseCard extends MemberCourseRow {
   /** R126: the graded weeks cleared, by number, and the rows the ledger holds above the live run (R125): what the record's lists are built from. */
   clearedWeeks: number[];
   kept: string[];
+}
+
+/** Clock read hoisted to module scope: the purity lint treats a `Date.now()` inside a component-body function as render work, even when it only runs from a click. */
+function nowMs(): number {
+  return Date.now();
+}
+
+/** R133: the fourteen category cards across the courses started. A plain function: it reads the clock and the repositories. */
+function buildCategoryCards(cards: CourseCard[]): RecordCategoryCard[] {
+  return recordCards(cards.map(recordCourseInputOf), Date.now());
 }
 
 function buildCard(course: Course): CourseCard | null {
@@ -210,6 +223,16 @@ export default function DashboardPage() {
   const detail = useClientStore<MetricDetail | null>(() => (openTile ? metricDetail(openTile, cards.map(courseFactsOf)) : null), null);
   const toggleTile = (id: RecordMetric) => {
     setOpenTile((cur) => (cur === id ? null : id));
+    setOpenCategory(null);
+    setMore(new Set());
+  };
+  // R133: the fourteen categories of the record, and the one that is open.
+  const categoryCards = useClientStore<RecordCategoryCard[]>(() => buildCategoryCards(cards), EMPTY_ARRAY);
+  const [openCategory, setOpenCategory] = useState<RecordCategory | null>(null);
+  const categoryList = useClientStore<MetricDetail | null>(() => (openCategory ? categoryDetail(openCategory, cards.map(courseFactsOf)) : null), null);
+  const toggleCategory = (id: RecordCategory) => {
+    setOpenCategory((cur) => (cur === id ? null : id));
+    setOpenTile(null);
     setMore(new Set());
   };
   const chosen = useClientStore<{ pathId: string; chosenAt: number } | null>(
@@ -273,7 +296,7 @@ export default function DashboardPage() {
   // name, progress by course and the issues this member reported. One course when it is asked from that course's card.
   function exportPdf(only?: CourseCard) {
     const list = only ? [only] : cards;
-    const now = Date.now();
+    const now = nowMs();
     downloadBytes(
       recordPdfName(now, only?.course.id),
       buildRecordPdf({
@@ -333,6 +356,26 @@ export default function DashboardPage() {
               Evidence and days have no denominator, so they stay numbers. */}
           <section aria-labelledby="dash-record" className="space-y-3">
             <SectionLabel id="dash-record">Your record</SectionLabel>
+            {/* R133: the record leads with the fourteen categories a hiring reader asks about; the twelve
+                progress figures follow, each still a button over its list. */}
+            {words && (
+              <>
+                <p className="text-sm text-muted">{words.COPY.categoriesLede}</p>
+                <RecordCategories cards={categoryCards} defs={words.CATEGORIES} copy={words.COPY} open={openCategory} onToggle={toggleCategory} panelId="dash-record-detail" />
+                {openCategory && categoryList && (
+                  <RecordDetailPanel
+                    id="dash-record-detail"
+                    title={words.CATEGORIES.find((d) => d.id === openCategory)?.label ?? openCategory}
+                    detail={categoryList}
+                    expanded={more}
+                    onExpand={(section) => setMore((cur) => new Set(cur.has(section) ? [...cur].filter((x) => x !== section) : [...cur, section]))}
+                    onClose={() => setOpenCategory(null)}
+                  />
+                )}
+                <p className="text-2xs text-muted">{words.COPY.board.tierRule} {words.COPY.relevanceNote}</p>
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">{words.COPY.progressFigures}</h3>
+              </>
+            )}
             {/* One flat strip, not four boxes: a summary should be readable,
                 not the heaviest object on the page. */}
             <RecordStrip tiles={tiles} open={openTile} onToggle={toggleTile} panelId="dash-record-detail" />

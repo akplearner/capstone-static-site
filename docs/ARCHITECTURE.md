@@ -861,6 +861,39 @@ of a card) so the page no longer serialises every course on every broadcast. `re
 each list to the number the page prints for it on a real course, for one course and for two, and after a
 reset; `dashboard/page.test.tsx` runs the real page on the real repositories.
 
+### The eight domains and the fourteen categories (R133)
+
+The question the platform answers from R132 on is whether a member can consistently perform at a
+professional level in a real work environment, and two surfaces now read the record that way.
+
+**Skills by course** on the Skill board (`/courses/<id>/skills`) is eight domains
+(`src/lib/docs/skillDomains.ts`: technical capability, professional execution, problem solving,
+thought process, architecture and design, team and communication, learning and retention,
+professional readiness). `src/lib/skillDomainsView.ts` (pure) lists, per domain, only the rows of its
+dimensions with evidence behind them (a verified step, an approved form, a resolved fault, a chosen
+decision, a stamp a week after another); the rest are counted as gaps, never listed. Beside each
+row: how often (verified steps, or uses for a fact row), how consistently (proved on two or more
+tasks, in order, current), what the role measured against expects (required or beyond), and the
+evidence counted. The domain's KPIs and score come off the board (`kpi-board/2`). `DomainBoard`
+(props only) draws it between the competency map and the KPI board.
+
+**Your record** on the dashboard leads with fourteen categories (`src/lib/docs/recordCategories.ts`:
+tools, commands, procedures, standards, troubleshooting, investigations, documentation,
+architectures, configurations, communication, collaboration, decisions, projects, exam domains).
+`src/lib/recordCard.ts` (pure) builds one card per category across every course started: uses,
+verified uses, the success rate as a ratio of the two, the last activity stamp, the courses and
+projects behind it, six monthly counts of verified uses against the page clock, the evidence
+(receipts, hashed files, approved forms) and the industry relevance (the share of the NICE work
+roles whose competency areas the category serves). The tier is PROFESSIONAL at ten verified uses
+across every course and retake, BUILDING below it with the count as `n/10`; nothing is hidden for
+being small. The tasks of a category come from the registries (tools, SOPs, standards, domains) and
+the words (`taskCategories`), the forms from `FORM_CATEGORY`, the fault and decision rows from the
+profile's fact dimensions. `RecordCategories` (props only) draws the cards, each a button that opens
+the list of what counted (`categoryDetail` in `recordDetail.ts`: the rows, the forms, the steps,
+commands, tools and procedures) in the same panel the twelve progress figures use; those twelve
+follow under "Progress figures", unchanged. The method behind the tier and the relevance is
+`docs/SCORING.md`; the card's shape is `content/schemas/record-category.schema.json`.
+
 ### Support codes and the support log (R129)
 
 A failure shows a person a support code and a time and nothing else; the detail stays on our side. `src/lib/reportError.ts`

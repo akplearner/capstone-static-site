@@ -8,6 +8,8 @@ import { Crumbs } from '@/components/SiteNav';
 import { SkillBoardSkeleton } from '@/components/ui/Skeletons';
 import { KpiBoard } from '@/components/skills/KpiBoard';
 import { KpiTable } from '@/components/skills/KpiTable';
+import { DomainBoard } from '@/components/skills/DomainBoard';
+import { domainSections } from '@/lib/skillDomainsView';
 import { SkyMap } from '@/components/quarry/skymap/SkyMap';
 import { tintVars } from '@/components/quarry/art/palette';
 import { useCourse, useCourseDocument } from '@/lib/useCourse';
@@ -149,6 +151,8 @@ export default function SkillBoardPage() {
   const measure = options.find((o) => o.id === measureId) ?? options[0] ?? defaultMeasure(registry, member.role);
   const board = kpiBoard({ profile, registry, cert, measure, outcome: { capstoneFiled, weeksCleared: crew.weeksCleared, weeksTotal: crew.weeksTotal }, ontologyVersion: ONTOLOGY_VERSION });
   const layout = skymapLayout(profile.rows.skills, registry.AREAS, getTasksByRole(course, member.role).filter((t) => !isSetupWeek(course, t.week)).map((t) => t.id));
+  // R133: the eight domains, each listing only the rows with evidence behind them, against the measure picked.
+  const domains = domainSections(profile, board, registry.DOMAINS, measure);
   const hero = { value: board.kpis[0].value, of: board.kpis[0].of };
   const perTool = profile.rows.tools.filter((r) => r.verifiableSteps > 0).map((r) => ({ label: r.label, value: r.verifiedSteps, of: r.verifiableSteps }));
   const href = (next: { taskId: string; week: number }) => `/courses/${course.id}?tab=tasks&week=${next.week}&task=${next.taskId}`;
@@ -246,6 +250,8 @@ export default function SkillBoardPage() {
       <div style={tintVars(course.id)}>
         <SkyMap layout={layout} levelLabel={LEVEL_LABEL.skills} copy={copy} hero={hero} href={href} />
       </div>
+
+      <DomainBoard sections={domains} content={registry} />
 
       <KpiBoard board={board} defs={registry.KPIS} families={registry.KPI_FAMILIES} workRoles={workRoles} copy={copy} persistenceLabel={COPY.abilityLabels.persistence} weeks={{ value: crew.weeksCleared, of: crew.weeksTotal }} />
 

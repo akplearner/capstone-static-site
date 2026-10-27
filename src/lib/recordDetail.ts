@@ -3,6 +3,7 @@ import type { EvidenceArtifact, StepEvidence, VerificationReceipt } from './data
 import type { ProfileRow, SkillProfile } from './skillProfile';
 import type { Dimension } from './docs/metricCatalogue';
 import type { EarnedRow } from './earnedSkills';
+import { categoryOf, type RecordCategory } from './docs/recordCategories';
 import { getTasksByRole, isGradedWeek } from './course-helpers';
 import { verifiableSteps } from './evidenceLedger';
 import { levelRank } from './skillProfile';
@@ -47,6 +48,8 @@ export interface CourseFacts {
   clearedWeeks: readonly number[];
   /** Whether a procedure row cites controls (the form it is followed on names them): half of "followed to standard". */
   cites?: (row: ProfileRow) => boolean;
+  /** R133: the tasks and forms of each record category, as `recordCard.ts` maps them. */
+  categories?: { tasks: Record<RecordCategory, string[]>; forms: { id: string; title: string; approved: boolean; categories: RecordCategory[] }[] };
 }
 
 export interface DetailItem {
@@ -73,7 +76,7 @@ export interface DetailSection {
 }
 
 export interface MetricDetail {
-  metric: RecordMetric;
+  metric: RecordMetric | RecordCategory;
   /** What the figure counts, in a sentence. */
   rule: string;
   sections: DetailSection[];
@@ -396,6 +399,42 @@ export function metricDetail(metric: RecordMetric, facts: CourseFacts[]): Metric
       return { ...done, sections: [...primary(merged), ...behind(hits, facts, m, skip)] };
     }
   }
+}
+
+/** The fact rows a category folds, as `recordCard.ts` counts them. */
+const CATEGORY_ROWS: Partial<Record<RecordCategory, Dimension[]>> = {
+  tools: ['tools'], procedures: ['procedures'], standards: ['standards'], 'exam-domains': ['domains'], troubleshooting: ['troubleshooting'], decisions: ['decisions'],
+};
+
+/**
+ * R133 — the list behind one category of the record: the rows it folds (reached), the forms it counts
+ * (approved or not), and the steps, commands, tools and procedures on its tasks. The same facts the card
+ * was counted from, handed in per course; nothing read here.
+ */
+export function categoryDetail(category: RecordCategory, facts: CourseFacts[]): MetricDetail {
+  const m = many(facts);
+  const def = categoryOf(category);
+  const items: DetailItem[] = [];
+  const hits: Hit[] = [];
+  for (const f of facts) {
+    for (const dim of CATEGORY_ROWS[category] ?? []) {
+      for (const row of f.profile.rows[dim]) {
+        if (row.level === 'not-started') continue;
+        items.push(rowEntry(f, row, m));
+        if (row.uses === undefined) hits.push(...rowHits(f, row));
+      }
+    }
+    for (const form of (f.categories?.forms ?? []).filter((x) => x.categories.includes(category))) {
+      items.push({ key: `${f.course.id}/form/${form.id}`, label: form.title, sub: where(f, m, 'form'), marks: [form.approved ? 'reviewed' : 'open'] });
+    }
+    const ids = new Set(f.categories?.tasks[category] ?? []);
+    for (const t of gradedTasks(f)) {
+      if (!ids.has(t.id)) continue;
+      for (const s of required(t)) if (f.isStepDone(t.id, s.id) || f.evidence[key(t.id, s.id)]?.verified) hits.push(hitOf(f, t, s));
+    }
+  }
+  const merged = mergeAcrossCourses(items);
+  return { metric: category, rule: `${def.unit} ${def.success}`, sections: [...section('primary', def.label, merged), ...behind(hits, facts, m, CATEGORY_ROWS[category]?.includes('tools') ? ['tools'] : CATEGORY_ROWS[category]?.includes('procedures') ? ['procedures'] : [])] };
 }
 
 /** How many entries the figure's own list holds: what the page checks against the number it prints. */

@@ -147,6 +147,14 @@ has failed silently in some deployment of some product; none takes more than a m
   has no issues section). The account page's **Export my data (JSON)** and the Deliverables page's
   **Export my work (.json)** (a handoff file with **Restore from file**) are still JSON on purpose.
   `docs/FIX_LIST.md` item F6.
+- [ ] **The eight domains and the fourteen categories (R133):** on `/courses/<id>/skills`, between the
+  competency map and the KPI board, **Eight domains** lists Technical capability first and open; with nothing
+  verified every domain says "Nothing recorded in this domain yet" with "n not yet evidenced"; after a step is
+  verified, Technical capability lists its skill, tool and exam-domain rows with "How often", "How consistently",
+  "What the role expects" and "Evidence", and the score chip reads "n / 100". On `/dashboard`, **Your record**
+  opens with fourteen category cards, each with a tier pill ("Building n/10" or "Professional"), the verified
+  uses, a six-bar sparkline, the success rate, the last activity, the evidence count and the industry relevance;
+  a card opens the list of what counted; the twelve **Progress figures** follow and still open as before.
 - [ ] **The record moves, and opens (R126):** as a member, open `/dashboard` with a course started and note the twelve
   figures. In another tab tick a step on the course's Tasks tab and return: **Steps done** has moved without a reload
   (verified figures move once output is pasted). Open **Steps verified**: a panel lists each verified step with the course,

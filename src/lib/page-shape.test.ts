@@ -3868,3 +3868,47 @@ describe('R129 — support codes, details on our side', () => {
     expect(read('docs/FIX_LIST.md')).toContain('| F8 |');
   });
 });
+
+/**
+ * R133 — the eight domains and the fourteen categories: two pure projections
+ * over the profile and the board, two props-only components, the record
+ * leading with the categories and keeping the twelve figures, and the docs.
+ */
+describe('R133 — the eight domains and the fourteen categories', () => {
+  it('the projections are pure and the components take props only', () => {
+    for (const f of ['src/lib/skillDomainsView.ts', 'src/lib/recordCard.ts']) {
+      const src = code(f);
+      expect(src, `${f}: no runtime data import`).not.toMatch(/^import (?!type )[^\n]*from '\.\/data\//m);
+      expect(src, `${f}: no storage`).not.toMatch(/localStorage|supabase|Repo\b|fetch\(/);
+      expect(src, `${f}: no clock`).not.toMatch(/Date\.now\(\)/);
+      expect(src, `${f}: no ranking`).not.toMatch(/\brank(ing|ed)?\b|leaderboard|badge|\bXP\b/i);
+    }
+    expect(code('src/lib/recordCard.ts')).toContain('export function recordCards(');
+    expect(code('src/lib/recordCard.ts')).toContain('tierOf(verified, PROFESSIONAL_THRESHOLD)');
+    expect(code('src/lib/skillDomainsView.ts')).toContain('export function domainSections(');
+    for (const f of ['src/components/skills/DomainBoard.tsx', 'src/components/skills/RecordCategories.tsx']) {
+      expect(code(f), `${f} reads no repository`).not.toMatch(/from '@\/lib\/data'/);
+      expect(code(f), `${f} reads no document`).not.toContain('useCourseDocument');
+    }
+  });
+
+  it('the Skill board draws the domains between the map and the KPI board; the dashboard leads with the categories and keeps the twelve figures', () => {
+    const page = code('src/app/courses/[courseId]/skills/page.tsx');
+    expect(page).toContain('domainSections(profile, board, registry.DOMAINS, measure)');
+    expect(page.indexOf('<DomainBoard ')).toBeGreaterThan(page.indexOf('<SkyMap '));
+    expect(page.indexOf('<DomainBoard ')).toBeLessThan(page.indexOf('<KpiBoard '));
+    const dash = code('src/app/dashboard/page.tsx');
+    for (const n of ['<RecordCategories ', 'recordCards(cards.map(recordCourseInputOf)', 'categoryDetail(openCategory, cards.map(courseFactsOf))', '<RecordStrip tiles={tiles}', 'words.COPY.progressFigures']) expect(dash, n).toContain(n);
+    expect(dash.indexOf('<RecordCategories ')).toBeLessThan(dash.indexOf('<RecordStrip '));
+    expect(code('src/lib/recordFacts.ts')).toContain('export function recordCourseInputOf(');
+    expect(code('src/lib/recordDetail.ts')).toContain('export function categoryDetail(');
+  });
+
+  it('the docs say it', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### The eight domains and the fourteen categories (R133)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| The eight domains and the fourteen categories |');
+    expect(read('docs/OPERATIONS.md')).toContain('**The eight domains and the fourteen categories (R133):**');
+    expect(read('docs/FIX_LIST.md')).toContain('| F11 |');
+    expect(read('docs/SCORING.md')).toContain('## The tier');
+  });
+});

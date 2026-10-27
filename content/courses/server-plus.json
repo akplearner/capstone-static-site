@@ -15931,6 +15931,7 @@
         "skillDomainsLede": "Rows appear only where evidence stands behind them: a verified step, an approved form, an authored decision, a resolved fault.",
         "domainEmpty": "Nothing recorded in this domain yet.",
         "categoriesHeading": "The record, by category",
+        "categoriesLede": "Fourteen categories across every course started; professional at ten verified uses, building below it, with the count.",
         "categoryFigures": {
           "utilization": "Uses",
           "verifiedUses": "Verified uses",
@@ -15943,6 +15944,27 @@
           "relevance": "Industry relevance"
         },
         "relevanceNote": "The share of the NICE work roles whose competency areas this category serves; a crosswalk, published in docs/SCORING.md.",
+        "categoryEmpty": "Nothing recorded in this category yet.",
+        "categoryOpen": "Show what counted",
+        "progressFigures": "Progress figures",
+        "progressFiguresLede": "The twelve figures of the work in progress, each opening to the steps behind it.",
+        "domainBoard": {
+          "frequency": "How often",
+          "consistency": "How consistently",
+          "expectation": "What the role expects",
+          "requiredBy": "Required by the role measured against",
+          "notRequired": "Beyond what the role requires",
+          "repeated": "Proved on two or more tasks",
+          "once": "Proved once",
+          "inOrder": "In order",
+          "gaps": "not yet evidenced",
+          "evidence": "Evidence",
+          "steps": "verified steps",
+          "forms": "approved forms",
+          "files": "files hashed",
+          "uses": "uses",
+          "asks": "A hiring reader asks"
+        },
         "board": {
           "title": "Skill board",
           "lede": "Twenty-eight numbers this course keeps for this member, counted over facts that exist, six scores by a published method, and the competencies lit by level.",

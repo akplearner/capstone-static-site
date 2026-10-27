@@ -2,7 +2,9 @@
 
 import { bareDocument, courseDocument } from '@/lib/content/docs';
 import { skillsOf } from '@/lib/content/read';
-import { courseRepo, earnedRepo, evidenceRepo, progressRepo, taskReportsRepo } from '@/lib/data';
+import { courseRepo, docsRepo, earnedRepo, evidenceRepo, progressRepo, statusRepo, taskReportsRepo } from '@/lib/data';
+import { deliverablesOf } from '@/lib/content/read';
+import { categoryForms, categoryTaskIds } from '@/lib/recordCard';
 import { buildIssues, type IssueDto, type IssuePeople } from '@/lib/issueInbox';
 import type { CourseFacts } from '@/lib/recordDetail';
 import type { SkillProfile } from '@/lib/skillProfile';
@@ -27,7 +29,11 @@ export interface RecordCard {
 export function courseFactsOf(card: RecordCard): CourseFacts {
   const { course, member } = card;
   const keySet = progressRepo.getCompletionKeySet(course.id, member.memberId);
-  const controls = skillsOf(courseDocument(course.id) ?? bareDocument(course)).CONTROL_OF;
+  const doc = courseDocument(course.id) ?? bareDocument(course);
+  const registry = skillsOf(doc);
+  const controls = registry.CONTROL_OF;
+  const deliverables = deliverablesOf(doc);
+  const input = { course, role: member.role, profile: card.skills, registry, deliverables, status: statusRepo.list(course.id, member.teamId) };
   return {
     course,
     role: member.role,
@@ -41,6 +47,31 @@ export function courseFactsOf(card: RecordCard): CourseFacts {
     capstoneFiled: card.capstoneFiled,
     clearedWeeks: card.clearedWeeks,
     cites: (row) => row.deliverables.some((id) => (controls[id] ?? []).length > 0),
+    // R133: the tasks and forms of each category, as the cards count them.
+    categories: { tasks: categoryTaskIds(input), forms: categoryForms(input) },
+  };
+}
+
+/** R133: one course as the fourteen cards count it, read from the repositories at the moment the page builds them. */
+export function recordCourseInputOf(card: RecordCard & { capstoneFiled: boolean; clearedWeeks: number[] }) {
+  const { course, member } = card;
+  const doc = courseDocument(course.id) ?? bareDocument(course);
+  const registry = skillsOf(doc);
+  const keySet = progressRepo.getCompletionKeySet(course.id, member.memberId);
+  return {
+    course,
+    role: member.role,
+    profile: card.skills,
+    evidence: evidenceRepo.getSteps(course.id, member.memberId),
+    receipts: evidenceRepo.getReceipts(course.id, member.memberId),
+    artifacts: evidenceRepo.getArtifacts(course.id, member.memberId),
+    isStepDone: (taskId: string, stepId: string) => progressRepo.isStepComplete(course.id, member.memberId, taskId, stepId, keySet),
+    registry,
+    deliverables: deliverablesOf(doc),
+    status: statusRepo.list(course.id, member.teamId),
+    docs: docsRepo.get(course.id, member.teamId) ?? {},
+    capstoneFiled: card.capstoneFiled,
+    clearedWeeks: card.clearedWeeks,
   };
 }
 
