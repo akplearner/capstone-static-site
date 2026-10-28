@@ -32,11 +32,15 @@ export const localStorageUserStateRepo: UserStateRepository = {
     const homeBuildAck = localStorage.getItem(KEYS.homeBuildAck(courseId)) === '1';
     const seenRaw = localStorage.getItem(KEYS.mineSeen(courseId, memberId));
     const mineSeen = seenRaw === null ? undefined : Number(seenRaw);
-    if (!resume && !homeBuildAck && mineSeen === undefined) return null;
+    // R140: the task timers and the paused task share one blob; an unknown field must never be dropped.
+    const timing = readJson<Pick<UserCourseState, 'timers' | 'paused'>>(KEYS.timers(courseId, memberId));
+    if (!resume && !homeBuildAck && mineSeen === undefined && !timing) return null;
     return {
       ...(resume ? { resume } : {}),
       ...(homeBuildAck ? { homeBuildAck } : {}),
       ...(mineSeen !== undefined && !Number.isNaN(mineSeen) ? { mineSeen } : {}),
+      ...(timing?.timers ? { timers: timing.timers } : {}),
+      ...(timing?.paused !== undefined ? { paused: timing.paused } : {}),
     };
   },
 
@@ -51,6 +55,8 @@ export const localStorageUserStateRepo: UserStateRepository = {
     else localStorage.removeItem(KEYS.homeBuildAck(courseId));
     if (state.mineSeen !== undefined) safeSetItem(KEYS.mineSeen(courseId, memberId), String(state.mineSeen));
     else localStorage.removeItem(KEYS.mineSeen(courseId, memberId));
+    if (state.timers || state.paused !== undefined) safeSetItem(KEYS.timers(courseId, memberId), JSON.stringify({ timers: state.timers ?? {}, paused: state.paused ?? null }));
+    else localStorage.removeItem(KEYS.timers(courseId, memberId));
   },
 };
 

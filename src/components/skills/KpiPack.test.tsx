@@ -28,14 +28,14 @@ const mount = (board = boardOf()) =>
   render(<KpiPack board={board} defs={registry.KPIS} families={registry.KPI_FAMILIES} copy={copy} href="/courses/security-plus/skills" persistenceLabel={SKILLS_COPY.abilityLabels.persistence} />);
 
 describe('KpiPack', () => {
-  it('renders twenty-eight sockets in registry order, seven families, and labels every value', () => {
+  it('renders thirty-two sockets in registry order, eight families, and labels every value', () => {
     const { container } = mount();
     const sockets = [...container.querySelectorAll<HTMLButtonElement>('[data-kpi-pack] button[data-kpi]')];
-    expect(sockets).toHaveLength(28);
+    expect(sockets).toHaveLength(32);
     expect(sockets.map((b) => b.dataset.kpi)).toEqual(registry.KPIS.map((k) => k.id));
-    expect(container.querySelectorAll('[data-kpi-family]')).toHaveLength(7);
+    expect(container.querySelectorAll('[data-kpi-family]')).toHaveLength(8);
     // R132: four own facts need the flag history, the review queue, the cohort calendar or the page clock, which this mount does not hand in.
-    const NEEDS_MORE = ['kpi.problem-solving.flags-cleared', 'kpi.teamwork.peer-reviews-given', 'kpi.professionalism.on-time', 'kpi.growth.learning-velocity'];
+    const NEEDS_MORE = ['kpi.problem-solving.flags-cleared', 'kpi.teamwork.peer-reviews-given', 'kpi.professionalism.on-time', 'kpi.growth.learning-velocity', 'kpi.validation.recall-accuracy', 'kpi.validation.applied-scenarios', 'kpi.validation.conflicts-resolved', 'kpi.validation.time-on-task'];
     for (const b of sockets.filter((x) => x.dataset.fact !== 'team' && !NEEDS_MORE.includes(x.dataset.kpi ?? ''))) {
       expect(b.dataset.loaded, b.dataset.kpi).toBe('true');
       // R137: a socket with nothing to count yet says so instead of "0 of 0".
@@ -56,7 +56,7 @@ describe('KpiPack', () => {
     expect(container.querySelector('[data-kpi-pack]')?.getAttribute('data-motion')).toBe('on');
   });
 
-  it('is one tab stop: the arrows move the focus across the twenty-eight', () => {
+  it('is one tab stop: the arrows move the focus across the thirty-two', () => {
     const { container } = mount();
     const sockets = [...container.querySelectorAll<HTMLButtonElement>('button[data-kpi]')];
     expect(sockets.filter((b) => b.tabIndex === 0)).toHaveLength(1);
@@ -67,10 +67,10 @@ describe('KpiPack', () => {
     fireEvent.keyDown(sockets[1], { key: 'ArrowDown' });
     expect(sockets[5].tabIndex).toBe(0);
     fireEvent.keyDown(sockets[5], { key: 'End' });
-    expect(sockets[27].tabIndex).toBe(0);
-    fireEvent.keyDown(sockets[27], { key: 'ArrowRight' });
-    expect(sockets[27].tabIndex, 'the end is the end').toBe(0);
-    fireEvent.keyDown(sockets[27], { key: 'Home' });
+    expect(sockets[31].tabIndex).toBe(0);
+    fireEvent.keyDown(sockets[31], { key: 'ArrowRight' });
+    expect(sockets[31].tabIndex, 'the end is the end').toBe(0);
+    fireEvent.keyDown(sockets[31], { key: 'Home' });
     expect(sockets[0].tabIndex).toBe(0);
   });
 

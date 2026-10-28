@@ -156,4 +156,8 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | design: 18 skills with a verifiable step; sw: 18 skills with a verifiable step; rt: 18 skills with a verifiable step; ops: 18 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
 | Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | design: Network Operations Specialist: 62 required, 38 not taught here; sw: Network Operations Specialist: 62 required, 38 not taught here; rt: Network Operations Specialist: 62 required, 38 not taught here; ops: Network Operations Specialist: 62 required, 38 not taught here |
+| Values recalled `kpi.validation.recall-accuracy` | validation | metric.validation-recall (own) |  |
+| Scenarios applied `kpi.validation.applied-scenarios` | validation | metric.validation-applied (own) |  |
+| Conflicts resolved `kpi.validation.conflicts-resolved` | validation | metric.conflicts-resolved (own) |  |
+| Minutes on task `kpi.validation.time-on-task` | validation | metric.minutes-on-task (own) |  |
 

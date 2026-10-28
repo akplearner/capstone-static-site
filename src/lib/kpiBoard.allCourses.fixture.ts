@@ -6,6 +6,9 @@ import { decisionKey, type DeliverableData, type DeliverableDef } from './docs/t
 import type { SkillProfileInput } from './skillProfile';
 import type { StepEvidence } from './data/types';
 import type { DeliverableStatus } from './docs/lifecycle';
+import { projectRecord, recordConflicts } from './docs/projectRecord';
+import { checkpointsReached } from './validation/plan';
+import { validationActivities } from './validation/activities';
 
 /**
  * R137 — a member who did EVERYTHING a course offers a role, as data: every checkable step verified,
@@ -67,6 +70,11 @@ export function fullMemberInput(courseId: string, role: string): SkillProfileInp
   ]);
   const reviews = deliverables.map((d) => ({ courseId, teamId: TEAM, deliverableId: d.id, week: d.weeks[0] ?? 1, status: 'approved' as const, comment: '', reviewer: 'Ivy', at: T0 + 3000 }));
   const lastWeek = Math.max(1, ...course.weeks.filter((w) => isGradedWeek(course, w.number)).map((w) => w.number));
+  // R140: a member who did everything answered every validation activity the record generates, correctly.
+  const record = projectRecord(docs, deliverables);
+  const conflicts = recordConflicts(record);
+  const activities = checkpointsReached(course, lastWeek).flatMap((checkpoint) => validationActivities({ course, defs: deliverables, record, conflicts, checkpoint }));
+  const validation = activities.map((a, i) => ({ courseId, memberId: ME, teamId: TEAM, activityId: a.id, checkpoint: a.checkpoint, kind: a.kind, recordKey: a.recordKey, answerSha256: 'b'.repeat(64), correct: a.kind === 'explain' ? null : true, explanation: '', at: T0 + 5000 + i }));
   return {
     course,
     role,
@@ -78,7 +86,7 @@ export function fullMemberInput(courseId: string, role: string): SkillProfileInp
     cert,
     deliverables,
     team: { docs, status, submissions: [], reviews, currentWeek: lastWeek, marks: [] },
-    own: { notes: [], reports: [], flagEvents: [{ courseId, memberId: ME, taskId: tasks[0]?.id ?? 't', stepId: 's', kind: 'raised', at: T0 }, { courseId, memberId: ME, taskId: tasks[0]?.id ?? 't', stepId: 's', kind: 'cleared', at: T0 + 60_000 }], peerReviews: { done: 1, assigned: 1 } },
+    own: { notes: [], reports: [], flagEvents: [{ courseId, memberId: ME, taskId: tasks[0]?.id ?? 't', stepId: 's', kind: 'raised', at: T0 }, { courseId, memberId: ME, taskId: tasks[0]?.id ?? 't', stepId: 's', kind: 'cleared', at: T0 + 60_000 }], peerReviews: { done: 1, assigned: 1 }, validation, timers: { [tasks[0]?.id ?? 't']: { elapsedMs: 90 * 60_000, runningSince: null } } },
     asOf: T0 + 40 * 86_400_000,
     receipts: null,
     rehashes: [],

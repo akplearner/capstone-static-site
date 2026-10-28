@@ -33,8 +33,8 @@ import { SCORES } from './scoring';
  * and the published scores.
  */
 export const ONTOLOGY_SCHEMA = 'capstone-ontology/1';
-export const ONTOLOGY_VERSION = '2.1.0';
-export const MEMBER_PROFILE_SCHEMA = 'capstone-member-profile/2';
+export const ONTOLOGY_VERSION = '2.2.0';
+export const MEMBER_PROFILE_SCHEMA = 'capstone-member-profile/3';
 
 const GENERATED_FROM = ['src/lib/docs/skills.ts', 'src/lib/docs/tools.ts', 'src/lib/docs/standards.ts', 'src/lib/docs/sops.ts', 'src/lib/docs/tactics.ts', 'src/lib/docs/metricCatalogue.ts', 'src/lib/docs/certs.ts', 'src/lib/docs/kpis.ts', 'src/lib/docs/workRoles.ts', 'src/lib/docs/skillDomains.ts', 'src/lib/docs/recordCategories.ts', 'src/lib/docs/scoring.ts'];
 

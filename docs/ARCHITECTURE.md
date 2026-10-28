@@ -307,7 +307,7 @@ tasks; timestamps are read to order verified steps, to measure the minutes betwe
 first paste and its verification (R132, `timing`), and against the cohort calendar the page hands
 in; nothing ranks one member against another. The Home card (`SkillsCard`, inside the role
 surface), the dashboard (`DomainStrip`, "Skills by course") and the portfolio (six sections)
-render it; the portfolio's export is `capstone-member-profile/2`, unsigned (`signature: null`)
+render it; the portfolio's export is `capstone-member-profile/3`, unsigned (`signature: null`)
 until validators exist.
 The cross-course hydrate reads the four team and own tables the profile needs
 (`deliverable_status`, `deliverable_submissions` without the frozen form, `task_reports`,
@@ -339,16 +339,16 @@ data.
 
 ### The KPI board, profiles and work roles (R108)
 
-The numbers a course keeps per member (since R132 twenty-eight, seven families of four, each a
+The numbers a course keeps per member (since R140 thirty-two, eight families of four, each a
 ratio of counts the metric catalogue already defines, or a median of minutes between two recorded
-stamps, with six scores by the published method, `capstone-kpi-board/2`); a competency map lit by
+stamps, with seven scores by the published method, `capstone-kpi-board/3`); a competency map lit by
 level; and three things a hiring reader or an agent can join on: a work role, an environment
 profile and a credential envelope.
 
 | Fact | Home | Reaches |
 |---|---|---|
-| the twenty-eight KPIs and seven families (ids, numerator and denominator in words, fact kind, unit, scored, why lines), and the sixteen deprecated R108 ids with the row that replaced each | `src/lib/docs/kpis.ts` `KPIS`, `KPI_FAMILIES`, `DEPRECATED_KPIS` | `content.skills.KPIS`, `content/ontology/kpis.json`, the skills sheet's KPI section, every tile |
-| the six scores: weighted means of KPI percentages, weights summing to one, each component named on the board (R132) | `src/lib/docs/scoring.ts` `SCORES`; `src/lib/scores.ts` computes them | `content.skills.SCORING`, `content/ontology/scoring.json`, the board's `scores`, the export, the credential's results |
+| the thirty-two KPIs and eight families (ids, numerator and denominator in words, fact kind, unit, scored, why lines), and the sixteen deprecated R108 ids with the row that replaced each | `src/lib/docs/kpis.ts` `KPIS`, `KPI_FAMILIES`, `DEPRECATED_KPIS` | `content.skills.KPIS`, `content/ontology/kpis.json`, the skills sheet's KPI section, every tile |
+| the seven scores: weighted means of KPI percentages, weights summing to one, each component named on the board (R132) | `src/lib/docs/scoring.ts` `SCORES`; `src/lib/scores.ts` computes them | `content.skills.SCORING`, `content/ontology/scoring.json`, the board's `scores`, the export, the credential's results |
 | the eight skill domains (dimensions, categories, KPIs, score and evidence per domain) and the fourteen record categories with the form tables the projection reads and the professional threshold of ten verified uses (R132) | `src/lib/docs/skillDomains.ts`, `src/lib/docs/recordCategories.ts` | `content.skills.DOMAINS/CATEGORIES/TROUBLE_GROUPS/CHANGE_GROUPS`, `skill-domains.json`, `record-categories.json` |
 | NICE work roles (SP 800-181; 2017 ids, transcribed) with their competency areas and nodes; course role → work roles | `src/lib/docs/workRoles.ts` `WORK_ROLES`, `WORK_ROLE_OF` | `content.skills.WORK_ROLES/WORK_ROLE_OF`, `work-roles.json`, the board, the export, the credential |
 | the environment profile a company publishes (infrastructure, tools, methodology, policies, ticket taxonomy, competencies per work role) | `src/lib/docs/environmentProfile.ts` (the shape and the one sample, built from the MSSP course); `content/profiles/`, `src/lib/content/profiles.ts` | the board's "measured against" picker; a file a reader imports is kept on the device only |
@@ -390,7 +390,7 @@ positional, so `MotionConfig` stills it; the count-up reads the preference itsel
 The KPIs reach the two surfaces a member lives on without a second projection:
 `SkillsCard` (the course Home's role surface) and every `/dashboard` course card call `kpiBoard()`
 against the role's default measure (`defaultMeasure`, the first NICE work role the course maps, else
-one sentinel) and render the result with `src/components/skills/KpiPack.tsx`: twenty-eight 32 px socket
+one sentinel) and render the result with `src/components/skills/KpiPack.tsx`: thirty-two 32 px socket
 buttons in seven family groups of four, each a ring whose arc sweeps to its ratio in the course tint
 (`ACC`, which the region and seam tokens already set on both surfaces, so the pack matches the seal
 ledger beside it) inside the meter budget, a lit disc with a `qa-breathe` halo when a ratio is
@@ -929,6 +929,28 @@ denominator; a minutes row prints the median over the steps timed and the share 
 folded score means and the group's timing into the cohort report, carried the record by category
 into the export, the credential's results, the PDF and the shared page, and gave the instructor one
 mark per rubric category beside the verdict (`ReviewCell`, appended to `deliverable_review_marks`).
+
+### Longitudinal validation, the task timer and the Understanding score (R140)
+
+Did the learner retain what the team built, understand the decisions, and apply them later? From the middle graded
+week the course asks. `src/lib/validation/plan.ts` places the checkpoints by the course's own shape (`recall` in the
+middle graded week, `apply` in the last, `extend` in every advanced week; `course.validation` may override) and
+`src/lib/validation/activities.ts` generates the activities from the team's project record, deterministically (ids
+`val:<week>:<kind>:<recordKey>`, options shuffled by a hash of the id): a recall offers the recorded value among three
+distractors drawn from the record, the column's options or a perturbation; an explanation asks why a decision was made
+(forty words, marked by the instructor); an applied scenario asks for an address inside the recorded prefix, a port
+still free on the recorded host, the committed RAM doubled; a consistency task asks the team to resolve a conflict the
+record found. `ValidationSection` reads the team's documents and the member's answers from the repositories and hands
+`ValidationPanel` (props only) the activities; an answer is stored as its hash (`validation_answers`, migration 0026,
+append-only, the database's clock, 200 a day; offline one blob per member), a wrong answer allows a retry as a second
+row. The projection (`validationIndicators` in `skillProfile.ts`) generates the same activities from the same record
+and reads each answer against its activity, so the eighth KPI family, `validation` (values recalled, scenarios applied,
+conflicts resolved, minutes on task), and the seventh score, `score.understanding`, stand on facts the panel and the
+board agree on; the cohort report bands the new score. Every task has a timer (`src/lib/taskTimer.ts`, a reducer over
+`user_course_state.data.timers`): it runs while the task is open on a visible tab, stops when the tab hides, and the
+member can **Pause** it from the sub-nav, which mounts `PauseCover` over the course content with the elapsed time and
+**Resume**; the minutes feed one unscored count and are never rewarded. The board is `capstone-kpi-board/3` and the
+profile `capstone-member-profile/3` (thirty-two KPIs in eight families, seven scores); the ontology is 2.2.0.
 
 ### The project record (R139)
 

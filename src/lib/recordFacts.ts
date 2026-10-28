@@ -2,7 +2,7 @@
 
 import { bareDocument, courseDocument } from '@/lib/content/docs';
 import { skillsOf } from '@/lib/content/read';
-import { cohortRepo, courseRepo, docsRepo, earnedRepo, evidenceRepo, progressRepo, reviewRepo, statusRepo, stepNotesRepo, submissionsRepo, taskReportsRepo } from '@/lib/data';
+import { cohortRepo, courseRepo, docsRepo, earnedRepo, evidenceRepo, progressRepo, reviewRepo, statusRepo, stepNotesRepo, submissionsRepo, taskReportsRepo, userStateRepo, validationRepo } from '@/lib/data';
 import { cohortKeyOf, weekDueFrom } from '@/lib/weekDue';
 import { deliverablesOf } from '@/lib/content/read';
 import { categoryForms, categoryTaskIds } from '@/lib/recordCard';
@@ -35,6 +35,9 @@ export function ownFactsOf(course: Course, member: Pick<Member, 'memberId'>): Ow
     reports: taskReportsRepo.list(course.id),
     flagEvents: stepNotesRepo.flagEvents(course.id, member.memberId),
     ...(peerReviews ? { peerReviews } : {}),
+    // R140: the member's validation answers and task timers.
+    validation: validationRepo.list(course.id, member.memberId),
+    timers: userStateRepo.get(course.id, member.memberId)?.timers ?? {},
   };
 }
 

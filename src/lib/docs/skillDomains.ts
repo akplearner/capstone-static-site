@@ -93,7 +93,7 @@ export const SKILL_DOMAINS: SkillDomainDef[] = [
     definition: 'Skills proved on a second task, verified again a week or more later, reused in another course, and the pace month on month.',
     asks: 'Is this member still learning, and keeping what was learned?',
     dimensions: ['retention'], categories: ['tools', 'commands', 'procedures'],
-    kpis: ['kpi.growth.skills-transferred', 'kpi.growth.retention', 'kpi.growth.learning-velocity'],
+    kpis: ['kpi.growth.skills-transferred', 'kpi.growth.retention', 'kpi.growth.learning-velocity', 'kpi.validation.recall-accuracy', 'kpi.validation.applied-scenarios', 'kpi.validation.conflicts-resolved'], score: 'score.understanding',
     evidence: 'The verification stamps of every skill: first and last, the tasks and courses between them, and the last two months of them.',
   },
   {

@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "inputs": [
     "course",
     "registry",
@@ -26,7 +26,9 @@
     "learner_outcomes",
     "memberships",
     "verification_receipts",
-    "rehash_checks"
+    "rehash_checks",
+    "validation_answers",
+    "user_course_state"
   ],
   "metrics": [
     {
@@ -1856,6 +1858,80 @@
       "scored": false,
       "note": "R132: the page passes the clock; the projection reads none.",
       "timing": true
+    },
+    {
+      "id": "metric.validation-recall",
+      "label": "Values recalled",
+      "dimension": "retention",
+      "definition": "Recall activities answered correctly, over recall activities answered, at the checkpoints reached.",
+      "inputs": [
+        "validation_answers",
+        "deliverables",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": true,
+      "note": "R140: the activity asks for a value the team recorded; the distractors come from the record."
+    },
+    {
+      "id": "metric.validation-applied",
+      "label": "Scenarios applied",
+      "dimension": "ability",
+      "definition": "Applied scenarios answered correctly, over applied scenarios offered at the checkpoints reached.",
+      "inputs": [
+        "validation_answers",
+        "deliverables",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": true,
+      "note": "R140: an address inside the prefix, a free port on the host, the committed size doubled."
+    },
+    {
+      "id": "metric.conflicts-resolved",
+      "label": "Conflicts resolved",
+      "dimension": "troubleshooting",
+      "definition": "Conflicts the record found that are no longer present, over conflicts found, once the apply checkpoint is reached.",
+      "inputs": [
+        "validation_answers",
+        "deliverables",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": true,
+      "note": "R140: read from the record itself; the answer only says the team looked."
+    },
+    {
+      "id": "metric.minutes-on-task",
+      "label": "Minutes on task",
+      "dimension": "execution",
+      "definition": "Whole minutes the member had tasks open on a visible tab, pauses and hidden tabs excluded; a count.",
+      "inputs": [
+        "user_course_state",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "R140: the timer the member can pause; measured, never rewarded."
     }
   ]
 }

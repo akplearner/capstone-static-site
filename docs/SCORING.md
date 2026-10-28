@@ -23,7 +23,7 @@ sum (`content/schemas/kpi-board.schema.json`, `score`).
 
 A KPI is a count over what the course offers the role: checkable steps, fault tables, decision blocks, hand-offs.
 Where the course offers the role nothing, the row is **not measured** (`applies: false`, `notMeasured: 'role'` in
-`capstone-kpi-board/2`), the surfaces say "Not measured in this course for this role", and no score reads it.
+`capstone-kpi-board/3`), the surfaces say "Not measured in this course for this role", and no score reads it.
 Where the course offers something and the member has not yet done it, the row reads "Nothing to count yet"
 (`notMeasured: 'yet'`). Neither is ever printed as `0 of 0`, and neither lowers a score. A decision belongs to
 the role that drafts the decision form; every other role reads not measured on the three decision KPIs.
@@ -46,9 +46,37 @@ did everything the course offers, and asserts that every KPI is either measured 
 | `score.collaboration` Collaboration | hand-offs completed (0.35), RACI respected (0.35), peer reviews given (0.3) | Team facts count for the team; the role share on the KPIs says what this member moved. |
 | `score.reliability` Reliability | on time (0.4), document control complete (0.2), controls cited (0.2), instructor approved (0.2) | On time needs the cohort start date; without one the score stands on the other three and says so. |
 | `score.readiness` Readiness | exam weight verified (0.3), profile coverage (0.3), skills retained (0.2), steps verified in order (0.2) | A reading of the record against an exam and a work role, not a prediction of a pass or a hire. |
+| `score.understanding` Understanding retained | values recalled (0.4), scenarios applied (0.4), conflicts resolved (0.2) | Asks only about values the team recorded; before the checkpoint week the score stands on nothing and says so. |
 
 Each KPI a score reads carries `scored: true` in the registry and in the ontology, and every scored
 KPI is read by exactly one score (`src/lib/docs/recordCategories.test.ts` holds both).
+
+## The validation family and the seventh score (R140)
+
+From the middle graded week the course asks each member about what THEIR TEAM recorded (the project
+record, R139): a recall (the recorded value among three distractors drawn from the record, the column's
+options or a perturbation), an explanation (why this decision, forty words or more, marked by the
+instructor), an applied scenario (an address inside the recorded prefix, a port still free on the
+recorded host, the committed RAM doubled) and a consistency task (a conflict the record found, resolved
+in the form). The checkpoints are the course's own: `recall` in the middle graded week, `apply` in the
+last, `extend` in every advanced week (`src/lib/validation/plan.ts`; a course may set its own in
+`course.validation`). The activities are generated from the record (`src/lib/validation/activities.ts`),
+deterministically, so the projection generates the same ones the panel showed and reads each answer
+against its activity; only the hash of an answer is stored (migration 0026, append-only, a retry is a
+second row).
+
+- **Values recalled** (`kpi.validation.recall-accuracy`): recall activities answered correctly over
+  recall activities answered.
+- **Scenarios applied** (`kpi.validation.applied-scenarios`): applied scenarios answered correctly over
+  applied scenarios offered at the checkpoints reached.
+- **Conflicts resolved** (`kpi.validation.conflicts-resolved`): conflicts no longer in the record, over
+  those plus the conflicts still open, once the apply checkpoint is reached.
+- **Minutes on task** (`kpi.validation.time-on-task`): a count of whole minutes the member had tasks
+  open on a visible tab, pauses excluded. Measured, never rewarded: no score reads it.
+
+The rows are never "not measured for the role": every course has a record registry. Before the
+checkpoint week, or before the team records anything, they read "Nothing to count yet", and the
+Understanding score stands on nothing and says so.
 
 ## Timing
 
@@ -93,3 +121,7 @@ condition was that the method be published: this page, the registry, the schema 
 that pin them (`src/lib/docs/kpis.test.ts`, `src/lib/scores.test.ts`,
 `src/lib/docs/recordCategories.test.ts`). The sixteen R108 KPI ids stay published as deprecated
 with the row that replaced each (`DEPRECATED_KPIS`), because the ontology never removes an id.
+
+R140 adds the eighth family, `validation`, and the seventh score, `score.understanding`; the board is
+`capstone-kpi-board/3` and the member profile `capstone-member-profile/3` (thirty-two KPIs, seven
+scores). The six R132 scores and the twenty-eight R132 KPIs are unchanged.

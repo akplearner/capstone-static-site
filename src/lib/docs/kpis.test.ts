@@ -4,23 +4,23 @@ import { metricOf } from './metricCatalogue';
 import { SCORES } from './scoring';
 
 const words = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
-const FAMILIES = ['technical', 'problem-solving', 'execution', 'decision-making', 'teamwork', 'professionalism', 'growth'];
+const FAMILIES = ['technical', 'problem-solving', 'execution', 'decision-making', 'teamwork', 'professionalism', 'growth', 'validation'];
 
 /**
- * R108/R132 — the KPI board is exactly twenty-eight, seven families of four,
+ * R108/R132/R140 — the KPI board is exactly thirty-two, eight families of four,
  * every row a catalogue metric with a numerator and a denominator in words,
  * in the register; a scored row is read by a published score and a minutes
  * row is the one timing row; the sixteen R108 ids are deprecated, never gone.
  */
 describe('R132 — the KPI board registry', () => {
-  it('is seven families of four, in board order, with unique ids that resolve', () => {
+  it('is eight families of four, in board order, with unique ids that resolve', () => {
     expect(KPI_FAMILIES.map((f) => f.id)).toEqual(FAMILIES);
-    expect(KPIS.length).toBe(28);
-    expect(new Set(KPIS.map((k) => k.id)).size).toBe(28);
+    expect(KPIS.length).toBe(32);
+    expect(new Set(KPIS.map((k) => k.id)).size).toBe(32);
     for (const f of FAMILIES) expect(kpisOf(f as never).length, f).toBe(4);
     expect(KPIS.map((k) => k.family)).toEqual(FAMILIES.flatMap((f) => [f, f, f, f]));
     KPIS.forEach((k, i) => {
-      expect(k.id).toMatch(/^kpi\.(technical|problem-solving|execution|decision-making|teamwork|professionalism|growth)\.[a-z][a-z0-9-]*$/);
+      expect(k.id).toMatch(/^kpi\.(technical|problem-solving|execution|decision-making|teamwork|professionalism|growth|validation)\.[a-z][a-z0-9-]*$/);
       expect(k.id.startsWith(`kpi.${k.family}.`)).toBe(true);
       expect(k.agentField).toBe(`/kpis/${i}`);
       expect(kpiOf(k.id)).toBe(k);
@@ -42,7 +42,7 @@ describe('R132 — the KPI board registry', () => {
     }
     expect(KPIS.filter((k) => k.beside).map((k) => k.id)).toEqual(['kpi.execution.first-try']);
     expect(KPIS.filter((k) => k.unit === 'minutes').map((k) => k.id)).toEqual(['kpi.problem-solving.time-to-resolution']);
-    expect(KPIS.filter((k) => k.unit === 'count').map((k) => k.id)).toEqual(['kpi.teamwork.teammate-steps']);
+    expect(KPIS.filter((k) => k.unit === 'count').map((k) => k.id)).toEqual(['kpi.teamwork.teammate-steps', 'kpi.validation.time-on-task']);
     for (const c of SCORES.flatMap((s) => s.components)) expect(kpiOf(c.kpi)?.unit, `${c.kpi} feeds a score`).not.toBe('count');
   });
 

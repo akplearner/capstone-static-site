@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "tactics": [
     {
       "id": "TA0043",

@@ -26,7 +26,7 @@ import { SHARE_MAX_BYTES } from '../../supabase/functions/_shared/shareGuard';
  *    ids and the "next task" hint stay out: they are for the member, not for a reader;
  *  - the member chooses the courses, and the dialog shows the size before the click.
  *
- * It is still the member profile (`capstone-member-profile/2` since R132) with `signature: null`: the published schema allows a row
+ * It is still the member profile (`capstone-member-profile/3` since R132) with `signature: null`: the published schema allows a row
  * to omit its dimension, label and a zero counter and a course to omit gaps and indicators, and says
  * so. Pure: no clock, no store, no window.
  */

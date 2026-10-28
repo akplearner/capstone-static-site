@@ -67,8 +67,9 @@ describe('kpiBoard', () => {
   });
 
   // R132: four own facts need something beyond the ticks and pastes: the flag history, the review queue, the cohort calendar and the page clock.
-  const NEEDS_MORE = ['kpi.problem-solving.flags-cleared', 'kpi.teamwork.peer-reviews-given', 'kpi.professionalism.on-time', 'kpi.growth.learning-velocity'];
-  const EVERYTHING = { team: { docs: {}, status: [] as DeliverableStatus[], submissions: [], reviews: [], currentWeek: 1 }, own: { notes: [], reports: [], flagEvents: [], peerReviews: { done: 0, assigned: 0 } }, asOf: 10_000_000, weekDue: () => 9_000_000 };
+  // R140: the validation rows need the team's documents AND the member's answers and timers.
+  const NEEDS_MORE = ['kpi.problem-solving.flags-cleared', 'kpi.teamwork.peer-reviews-given', 'kpi.professionalism.on-time', 'kpi.growth.learning-velocity', 'kpi.validation.recall-accuracy', 'kpi.validation.applied-scenarios', 'kpi.validation.conflicts-resolved', 'kpi.validation.time-on-task'];
+  const EVERYTHING = { team: { docs: {}, status: [] as DeliverableStatus[], submissions: [], reviews: [], currentWeek: 1 }, own: { notes: [], reports: [], flagEvents: [], peerReviews: { done: 0, assigned: 0 }, validation: [], timers: {} }, asOf: 10_000_000, weekDue: () => 9_000_000 };
 
   it('team facts read as not loaded without the team, own facts that need more say so, and everything loads once it is handed in', () => {
     const alone = boardOf(profileOf());

@@ -21,7 +21,7 @@ import type { MetricAudience } from './metricCatalogue';
  * skills sheet share; `src/lib/kpiBoard.ts` computes them and no others.
  */
 
-export type KpiFamily = 'technical' | 'problem-solving' | 'execution' | 'decision-making' | 'teamwork' | 'professionalism' | 'growth';
+export type KpiFamily = 'technical' | 'problem-solving' | 'execution' | 'decision-making' | 'teamwork' | 'professionalism' | 'growth' | 'validation';
 /** own = the member's own ticks, pastes and hashes; team = a team document fact; content = read from the registries and the course. */
 export type KpiFact = 'own' | 'team' | 'content';
 /** ratio = value of a denominator; count = a value with no denominator; minutes = a median between two recorded stamps. */
@@ -56,7 +56,7 @@ export interface KpiDef {
   whyMember: string;
   /** Twenty-five words or fewer; third person. */
   whyCompany: string;
-  /** A JSON pointer into the `capstone-kpi-board/2` DTO. */
+  /** A JSON pointer into the `capstone-kpi-board/3` DTO. */
   agentField: string;
   /** First-try is never shown alone. */
   beside?: 'persistence';
@@ -82,6 +82,8 @@ export const KPI_FAMILIES: KpiFamilyDef[] = [
   { id: 'teamwork', label: 'Teamwork', definition: 'Hand-offs closed, RACI respected, peer reviews given and steps ticked on teammates’ tasks.', asks: 'Does this member hand work on cleanly and hold their lane in a team?' },
   { id: 'professionalism', label: 'Professionalism', definition: 'On time against the cohort calendar, documents controlled, controls cited, instructor approval earned.', asks: 'Does this member deliver on time, to standard, and to the reviewer’s satisfaction?' },
   { id: 'growth', label: 'Growth', definition: 'Skills proved twice, retained across weeks, verified faster week on week, and the gap to a work role closing.', asks: 'Is this member still learning, and keeping what was learned?' },
+  // R140: the validation family reads the answers to activities generated from the team's own project record.
+  { id: 'validation', label: 'Understanding', definition: 'Values the team recorded, recalled and applied weeks later; conflicts the record found, resolved; minutes on task, measured.', asks: 'Did this member retain what the team built, and can they apply it when something changes?' },
 ];
 
 const k = (family: KpiFamily, slug: string, label: string, metricId: string, numerator: string, denominator: string, fact: KpiFact, unit: KpiUnit, scored: boolean, valueTo: MetricAudience[], whyMember: string, whyCompany: string, index: number, beside?: 'persistence'): KpiDef => ({
@@ -264,6 +266,31 @@ export const KPIS: KpiDef[] = [
     'own', 'ratio', true, ALL,
     'Measures the verified skills against a job role or a published company profile, with the untaught gap named.',
     'Coverage of the competencies a work role or an environment profile requires, read from verified steps.', 27),
+  // ── Understanding (R140) ─────────────────────────────────────────────────
+  k('validation', 'recall-accuracy', 'Values recalled', 'metric.validation-recall',
+    'Recall activities answered correctly: the value the team recorded, picked among distractors.',
+    'Recall activities answered, from the checkpoints reached.',
+    'own', 'ratio', true, ALL,
+    'Weeks after recording an address, a prefix, a port or a decision, the member still knows it.',
+    'Retention of the project the member built, read from answers given without the form open.', 28),
+  k('validation', 'applied-scenarios', 'Scenarios applied', 'metric.validation-applied',
+    'Applied scenarios answered correctly: an address inside the prefix, a free port on the host, the committed size.',
+    'Applied scenarios offered at the checkpoints reached.',
+    'own', 'ratio', true, ALL,
+    'Takes a value the team recorded and uses it under a change the course did not script.',
+    'Applied use of recorded facts, not recall alone; offered scenarios count whether or not answered.', 29),
+  k('validation', 'conflicts-resolved', 'Conflicts resolved', 'metric.conflicts-resolved',
+    'Conflicts the record found that the team resolved: the address, the port, the prefix, the size no longer at odds.',
+    'Conflicts the record found at the checkpoints reached, resolved or still open.',
+    'own', 'ratio', true, ALL,
+    'A duplicate address or an over-committed host found by the platform and fixed by the team.',
+    'Contradictions in the record closed, read from the record itself rather than from a claim.', 30),
+  k('validation', 'time-on-task', 'Minutes on task', 'metric.minutes-on-task',
+    'Whole minutes the member had tasks of this course open on a visible tab, pauses excluded.',
+    'A count; nothing is read into it.',
+    'own', 'count', false, MC,
+    'How long the work took the member, by the timer they can pause; measured, never rewarded.',
+    'Time on task as context for the other rows; no score reads it.', 31),
 ];
 
 /** R108's sixteen, deprecated in R132 with the row that carries each count now. */

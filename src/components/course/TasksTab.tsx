@@ -103,6 +103,7 @@ export function TasksTab({
   selectTab,
   onProgressChange,
   focusMode = false,
+  taskElapsedMs,
 }: {
   course: Course;
   member: Member | null;
@@ -145,6 +146,8 @@ export function TasksTab({
   onProgressChange: () => void;
   /** R100: just the rows and the open task. */
   focusMode?: boolean;
+  /** R140: the open task's minutes, shown on the pane. */
+  taskElapsedMs?: number;
 }) {
   // Hooks above the early return: the lab-access hint on the disclosure bar.
   const lab = useLabAccess(course.id);
@@ -458,7 +461,7 @@ export function TasksTab({
 
   // The right pane (split only): the open task, else the week at full size.
   const pane = !split ? undefined : paneTask ? (
-    <TaskPane key={paneTask.id} task={paneTask} number={numberOf.get(paneTask.id)} onClose={() => setExpanded(new Set())}>
+    <TaskPane key={paneTask.id} task={paneTask} number={numberOf.get(paneTask.id)} onClose={() => setExpanded(new Set())} elapsedMs={taskElapsedMs}>
       {renderTaskBody(paneTask)}
     </TaskPane>
   ) : focusMode ? (

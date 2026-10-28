@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "scores": [
     {
       "id": "score.tool-proficiency",
@@ -137,6 +137,26 @@
         }
       ],
       "caveat": "A reading of the record against an exam and a work role, not a prediction of a pass or a hire."
+    },
+    {
+      "id": "score.understanding",
+      "label": "Understanding retained",
+      "definition": "Values recalled, scenarios applied and conflicts resolved, weeks after the team recorded them, weighted.",
+      "components": [
+        {
+          "kpi": "kpi.validation.recall-accuracy",
+          "weight": 0.4
+        },
+        {
+          "kpi": "kpi.validation.applied-scenarios",
+          "weight": 0.4
+        },
+        {
+          "kpi": "kpi.validation.conflicts-resolved",
+          "weight": 0.2
+        }
+      ],
+      "caveat": "Asks only about values the team recorded; before the checkpoint week the score stands on nothing and says so."
     }
   ]
 }

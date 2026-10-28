@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ConfirmDialog } from '@/components/ui/Dialog';
 import { CourseSubNav } from '@/components/CourseSubNav';
 import { CoursePageSkeleton } from '@/components/ui/Skeletons';
 import { CourseLoadFailed } from '@/components/course/CourseLoadFailed';
@@ -10,6 +9,9 @@ import { CourseHero } from '@/components/course/CourseHero';
 import { CourseSubNavActions } from '@/components/course/CourseSubNavActions';
 import { HomeTab } from '@/components/course/HomeTab';
 import { TasksTab } from '@/components/course/TasksTab';
+import { CourseOverlays } from '@/components/course/CourseOverlays';
+import { ValidationSection } from '@/components/validation/ValidationSection';
+import { useTaskTimer } from '@/lib/useTaskTimer';
 import { useCourseProgress } from '@/components/course/useCourseProgress';
 import { focusById } from '@/lib/focus';
 import { setNavAutoHide } from '@/lib/navChrome';
@@ -24,7 +26,6 @@ import { useClientStore, notifyStore } from '@/lib/useClientStore';
 import { getRoleDef, isSetupWeek, phaseTag, unitWord } from '@/lib/course-helpers';
 import { deriveCrewProgress } from '@/lib/game';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
-import { SOC_LOGIN_LABEL, SOC_URL } from '@/lib/labTopology';
 import { swap } from '@/lib/motion';
 import type { Task } from '@/lib/types';
 
@@ -162,6 +163,8 @@ export default function CoursePage() {
   }, [tab]);
   const focusMode = useClientStore<boolean>(getFocusMode, false);
 
+  const openTaskId = tab === 'tasks' && member && expanded.size > 0 ? [...expanded][expanded.size - 1] : null;
+  const timer = useTaskTimer(course.id, member?.memberId ?? null, openTaskId);
   // `/team/<id>` forwards to `#team` (and the role strip links to `#roles`, or `#role` on a one-role course)
   // here; those blocks render only once the member has loaded, so the
   // browser's own hash jump has nothing to land on.
@@ -304,6 +307,7 @@ export default function CoursePage() {
               onContinue={() => nextTask && goToTask(nextTask)}
               onReview={goHomeTop}
               focus={tab === 'tasks' ? { on: focusMode, onToggle: () => setFocusMode(!focusMode) } : undefined}
+              timer={openTaskId ? { elapsedMs: timer.elapsedMs, onPause: timer.pause } : undefined}
             />
           ) : undefined
         }
@@ -377,21 +381,17 @@ export default function CoursePage() {
               selectTab={selectTab}
               onProgressChange={onProgressChange}
               focusMode={focusMode}
+              taskElapsedMs={openTaskId ? timer.elapsedMs : undefined}
             />
+            {member && <ValidationSection course={course} member={member} currentWeek={effectiveWeek} />}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Home-build gate for the Week-0 build task — mounted regardless of tab. */}
-      <ConfirmDialog
-        open={homeBuildDialog}
-        onClose={() => setHomeBuildDialog(false)}
-        onConfirm={confirmHomeBuild}
-        destructive={false}
-        title="Only if you're building your own lab at home"
-        message={`The classroom SOC is already built and running at ${SOC_URL} (sign in: ${SOC_LOGIN_LABEL}). You don't need these build steps — start at Week 1. Open them only if you're setting up your own lab at home.`}
-        confirmLabel="Yes, I'm building from home"
-        cancelLabel="Back"
+      <CourseOverlays
+        course={course}
+        homeBuild={{ open: homeBuildDialog, onClose: () => setHomeBuildDialog(false), onConfirm: confirmHomeBuild }}
+        paused={member && timer.paused ? { taskId: timer.paused, elapsedMs: timer.pausedElapsedMs, onResume: timer.resume } : null}
       />
     </motion.div>
   );

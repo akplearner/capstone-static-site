@@ -22,7 +22,7 @@ vi.mock('./supabase/client', () => ({
 import { createShare, fetchShared, listShares, shareStatus, shareUrl, tokenFromHash } from './shares';
 
 const TOKEN = 'A'.repeat(43);
-const profile = { schema: 'capstone-member-profile/2', signature: null, subject: { display: 'Grace' }, courses: [] };
+const profile = { schema: 'capstone-member-profile/3', signature: null, subject: { display: 'Grace' }, courses: [] };
 const refused = (status: number, code = '') => ({ data: null, error: { name: 'FunctionsHttpError', context: new Response(JSON.stringify({ error: code }), { status }) } });
 
 beforeEach(() => {

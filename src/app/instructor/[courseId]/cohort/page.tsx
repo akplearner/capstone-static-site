@@ -122,6 +122,8 @@ export default function CohortPage() {
         marksFor: (t) => data.marks[t] ?? [],
         flagEventsFor: (m) => data.flagEvents[m] ?? [],
         peerReviewsFor: (m) => data.peerReviewCounts[m],
+        // R140: the validation answers, so the Understanding score bands on the cohort report.
+        validationFor: (m) => data.validation[m] ?? [],
         weekDueFor: (c) => weekDueFrom(data.cohortDates.find((d) => d.cohort === c)),
         // R137: the member's earned ledger, so the cohort reads what the member's own pages read.
         earnedFor: (m) => data.earned[m] ?? [],

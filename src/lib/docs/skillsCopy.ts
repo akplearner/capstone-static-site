@@ -162,8 +162,8 @@ export const SKILLS_COPY = {
   /** R108: the Skill board page, its tiles, the constellation, the cohort report. */
   board: {
     title: 'Skill board',
-    lede: 'Twenty-eight numbers this course keeps for this member, counted over facts that exist, six scores by a published method, and the competencies lit by level.',
-    familiesHeading: 'Seven families of four',
+    lede: 'Thirty-two numbers this course keeps for this member, counted over facts that exist, seven scores by a published method, and the competencies lit by level.',
+    familiesHeading: 'Eight families of four',
     audience: { student: 'Student', hiring: 'Hiring', agent: 'Agent' },
     factOwn: 'Own fact: ticks, pastes and hashes by this member.',
     factTeam: 'Team fact: a document the team filled, approved or issued.',
@@ -185,14 +185,14 @@ export const SKILLS_COPY = {
     perTool: 'Verified steps on the tasks that use each tool',
     credentialName: 'Capstone member profile',
     issuer: 'Capstone Labs',
-    jsonCaption: 'The same twenty-eight, the scores and the timing as the capstone-kpi-board/2 document an agent reads.',
+    jsonCaption: 'The same thirty-two, the scores and the timing as the capstone-kpi-board/3 document an agent reads.',
     schemaNote: 'The shape is published as content/schemas/kpi-board.schema.json.',
     copyJson: 'Copy JSON',
     mapTitle: 'Competency map',
     mapHowToRead: 'One star per competency this role practises, grouped by area; brighter means verified, a ring means the team approved the document.',
     mapIdle: 'Hover or focus a star to read it.',
     weeksLabel: 'Weeks cleared',
-    tableTitle: 'The twenty-eight, as a table',
+    tableTitle: 'The thirty-two, as a table',
     nextTask: 'Next task',
     /** R114: a candidate link to a frozen copy of the export. */
     createLink: 'Create link',
@@ -202,7 +202,7 @@ export const SKILLS_COPY = {
     cohortColumns: ['KPI', 'Family', 'Fact', 'Members', 'Not started', 'In progress', 'Complete', 'No denominator', 'Not measured', 'Sum'] as string[],
     bands: { notStarted: 'Not started', inProgress: 'In progress', complete: 'Complete', noDenominator: 'No denominator', notMeasured: 'Not measured' },
     /** R109: the KPI pack on the Home card and the dashboard card, and the DTO chip beside it. */
-    packTitle: 'Twenty-eight KPIs',
+    packTitle: 'Thirty-two KPIs',
     packIdle: 'Hover or focus a socket to read it.',
     packKeys: 'Arrow keys move between sockets. Enter pins the read-out.',
     download: 'Download PDF',

@@ -8403,8 +8403,8 @@
         },
         "board": {
           "title": "Skill board",
-          "lede": "Twenty-eight numbers this course keeps for this member, counted over facts that exist, six scores by a published method, and the competencies lit by level.",
-          "familiesHeading": "Seven families of four",
+          "lede": "Thirty-two numbers this course keeps for this member, counted over facts that exist, seven scores by a published method, and the competencies lit by level.",
+          "familiesHeading": "Eight families of four",
           "audience": {
             "student": "Student",
             "hiring": "Hiring",
@@ -8428,14 +8428,14 @@
           "perTool": "Verified steps on the tasks that use each tool",
           "credentialName": "Capstone member profile",
           "issuer": "Capstone Labs",
-          "jsonCaption": "The same twenty-eight, the scores and the timing as the capstone-kpi-board/2 document an agent reads.",
+          "jsonCaption": "The same thirty-two, the scores and the timing as the capstone-kpi-board/3 document an agent reads.",
           "schemaNote": "The shape is published as content/schemas/kpi-board.schema.json.",
           "copyJson": "Copy JSON",
           "mapTitle": "Competency map",
           "mapHowToRead": "One star per competency this role practises, grouped by area; brighter means verified, a ring means the team approved the document.",
           "mapIdle": "Hover or focus a star to read it.",
           "weeksLabel": "Weeks cleared",
-          "tableTitle": "The twenty-eight, as a table",
+          "tableTitle": "The thirty-two, as a table",
           "nextTask": "Next task",
           "createLink": "Create link",
           "credentialClaim": "An Open Badges 3.0 envelope around the member profile, unsigned: it carries no proof and claims none.",
@@ -8460,7 +8460,7 @@
             "noDenominator": "No denominator",
             "notMeasured": "Not measured"
           },
-          "packTitle": "Twenty-eight KPIs",
+          "packTitle": "Thirty-two KPIs",
           "packIdle": "Hover or focus a socket to read it.",
           "packKeys": "Arrow keys move between sockets. Enter pins the read-out.",
           "download": "Download PDF",
@@ -8656,8 +8656,12 @@
           "kpis": [
             "kpi.growth.skills-transferred",
             "kpi.growth.retention",
-            "kpi.growth.learning-velocity"
+            "kpi.growth.learning-velocity",
+            "kpi.validation.recall-accuracy",
+            "kpi.validation.applied-scenarios",
+            "kpi.validation.conflicts-resolved"
           ],
+          "score": "score.understanding",
           "evidence": "The verification stamps of every skill: first and last, the tasks and courses between them, and the last two months of them."
         },
         {
@@ -9198,6 +9202,81 @@
           "whyCompany": "Coverage of the competencies a work role or an environment profile requires, read from verified steps.",
           "agentField": "/kpis/27",
           "scored": true
+        },
+        {
+          "id": "kpi.validation.recall-accuracy",
+          "family": "validation",
+          "label": "Values recalled",
+          "metricId": "metric.validation-recall",
+          "numerator": "Recall activities answered correctly: the value the team recorded, picked among distractors.",
+          "denominator": "Recall activities answered, from the checkpoints reached.",
+          "fact": "own",
+          "unit": "ratio",
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "whyMember": "Weeks after recording an address, a prefix, a port or a decision, the member still knows it.",
+          "whyCompany": "Retention of the project the member built, read from answers given without the form open.",
+          "agentField": "/kpis/28",
+          "scored": true
+        },
+        {
+          "id": "kpi.validation.applied-scenarios",
+          "family": "validation",
+          "label": "Scenarios applied",
+          "metricId": "metric.validation-applied",
+          "numerator": "Applied scenarios answered correctly: an address inside the prefix, a free port on the host, the committed size.",
+          "denominator": "Applied scenarios offered at the checkpoints reached.",
+          "fact": "own",
+          "unit": "ratio",
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "whyMember": "Takes a value the team recorded and uses it under a change the course did not script.",
+          "whyCompany": "Applied use of recorded facts, not recall alone; offered scenarios count whether or not answered.",
+          "agentField": "/kpis/29",
+          "scored": true
+        },
+        {
+          "id": "kpi.validation.conflicts-resolved",
+          "family": "validation",
+          "label": "Conflicts resolved",
+          "metricId": "metric.conflicts-resolved",
+          "numerator": "Conflicts the record found that the team resolved: the address, the port, the prefix, the size no longer at odds.",
+          "denominator": "Conflicts the record found at the checkpoints reached, resolved or still open.",
+          "fact": "own",
+          "unit": "ratio",
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "whyMember": "A duplicate address or an over-committed host found by the platform and fixed by the team.",
+          "whyCompany": "Contradictions in the record closed, read from the record itself rather than from a claim.",
+          "agentField": "/kpis/30",
+          "scored": true
+        },
+        {
+          "id": "kpi.validation.time-on-task",
+          "family": "validation",
+          "label": "Minutes on task",
+          "metricId": "metric.minutes-on-task",
+          "numerator": "Whole minutes the member had tasks of this course open on a visible tab, pauses excluded.",
+          "denominator": "A count; nothing is read into it.",
+          "fact": "own",
+          "unit": "count",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "How long the work took the member, by the timer they can pause; measured, never rewarded.",
+          "whyCompany": "Time on task as context for the other rows; no score reads it.",
+          "agentField": "/kpis/31",
+          "scored": false
         }
       ],
       "KPI_FAMILIES": [
@@ -9242,6 +9321,12 @@
           "label": "Growth",
           "definition": "Skills proved twice, retained across weeks, verified faster week on week, and the gap to a work role closing.",
           "asks": "Is this member still learning, and keeping what was learned?"
+        },
+        {
+          "id": "validation",
+          "label": "Understanding",
+          "definition": "Values the team recorded, recalled and applied weeks later; conflicts the record found, resolved; minutes on task, measured.",
+          "asks": "Did this member retain what the team built, and can they apply it when something changes?"
         }
       ],
       "LEVEL_LABEL": {
@@ -11164,6 +11249,80 @@
           "scored": false,
           "note": "R132: the page passes the clock; the projection reads none.",
           "timing": true
+        },
+        {
+          "id": "metric.validation-recall",
+          "label": "Values recalled",
+          "dimension": "retention",
+          "definition": "Recall activities answered correctly, over recall activities answered, at the checkpoints reached.",
+          "inputs": [
+            "validation_answers",
+            "deliverables",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": true,
+          "note": "R140: the activity asks for a value the team recorded; the distractors come from the record."
+        },
+        {
+          "id": "metric.validation-applied",
+          "label": "Scenarios applied",
+          "dimension": "ability",
+          "definition": "Applied scenarios answered correctly, over applied scenarios offered at the checkpoints reached.",
+          "inputs": [
+            "validation_answers",
+            "deliverables",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": true,
+          "note": "R140: an address inside the prefix, a free port on the host, the committed size doubled."
+        },
+        {
+          "id": "metric.conflicts-resolved",
+          "label": "Conflicts resolved",
+          "dimension": "troubleshooting",
+          "definition": "Conflicts the record found that are no longer present, over conflicts found, once the apply checkpoint is reached.",
+          "inputs": [
+            "validation_answers",
+            "deliverables",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": true,
+          "note": "R140: read from the record itself; the answer only says the team looked."
+        },
+        {
+          "id": "metric.minutes-on-task",
+          "label": "Minutes on task",
+          "dimension": "execution",
+          "definition": "Whole minutes the member had tasks open on a visible tab, pauses and hidden tabs excluded; a count.",
+          "inputs": [
+            "user_course_state",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "R140: the timer the member can pause; measured, never rewarded."
         }
       ],
       "PRACTICES": [
@@ -11471,6 +11630,26 @@
             }
           ],
           "caveat": "A reading of the record against an exam and a work role, not a prediction of a pass or a hire."
+        },
+        {
+          "id": "score.understanding",
+          "label": "Understanding retained",
+          "definition": "Values recalled, scenarios applied and conflicts resolved, weeks after the team recorded them, weighted.",
+          "components": [
+            {
+              "kpi": "kpi.validation.recall-accuracy",
+              "weight": 0.4
+            },
+            {
+              "kpi": "kpi.validation.applied-scenarios",
+              "weight": 0.4
+            },
+            {
+              "kpi": "kpi.validation.conflicts-resolved",
+              "weight": 0.2
+            }
+          ],
+          "caveat": "Asks only about values the team recorded; before the checkpoint week the score stands on nothing and says so."
         }
       ],
       "SKILLS": [

@@ -15,7 +15,7 @@ consumer with any validator and the platform with its own get the same answer.
 | `sop.schema.json` | one SOP kind of `content/ontology/sops.json` | `src/lib/docs/sops.ts` |
 | `xapi-statement.schema.json` | the statement shape of `docs/INTEGRATION_CERTHATCH.md` §5; a shape only, nothing is emitted | — |
 | `course-index-entry.schema.json` | one row of `content/courses/index.json` | `scripts/export-courses.ts` |
-| `kpi-board.schema.json` | the twenty-eight KPIs of one member on one course (`capstone-kpi-board/2`): value, denominator, percentage, unit, scored, fact kind, loaded; the six scores with every component; the timing block (R108, R132) | `src/lib/kpiBoard.ts`; the Skill board's Agent view and the portfolio export |
+| `kpi-board.schema.json` | the twenty-eight KPIs of one member on one course (`capstone-kpi-board/3`): value, denominator, percentage, unit, scored, fact kind, loaded; the six scores with every component; the timing block (R108, R132) | `src/lib/kpiBoard.ts`; the Skill board's Agent view and the portfolio export |
 | `scoring.schema.json` | one published score: the KPIs it reads and their weights, with the caveat (R132) | `src/lib/docs/scoring.ts`; `content/ontology/scoring.json` |
 | `record-category.schema.json` | one of the fourteen subcards of a member's record across courses, with the tier at ten verified uses (R132) | `src/lib/recordCard.ts` (R133) |
 | `decision-record.schema.json` | one decision as a form stores it: at least three options, the one chosen, who, when, the answers (R132) | `DecisionBlock` in `src/lib/docs/types.ts`; `DeliverableForm` |

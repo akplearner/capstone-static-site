@@ -16,8 +16,8 @@ import type { WorkRoleDef } from '@/lib/docs/workRoles';
 import type { BoardCopy } from '@/lib/docs/skillsCopy';
 
 /**
- * R108 — the KPI tiles (twenty-eight since R132, seven families of four), the
- * six scores by the published method and the timing block. Props only: the page reads the document and
+ * R108 — the KPI tiles (thirty-two since R140, eight families of four), the
+ * seven scores by the published method and the timing block. Props only: the page reads the document and
  * hands in the board, the registry rows and the words. On mount a sweep
  * crosses the panel and every figure counts up, both inside the meter budget
  * (`DUR.meter`); the sweep is positional, so `MotionConfig` stills it, and
@@ -171,7 +171,7 @@ function KpiTile({ k, def, copy, audience, persistenceLabel, weeks, replayKey, m
   );
 }
 
-/** R132 — the six scores: a weighted mean of the KPIs named, with every component and whether it counted; a score that stands on nothing prints a dash. */
+/** R132 — the scores (seven since R140): a weighted mean of the KPIs named, with every component and whether it counted; a score that stands on nothing prints a dash. */
 function ScoresSection({ scores, defs, copy }: { scores: ScoreValue[]; defs: Map<string, KpiDef>; copy: BoardCopy }) {
   return (
     <section data-kpi-scores className="space-y-2">

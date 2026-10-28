@@ -1,5 +1,5 @@
 import type { Course, RosterEntry } from './types';
-import type { DeliverableReview, DeliverableReviewMark, DeliverableSubmission, EvidenceArtifact, StepEvidence, StepFlagEvent } from './data/types';
+import type { DeliverableReview, DeliverableReviewMark, DeliverableSubmission, EvidenceArtifact, StepEvidence, StepFlagEvent, ValidationAnswer } from './data/types';
 import type { DeliverableData, DeliverableDef } from './docs/types';
 import type { DeliverableStatus } from './docs/lifecycle';
 import type { CertContent, SkillsContent } from './content/read';
@@ -81,6 +81,8 @@ export interface CohortKpiInput {
     marksFor?(teamId: string): DeliverableReviewMark[];
     flagEventsFor?(memberId: string): StepFlagEvent[];
     peerReviewsFor?(memberId: string): { done: number; assigned: number } | undefined;
+    /** R140: the member's validation answers; absent where the table was not read. */
+    validationFor?(memberId: string): ValidationAnswer[];
     weekDueFor?(cohort: string): ((week: number) => number | undefined) | undefined;
     /** R137: the member's earned ledger, laid over the live profile as the member's own pages do. */
     earnedFor?(memberId: string): readonly EarnedRow[];
@@ -173,7 +175,7 @@ export function cohortKpiReport(input: CohortKpiInput): CohortKpiReport {
       deliverables,
       team: { docs, status: facts.statusFor(m.teamId), submissions: facts.submissionsFor(m.teamId), reviews: facts.reviewsFor(m.teamId), currentWeek: week, marks: facts.marksFor?.(m.teamId) },
       // R136: the member's own history and queue, and the calendar, so the instructor's figures stand on the same facts as the member's.
-      own: facts.flagEventsFor || facts.peerReviewsFor ? { notes: [], reports: [], flagEvents: facts.flagEventsFor?.(m.memberId), peerReviews: facts.peerReviewsFor?.(m.memberId) } : undefined,
+      own: facts.flagEventsFor || facts.peerReviewsFor || facts.validationFor ? { notes: [], reports: [], flagEvents: facts.flagEventsFor?.(m.memberId), peerReviews: facts.peerReviewsFor?.(m.memberId), validation: facts.validationFor?.(m.memberId) } : undefined,
       weekDue: facts.weekDueFor?.(m.cohort),
     });
     const ledger = facts.earnedFor?.(m.memberId);
@@ -206,7 +208,7 @@ export function cohortKpiReport(input: CohortKpiInput): CohortKpiReport {
   };
 }
 
-/** The twenty-eight as empty values, for a report with nobody in it. */
+/** Every KPI as an empty value, for a report with nobody in it. */
 function kpiBoardTemplate(registry: SkillsContent): KpiValue[] {
   return registry.KPIS.map((k) => ({ id: k.id, family: k.family, metricId: k.metricId, value: 0, of: 0, pct: 0, unit: k.unit, scored: k.scored, loaded: false, applies: true, fact: k.fact }));
 }

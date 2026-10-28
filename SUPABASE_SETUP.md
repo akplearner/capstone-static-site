@@ -454,6 +454,12 @@ this is required: without it every function refuses browser calls with
 gets `origin-not-allowed`. A call with no browser origin (the Supabase CLI, a
 server) is still decided by the caller's sign-in token alone.
 
+**Migration 0026** (the R140 update) adds `validation_answers`: every answer a member gives to a
+validation activity (a recall, an applied scenario, an explanation, a conflict resolved), as the hash
+of the answer with the database's stamp; a retry is a second row. A member inserts their own (at most
+200 a day), the team reads the team's, an instructor every row; nobody updates or deletes. Paste
+`supabase/setup.sql` again (safe to repeat).
+
 **Migration 0025** (the R139 update) adds `deliverable_history`: every time a team form's data changes, the
 version it replaced is appended (who had saved it, who replaced it, the database's clock), one version per
 author per five-minute sitting, at most 500 per team per day. Members read their team's history, an instructor
@@ -601,6 +607,7 @@ Still worth ten minutes on the live site before real students:
 | Evidence ledger (what earns each gem) | you and your teammates — hashes and counts, never pasted output |
 | Deliverables, gate status | your team |
 | Form history (every replaced version, 0025) | your team and staff; written only by the database as forms change, never by hand |
+| Validation answers (0026) | you write your own; your team and staff read them; nobody rewrites or deletes |
 | Personal state (where you left off, the mine), evidence files, chosen path | **you only** |
 | Lab access notes | **you only** — not teammates, not instructors |
 | Step notes | **you only** |

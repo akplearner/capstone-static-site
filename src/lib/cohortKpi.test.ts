@@ -47,7 +47,7 @@ const report = cohortKpiReport({
 });
 
 describe('cohortKpiReport', () => {
-  it('groups by cohort, keeps twenty-eight rows in registry order, and the bands sum to the members', () => {
+  it('groups by cohort, keeps thirty-two rows in registry order, and the bands sum to the members', () => {
     expect(report.schema).toBe(COHORT_KPI_SCHEMA);
     expect(report.courseId).toBe('server-plus');
     expect(report.week).toBe(2);
@@ -61,7 +61,7 @@ describe('cohortKpiReport', () => {
         // R132: a count KPI (teammate steps) has no denominator.
         if (k.id !== 'kpi.teamwork.teammate-steps') expect(k.sumValue, k.id).toBeLessThanOrEqual(k.sumOf);
         // R132: the flag history, the review queue, the cohort calendar and the page clock are not handed to the cohort report yet.
-        if (!['kpi.problem-solving.flags-cleared', 'kpi.teamwork.peer-reviews-given', 'kpi.professionalism.on-time', 'kpi.growth.learning-velocity'].includes(k.id)) expect(k.loaded, k.id).toBe(g.members);
+        if (!['kpi.problem-solving.flags-cleared', 'kpi.teamwork.peer-reviews-given', 'kpi.professionalism.on-time', 'kpi.growth.learning-velocity', 'kpi.validation.recall-accuracy', 'kpi.validation.applied-scenarios', 'kpi.validation.conflicts-resolved', 'kpi.validation.time-on-task'].includes(k.id)) expect(k.loaded, k.id).toBe(g.members);
       }
     }
     const a1 = report.all.kpis.find((k) => k.id === 'kpi.technical.skills-verified')!;
@@ -96,16 +96,16 @@ describe('cohortKpiReport', () => {
     const lines = csv.trim().split('\r\n');
     expect(lines[0]).toBe(COHORT_KPI_CSV_HEADER.join(','));
     expect(lines[0]).toBe('course,cohort,week,kpi,family,metric,fact,members,loaded,not_started,in_progress,complete,no_denominator,not_measured,sum_value,sum_of');
-    expect(lines).toHaveLength(1 + 28 * (report.groups.length + 1));
+    expect(lines).toHaveLength(1 + 32 * (report.groups.length + 1));
     expect(lines[1].startsWith('server-plus,all,2,kpi.technical.skills-verified,technical,metric.skill-verified,own,3,3,')).toBe(true);
     expect(csv).not.toContain('Ana');
   });
 
-  it('an empty roster gives an empty report with the twenty-eight as empty rows', () => {
+  it('an empty roster gives an empty report with every KPI as an empty row', () => {
     const empty = cohortKpiReport({ course: SERVER_PLUS, week: 1, roster: [], ontologyVersion: ONTOLOGY_VERSION, registry: skillsOf(doc), cert: certOf(doc), deliverables: deliverablesOf(doc), facts: { isStepDone: () => false, evidenceFor: () => ({}), artifactsFor: () => [], docsFor: () => ({}), statusFor: () => [], submissionsFor: () => [], reviewsFor: () => [] } });
     expect(empty.groups).toEqual([]);
     expect(empty.all.members).toBe(0);
-    expect(empty.all.kpis).toHaveLength(28);
+    expect(empty.all.kpis).toHaveLength(32);
   });
 
   it('R134: folds the scores as means over the members whose score stood on something, the timing across the group, and sums only ratios', () => {

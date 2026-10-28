@@ -46,7 +46,7 @@ beforeEach(() => {
 describe('the Home card’s PDF', () => {
   it('has Download PDF beside Copy JSON, and saves no JSON file', () => {
     mount();
-    const chip = document.querySelector('[data-dto-chip="capstone-kpi-board/2"]')!;
+    const chip = document.querySelector('[data-dto-chip="capstone-kpi-board/3"]')!;
     expect(chip.querySelector('[data-dto-pdf]')!.textContent).toContain('Download PDF');
     expect(screen.getByRole('button', { name: 'Copy JSON' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Download JSON/ })).toBeNull();

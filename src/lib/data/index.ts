@@ -26,6 +26,8 @@ import { supabaseDocsRepo } from './supabaseDocsRepo';
 import { supabaseUserStateRepo, supabaseLabAccessRepo } from './supabaseUserStateRepo';
 import { localStorageReviewRepo, localStorageCohortRepo, localStorageStepNotesRepo, localStorageTaskReportsRepo, localStorageSubmissionsRepo, localStorageStatusRepo } from './localStorageFeatureRepos';
 import { supabaseReviewRepo, supabaseCohortRepo, supabaseStepNotesRepo, supabaseTaskReportsRepo, supabaseSubmissionsRepo, supabaseStatusRepo } from './supabaseFeatureRepos';
+import { localStorageValidationRepo } from './localStorageValidationRepo';
+import { supabaseValidationRepo } from './supabaseValidationRepo';
 
 const cloud = isSupabaseConfigured();
 
@@ -53,6 +55,8 @@ export const stepNotesRepo = cloud ? supabaseStepNotesRepo : localStorageStepNot
 export const submissionsRepo = cloud ? supabaseSubmissionsRepo : localStorageSubmissionsRepo;
 // R103: the team's document lifecycle (draft → in review → approved → issued).
 export const statusRepo = cloud ? supabaseStatusRepo : localStorageStatusRepo;
+// R140: the member's answers to the validation activities generated from the team's project record.
+export const validationRepo = cloud ? supabaseValidationRepo : localStorageValidationRepo;
 export type {
   EarnedSkillsRepository,
   CourseRepository,
@@ -63,6 +67,10 @@ export type {
   EvidenceRepository,
   PathRepository,
   UserCourseState,
+  ValidationAnswer,
+  ValidationRepository,
+  TaskTimer,
+  DeliverableVersion,
   LabAccessData,
   StepEvidence,
   EvidenceArtifact,

@@ -247,4 +247,8 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | net: 48 skills with a verifiable step; win: 49 skills with a verifiable step; lnx: 48 skills with a verifiable step; mgmt: 47 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
 | Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | net: Network Operations Specialist: 62 required, 38 not taught here; win: System Administrator: 117 required, 73 not taught here; lnx: System Administrator: 117 required, 74 not taught here; mgmt: System Administrator: 117 required, 72 not taught here |
+| Values recalled `kpi.validation.recall-accuracy` | validation | metric.validation-recall (own) |  |
+| Scenarios applied `kpi.validation.applied-scenarios` | validation | metric.validation-applied (own) |  |
+| Conflicts resolved `kpi.validation.conflicts-resolved` | validation | metric.conflicts-resolved (own) |  |
+| Minutes on task `kpi.validation.time-on-task` | validation | metric.minutes-on-task (own) |  |
 

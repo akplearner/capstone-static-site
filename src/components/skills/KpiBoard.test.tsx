@@ -11,7 +11,7 @@ import { getTasksByRole, isSetupWeek } from '@/lib/course-helpers';
 import { verifiableSteps } from '@/lib/evidenceLedger';
 import type { StepEvidence } from '@/lib/data/types';
 
-/** R134 — the board prints twenty-eight tiles with their units, six scores with their components, and the timing block. */
+/** R134 — the board prints thirty-two tiles (R140) with their units, seven scores with their components, and the timing block. */
 const course = SEED_COURSES.find((c) => c.id === 'server-plus')!;
 const doc = courseDto(course.id);
 const registry = skillsOf(doc);
@@ -33,15 +33,15 @@ function boardOf(verified: string[]) {
 const mount = (verified: string[]) => render(<KpiBoard board={boardOf(verified)} defs={registry.KPIS} families={registry.KPI_FAMILIES} workRoles={[]} copy={SKILLS_COPY.board} persistenceLabel={SKILLS_COPY.abilityLabels.persistence} weeks={{ value: 0, of: 4 }} />);
 
 describe('KpiBoard', () => {
-  it('prints twenty-eight tiles in seven families, a count with no denominator, and the timing block empty before any stamps', () => {
+  it('prints thirty-two tiles in eight families, a count with no denominator, and the timing block empty before any stamps', () => {
     const { container } = mount([]);
-    expect(container.querySelectorAll('[data-kpi-family]')).toHaveLength(7);
-    expect(container.querySelectorAll('li[data-kpi]')).toHaveLength(28);
+    expect(container.querySelectorAll('[data-kpi-family]')).toHaveLength(8);
+    expect(container.querySelectorAll('li[data-kpi]')).toHaveLength(32);
     const count = container.querySelector('li[data-kpi="kpi.teamwork.teammate-steps"]')!;
     expect(count.getAttribute('data-unit')).toBe('count');
     expect(count.querySelector('.sr-only')?.textContent).toBe('0');
     expect(container.querySelector('[data-kpi-timing]')?.textContent).toContain(SKILLS_COPY.board.noTiming);
-    expect(container.querySelectorAll('[data-kpi-scores] [data-score]')).toHaveLength(6);
+    expect(container.querySelectorAll('[data-kpi-scores] [data-score]')).toHaveLength(7);
     expect(container.querySelector('[data-kpi-scores] [data-score="score.judgment"]')?.getAttribute('data-loaded')).toBe('false');
   });
 

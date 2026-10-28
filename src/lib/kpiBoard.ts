@@ -11,8 +11,8 @@ import { scoreValues, type ScoreValue } from './scores';
  * a ratio of counts the registry (`content.skills.KPIS`) defines, with the
  * kind of fact it reads and whether that fact was handed in.
  *
- * R132 — `capstone-kpi-board/2`: seven families of four (twenty-eight KPIs),
- * six scores computed by the published method (`content.skills.SCORING`,
+ * R132 — `capstone-kpi-board/3` since R140: eight families of four (thirty-two KPIs),
+ * seven scores computed by the published method (`content.skills.SCORING`,
  * `scores.ts`) and the timing block (minutes between two recorded stamps). A
  * pure projection: no clock is read (the profile carries the stamps and the
  * page's `asOf`), a team fact is labelled as one, a number whose facts were
@@ -25,7 +25,7 @@ import { scoreValues, type ScoreValue } from './scores';
  * so a low fraction reads as a gap in the syllabus, never as a failure.
  */
 
-export const KPI_BOARD_SCHEMA = 'capstone-kpi-board/2';
+export const KPI_BOARD_SCHEMA = 'capstone-kpi-board/3';
 
 export interface MeasureAgainst {
   kind: 'work-role' | 'profile';
@@ -79,9 +79,9 @@ export interface KpiBoard {
   workRoles: string[];
   measuredAgainst: { kind: MeasureAgainst['kind']; id: string; label: string; required: number; untaught: number };
   families: { id: KpiFamily; label: string }[];
-  /** Exactly twenty-eight, in registry order. */
+  /** Exactly thirty-two (since R140), in registry order. */
   kpis: KpiValue[];
-  /** R132: the six scores, in registry order, each with its components. */
+  /** R132: the scores (seven since R140), in registry order, each with its components. */
   scores: ScoreValue[];
   /** R132: minutes between two recorded stamps per verified step. */
   timing: TimingFacts;
@@ -202,6 +202,11 @@ export function kpiBoard(input: KpiBoardInput): KpiBoard {
     'kpi.growth.learning-velocity': { ...indicator(abilities.learningVelocity), pct: abilities.learningVelocity.loaded && (abilities.learningVelocity.of ?? 0) > 0 ? Math.min(100, Math.round((100 * abilities.learningVelocity.value) / (abilities.learningVelocity.of ?? 1))) : 0 },
     // R137: over the competencies the course teaches; the untaught ones are listed beside the measure, never counted against the member.
     'kpi.growth.profile-coverage': { value: coverage.value, of: coverage.of - coverage.untaught, loaded: true, offered: coverage.of - coverage.untaught },
+    // ── validation (R140) ── read from the answers to activities generated from the team's own record; the minutes are a count.
+    'kpi.validation.recall-accuracy': indicator(abilities.recallAccuracy),
+    'kpi.validation.applied-scenarios': indicator(abilities.scenariosApplied),
+    'kpi.validation.conflicts-resolved': indicator(abilities.conflictsResolved),
+    'kpi.validation.time-on-task': indicator(abilities.timeOnTask),
   };
 
   const kpis: KpiValue[] = registry.KPIS.map((def: KpiDef) => {

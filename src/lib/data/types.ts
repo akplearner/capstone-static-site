@@ -21,12 +21,26 @@ export interface ImportResult {
 export interface UserCourseState {
   /** The last checkbox ticked. See src/lib/resume.ts. */
   resume?: { week: number; taskId: string; stepId: string; at: number };
+  /** R140: the time this member has had each task open, by task id (`src/lib/taskTimer.ts`). Measured, never rewarded. */
+  timers?: Record<string, TaskTimer>;
+  /** R140: the task paused under the cover, if any; the content stays hidden until Resume. */
+  paused?: string | null;
   /** "I'm building the lab at home" — unlocks the Week-0 build task. */
   homeBuildAck?: boolean;
   /** How many of the mine's weeks have already played their strike (R80/R81):
    *  the pointer used to live in localStorage, so a new device replayed
    *  everything. */
   mineSeen?: number;
+}
+
+/**
+ * R140: one task's timer. `elapsedMs` is what has been counted so far; `runningSince`
+ * is the stamp the current run started at, or null while stopped (paused, closed, or
+ * the tab hidden). The elapsed time of a running timer is `elapsedMs + (now - runningSince)`.
+ */
+export interface TaskTimer {
+  elapsedMs: number;
+  runningSince: number | null;
 }
 
 /** `memberId` scopes the LOCAL store only. Two students sharing one classroom
@@ -396,6 +410,39 @@ export interface StepFlagEvent {
   stepId: string;
   kind: 'raised' | 'cleared';
   at: number;
+}
+
+/**
+ * R140: one answer to a validation activity — a recall, an applied scenario, an
+ * explanation or a conflict resolved — generated from the team's own project
+ * record (`src/lib/validation/activities.ts`). Append-only (0026): a retry is a
+ * second row. The answer itself travels as a hash: the record is never written
+ * into this table, and an explanation is the only free text.
+ */
+export interface ValidationAnswer {
+  courseId: string;
+  memberId: string;
+  teamId: string;
+  /** `val:<checkpoint>:<kind>:<recordKey>` — stable for the same fact. */
+  activityId: string;
+  /** The checkpoint's week. */
+  checkpoint: number;
+  kind: 'recall' | 'apply' | 'explain' | 'consistency';
+  recordKey: string;
+  answerSha256: string;
+  /** Null for an explanation until an instructor marks it. */
+  correct: boolean | null;
+  /** The explanation, at most 2,000 characters; empty otherwise. */
+  explanation: string;
+  at: number;
+}
+
+export interface ValidationRepository {
+  /** Every answer of one member on a course, oldest first. */
+  list(courseId: string, memberId: string): ValidationAnswer[];
+  /** The team's answers on a course (an instructor's console reads them; a member reads the team's). */
+  listTeam(courseId: string, teamId: string): ValidationAnswer[];
+  save(answer: ValidationAnswer): void;
 }
 
 /** A structured "something is wrong with this task" from a student (R83). */

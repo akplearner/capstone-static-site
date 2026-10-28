@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "families": [
     {
       "id": "technical",
@@ -43,6 +43,12 @@
       "label": "Growth",
       "definition": "Skills proved twice, retained across weeks, verified faster week on week, and the gap to a work role closing.",
       "asks": "Is this member still learning, and keeping what was learned?"
+    },
+    {
+      "id": "validation",
+      "label": "Understanding",
+      "definition": "Values the team recorded, recalled and applied weeks later; conflicts the record found, resolved; minutes on task, measured.",
+      "asks": "Did this member retain what the team built, and can they apply it when something changes?"
     }
   ],
   "kpis": [
@@ -560,6 +566,81 @@
       "whyCompany": "Coverage of the competencies a work role or an environment profile requires, read from verified steps.",
       "agentField": "/kpis/27",
       "scored": true
+    },
+    {
+      "id": "kpi.validation.recall-accuracy",
+      "family": "validation",
+      "label": "Values recalled",
+      "metricId": "metric.validation-recall",
+      "numerator": "Recall activities answered correctly: the value the team recorded, picked among distractors.",
+      "denominator": "Recall activities answered, from the checkpoints reached.",
+      "fact": "own",
+      "unit": "ratio",
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "whyMember": "Weeks after recording an address, a prefix, a port or a decision, the member still knows it.",
+      "whyCompany": "Retention of the project the member built, read from answers given without the form open.",
+      "agentField": "/kpis/28",
+      "scored": true
+    },
+    {
+      "id": "kpi.validation.applied-scenarios",
+      "family": "validation",
+      "label": "Scenarios applied",
+      "metricId": "metric.validation-applied",
+      "numerator": "Applied scenarios answered correctly: an address inside the prefix, a free port on the host, the committed size.",
+      "denominator": "Applied scenarios offered at the checkpoints reached.",
+      "fact": "own",
+      "unit": "ratio",
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "whyMember": "Takes a value the team recorded and uses it under a change the course did not script.",
+      "whyCompany": "Applied use of recorded facts, not recall alone; offered scenarios count whether or not answered.",
+      "agentField": "/kpis/29",
+      "scored": true
+    },
+    {
+      "id": "kpi.validation.conflicts-resolved",
+      "family": "validation",
+      "label": "Conflicts resolved",
+      "metricId": "metric.conflicts-resolved",
+      "numerator": "Conflicts the record found that the team resolved: the address, the port, the prefix, the size no longer at odds.",
+      "denominator": "Conflicts the record found at the checkpoints reached, resolved or still open.",
+      "fact": "own",
+      "unit": "ratio",
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "whyMember": "A duplicate address or an over-committed host found by the platform and fixed by the team.",
+      "whyCompany": "Contradictions in the record closed, read from the record itself rather than from a claim.",
+      "agentField": "/kpis/30",
+      "scored": true
+    },
+    {
+      "id": "kpi.validation.time-on-task",
+      "family": "validation",
+      "label": "Minutes on task",
+      "metricId": "metric.minutes-on-task",
+      "numerator": "Whole minutes the member had tasks of this course open on a visible tab, pauses excluded.",
+      "denominator": "A count; nothing is read into it.",
+      "fact": "own",
+      "unit": "count",
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "whyMember": "How long the work took the member, by the timer they can pause; measured, never rewarded.",
+      "whyCompany": "Time on task as context for the other rows; no score reads it.",
+      "agentField": "/kpis/31",
+      "scored": false
     }
   ],
   "deprecated": [

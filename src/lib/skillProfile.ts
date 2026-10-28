@@ -1,5 +1,5 @@
 import type { Course, Step, Task } from './types';
-import type { DeliverableReview, DeliverableReviewMark, DeliverableSubmission, EvidenceArtifact, RehashCheck, StepEvidence, StepFlagEvent, StepNote, TaskReport, VerificationReceipt } from './data/types';
+import type { DeliverableReview, DeliverableReviewMark, DeliverableSubmission, EvidenceArtifact, RehashCheck, StepEvidence, StepFlagEvent, StepNote, TaskReport, TaskTimer, ValidationAnswer, VerificationReceipt } from './data/types';
 import type { DeliverableData, DeliverableDef } from './docs/types';
 import type { DeliverableStatus } from './docs/lifecycle';
 import type { CertContent, SkillsContent } from './content/read';
@@ -14,6 +14,10 @@ import { decisionBlocksOf, decisionKey } from './docs/types';
 import { withoutSeedRows } from './docs/definitions';
 import { formBase, isRationaleKey } from './docs/recordCategories';
 import { localDay } from './localDate';
+import { projectRecord, recordConflicts } from './docs/projectRecord';
+import { checkpointsReached } from './validation/plan';
+import { validationActivities } from './validation/activities';
+import { totalMinutes } from './taskTimer';
 
 /**
  * R107 — the member profile: what one person has practised, verified and had
@@ -160,6 +164,11 @@ export interface AbilityIndicators {
   retention: Indicator;
   skillsCurrent: Indicator;
   learningVelocity: Indicator;
+  /** R140, own facts over the team's record: the validation family — recall, applied scenarios, conflicts resolved, minutes on task. */
+  recallAccuracy: Indicator;
+  scenariosApplied: Indicator;
+  conflictsResolved: Indicator;
+  timeOnTask: Indicator;
 }
 
 /** R132: the minutes between the first paste and the verification of a step, as the board prints them. */
@@ -200,6 +209,10 @@ export interface OwnFacts {
   flagEvents?: StepFlagEvent[];
   /** R132: the member's blind review queue, counted; absent until the page reads it. */
   peerReviews?: { done: number; assigned: number };
+  /** R140: the member's answers to the validation activities; absent where the table was not read. */
+  validation?: ValidationAnswer[];
+  /** R140: the member's task timers for this course; absent where the state was not read. */
+  timers?: Record<string, TaskTimer>;
 }
 
 export interface SkillProfileInput {
@@ -869,6 +882,47 @@ function abilityIndicators(input: SkillProfileInput, own: Task[], facts: Map<str
           return { value: artifacts.filter((a) => latest.get(a.sha256)?.ok).length, of: artifacts.length, loaded: true };
         })()
       : EMPTY_INDICATOR,
+    ...validationIndicators(input),
+  };
+}
+
+/**
+ * R140 — the validation family. The activities are generated here from the team's
+ * documents exactly as the panel generates them (same record, same checkpoints,
+ * same ids), so an answer is read against the activity it answered. Needs the
+ * team facts (the record) and the own facts (the answers); without either the
+ * rows are not loaded. Every course has a record registry, so these rows are
+ * never "not measured for the role": before the checkpoint week, or before the
+ * team records anything, there is nothing to count yet.
+ */
+function validationIndicators(input: SkillProfileInput): Pick<AbilityIndicators, 'recallAccuracy' | 'scenariosApplied' | 'conflictsResolved' | 'timeOnTask'> {
+  const { course, memberId } = input;
+  const team = input.team;
+  const mine = input.own;
+  const timeOnTask: Indicator = mine?.timers ? { value: totalMinutes(mine.timers, input.asOf ?? 0, getTasksByRole(course, input.role).map((t) => t.id)), loaded: true } : EMPTY_INDICATOR;
+  if (!team || !mine?.validation) return { recallAccuracy: EMPTY_INDICATOR, scenariosApplied: EMPTY_INDICATOR, conflictsResolved: EMPTY_INDICATOR, timeOnTask };
+  const record = projectRecord(team.docs, input.deliverables);
+  const conflicts = recordConflicts(record);
+  const answers = mine.validation.filter((a) => a.courseId === course.id && a.memberId === memberId);
+  // A checkpoint the member has answered is reached whatever week the page passes (the course skill board passes none).
+  const reachedWeek = Math.max(team.currentWeek, ...answers.map((a) => a.checkpoint));
+  const reached = checkpointsReached(course, reachedWeek);
+  const activities = reached.flatMap((checkpoint) => validationActivities({ course, defs: input.deliverables, record, conflicts, checkpoint }));
+  const latest = new Map<string, ValidationAnswer>();
+  for (const a of [...answers].sort((x, y) => x.at - y.at)) latest.set(a.activityId, a);
+  const correct = (id: string) => latest.get(id)?.correct === true;
+  const recall = activities.filter((a) => a.kind === 'recall');
+  const apply = activities.filter((a) => a.kind === 'apply');
+  // A conflict resolved is no longer in the record: the denominator keeps the ones answered as resolved.
+  const applyReached = reached.some((c) => c.kind !== 'recall');
+  const openConflicts = applyReached ? conflicts.length : 0;
+  const resolved = applyReached ? [...latest.values()].filter((a) => a.kind === 'consistency' && a.correct === true && !conflicts.some((c) => a.activityId.endsWith(c.id))).length : 0;
+  const offered = Math.max(1, activities.length);
+  return {
+    recallAccuracy: { value: recall.filter((a) => correct(a.id)).length, of: recall.filter((a) => latest.has(a.id)).length, loaded: true, offered },
+    scenariosApplied: { value: apply.filter((a) => correct(a.id)).length, of: apply.length, loaded: true, offered },
+    conflictsResolved: { value: resolved, of: resolved + openConflicts, loaded: true, offered },
+    timeOnTask,
   };
 }
 

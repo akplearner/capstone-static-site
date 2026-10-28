@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "domains": [
     {
       "id": "technical-capability",
@@ -147,8 +147,12 @@
       "kpis": [
         "kpi.growth.skills-transferred",
         "kpi.growth.retention",
-        "kpi.growth.learning-velocity"
+        "kpi.growth.learning-velocity",
+        "kpi.validation.recall-accuracy",
+        "kpi.validation.applied-scenarios",
+        "kpi.validation.conflicts-resolved"
       ],
+      "score": "score.understanding",
       "evidence": "The verification stamps of every skill: first and last, the tasks and courses between them, and the last two months of them."
     },
     {

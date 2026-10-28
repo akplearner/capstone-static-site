@@ -5,8 +5,8 @@ import { motion } from 'framer-motion';
 import { Upload, X, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Course, Member, TaskCompletion } from '@/lib/types';
 import type { DeliverableData } from '@/lib/docs/types';
-import { progressRepo, docsRepo, userStateRepo, labAccessRepo, evidenceRepo, pathRepo, stepNotesRepo, statusRepo } from '@/lib/data';
-import type { EvidenceArtifact, LabAccessData, RehashCheck, StepEvidence, StepNote, UserCourseState } from '@/lib/data';
+import { progressRepo, docsRepo, userStateRepo, labAccessRepo, evidenceRepo, pathRepo, stepNotesRepo, statusRepo, validationRepo } from '@/lib/data';
+import type { EvidenceArtifact, LabAccessData, RehashCheck, StepEvidence, StepNote, UserCourseState, ValidationAnswer } from '@/lib/data';
 import type { DeliverableStatus } from '@/lib/docs/lifecycle';
 import { rewriteDecisionAuthors } from '@/lib/data/importRewrite';
 import { getBrowserClient } from '@/lib/supabase/client';
@@ -139,6 +139,9 @@ export function ImportPrompt({ course }: { course: Course }) {
     // leaves the raised event the history reads.
     const localNotes = readLocal<Record<string, StepNote>>(KEYS.stepNotes(course.id, oldId));
     for (const note of Object.values(localNotes ?? {})) stepNotesRepo.save(user.id, note);
+    // R140: the validation answers this device holds travel as the account's own (the cloud appends them).
+    const localAnswers = readLocal<ValidationAnswer[]>(KEYS.validation(course.id, oldId));
+    for (const a of localAnswers ?? []) validationRepo.save({ ...a, memberId: user.id });
 
     // 4. Lab access and the resume pointer + Week-0 ack. These also live in the
     //    cloud now, so an import that skipped them would silently drop a
@@ -156,11 +159,14 @@ export function ImportPrompt({ course }: { course: Course }) {
     const localAck = window.localStorage.getItem(KEYS.homeBuildAck(course.id)) === '1';
     const localSeenRaw = window.localStorage.getItem(KEYS.mineSeen(course.id, oldId));
     const localSeen = localSeenRaw === null ? NaN : Number(localSeenRaw);
-    if (localResume || localAck || !Number.isNaN(localSeen)) {
+    // R140: the task timers travel too (the paused task is left behind: a new sign-in starts unpaused).
+    const localTimers = readLocal<Pick<UserCourseState, 'timers'>>(KEYS.timers(course.id, oldId))?.timers;
+    if (localResume || localAck || !Number.isNaN(localSeen) || localTimers) {
       userStateRepo.save(course.id, user.id, {
         ...(localResume ? { resume: localResume } : {}),
         ...(localAck ? { homeBuildAck: true } : {}),
         ...(!Number.isNaN(localSeen) ? { mineSeen: localSeen } : {}),
+        ...(localTimers ? { timers: localTimers } : {}),
       });
     }
 

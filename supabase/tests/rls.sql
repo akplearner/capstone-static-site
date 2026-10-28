@@ -242,10 +242,51 @@ do $$ begin
 end $$;
 reset role;
 
+-- ── R140: validation answers (0026) — own insert, team read, append-only ──
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+insert into public.validation_answers (user_id, course_id, team_id, activity_id, checkpoint, kind, record_key, answer_sha256, correct)
+  values ('00000000-0000-4000-8000-00000000000a', 'security-plus', '2026-01-T01', 'val:3:recall:asset_inventory.assets[0].ip', 3, 'recall', 'asset_inventory.assets[0].ip', repeat('a', 64), true);
+do $$ begin
+  assert (select count(*) from public.validation_answers) = 1, 'ada: her answer';
+  assert (select at from public.validation_answers) > now() - interval '1 minute', 'ada: the database stamped it';
+  begin
+    insert into public.validation_answers (user_id, course_id, team_id, activity_id, checkpoint, kind, record_key, answer_sha256, correct)
+      values ('00000000-0000-4000-8000-00000000000b', 'security-plus', '2026-01-T01', 'val:3:recall:x', 3, 'recall', 'x', repeat('b', 64), true);
+    raise exception 'ada answered as bob';
+  exception when insufficient_privilege then null; end;
+  begin
+    insert into public.validation_answers (user_id, course_id, team_id, activity_id, checkpoint, kind, record_key, answer_sha256, correct)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', '2026-01-T02', 'val:3:recall:x', 3, 'recall', 'x', repeat('b', 64), true);
+    raise exception 'ada answered for a team she is not on';
+  exception when insufficient_privilege then null; end;
+  begin
+    update public.validation_answers set correct = false where user_id = '00000000-0000-4000-8000-00000000000a';
+    raise exception 'ada rewrote an answer';
+  exception when insufficient_privilege then null; end;
+  begin
+    delete from public.validation_answers where user_id = '00000000-0000-4000-8000-00000000000a';
+    raise exception 'ada erased an answer';
+  exception when insufficient_privilege then null; end;
+  begin
+    insert into public.validation_answers (user_id, course_id, team_id, activity_id, checkpoint, kind, record_key, answer_sha256, explanation)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', '2026-01-T01', 'val:3:explain:x', 3, 'explain', 'x', repeat('c', 64), repeat('e', 2001));
+    raise exception 'ada saved a 2,001-character explanation';
+  exception when check_violation then null; end;
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000b';
+do $$ begin
+  assert (select count(*) from public.validation_answers) = 1, 'bob: his teammate''s answer';
+end $$;
+reset role;
+
 -- ── What Cy sees (other team) ───────────────────────────────────────────────
 set local role authenticated;
 set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000c';
 do $$ begin
+  assert (select count(*) from public.validation_answers) = 0, 'cy: not team 01''s answers';
   assert (select count(*) from public.deliverable_history) = 0, 'cy: not team 01''s history';
   assert (select count(*) from public.task_reports) = 0, 'cy: never another team''s reports';
   assert (select count(*) from public.memberships) = 3, 'cy: the whole course roster';
@@ -1650,11 +1691,14 @@ set local role authenticated;
 set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000d';
 do $$ begin
   assert (select count(*) from public.deliverable_history) = 2, 'ivy: every team''s history';
+  assert (select count(*) from public.validation_answers) = 1, 'ivy: every answer';
 end $$;
 reset role;
 set local role anon;
 do $$ begin
   assert not has_table_privilege('anon', 'public.deliverable_history', 'select'), 'anon: no history';
+  assert not has_table_privilege('anon', 'public.validation_answers', 'select'), 'anon: no answers';
+  assert not has_table_privilege('anon', 'public.validation_answers', 'insert'), 'anon: no answering';
 end $$;
 reset role;
 

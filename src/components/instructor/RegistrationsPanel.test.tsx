@@ -29,6 +29,7 @@ const data = (roster: RosterEntry[]): CohortData => ({
   cohortDates: [],
   marks: {},
   flagEvents: {},
+  validation: {},
   peerReviewCounts: {},
   earned: {},
   status: {},

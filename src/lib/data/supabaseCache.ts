@@ -25,6 +25,7 @@ import type {
   DeliverableReviewMark,
   StepFlagEvent,
   ReviewQueueItem,
+  ValidationAnswer,
 } from './types';
 import { getBrowserClient } from '../supabase/client';
 import { notifyStore } from '../useClientStore';
@@ -71,6 +72,8 @@ const reviewsByTeam = new Map<string, DeliverableReview[]>(); // `${courseId}::$
 // R132: the per-category review marks (team key → rows) and the stuck-flag history (course → rows).
 const marksByTeam = new Map<string, DeliverableReviewMark[]>();
 const flagEventsByCourse = new Map<string, StepFlagEvent[]>();
+// R140: validation answers by course (the team's on a course page, the member's own across courses).
+const validationByCourse = new Map<string, ValidationAnswer[]>();
 // R136: the caller's blind review queue, every course, as the last hydrate read it (null until then).
 let reviewQueue: ReviewQueueItem[] | null = null;
 const cohortsByKey = new Map<string, Cohort>(); // `${courseId}::${cohort}`
@@ -184,6 +187,7 @@ export function setCurrentUserId(id: string | null) {
     reviewsByTeam.clear();
     marksByTeam.clear();
     flagEventsByCourse.clear();
+    validationByCourse.clear();
     reviewQueue = null;
     cohortsByKey.clear();
     stepNotesByKey.clear();
@@ -345,6 +349,13 @@ export const cache = {
   },
   addFlagEvent(e: StepFlagEvent) {
     flagEventsByCourse.set(e.courseId, [...(flagEventsByCourse.get(e.courseId) ?? []), e]);
+  },
+  // R140
+  validation(courseId: string): ValidationAnswer[] {
+    return validationByCourse.get(courseId) ?? [];
+  },
+  addValidation(a: ValidationAnswer) {
+    validationByCourse.set(a.courseId, [...(validationByCourse.get(a.courseId) ?? []), a]);
   },
   setReview(review: DeliverableReview) {
     const k = teamKey(review.courseId, review.teamId);
@@ -615,7 +626,7 @@ export async function hydrateCourse(courseId: string): Promise<void> {
   const gen = (hydrateGen.get(courseId) ?? 0) + 1;
   hydrateGen.set(courseId, gen);
 
-  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts, reviews, cohorts, notes, flags, profiles, reports, submissions, peerReviews, docStatus, receipts, rehashes, fixes, reviewMarksRows, flagEventRows, queueRows] =
+  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts, reviews, cohorts, notes, flags, profiles, reports, submissions, peerReviews, docStatus, receipts, rehashes, fixes, reviewMarksRows, flagEventRows, queueRows, validationRows] =
     await Promise.all([
       supabase.from('memberships').select('*').eq('course_id', courseId),
       supabase.from('step_completions').select('*').eq('course_id', courseId),
@@ -663,6 +674,8 @@ export async function hydrateCourse(courseId: string): Promise<void> {
       supabase.from('step_flag_events').select('*').eq('course_id', courseId),
       // R136: the caller's blind review queue (every course; the function reads only their own assignments).
       reviewQueueSelect(supabase),
+      // R140: the team's validation answers (0026; an older database answers with an error, read as none).
+      supabase.from('validation_answers').select('*').eq('course_id', courseId),
     ]);
 
   // A newer hydrate started while this one was on the wire: its data is
@@ -757,6 +770,7 @@ export async function hydrateCourse(courseId: string): Promise<void> {
     cache.addReviewMarks(reviewMarksRows.data.map(reviewMarkFromRow));
   }
   if (flagEventRows.data) flagEventsByCourse.set(courseId, flagEventRows.data.map(flagEventFromRow));
+  if (validationRows.data) validationByCourse.set(courseId, validationRows.data.map(validationFromRow));
   if (queueRows.data) reviewQueue = queueRows.data.map(reviewQueueItemFromRow);
   if (cohorts.data) cohorts.data.forEach((r) => cache.setCohort({ courseId, cohort: String(r.cohort), startsOn: String(r.starts_on) }));
   if (notes.data) {
@@ -867,6 +881,23 @@ export function reviewQueueItemFromRow(r: Record<string, unknown>): ReviewQueueI
 }
 
 /** R132 */
+/** R140: one validation answer row (0026). */
+export function validationFromRow(r: Record<string, unknown>): ValidationAnswer {
+  return {
+    courseId: String(r.course_id),
+    memberId: String(r.user_id),
+    teamId: String(r.team_id),
+    activityId: String(r.activity_id),
+    checkpoint: Number(r.checkpoint),
+    kind: (['recall', 'apply', 'explain', 'consistency'].includes(String(r.kind)) ? String(r.kind) : 'recall') as ValidationAnswer['kind'],
+    recordKey: String(r.record_key),
+    answerSha256: String(r.answer_sha256),
+    correct: r.correct === null || r.correct === undefined ? null : Boolean(r.correct),
+    explanation: String(r.explanation ?? ''),
+    at: r.at ? Date.parse(String(r.at)) : 0,
+  };
+}
+
 export function flagEventFromRow(r: Record<string, unknown>): StepFlagEvent {
   return {
     courseId: String(r.course_id),
@@ -1010,7 +1041,7 @@ export async function hydrateUser(): Promise<void> {
   const supabase = getBrowserClient();
   if (!supabase || !currentUserId) return;
 
-  const [memberships, completions, evidence, artifacts, path, docStatus, submissions, reports, notes, reviews, receipts, rehashes, deliverables, reviewMarksRows, flagEventRows, flags, cohorts, queueRows] = await Promise.all([
+  const [memberships, completions, evidence, artifacts, path, docStatus, submissions, reports, notes, reviews, receipts, rehashes, deliverables, reviewMarksRows, flagEventRows, validationRows, flags, cohorts, queueRows] = await Promise.all([
     supabase.from('memberships').select('*').eq('user_id', currentUserId),
     supabase.from('step_completions').select('*').eq('user_id', currentUserId),
     supabase.from('step_evidence').select('*'),
@@ -1039,6 +1070,7 @@ export async function hydrateUser(): Promise<void> {
     supabase.from('deliverables').select('*'),
     supabase.from('deliverable_review_marks').select('*'),
     supabase.from('step_flag_events').select('*').eq('user_id', currentUserId),
+    supabase.from('validation_answers').select('*').eq('user_id', currentUserId),
     supabase.from('step_flags').select('*').eq('user_id', currentUserId).eq('stuck', true),
     supabase.from('cohorts').select('*'),
     reviewQueueSelect(supabase),
@@ -1152,6 +1184,13 @@ export async function hydrateUser(): Promise<void> {
     flagEventRows.data.forEach((r) => byCourse.set(String(r.course_id), [...(byCourse.get(String(r.course_id)) ?? []), flagEventFromRow(r)]));
     // Own events replace own events; teammates' rows a course page loaded stay.
     byCourse.forEach((mine, cid) => flagEventsByCourse.set(cid, [...(flagEventsByCourse.get(cid) ?? []).filter((e) => e.memberId !== me), ...mine]));
+  }
+  // R140: the member's own answers across courses, the same way.
+  if (validationRows.data) {
+    const me = currentUserId as string;
+    const byCourse = new Map<string, ValidationAnswer[]>();
+    validationRows.data.forEach((r) => byCourse.set(String(r.course_id), [...(byCourse.get(String(r.course_id)) ?? []), validationFromRow(r)]));
+    byCourse.forEach((mine, cid) => validationByCourse.set(cid, [...(validationByCourse.get(cid) ?? []).filter((a) => a.memberId !== me), ...mine]));
   }
   if (flags.data) {
     flags.data.forEach((r) => {

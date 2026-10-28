@@ -104,17 +104,17 @@ has failed silently in some deployment of some product; none takes more than a m
   `schema: "capstone-member-profile/1"` with `signature: null` (the file a member saves is the PDF, R127).
 - [ ] **Skill board (R108):** joined on a course, the Home skills card, the status surface and the
   dashboard card link to `/courses/<id>/skills`; the competency map draws its edges in and lights
-  the stars in course order, the twenty-eight tiles count up once and a sweep crosses them; Replay
+  the stars in course order, the thirty-two tiles count up once and a sweep crosses them; Replay
   repeats both; with reduced motion nothing moves and Replay is hidden; Student, Hiring and Agent
-  switch the captions, and Agent prints JSON with `"schema": "capstone-kpi-board/2"`, twenty-eight
+  switch the captions, and Agent prints JSON with `"schema": "capstone-kpi-board/3"`, thirty-two
   `kpis`, six `scores` and a `timing` block; Measured against switches the coverage tile between the work roles and the sample
   profile, a bad imported file shows an error and a good one survives a reload; `/portfolio`
   shows a KPI table per capstone, and the dashboard's Copy JSON carries `courses[].kpis`; the credential a
   link serves has no `proof` field.
 - [ ] **Cohort KPIs (R108):** `/instructor/<course>/cohort` shows a KPI bands table per cohort
   under the submissions summary, the Team, Focus and Review week selects change the counts, and
-  KPI CSV downloads twenty-eight rows per cohort plus the whole course, naming nobody.
-- [ ] **KPI pack (R109):** the course Home's skills card and every `/dashboard` card show twenty-eight
+  KPI CSV downloads thirty-two rows per cohort plus the whole course, naming nobody.
+- [ ] **KPI pack (R109):** the course Home's skills card and every `/dashboard` card show thirty-two
   sockets in seven groups; hovering or focusing one prints it in the read-out, the arrow keys move
   across them, a complete ratio is lit; the chip beside the pack copies and downloads the
   `capstone-kpi-board/1` JSON; the dashboard's record grid has eight tiles and its member-profile
@@ -147,6 +147,14 @@ has failed silently in some deployment of some product; none takes more than a m
   has no issues section). The account page's **Export my data (JSON)** and the Deliverables page's
   **Export my work (.json)** (a handoff file with **Restore from file**) are still JSON on purpose.
   `docs/FIX_LIST.md` item F6.
+- [ ] **Validate what you built (R140):** on `/courses/server-plus?tab=tasks` as any role, with the Architecture Brief and
+  the IP Plan filled and the week at 3 or later, the Tasks tab ends with **Validate what you built**: a recall card
+  offers four values and never says which is recorded; a right answer stamps, a wrong one allows a retry; the Skill
+  board's Understanding family moves and the seventh score, Understanding retained, appears. Open a task → the pane
+  shows the minutes; press **Pause** → a cover hides the course content with the elapsed time and **Resume**; the
+  minutes do not advance while paused or while the tab is hidden; `/courses/server-plus/skills` shows Minutes on task
+  as a count. In the cloud, an answer is one row in `validation_answers` with the database's stamp; a second answer to
+  the same activity is a second row.
 - [ ] **The project record (R139):** on `/courses/server-plus/docs` as any role, in the IP Plan give two hosts the same
   address → the Expectations panel's Consistency lists "Address … is recorded on … and …" and turns grey; fix one → the
   line goes and Consistency is green again; type `10.10.1.0` in a Prefix cell → the cell hints "A
@@ -170,7 +178,7 @@ has failed silently in some deployment of some product; none takes more than a m
   request past 20 live links answers `too-many-links`; a function called with no `APP_ORIGIN` secret
   answers `app-origin-unset`.
 - [ ] **Scores, timing and the record by category (R134):** on `/courses/<id>/skills`, the KPI board shows
-  **Twenty-eight KPIs** in seven families, then **Scores, by a published method** (six cards, each opening its
+  **Thirty-two KPIs** in eight families, then **Scores, by a published method** (seven cards, each opening its
   components) and **Time to resolution** (the median, the steps timed, within the hour, over a day; "No step
   carries both stamps yet" before any); "Teammate steps ticked" prints a count with no denominator; the table
   prints the scores beneath the KPIs; the pack's read-out prints "n min over m" for the timing socket. On
@@ -346,9 +354,10 @@ owner can flip, in the order that matters:
 6. **Set `APP_ORIGIN` on the functions.** Supabase → **Edge Functions → Secrets → `APP_ORIGIN` =
    `https://<your-site>`**, then redeploy the six functions (`SUPABASE_SETUP.md`, "Deploy the server
    functions"). Since R135 a function without it refuses every browser call.
-7. **Paste `supabase/setup.sql` again** for migrations 0023 to 0025 (safe to repeat): the self-promotion hole,
-   the daily caps and the size limits (0023), the two history tables on the live channel (0024) and the
-   form history the project record reads (0025) are in the database, not the app.
+7. **Paste `supabase/setup.sql` again** for migrations 0023 to 0026 (safe to repeat): the self-promotion hole,
+   the daily caps and the size limits (0023), the two history tables on the live channel (0024), the
+   form history the project record reads (0025) and the validation answers (0026) are in the database,
+   not the app.
 
 ## Still open — decisions only you can make
 

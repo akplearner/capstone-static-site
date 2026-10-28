@@ -60,6 +60,7 @@ export const METRIC_INPUTS = [
   'environment_profile', 'work_roles',
   'learner_outcomes', 'memberships',
   'verification_receipts', 'rehash_checks',
+  'validation_answers', 'user_course_state',
 ] as const;
 
 const ALL: MetricAudience[] = ['member', 'company', 'platform'];
@@ -202,6 +203,11 @@ export const METRICS: MetricDef[] = [
   tm(m('time-to-competency', 'Time to competency', 'retention', 'Days from the first verification of a skill to its tenth verified use.', ['step_evidence', 'registry'], MC, 'deferred', 'R132: the professional threshold is ten verified uses across courses.')),
   tm(m('time-task-vs-benchmark', 'Task time against benchmark', 'troubleshooting', 'Minutes to resolve a task against a published service-level baseline.', [], MC, 'needs-validators', 'R132: no baseline is published yet.')),
   tm(m('time-learning-velocity', 'Learning velocity', 'retention', 'Verified steps in the twenty-eight days before the page clock, over verified steps in the twenty-eight days before those.', ['step_evidence'], MC, 'computed', 'R132: the page passes the clock; the projection reads none.')),
+  // R140: the validation family, read from the answers to activities generated from the team's project record.
+  sc(m('validation-recall', 'Values recalled', 'retention', 'Recall activities answered correctly, over recall activities answered, at the checkpoints reached.', ['validation_answers', 'deliverables', 'course'], ALL, 'computed', 'R140: the activity asks for a value the team recorded; the distractors come from the record.')),
+  sc(m('validation-applied', 'Scenarios applied', 'ability', 'Applied scenarios answered correctly, over applied scenarios offered at the checkpoints reached.', ['validation_answers', 'deliverables', 'course'], ALL, 'computed', 'R140: an address inside the prefix, a free port on the host, the committed size doubled.')),
+  sc(m('conflicts-resolved', 'Conflicts resolved', 'troubleshooting', 'Conflicts the record found that are no longer present, over conflicts found, once the apply checkpoint is reached.', ['validation_answers', 'deliverables', 'course'], ALL, 'computed', 'R140: read from the record itself; the answer only says the team looked.')),
+  m('minutes-on-task', 'Minutes on task', 'execution', 'Whole minutes the member had tasks open on a visible tab, pauses and hidden tabs excluded; a count.', ['user_course_state', 'course'], MC, 'computed', 'R140: the timer the member can pause; measured, never rewarded.'),
 ];
 
 /* ── helpers (lowercase: never written to a document) ───────────────────── */

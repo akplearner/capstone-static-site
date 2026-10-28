@@ -406,7 +406,11 @@
         "onTime",
         "retention",
         "skillsCurrent",
-        "learningVelocity"
+        "learningVelocity",
+        "recallAccuracy",
+        "scenariosApplied",
+        "conflictsResolved",
+        "timeOnTask"
       ],
       "additionalProperties": false,
       "properties": {
@@ -522,6 +526,18 @@
           "$ref": "#/$defs/indicator"
         },
         "learningVelocity": {
+          "$ref": "#/$defs/indicator"
+        },
+        "recallAccuracy": {
+          "$ref": "#/$defs/indicator"
+        },
+        "scenariosApplied": {
+          "$ref": "#/$defs/indicator"
+        },
+        "conflictsResolved": {
+          "$ref": "#/$defs/indicator"
+        },
+        "timeOnTask": {
           "$ref": "#/$defs/indicator"
         }
       }

@@ -260,7 +260,7 @@ describe('R127 — fit', () => {
 
 describe('R127 — a shared copy', () => {
   const copy = {
-    schema: 'capstone-member-profile/2',
+    schema: 'capstone-member-profile/3',
     subject: { display: 'Ada Lovelace' },
     summary: { verified: 12, verifiable: 19, receipted: 3, artifacts: 7, skillsVerified: ['a', 'b', 'c'], skillsPractised: ['a', 'b', 'c', 'd'] },
     courses: [
@@ -422,7 +422,7 @@ describe('R127 — for an external reader', () => {
   });
 
   it('R134: prints the record by category and the scores when a copy carries them, and leaves both out when it does not', () => {
-    const copy = { schema: 'capstone-member-profile/2', subject: { display: 'Ada Lovelace' }, summary: { verified: 1, verifiable: 2, artifacts: 0, skillsVerified: [], skillsPractised: [] }, courses: [{ courseId: 'security-plus', title: 'Security+ Capstone Lab', role: 'Red Team', capstoneFiled: false, metrics: {}, skills: { rows: {} } }] };
+    const copy = { schema: 'capstone-member-profile/3', subject: { display: 'Ada Lovelace' }, summary: { verified: 1, verifiable: 2, artifacts: 0, skillsVerified: [], skillsPractised: [] }, courses: [{ courseId: 'security-plus', title: 'Security+ Capstone Lab', role: 'Red Team', capstoneFiled: false, metrics: {}, skills: { rows: {} } }] };
     const withBoth = {
       ...copy,
       courses: [{ ...copy.courses[0], scores: [{ id: 'score.tool-proficiency', value: 70, counted: 3, of: 3, loaded: true }, { id: 'score.judgment', value: 0, counted: 0, of: 4, loaded: false }] }],

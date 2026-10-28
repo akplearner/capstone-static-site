@@ -57,7 +57,7 @@ describe('memberExport', () => {
     expect(p.signature).toBeNull();
     expect(p.subject.display).toBe('me');
     expect(p.courses).toHaveLength(1);
-    expect(p.courses[0].kpis).toHaveLength(28);
+    expect(p.courses[0].kpis).toHaveLength(32);
     expect(p.courses[0].workRoles).toEqual(workRoles.map((w) => w.id));
     expect(workRoles.length).toBeGreaterThan(0);
     expect('board' in p.courses[0]).toBe(false);
@@ -78,7 +78,7 @@ describe('memberExport', () => {
     expect(cred.validFrom).toBe(p.generatedAt);
     expect(cred.evidence[0].id).toBe(`sha256:${digest}`);
     expect(cred.evidence[0].name).toBe(PROFILE_FILENAME);
-    expect(cred.credentialSubject.result).toHaveLength(28 + 6);
+    expect(cred.credentialSubject.result).toHaveLength(32 + 7);
     expect(cred.credentialSubject.result[0].resultDescription).toBe(`${course.id} ${board.kpis[0].id}`);
     expect(cred.claim).toBe(registry.COPY.board.credentialClaim);
     const codes = cred.credentialSubject.achievement.alignment.map((a) => a.targetCode);
@@ -96,7 +96,7 @@ describe('memberExport', () => {
     expect(cred.credentialSubject.achievement.alignment.filter((a) => a.targetFramework === 'NICE')).toHaveLength(0);
     const codes = cred.credentialSubject.achievement.alignment.map((a) => a.targetCode);
     expect(new Set(codes).size).toBe(codes.length);
-    expect(cred.credentialSubject.result).toHaveLength(2 * (28 + 6));
+    expect(cred.credentialSubject.result).toHaveLength(2 * (32 + 7));
     expect(cred.evidence[0].id).toBe(`sha256:${'b'.repeat(64)}`);
   });
 

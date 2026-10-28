@@ -200,7 +200,7 @@ describe('after "Reset my progress" the record is kept, and its lists say so', (
 });
 
 describe('R127 — the record leaves as a PDF, never a JSON file', () => {
-  const memberPdf = () => document.querySelector<HTMLButtonElement>('[data-dto-chip="capstone-member-profile/2"] [data-dto-pdf]')!;
+  const memberPdf = () => document.querySelector<HTMLButtonElement>('[data-dto-chip="capstone-member-profile/3"] [data-dto-pdf]')!;
   const report = (id: string, memberId: string, note: string, over: Record<string, unknown> = {}) =>
     taskReportsRepo.save({ id, courseId: course.id, taskId: graded[1].id, teamId: me.teamId, memberId, kind: 'broken', note, status: 'open', at: Date.UTC(2026, 9, 12, 12), reporterName: memberId, ...over });
 
@@ -254,7 +254,7 @@ describe('R127 — the record leaves as a PDF, never a JSON file', () => {
     workTask(graded[1].id);
     report('mine', me.memberId, 'Step 1 is unclear.');
     render(<DashboardPage />);
-    const card = document.querySelector<HTMLButtonElement>('[data-dto-chip="capstone-kpi-board/2"] [data-dto-pdf]')!;
+    const card = document.querySelector<HTMLButtonElement>('[data-dto-chip="capstone-kpi-board/3"] [data-dto-pdf]')!;
     expect(card.textContent).toContain('Download PDF');
     fireEvent.click(card);
     const [file] = saved.files;

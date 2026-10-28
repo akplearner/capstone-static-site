@@ -17,7 +17,7 @@ import { MEMBER_PROFILE_SCHEMA, ONTOLOGY_VERSION } from './docs/ontology';
  * module reads no clock, no window and no repository.
  *
  * The profile is `content/schemas/member-profile.schema.json`
- * (`capstone-member-profile/2` since R132: the board's scores and timing ride
+ * (`capstone-member-profile/3` since R132: the board's scores and timing ride
  * on each course); the credential is `content/schemas/credential.schema.json`,
  * an Open Badges 3.0 envelope that carries no proof and claims none. Both stay
  * member-initiated.

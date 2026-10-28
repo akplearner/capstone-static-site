@@ -5,7 +5,7 @@ function ok(cond: unknown, msg: string): void {
   if (!cond) throw new Error(msg);
 }
 
-const profile = { schema: 'capstone-member-profile/2', signature: null, subject: { display: 'Grace' }, courses: [{ courseId: 'security-plus', metrics: { verified: 3 } }] };
+const profile = { schema: 'capstone-member-profile/3', signature: null, subject: { display: 'Grace' }, courses: [{ courseId: 'security-plus', metrics: { verified: 3 } }] };
 const credential = { '@context': ['https://www.w3.org/ns/credentials/v2'], type: ['VerifiableCredential', 'OpenBadgeCredential'], credentialSubject: { type: ['AchievementSubject'] } };
 const good = { kind: 'profile', days: 30, label: 'For Example Ltd', snapshot: profile };
 

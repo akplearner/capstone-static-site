@@ -86,7 +86,7 @@ describe('R132 — the fourteen record categories', () => {
   });
 });
 
-describe('R132 — the eight skill domains and the six scores', () => {
+describe('R132 — the eight skill domains and the scores (seven since R140)', () => {
   it('the domains are eight, in order, naming real dimensions, categories, KPIs and scores, in the register', () => {
     expect(SKILL_DOMAINS.map((d) => d.id)).toEqual(SKILL_DOMAIN_IDS);
     expect(SKILL_DOMAINS.length).toBe(8);
@@ -105,7 +105,7 @@ describe('R132 — the eight skill domains and the six scores', () => {
   });
 
   it('every score is a weighted mean whose weights sum to one over KPIs with a denominator, in the register', () => {
-    expect(SCORES.length).toBe(6);
+    expect(SCORES.length).toBe(7);
     for (const s of SCORES) {
       expect(words(s.label), `${s.id} label ≤ 4 words`).toBeLessThanOrEqual(4);
       expect(words(s.definition), `${s.id} definition ≤ 25 words`).toBeLessThanOrEqual(25);

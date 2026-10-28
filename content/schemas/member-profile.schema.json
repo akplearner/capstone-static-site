@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://capstone.example/schemas/member-profile.schema.json",
   "title": "Member profile",
-  "description": "The portfolio export a member sends themselves: what they ticked and verified, the hashes of output and files, the documents the team filed, per course against the published ontology, and since R132 the twenty-eight KPIs, the six scores by the published method and the minutes between two recorded stamps per course (capstone-member-profile/2). Unsigned: signature is null until validators exist. The copy a candidate link serves (R124) is the same shape, kept small: a row carries its id and level and only the counters that are not zero (an absent counter is zero); a row's dimension, label and references are absent too and the reader restores them from the published ontology by id (a standards row keeps the references its forms cited; a fact row of the troubleshooting, decisions and execution dimensions keeps its label), and a course may leave out the member\u2019s gaps and raw indicators (abilities), which the KPIs already summarise.",
+  "description": "The portfolio export a member sends themselves: what they ticked and verified, the hashes of output and files, the documents the team filed, per course against the published ontology, and since R132 the KPIs (thirty-two since R140), the scores (seven since R140) by the published method and the minutes between two recorded stamps per course (capstone-member-profile/3). Unsigned: signature is null until validators exist. The copy a candidate link serves (R124) is the same shape, kept small: a row carries its id and level and only the counters that are not zero (an absent counter is zero); a row's dimension, label and references are absent too and the reader restores them from the published ontology by id (a standards row keeps the references its forms cited; a fact row of the troubleshooting, decisions and execution dimensions keeps its label), and a course may leave out the member\u2019s gaps and raw indicators (abilities), which the KPIs already summarise.",
   "$defs": {
     "skillProfile": {
       "type": "object",
@@ -178,7 +178,11 @@
             "onTime",
             "retention",
             "skillsCurrent",
-            "learningVelocity"
+            "learningVelocity",
+            "recallAccuracy",
+            "scenariosApplied",
+            "conflictsResolved",
+            "timeOnTask"
           ],
           "additionalProperties": false,
           "properties": {
@@ -294,6 +298,18 @@
               "$ref": "#/$defs/indicator"
             },
             "learningVelocity": {
+              "$ref": "#/$defs/indicator"
+            },
+            "recallAccuracy": {
+              "$ref": "#/$defs/indicator"
+            },
+            "scenariosApplied": {
+              "$ref": "#/$defs/indicator"
+            },
+            "conflictsResolved": {
+              "$ref": "#/$defs/indicator"
+            },
+            "timeOnTask": {
               "$ref": "#/$defs/indicator"
             }
           }
@@ -862,7 +878,7 @@
   "additionalProperties": false,
   "properties": {
     "schema": {
-      "const": "capstone-member-profile/2"
+      "const": "capstone-member-profile/3"
     },
     "ontologyVersion": {
       "type": "string",
@@ -1084,8 +1100,8 @@
           },
           "kpis": {
             "type": "array",
-            "minItems": 28,
-            "maxItems": 28,
+            "minItems": 32,
+            "maxItems": 32,
             "items": {
               "type": "object",
               "required": [
@@ -1100,7 +1116,7 @@
               "properties": {
                 "id": {
                   "type": "string",
-                  "pattern": "^kpi\\.(technical|problem-solving|execution|decision-making|teamwork|professionalism|growth)\\.[a-z][a-z0-9-]*$"
+                  "pattern": "^kpi\\.(technical|problem-solving|execution|decision-making|teamwork|professionalism|growth|validation)\\.[a-z][a-z0-9-]*$"
                 },
                 "family": {
                   "enum": [
@@ -1110,7 +1126,8 @@
                     "decision-making",
                     "teamwork",
                     "professionalism",
-                    "growth"
+                    "growth",
+                    "validation"
                   ]
                 },
                 "metricId": {

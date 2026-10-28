@@ -5,8 +5,9 @@ import { isSupabaseConfigured } from '../supabase/config';
 import type { Course, RosterEntry } from '../types';
 import type { DeliverableData } from '../docs/types';
 import type { DeliverableStatus } from '../docs/lifecycle';
-import type { Cohort, DeliverableReview, DeliverableSubmission, EvidenceArtifact, PeerReviewRow, StepEvidence, StuckFlag, TaskReport, DeliverableReviewMark, StepFlagEvent } from './types';
-import { rosterFromRow, stepEvidenceFromRow, reviewFromRow, taskReportFromRow, submissionFromRow, peerReviewFromRow, docStatusFromRow, artifactFromRow, reviewMarkFromRow, flagEventFromRow, earnedFromRow } from './supabaseCache';
+import type { Cohort, DeliverableReview, DeliverableSubmission, EvidenceArtifact, PeerReviewRow, StepEvidence, StuckFlag, TaskReport, DeliverableReviewMark, StepFlagEvent, ValidationAnswer } from './types';
+import { rosterFromRow, stepEvidenceFromRow, reviewFromRow, taskReportFromRow, submissionFromRow, peerReviewFromRow, docStatusFromRow, artifactFromRow, reviewMarkFromRow, flagEventFromRow, earnedFromRow, validationFromRow } from './supabaseCache';
+import { localStorageValidationRepo } from './localStorageValidationRepo';
 import { localStorageEarnedRepo } from './localStorageEarnedRepo';
 import type { EarnedRow } from '../earnedSkills';
 import { localStorageProgressRepo } from './localStorageProgressRepo';
@@ -65,6 +66,8 @@ export interface CohortData {
   peerReviewCounts: Record<string, { done: number; assigned: number }>;
   /** R137: each member's earned ledger (0019; the instructor reads every member's rows). */
   earned: Record<string, EarnedRow[]>;
+  /** R140: each member's validation answers (0026; the instructor reads every row). */
+  validation: Record<string, ValidationAnswer[]>;
 }
 
 export function isStepDoneIn(data: CohortData, courseId: string, memberId: string, taskId: string, stepId: string): boolean {
@@ -97,7 +100,9 @@ export function loadCohortLocal(course: Course): CohortData {
     status[t] = localStorageStatusRepo.list(course.id, t);
     marks[t] = localStorageReviewRepo.marks(course.id, t);
   }
+  const validation: CohortData['validation'] = {};
   for (const m of roster) {
+    validation[m.memberId] = localStorageValidationRepo.list(course.id, m.memberId);
     artifacts[m.memberId] = localStorageEvidenceRepo.getArtifacts(course.id, m.memberId);
     flagEvents[m.memberId] = localStorageStepNotesRepo.flagEvents(course.id, m.memberId);
     // One device has no peers: nothing assigned, nothing owed.
@@ -117,13 +122,13 @@ export function loadCohortLocal(course: Course): CohortData {
     .map((c) => localStorageCohortRepo.get(course.id, c))
     .filter((c): c is Cohort => !!c);
   // Offline has no peers on one device, so there are no verdict rows to show.
-  return { mode: 'local', roster, completions, evidence, docs, stuck, reviews, reports, profiles, submissions, peerReviews: [], assignedCounts: {}, cohortDates, status, artifacts, marks, flagEvents, peerReviewCounts, earned };
+  return { mode: 'local', roster, completions, evidence, docs, stuck, reviews, reports, profiles, submissions, peerReviews: [], assignedCounts: {}, cohortDates, status, artifacts, marks, flagEvents, peerReviewCounts, earned, validation };
 }
 
 export async function loadCohortCloud(course: Course): Promise<CohortData> {
   const supabase = getBrowserClient();
   if (!supabase) return loadCohortLocal(course);
-  const [memberships, completions, evidence, deliverables, flags, reviews, reports, profileRows, submissionRows, peerReviewRows, assignmentRows, cohortRows, statusRows, artifactRows, markRows, flagEventRows, earnedRows] = await Promise.all([
+  const [memberships, completions, evidence, deliverables, flags, reviews, reports, profileRows, submissionRows, peerReviewRows, assignmentRows, cohortRows, statusRows, artifactRows, markRows, flagEventRows, earnedRows, validationRows] = await Promise.all([
     supabase.from('memberships').select('*').eq('course_id', course.id),
     // R112: the two tables that grow with every step are read a page at a time, past the PostgREST row cap.
     selectAll((from, to) => supabase.from('step_completions').select('*').eq('course_id', course.id).order('user_id').order('task_id').order('step_id').range(from, to)),
@@ -149,6 +154,8 @@ export async function loadCohortCloud(course: Course): Promise<CohortData> {
     supabase.from('step_flag_events').select('*').eq('course_id', course.id),
     // R137: the earned ledger, so the cohort's figures are the members' own.
     supabase.from('earned_skills').select('*').eq('course_id', course.id),
+    // R140: every member's validation answers (0026; an older database answers with an error, read as none).
+    supabase.from('validation_answers').select('*').eq('course_id', course.id),
   ]);
   const profiles: CohortData['profiles'] = {};
   for (const p of profileRows.data ?? []) {
@@ -215,8 +222,14 @@ export async function loadCohortCloud(course: Course): Promise<CohortData> {
     const row = earnedFromRow(r);
     if (row) (earned[String(r.user_id)] ??= []).push(row);
   }
+  const validation: CohortData['validation'] = {};
+  for (const r of validationRows.data ?? []) {
+    const a = validationFromRow(r);
+    (validation[a.memberId] ??= []).push(a);
+  }
   return {
     mode: 'cloud',
+    validation,
     roster,
     completions: keys,
     evidence: ev,

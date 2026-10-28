@@ -67,6 +67,9 @@ export const KEYS = {
   // R132: the per-category marks beside the verdicts, and the stuck-flag history per member.
   reviewMarks: (courseId: string, teamId: string) => `${STORAGE_PREFIX}${courseId}_review_marks_${teamId}`,
   flagEvents: (courseId: string, memberId: string) => `${STORAGE_PREFIX}${courseId}_flag_events_${memberId}`,
+  // R140: the member's validation answers, append-only, and the task timers with the paused task.
+  validation: (courseId: string, memberId: string) => `${STORAGE_PREFIX}${courseId}_validation_${memberId}`,
+  timers: (courseId: string, memberId: string) => `${STORAGE_PREFIX}${courseId}_timers_${memberId}`,
   // R103: the team's document lifecycle rows, one blob per (course, team).
   docStatus: (courseId: string, teamId: string) => `${STORAGE_PREFIX}${courseId}_doc_status_${teamId}`,
   cohortCalendar: (courseId: string, cohort: string) => `${STORAGE_PREFIX}${courseId}_cohort_${cohort}`,

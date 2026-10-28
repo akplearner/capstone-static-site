@@ -374,6 +374,12 @@ export interface Course {
    *  still waits on); this flag only takes the gate notes away. Used by CySA+ to
    *  keep the flow simple for beginners. */
   noGatekeeping?: boolean;
+  /**
+   * R140: when the course asks the team about what it recorded. Each is a week
+   * number; absent, `validationPlanOf` derives them: recall in the middle graded
+   * week, apply in the last, extend in every advanced week.
+   */
+  validation?: { recall?: number; apply?: number; extend?: number[] };
   /** One shared build, four focus roles. Every member works the tasks flagged
    *  `Task.shared` plus their own role's smaller deep-dive task, and every
    *  deliverable flagged `shared` is filled by everyone — a role is a

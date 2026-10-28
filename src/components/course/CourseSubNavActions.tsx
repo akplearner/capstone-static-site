@@ -1,6 +1,7 @@
 'use client';
 
-import { ArrowRight, Focus, Sparkles } from 'lucide-react';
+import { ArrowRight, Focus, PauseCircle, Sparkles } from 'lucide-react';
+import { formatElapsed } from '@/lib/taskTimer';
 import { Button } from '@/components/ui/Button';
 import { StepTally } from '@/components/ui/Pixel';
 
@@ -20,6 +21,7 @@ export function CourseSubNavActions({
   onContinue,
   onReview,
   focus,
+  timer,
 }: {
   stepsDone: number;
   stepsTotal: number;
@@ -29,6 +31,8 @@ export function CourseSubNavActions({
   onReview: () => void;
   /** Present on the Tasks tab only. */
   focus?: { on: boolean; onToggle: () => void };
+  /** R140: present while a task is open — the task's minutes and the Pause button. */
+  timer?: { elapsedMs: number; onPause: () => void };
 }) {
   return (
     <>
@@ -45,6 +49,18 @@ export function CourseSubNavActions({
           }`}
         >
           <Focus className="h-3.5 w-3.5" aria-hidden /> Focus
+        </button>
+      )}
+      {timer && (
+        <button
+          type="button"
+          onClick={timer.onPause}
+          title="Pause the task — the content hides and the timer stops until you resume"
+          className="focusable inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-muted transition-colors hover:bg-panel-2 hover:text-ink"
+          data-pause-task
+        >
+          <PauseCircle className="h-3.5 w-3.5" aria-hidden /> Pause
+          <span className="font-mono tabular-nums" data-task-elapsed>{formatElapsed(timer.elapsedMs)}</span>
         </button>
       )}
       {hasNext ? (

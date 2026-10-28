@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 import type { Task } from '@/lib/types';
 import { focusById } from '@/lib/focus';
+import { formatElapsed } from '@/lib/taskTimer';
 
 /**
  * R100 — the open task, beside the list (the split view, ≥1100px).
@@ -14,7 +15,7 @@ import { focusById } from '@/lib/focus';
  * the row in the list. Below the breakpoint there is no pane: the row opens
  * under itself as it always did.
  */
-export function TaskPane({ task, number, onClose, children }: { task: Task; number?: number; onClose: () => void; children: ReactNode }) {
+export function TaskPane({ task, number, onClose, children, elapsedMs }: { task: Task; number?: number; onClose: () => void; children: ReactNode; /** R140: the task's minutes so far. */ elapsedMs?: number }) {
   useEffect(() => {
     focusById('task-pane-head');
   }, [task.id]);
@@ -25,6 +26,11 @@ export function TaskPane({ task, number, onClose, children }: { task: Task; numb
           {number != null && <span className="mr-1.5 font-mono text-sm text-muted">{number}.</span>}
           {task.title}
         </h3>
+        {elapsedMs !== undefined && (
+          <span className="ml-auto shrink-0 rounded-full bg-panel-2 px-2 py-0.5 font-mono text-xs tabular-nums text-muted" title="Time on this task, measured while it is open and not paused" data-pane-elapsed>
+            {formatElapsed(elapsedMs)}
+          </span>
+        )}
         <button type="button" onClick={onClose} aria-label="Close task" title="Close (Esc closes the open step first)" className="focusable -mr-1 rounded-md p-1 text-muted hover:bg-panel-2 hover:text-ink">
           <X className="h-4 w-4" />
         </button>

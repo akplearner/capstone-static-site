@@ -2365,7 +2365,7 @@ describe('R107 — skills, tools, standards and the member profile', () => {
     // R109: the export is built in one place; the page only downloads it.
     expect(code('src/lib/memberExport.ts')).toContain('schema: MEMBER_PROFILE_SCHEMA');
     expect(code('src/lib/memberExport.ts')).toContain('signature: null');
-    expect(code('src/lib/docs/ontology.ts')).toContain("MEMBER_PROFILE_SCHEMA = 'capstone-member-profile/2'");
+    expect(code('src/lib/docs/ontology.ts')).toContain("MEMBER_PROFILE_SCHEMA = 'capstone-member-profile/3'");
     expect(code('src/app/page.tsx')).not.toContain('the output they printed');
     // The cross-course hydrate reads the four tables the profile needs and never the single-user ones.
     const cache = code('src/lib/data/supabaseCache.ts');
@@ -2399,7 +2399,7 @@ describe('R107 — skills, tools, standards and the member profile', () => {
     expect(read('package.json'), 'no schema library: the subset validator is the contract').not.toMatch(/"(ajv|zod)"/);
     const register = read('docs/VALUE_REGISTER.md');
     for (const status of ['available now', 'needs validators', 'needs events', 'needs consent', 'needs legal change', 'Phase 4']) expect(register, status).toContain(status);
-    expect(register.match(/^\| \d+ \|/gm)?.length, 'three lists of ten, plus the R108 rows (14 + 12 + 13), plus one R134 row each (15 + 13 + 14)').toBe(42);
+    expect(register.match(/^\| \d+ \|/gm)?.length, 'three lists of ten, plus the R108 rows (14 + 12 + 13), plus one R134 row each (15 + 13 + 14), plus one R140 row each (16 + 14 + 15)').toBe(45);
     expect(read('docs/OPERATIONS.md')).toContain('(R107)');
     expect(read('docs/CURRENT_STATE.md')).toContain('Member profile');
     expect(read('content/README.md')).toContain('ontology/');
@@ -2475,7 +2475,7 @@ describe('R108 — the skill board, the KPI board, the profiles and the cohort r
     expect(shapes, 'the report carries no member').not.toMatch(/memberId|displayName/);
     expect(cohort, 'nobody is ordered by a value').not.toMatch(/\.sort\([^)]*(value|pct|sum)/);
     expect(code('src/lib/cohort.ts'), 'the marking CSV is untouched').not.toContain('kpi');
-    expect(code('src/lib/kpiBoard.ts')).toContain("KPI_BOARD_SCHEMA = 'capstone-kpi-board/2'");
+    expect(code('src/lib/kpiBoard.ts')).toContain("KPI_BOARD_SCHEMA = 'capstone-kpi-board/3'");
     // R132: a KPI may be scored by the published method; the flag is a boolean, never a bare true.
     expect(code('src/lib/docs/kpis.ts')).toContain('scored: boolean');
     expect(code('src/lib/docs/scoring.ts')).toContain('export const SCORES');
@@ -2514,7 +2514,7 @@ describe('R108 — the skill board, the KPI board, the profiles and the cohort r
     expect(read('docs/ARCHITECTURE.md')).toContain('### The KPI board, profiles and work roles (R108)');
     expect(read('docs/OPERATIONS.md')).toContain('(R108)');
     expect(read('docs/CURRENT_STATE.md')).toContain('KPI board');
-    expect(read('docs/VALUE_REGISTER.md')).toContain('capstone-kpi-board/2');
+    expect(read('docs/VALUE_REGISTER.md')).toContain('capstone-kpi-board/3');
     expect(read('content/README.md')).toContain('profiles/');
     expect(read('content/schemas/README.md')).toContain('kpi-board.schema.json');
     expect(existsSync('docs/EVENTS.md')).toBe(true);
@@ -2952,7 +2952,7 @@ describe('R114 — candidate links and employer profiles', () => {
     expect(read('docs/CURRENT_STATE.md')).toContain('| Candidate links |');
     expect(read('docs/OPERATIONS.md')).toContain('(R114)');
     const register = read('docs/VALUE_REGISTER.md');
-    expect(register.match(/^\| \d+ \|/gm)?.length).toBe(42);
+    expect(register.match(/^\| \d+ \|/gm)?.length).toBe(45);
     expect(register).toContain('member-created link');
   });
 });
@@ -4197,7 +4197,7 @@ describe('R139 — the project record, its history and its conflicts', () => {
     expect(r).not.toMatch(/from '\.\.\/data|Repo\b/);
     const o = code('src/lib/docs/ontology.ts');
     expect(o).toContain("'project-record'");
-    expect(o).toContain("export const ONTOLOGY_VERSION = '2.1.0';");
+    expect(o).toMatch(/export const ONTOLOGY_VERSION = '2\.[1-9]\d*\.\d+';/);
   });
 
   it('two typed columns, hinted in both renderers and checked by the derived validators; the free-text columns are retyped', () => {
@@ -4245,5 +4245,90 @@ describe('R139 — the project record, its history and its conflicts', () => {
     expect(read('docs/FIX_LIST.md')).toContain('| F17 |');
     expect(read('docs/OPERATIONS.md')).toContain('**The project record (R139):**');
     expect(read('SUPABASE_SETUP.md')).toContain('**Migration 0025**');
+  });
+});
+
+describe('R140 — longitudinal validation, the task timer, the validation family and the Understanding score', () => {
+  it('the plan and the generator are pure, and the projection runs the same generator', () => {
+    const plan = code('src/lib/validation/plan.ts');
+    for (const n of ['export function validationPlanOf(', 'export function checkpointsReached(']) expect(plan, n).toContain(n);
+    const acts = code('src/lib/validation/activities.ts');
+    for (const n of ['export function validationActivities(', 'export function judgeAnswer(', 'export function stableShuffle<', "`val:${input.checkpoint.week}:recall:${e.key}`"]) expect(acts, n).toContain(n);
+    expect(acts).not.toMatch(/Math\.random|Date\.now|from '\.\.\/data|Repo\b/);
+    const profile = code('src/lib/skillProfile.ts');
+    expect(profile).toContain('function validationIndicators(');
+    expect(profile).toContain("validationActivities({ course, defs: input.deliverables, record, conflicts, checkpoint })");
+    expect(code('src/components/validation/ValidationSection.tsx')).toContain('validationActivities({ course, defs, record, conflicts, checkpoint })');
+  });
+
+  it('the panel is props only and never prints the recorded value; the section stores the hash', () => {
+    const panel = code('src/components/validation/ValidationPanel.tsx');
+    expect(panel).not.toMatch(/Repo\b|from '@\/lib\/data'/);
+    expect(panel).not.toMatch(/\{activity\.answer\}|\{a\.answer\}/);
+    expect(panel).toContain('data-validation-panel');
+    expect(code('src/components/validation/ValidationSection.tsx')).toContain('sha256Text(given.trim())');
+    expect(code('src/app/courses/[courseId]/page.tsx')).toContain('<ValidationSection course={course} member={member} currentWeek={effectiveWeek} />');
+  });
+
+  it('every task has a pausable timer: a reducer, one hook, a cover that hides the content, both repositories carrying the field', () => {
+    const reducer = code('src/lib/taskTimer.ts');
+    for (const n of ['export function startTimer(', 'export function stopTimer(', 'export function stopAll(', 'export function totalMinutes(']) expect(reducer, n).toContain(n);
+    const hook = code('src/lib/useTaskTimer.ts');
+    for (const n of ["document.addEventListener('visibilitychange', onVisibility)", "window.addEventListener('pagehide', onLeave)", 'paused: openTaskId', 'paused: null']) expect(hook, n).toContain(n);
+    expect(code('src/components/course/PauseCover.tsx')).toContain('fixed inset-0 z-50');
+    expect(code('src/components/course/CourseSubNavActions.tsx')).toContain('data-pause-task');
+    expect(code('src/components/course/TaskPane.tsx')).toContain('data-pane-elapsed');
+    const page = code('src/app/courses/[courseId]/page.tsx');
+    expect(page).toContain('useTaskTimer(course.id, member?.memberId ?? null, openTaskId)');
+    expect(page).toContain('paused={member && timer.paused ? { taskId: timer.paused, elapsedMs: timer.pausedElapsedMs, onResume: timer.resume } : null}');
+    expect(code('src/components/course/CourseOverlays.tsx')).toContain('<PauseCover taskTitle=');
+    expect(code('src/lib/data/types.ts')).toContain('timers?: Record<string, TaskTimer>;');
+    expect(code('src/lib/data/localStorageUserStateRepo.ts')).toContain('KEYS.timers(courseId, memberId)');
+    expect(code('src/components/auth/ImportPrompt.tsx')).toContain('KEYS.timers(course.id, oldId)');
+    expect(code('src/components/auth/ImportPrompt.tsx')).toContain('KEYS.validation(course.id, oldId)');
+  });
+
+  it('migration 0026 keeps the answers append-only with the database’s clock; both repositories and both hydrates read it', () => {
+    const sql = read('supabase/migrations/0026_validation_answers.sql');
+    for (const n of ['create table if not exists public.validation_answers', "kind in ('recall', 'apply', 'explain', 'consistency')", 'revoke update, delete, truncate on public.validation_answers from anon, authenticated', '>= 200', 'new.at := clock_timestamp();', 'public.on_team(course_id, team_id)']) expect(sql, n).toContain(n);
+    expect(read('supabase/tests/rls.sql')).toContain("'ada: answered as bob'".replace("'ada: answered as bob'", "'ada answered as bob'"));
+    expect(code('src/lib/data/supabaseValidationRepo.ts')).toContain(".from('validation_answers')");
+    const cache = code('src/lib/data/supabaseCache.ts');
+    expect(cache).toContain("supabase.from('validation_answers').select('*').eq('course_id', courseId)");
+    expect(cache).toContain("supabase.from('validation_answers').select('*').eq('user_id', currentUserId)");
+    expect(code('src/lib/data/cohortLoader.ts')).toContain("supabase.from('validation_answers').select('*').eq('course_id', course.id)");
+    expect(code('src/lib/recordFacts.ts')).toContain('validation: validationRepo.list(course.id, member.memberId)');
+    expect(code('src/app/instructor/[courseId]/cohort/page.tsx')).toContain('validationFor: (m) => data.validation[m] ?? []');
+  });
+
+  it('thirty-two KPIs in eight families, seven scores, the schemas at /3 and the copy moved', () => {
+    expect(code('src/lib/kpiBoard.ts')).toContain("KPI_BOARD_SCHEMA = 'capstone-kpi-board/3'");
+    expect(code('src/lib/docs/ontology.ts')).toContain("MEMBER_PROFILE_SCHEMA = 'capstone-member-profile/3'");
+    expect(code('src/lib/docs/ontology.ts')).toContain("export const ONTOLOGY_VERSION = '2.2.0';");
+    const kpis = code('src/lib/docs/kpis.ts');
+    for (const n of ["'validation'", "k('validation', 'recall-accuracy'", "k('validation', 'applied-scenarios'", "k('validation', 'conflicts-resolved'", "k('validation', 'time-on-task'"]) expect(kpis, n).toContain(n);
+    expect(code('src/lib/docs/scoring.ts')).toContain("id: 'score.understanding'");
+    const board = JSON.parse(read('content/schemas/kpi-board.schema.json'));
+    expect(board.properties.kpis.minItems).toBe(32);
+    expect(board.properties.scores.minItems).toBe(7);
+    expect(board.properties.families.minItems).toBe(8);
+    const profile = read('content/schemas/member-profile.schema.json');
+    expect(profile).toContain('"const": "capstone-member-profile/3"');
+    expect(profile).not.toContain('"minItems": 28');
+    const copy = code('src/lib/docs/skillsCopy.ts');
+    expect(copy).toContain("familiesHeading: 'Eight families of four'");
+    expect(copy).toContain("packTitle: 'Thirty-two KPIs'");
+    for (const f of ['src', 'docs', 'content/schemas']) expect(f).toBeDefined();
+    expect(read('docs/SCORING.md')).toContain('`score.understanding` Understanding retained');
+  });
+
+  it('the docs say it', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### Longitudinal validation, the task timer and the Understanding score (R140)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| Longitudinal validation, the task timer, the Understanding score |');
+    expect(read('docs/FIX_LIST.md')).toContain('| F18 |');
+    expect(read('docs/OPERATIONS.md')).toContain('**Validate what you built (R140):**');
+    expect(read('docs/SCORING.md')).toContain('## The validation family and the seventh score (R140)');
+    expect(read('SUPABASE_SETUP.md')).toContain('**Migration 0026**');
+    expect(read('docs/VALUE_REGISTER.md')).toContain('Understanding retained: values the team recorded');
   });
 });

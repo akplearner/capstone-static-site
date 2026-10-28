@@ -32,7 +32,7 @@ const profileCopy = {
   createdAt: '2026-10-14T10:00:00Z',
   expiresAt: '2026-11-13T10:00:00Z',
   snapshot: {
-    schema: 'capstone-member-profile/2',
+    schema: 'capstone-member-profile/3',
     signature: null,
     subject: { display: 'Grace Hopper' },
     summary: { verified: 4, verifiable: 9, receipted: 2, artifacts: 3, skillsVerified: [], skillsPractised: [] },

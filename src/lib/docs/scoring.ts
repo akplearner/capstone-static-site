@@ -12,7 +12,7 @@
  * words. Nothing here ranks one member against another.
  */
 
-export type ScoreId = 'score.tool-proficiency' | 'score.troubleshooting-success' | 'score.judgment' | 'score.collaboration' | 'score.reliability' | 'score.readiness';
+export type ScoreId = 'score.tool-proficiency' | 'score.troubleshooting-success' | 'score.judgment' | 'score.collaboration' | 'score.reliability' | 'score.readiness' | 'score.understanding';
 
 export interface ScoreComponent {
   /** A `kpi.*` id with a ratio or minutes unit. */
@@ -68,6 +68,12 @@ export const SCORES: ScoreDef[] = [
     definition: 'Exam weight verified, work-role coverage, skills retained and steps in order, weighted.',
     components: [{ kpi: 'kpi.technical.exam-weight-verified', weight: 0.3 }, { kpi: 'kpi.growth.profile-coverage', weight: 0.3 }, { kpi: 'kpi.growth.retention', weight: 0.2 }, { kpi: 'kpi.execution.steps-in-order', weight: 0.2 }],
     caveat: 'A reading of the record against an exam and a work role, not a prediction of a pass or a hire.',
+  },
+  {
+    id: 'score.understanding', label: 'Understanding retained',
+    definition: 'Values recalled, scenarios applied and conflicts resolved, weeks after the team recorded them, weighted.',
+    components: [{ kpi: 'kpi.validation.recall-accuracy', weight: 0.4 }, { kpi: 'kpi.validation.applied-scenarios', weight: 0.4 }, { kpi: 'kpi.validation.conflicts-resolved', weight: 0.2 }],
+    caveat: 'Asks only about values the team recorded; before the checkpoint week the score stands on nothing and says so.',
   },
 ];
 

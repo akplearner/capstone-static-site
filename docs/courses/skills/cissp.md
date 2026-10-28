@@ -244,4 +244,8 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | govrisk: 11 skills with a verifiable step; archnet: 9 skills with a verifiable step; idops: 8 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
 | Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | govrisk: Information Systems Security Manager: 45 required, 30 not taught here; archnet: Security Architect: 69 required, 58 not taught here; idops: Systems Security Analyst: 34 required, 27 not taught here |
+| Values recalled `kpi.validation.recall-accuracy` | validation | metric.validation-recall (own) |  |
+| Scenarios applied `kpi.validation.applied-scenarios` | validation | metric.validation-applied (own) |  |
+| Conflicts resolved `kpi.validation.conflicts-resolved` | validation | metric.conflicts-resolved (own) |  |
+| Minutes on task `kpi.validation.time-on-task` | validation | metric.minutes-on-task (own) |  |
 

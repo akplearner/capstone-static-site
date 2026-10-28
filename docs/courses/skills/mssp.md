@@ -161,4 +161,8 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | red: 7 skills with a verifiable step; blue: 6 skills with a verifiable step; grc: 8 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
 | Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | red: Exploitation Analyst: 29 required, 24 not taught here; blue: Cyber Defense Analyst: 78 required, 74 not taught here; grc: Information Systems Security Manager: 45 required, 37 not taught here |
+| Values recalled `kpi.validation.recall-accuracy` | validation | metric.validation-recall (own) |  |
+| Scenarios applied `kpi.validation.applied-scenarios` | validation | metric.validation-applied (own) |  |
+| Conflicts resolved `kpi.validation.conflicts-resolved` | validation | metric.conflicts-resolved (own) |  |
+| Minutes on task `kpi.validation.time-on-task` | validation | metric.minutes-on-task (own) |  |
 
