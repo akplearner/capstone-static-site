@@ -26,6 +26,7 @@ import { buildCohort, cohortCsv, stuckSummary, type CohortMember } from '@/lib/c
 import { courseDocument, bareDocument } from '@/lib/content/docs';
 import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
 import { cohortKpiCsv, cohortKpiReport } from '@/lib/cohortKpi';
+import { weekDueFrom } from '@/lib/weekDue';
 import { CohortKpiPanel } from '@/components/instructor/CohortKpiPanel';
 import { OutcomesLine } from '@/components/instructor/OutcomesLine';
 import { fetchOutcomeCounts, type OutcomeCount } from '@/lib/legal/outcomes';
@@ -117,6 +118,11 @@ export default function CohortPage() {
         statusFor: (t) => data.status[t] ?? [],
         submissionsFor: (t) => data.submissions.filter((s) => s.teamId === t),
         reviewsFor: (t) => data.reviews.filter((r) => r.teamId === t),
+        // R136: the marks, the flag history, the review counts and the calendar, so the cohort stands on the member's facts.
+        marksFor: (t) => data.marks[t] ?? [],
+        flagEventsFor: (m) => data.flagEvents[m] ?? [],
+        peerReviewsFor: (m) => data.peerReviewCounts[m],
+        weekDueFor: (c) => weekDueFrom(data.cohortDates.find((d) => d.cohort === c)),
       },
     });
   }, [course, data, rows, team, role, reviewWeek]);

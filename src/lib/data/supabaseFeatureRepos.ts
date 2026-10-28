@@ -385,6 +385,14 @@ export const supabaseSubmissionsRepo: SubmissionsRepository = {
     }));
   },
 
+  // R136: the counts the profile reads, from the queue the last hydrate fetched (`get_review_queue`).
+  peerReviewCounts(courseId: string): { done: number; assigned: number } | null {
+    const queue = cache.reviewQueue();
+    if (!queue) return null;
+    const mine = queue.filter((q) => q.courseId === courseId);
+    return { done: mine.filter((q) => q.done).length, assigned: mine.length };
+  },
+
   async packet(assignmentId: string): Promise<ReviewPacket | null> {
     const supabase = getBrowserClient();
     if (!supabase) return null;

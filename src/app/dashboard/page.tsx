@@ -15,7 +15,7 @@ import { SignInPanel } from '@/components/auth/SignInPanel';
 import { DemoBanner } from '@/components/auth/DemoBanner';
 import { PathRail, PathPicker } from '@/components/catalog/PathRail';
 import { VerificationBar } from '@/components/catalog/VerificationBar';
-import { courseRepo, progressRepo, docsRepo, evidenceRepo, earnedRepo, pathRepo, statusRepo, submissionsRepo, reviewRepo, taskReportsRepo, stepNotesRepo } from '@/lib/data';
+import { courseRepo, progressRepo, docsRepo, evidenceRepo, earnedRepo, pathRepo } from '@/lib/data';
 import { courseDocument, bareDocument } from '@/lib/content/docs';
 import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
 import { skillProfile, skillPortfolio } from '@/lib/skillProfile';
@@ -26,7 +26,7 @@ import { shareProfileCopy } from '@/lib/shareCopy';
 import { useBankEarned } from '@/lib/earnedBank';
 import { applyEarned, earnedKey, keptFromEarlier } from '@/lib/earnedSkills';
 import { categoryDetail, metricDetail, type MetricDetail, type RecordMetric } from '@/lib/recordDetail';
-import { courseFactsOf, ownIssues, recordCourseInputOf } from '@/lib/recordFacts';
+import { courseFactsOf, ownFactsOf, ownIssues, recordCourseInputOf, teamFactsOf, weekDueOf } from '@/lib/recordFacts';
 import { recordCards, type RecordCategoryCard } from '@/lib/recordCard';
 import type { RecordCategory } from '@/lib/docs/recordCategories';
 import { RecordCategories } from '@/components/skills/RecordCategories';
@@ -142,14 +142,10 @@ function buildCard(course: Course): CourseCard | null {
     registry,
     cert,
     deliverables: deliverablesOf(doc),
-    team: {
-      docs: savedDocs ?? {},
-      status: statusRepo.list(course.id, member.teamId),
-      submissions: submissionsRepo.list(course.id, member.teamId),
-      reviews: reviewRepo.list(course.id, member.teamId),
-      currentWeek: activeWeek,
-    },
-    own: { notes: Object.values(stepNotesRepo.getAll(course.id, member.memberId)), reports: taskReportsRepo.list(course.id) },
+    // R136: the one loader every profile caller uses; hydrateUser now fills the team's forms, the marks, the flag history and the calendars.
+    team: teamFactsOf(course, member, activeWeek),
+    own: ownFactsOf(course, member),
+    weekDue: weekDueOf(course, member),
     // R111: the currency flag needs the page's clock; buildCard is a plain function, not a component body.
     asOf: Date.now(),
     receipts,

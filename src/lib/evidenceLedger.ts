@@ -154,6 +154,11 @@ export function foldAttempt(
  * The record written when a step is marked complete without matching output —
  * the honest default. Never downgrades an existing verified record: a student
  * who verified and then re-ticked the box has still verified it.
+ *
+ * R136: a tick is not an attempt. `firstAttemptAt` is the first PASTE, the
+ * stamp the timing facts (`skillProfile.ts`, "minutes from the first paste to
+ * the proof") and the active days read; a tick before the paste used to set it
+ * to the tick time, so a step pasted a day later read as a day of resolution.
  */
 export function selfAttested(
   prev: StepEvidence | undefined,
@@ -170,7 +175,7 @@ export function selfAttested(
     totalTokens: next.totalTokens,
     outputSha256: prev?.outputSha256,
     attempts: prev?.attempts ?? 0,
-    firstAttemptAt: prev?.firstAttemptAt ?? next.at,
+    firstAttemptAt: prev?.firstAttemptAt,
     verifiedAt: undefined,
   };
 }

@@ -168,6 +168,15 @@ export interface TimingFacts {
   over24h: number;
 }
 
+/**
+ * R136 — the forms a role fills: the ones it owns, the shared ones, and the ones the RACI says it drafts.
+ * The dimensions and the KPIs used to disagree (the dimensions also counted forms the role reviews or
+ * approves), so a decision block could show a row on the board and read 0 of 0 on the tile. One rule.
+ */
+export function roleFormsOf<D extends Pick<DeliverableDef, 'owner' | 'shared' | 'raci'>>(deliverables: D[], role: string): D[] {
+  return deliverables.filter((d) => d.owner === role || d.shared || d.raci?.drafts === role);
+}
+
 export interface TeamFacts {
   docs: Record<string, DeliverableData>;
   status: DeliverableStatus[];
@@ -513,7 +522,7 @@ export function skillProfile(input: SkillProfileInput): SkillProfile {
   const practices = registry.PRACTICES.filter((p) => practiceIds.has(p.id)).map((p) => row({ dimension: 'practices', id: p.id, label: p.label, taskIds: tasksMapped(registry.PRACTICE_OF, p.id), standardRefs: [p.anchor] }));
 
   // Procedures: the SOP kinds the role's forms are instances of, and the tasks that execute them.
-  const roleForms = input.deliverables.filter((d) => d.owner === role || d.shared || d.raci?.drafts === role || d.raci?.reviews === role || d.raci?.approves === role);
+  const roleForms = roleFormsOf(input.deliverables, role);
   const sopIds = new Set([...idsOf(registry.SOP_OF_TASK), ...roleForms.flatMap((d) => registry.SOP_OF[d.id] ?? [])]);
   const procedures = registry.SOPS.filter((s) => sopIds.has(s.id)).map((s) =>
     row({ dimension: 'procedures', id: s.id, label: s.label, taskIds: tasksMapped(registry.SOP_OF_TASK, s.id), formIds: roleForms.filter((d) => (registry.SOP_OF[d.id] ?? []).includes(s.id)).map((d) => d.id), standardRefs: s.standardRefs })
@@ -671,7 +680,7 @@ function abilityIndicators(input: SkillProfileInput, own: Task[], facts: Map<str
   const teamOr = (compute: () => Indicator): Indicator => (team ? { ...compute(), loaded: true } : EMPTY_INDICATOR);
   const ownOr = (compute: () => Indicator): Indicator => (mine ? { ...compute(), loaded: true } : EMPTY_INDICATOR);
   const byMe = (status: DeliverableStatus['status'][]) => (team?.status ?? []).filter((r) => r.changedBy === memberId && status.includes(r.status)).length;
-  const roleForms = input.deliverables.filter((d) => d.owner === role || d.shared);
+  const roleForms = roleFormsOf(input.deliverables, role);
   const handoffs = own.flatMap((t) => (t.handoff ?? []).filter((h) => h.deliverable).map((h) => h.deliverable!));
   // R108: the forms the role drafts, the control codes they cite, and the latest instructor review per form.
   const draftForms = draftedFormsOf(input);

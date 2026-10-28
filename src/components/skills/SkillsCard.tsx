@@ -11,7 +11,8 @@ import { useBankEarned, withEarned } from '@/lib/earnedBank';
 import { defaultMeasure, kpiBoard } from '@/lib/kpiBoard';
 import { ONTOLOGY_VERSION } from '@/lib/docs/ontology';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
-import { docsRepo, evidenceRepo, progressRepo, reviewRepo, statusRepo, stepNotesRepo, submissionsRepo, taskReportsRepo } from '@/lib/data';
+import { docsRepo, evidenceRepo, progressRepo } from '@/lib/data';
+import { ownFactsOf, teamFactsOf, weekDueOf } from '@/lib/recordFacts';
 import { courseMetrics } from '@/lib/metrics';
 import { getTasksByRole } from '@/lib/course-helpers';
 import { buildRecordPdf, recordPdfName } from '@/lib/recordPdf';
@@ -91,14 +92,10 @@ export function SkillsCard({ course, member, activeWeek, crew }: { course: Cours
     registry,
     cert,
     deliverables,
-    team: {
-      docs,
-      status: statusRepo.list(course.id, member.teamId),
-      submissions: submissionsRepo.list(course.id, member.teamId),
-      reviews: reviewRepo.list(course.id, member.teamId),
-      currentWeek: activeWeek,
-    },
-    own: { notes: Object.values(stepNotesRepo.getAll(course.id, member.memberId)), reports: taskReportsRepo.list(course.id) },
+    // R136: the one loader every profile caller uses; the marks, the flag history, the review queue and the calendar travel with it.
+    team: teamFactsOf(course, member, activeWeek),
+    own: ownFactsOf(course, member),
+    weekDue: weekDueOf(course, member),
     asOf,
     // R113: the platform's receipts (null offline) and the re-hash checks.
     receipts: evidenceRepo.getReceipts(course.id, member.memberId),

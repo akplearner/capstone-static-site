@@ -234,6 +234,10 @@ export const localStorageSubmissionsRepo: SubmissionsRepository = {
   queue(): Promise<ReviewQueueItem[]> {
     return Promise.resolve([]);
   },
+  // R136: one device has no peers, so nothing was assigned and nothing is owed.
+  peerReviewCounts(): { done: number; assigned: number } | null {
+    return { done: 0, assigned: 0 };
+  },
   packet(): Promise<ReviewPacket | null> {
     return Promise.resolve(null);
   },

@@ -24,6 +24,7 @@ import type {
   RehashCheck,
   DeliverableReviewMark,
   StepFlagEvent,
+  ReviewQueueItem,
 } from './types';
 import { getBrowserClient } from '../supabase/client';
 import { notifyStore } from '../useClientStore';
@@ -70,6 +71,8 @@ const reviewsByTeam = new Map<string, DeliverableReview[]>(); // `${courseId}::$
 // R132: the per-category review marks (team key → rows) and the stuck-flag history (course → rows).
 const marksByTeam = new Map<string, DeliverableReviewMark[]>();
 const flagEventsByCourse = new Map<string, StepFlagEvent[]>();
+// R136: the caller's blind review queue, every course, as the last hydrate read it (null until then).
+let reviewQueue: ReviewQueueItem[] | null = null;
 const cohortsByKey = new Map<string, Cohort>(); // `${courseId}::${cohort}`
 const stepNotesByKey = new Map<string, StepNote>(); // `${courseId}::${taskId}::${stepId}`
 const stuckByCourse = new Map<string, StuckFlag[]>();
@@ -181,6 +184,7 @@ export function setCurrentUserId(id: string | null) {
     reviewsByTeam.clear();
     marksByTeam.clear();
     flagEventsByCourse.clear();
+    reviewQueue = null;
     cohortsByKey.clear();
     stepNotesByKey.clear();
     stuckByCourse.clear();
@@ -331,6 +335,13 @@ export const cache = {
   },
   flagEvents(courseId: string): StepFlagEvent[] {
     return flagEventsByCourse.get(courseId) ?? [];
+  },
+  // R136
+  reviewQueue(): ReviewQueueItem[] | null {
+    return reviewQueue;
+  },
+  setReviewQueue(items: ReviewQueueItem[]) {
+    reviewQueue = items;
   },
   addFlagEvent(e: StepFlagEvent) {
     flagEventsByCourse.set(e.courseId, [...(flagEventsByCourse.get(e.courseId) ?? []), e]);
@@ -604,7 +615,7 @@ export async function hydrateCourse(courseId: string): Promise<void> {
   const gen = (hydrateGen.get(courseId) ?? 0) + 1;
   hydrateGen.set(courseId, gen);
 
-  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts, reviews, cohorts, notes, flags, profiles, reports, submissions, peerReviews, docStatus, receipts, rehashes, fixes, reviewMarksRows, flagEventRows] =
+  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts, reviews, cohorts, notes, flags, profiles, reports, submissions, peerReviews, docStatus, receipts, rehashes, fixes, reviewMarksRows, flagEventRows, queueRows] =
     await Promise.all([
       supabase.from('memberships').select('*').eq('course_id', courseId),
       supabase.from('step_completions').select('*').eq('course_id', courseId),
@@ -650,6 +661,8 @@ export async function hydrateCourse(courseId: string): Promise<void> {
       // which reads as no marks and no history.
       supabase.from('deliverable_review_marks').select('*').eq('course_id', courseId),
       supabase.from('step_flag_events').select('*').eq('course_id', courseId),
+      // R136: the caller's blind review queue (every course; the function reads only their own assignments).
+      reviewQueueSelect(supabase),
     ]);
 
   // A newer hydrate started while this one was on the wire: its data is
@@ -744,6 +757,7 @@ export async function hydrateCourse(courseId: string): Promise<void> {
     cache.addReviewMarks(reviewMarksRows.data.map(reviewMarkFromRow));
   }
   if (flagEventRows.data) flagEventsByCourse.set(courseId, flagEventRows.data.map(flagEventFromRow));
+  if (queueRows.data) reviewQueue = queueRows.data.map(reviewQueueItemFromRow);
   if (cohorts.data) cohorts.data.forEach((r) => cache.setCohort({ courseId, cohort: String(r.cohort), startsOn: String(r.starts_on) }));
   if (notes.data) {
     // The text from its own table; the flag is folded in from step_flags below.
@@ -828,6 +842,27 @@ export function reviewMarkFromRow(r: Record<string, unknown>): DeliverableReview
     note: String(r.note ?? ''),
     reviewer: String(r.reviewer ?? ''),
     at: r.marked_at ? Date.parse(String(r.marked_at)) : 0,
+  };
+}
+
+/** R136: the caller's queue, as `get_review_queue` returns it. A client without `rpc` (a test double) reads as no queue. */
+function reviewQueueSelect(supabase: { rpc?: (fn: string) => PromiseLike<{ data: unknown; error: unknown }> }): PromiseLike<{ data: Record<string, unknown>[] | null; error: unknown }> {
+  if (typeof supabase.rpc !== 'function') return Promise.resolve({ data: null, error: null });
+  return supabase.rpc('get_review_queue').then(
+    (res) => ({ data: Array.isArray(res.data) ? (res.data as Record<string, unknown>[]) : null, error: res.error }),
+    (error: unknown) => ({ data: null, error })
+  );
+}
+
+/** R136 */
+export function reviewQueueItemFromRow(r: Record<string, unknown>): ReviewQueueItem {
+  return {
+    assignmentId: String(r.assignment_id),
+    courseId: String(r.course_id),
+    deliverableId: String(r.deliverable_id),
+    week: Number(r.week ?? 0),
+    assignedAt: r.assigned_at ? Date.parse(String(r.assigned_at)) : 0,
+    done: !!r.done,
   };
 }
 
@@ -975,7 +1010,7 @@ export async function hydrateUser(): Promise<void> {
   const supabase = getBrowserClient();
   if (!supabase || !currentUserId) return;
 
-  const [memberships, completions, evidence, artifacts, path, docStatus, submissions, reports, notes, reviews, receipts, rehashes] = await Promise.all([
+  const [memberships, completions, evidence, artifacts, path, docStatus, submissions, reports, notes, reviews, receipts, rehashes, deliverables, reviewMarksRows, flagEventRows, flags, cohorts, queueRows] = await Promise.all([
     supabase.from('memberships').select('*').eq('user_id', currentUserId),
     supabase.from('step_completions').select('*').eq('user_id', currentUserId),
     supabase.from('step_evidence').select('*'),
@@ -996,6 +1031,17 @@ export async function hydrateUser(): Promise<void> {
     // instructor's RLS would return everyone's, so both filter by the user).
     supabase.from('verification_receipts').select('course_id, user_id, task_id, step_id, output_sha256, receipted_at').eq('user_id', currentUserId),
     supabase.from('rehash_checks').select('*').eq('user_id', currentUserId),
+    // R136: the team's forms (every team fact of the profile reads them: decisions, faults, rollback,
+    // rationale, Definition of Done), the per-category marks, the member's flag history and current
+    // flags, and the cohort calendars. Without these the dashboard and the portfolio showed team facts
+    // only after a course page had been opened in the same session. RLS scopes each to the member's
+    // teams; a database without 0021/0022 answers the two history selects with an error, read as none.
+    supabase.from('deliverables').select('*'),
+    supabase.from('deliverable_review_marks').select('*'),
+    supabase.from('step_flag_events').select('*').eq('user_id', currentUserId),
+    supabase.from('step_flags').select('*').eq('user_id', currentUserId).eq('stuck', true),
+    supabase.from('cohorts').select('*'),
+    reviewQueueSelect(supabase),
   ]);
 
   if (memberships.data) {
@@ -1084,6 +1130,39 @@ export async function hydrateUser(): Promise<void> {
     for (const cid of coursesIn(rehashes.data)) rehashesByKey.delete(`${me}::${cid}`);
     rehashes.data.forEach((r) => cache.addRehash(rehashFromRow(r), me));
   }
+  // R136: the team's forms, replaced per team (a course page's upsert still in flight wins, as in hydrateCourse).
+  if (deliverables.data) {
+    const byTeam = new Map<string, Record<string, DeliverableData>>();
+    deliverables.data.forEach((d) => {
+      const tk = teamKey(String(d.course_id), String(d.team_id));
+      const pendingKey = `${String(d.course_id)}::${String(d.team_id)}::${String(d.deliverable_id)}`;
+      const next = byTeam.get(tk) ?? { ...(docsByTeam.get(tk) ?? {}) };
+      if (!pendingDocs.has(pendingKey)) next[String(d.deliverable_id)] = (d.data ?? { fields: {}, groups: {} }) as DeliverableData;
+      byTeam.set(tk, next);
+    });
+    byTeam.forEach((data, tk) => docsByTeam.set(tk, data));
+  }
+  if (reviewMarksRows.data) {
+    for (const cid of coursesIn(reviewMarksRows.data)) [...marksByTeam.keys()].filter((k) => k.startsWith(`${cid}::`)).forEach((k) => marksByTeam.delete(k));
+    cache.addReviewMarks(reviewMarksRows.data.map(reviewMarkFromRow));
+  }
+  if (flagEventRows.data) {
+    const me = currentUserId as string;
+    const byCourse = new Map<string, StepFlagEvent[]>();
+    flagEventRows.data.forEach((r) => byCourse.set(String(r.course_id), [...(byCourse.get(String(r.course_id)) ?? []), flagEventFromRow(r)]));
+    // Own events replace own events; teammates' rows a course page loaded stay.
+    byCourse.forEach((mine, cid) => flagEventsByCourse.set(cid, [...(flagEventsByCourse.get(cid) ?? []).filter((e) => e.memberId !== me), ...mine]));
+  }
+  if (flags.data) {
+    flags.data.forEach((r) => {
+      const cid = String(r.course_id);
+      const k = `${cid}::${String(r.task_id)}::${String(r.step_id)}`;
+      const prev = stepNotesByKey.get(k);
+      stepNotesByKey.set(k, { courseId: cid, taskId: String(r.task_id), stepId: String(r.step_id), note: prev?.note ?? '', stuck: true, at: prev?.at ?? (r.updated_at ? Date.parse(String(r.updated_at)) : 0) });
+    });
+  }
+  if (cohorts.data) cohorts.data.forEach((r) => cache.setCohort({ courseId: String(r.course_id), cohort: String(r.cohort), startsOn: String(r.starts_on) }));
+  if (queueRows.data) reviewQueue = queueRows.data.map(reviewQueueItemFromRow);
 
   await hydrateEarned();
   notifyStore();
@@ -1128,7 +1207,10 @@ function subscribeRealtime(courseId: string) {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'deliverable_submissions', filter: `course_id=eq.${courseId}` }, rehydrate)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'peer_reviews' }, rehydrate)
     // R103: a teammate's approval or return reaches the form live.
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'deliverable_status', filter: `course_id=eq.${courseId}` }, rehydrate);
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'deliverable_status', filter: `course_id=eq.${courseId}` }, rehydrate)
+    // R136: an instructor's marks and a teammate's flag history arrive live (published by 0024).
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'deliverable_review_marks', filter: `course_id=eq.${courseId}` }, rehydrate)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'step_flag_events', filter: `course_id=eq.${courseId}` }, rehydrate);
 
   // Supabase does not deliver DELETE events to filtered listeners, so un-ticks,
   // leaves and resets never reached teammates (their % stayed up forever). One

@@ -454,6 +454,10 @@ this is required: without it every function refuses browser calls with
 gets `origin-not-allowed`. A call with no browser origin (the Supabase CLI, a
 server) is still decided by the caller's sign-in token alone.
 
+**Migration 0024** (the R136 update) publishes the two history tables (`deliverable_review_marks`,
+`step_flag_events`) on the realtime channel, so an instructor's marks and a teammate's flag history reach
+open tabs live. Paste `supabase/setup.sql` again (safe to repeat).
+
 **Migration 0023** (in `supabase/setup.sql`, the R135 update) adds the limits an
 open-sign-up platform needs: nobody inserts their own profile row (the signup
 trigger does), a `reviewed` skill level needs an instructor's approval of the

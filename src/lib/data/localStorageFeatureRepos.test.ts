@@ -100,3 +100,24 @@ describe('user state — the mine pointer travels with the rest (R81)', async ()
     expect(localStorageUserStateRepo.get('security-plus', 'm1')).toEqual({ mineSeen: 0 });
   });
 });
+
+describe('R136 — the history the profile reads round-trips offline', () => {
+  it('appends marks, never replaces them', () => {
+    const m = (ok: boolean, at: number) => ({ courseId: 'server-plus', teamId: '2026-09-t3', deliverableId: 'srv_as_built', week: 4, category: 'correctness' as const, ok, note: '', reviewer: 'Ivy', at });
+    localStorageReviewRepo.saveMarks([m(false, 1)]);
+    localStorageReviewRepo.saveMarks([m(true, 2)]);
+    expect(localStorageReviewRepo.marks('server-plus', '2026-09-t3').map((x) => x.ok)).toEqual([false, true]);
+    expect(localStorageReviewRepo.marks('server-plus', '2026-09-t4')).toEqual([]);
+  });
+
+  it('leaves one event per change of the stuck flag, and none for a note edit', () => {
+    const note = (stuck: boolean, at: number, text = 'n') => ({ courseId: 'server-plus', taskId: 't1', stepId: 's1', note: text, stuck, at });
+    localStorageStepNotesRepo.save('m1', note(true, 1));
+    localStorageStepNotesRepo.save('m1', note(true, 2, 'edited'));
+    localStorageStepNotesRepo.save('m1', note(false, 3));
+    const events = localStorageStepNotesRepo.flagEvents('server-plus', 'm1');
+    expect(events.map((e) => e.kind)).toEqual(['raised', 'cleared']);
+    expect(events.map((e) => e.at)).toEqual([1, 3]);
+    expect(localStorageStepNotesRepo.flagEvents('server-plus', 'm2')).toEqual([]);
+  });
+});

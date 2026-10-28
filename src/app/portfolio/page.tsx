@@ -10,7 +10,8 @@ import { DemoBanner } from '@/components/auth/DemoBanner';
 import { CapstoneStone } from '@/components/quarry/CapstoneStone';
 import { RelicTrophy, SealLedger } from '@/components/quarry/items';
 import { VerificationBar } from '@/components/catalog/VerificationBar';
-import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo, statusRepo, submissionsRepo, reviewRepo, taskReportsRepo, stepNotesRepo } from '@/lib/data';
+import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo } from '@/lib/data';
+import { ownFactsOf, teamFactsOf, weekDueOf } from '@/lib/recordFacts';
 import { courseDocument, bareDocument } from '@/lib/content/docs';
 import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
 import { skillProfile, skillPortfolio } from '@/lib/skillProfile';
@@ -107,8 +108,10 @@ function buildRow(courseId: string): Row | null {
     registry: skillsOf(doc),
     cert: certOf(doc),
     deliverables: deliverablesOf(doc),
-    team: { docs: savedDocs ?? {}, status: statusRepo.list(course.id, member.teamId), submissions: submissionsRepo.list(course.id, member.teamId), reviews: reviewRepo.list(course.id, member.teamId), currentWeek },
-    own: { notes: Object.values(stepNotesRepo.getAll(course.id, member.memberId)), reports: taskReportsRepo.list(course.id) },
+    // R136: the one loader every profile caller uses.
+    team: teamFactsOf(course, member, currentWeek),
+    own: ownFactsOf(course, member),
+    weekDue: weekDueOf(course, member),
     // R111: the currency flag needs the page's clock; buildRow is a plain function, not a component body.
     asOf: Date.now(),
     receipts,

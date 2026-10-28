@@ -41,6 +41,8 @@ export interface RecordCourseInput {
   /** The team's lifecycle rows and documents, where loaded; a form approved or issued is evidence. */
   status?: DeliverableStatus[];
   docs?: Record<string, { fields: Record<string, string> }>;
+  /** R136: whose record this is, so a team decision stamps the member who chose it and nobody else. */
+  memberId?: string;
   capstoneFiled: boolean;
   clearedWeeks: readonly number[];
 }
@@ -167,8 +169,11 @@ function tallyCourse(input: RecordCourseInput, category: RecordCategory, taskIds
   }
   if (category === 'decisions' && input.docs) {
     for (const d of input.deliverables) for (const b of decisionBlocksOf(d)) {
-      const at = Number(input.docs[d.id]?.fields[`${decisionKey(b.id)}:at`]);
-      if (Number.isFinite(at) && at > 0) t.stamps.push(at);
+      const fields = input.docs[d.id]?.fields ?? {};
+      const at = Number(fields[`${decisionKey(b.id)}:at`]);
+      // R136: the choice carries who made it; a teammate's decision is not this member's stamp.
+      const mine = input.memberId === undefined || fields[`${decisionKey(b.id)}:by`] === input.memberId;
+      if (mine && Number.isFinite(at) && at > 0) t.stamps.push(at);
     }
   }
   if (category === 'projects') {

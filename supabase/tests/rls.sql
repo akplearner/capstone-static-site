@@ -1640,7 +1640,8 @@ begin
   foreach t in array array['step_completions','deliverables','memberships','gate_status',
                            'deliverable_reviews','step_flags','cohorts','course_documents',
                            'step_evidence','task_reports',
-                           'deliverable_submissions','peer_reviews','deliverable_status'] loop
+                           'deliverable_submissions','peer_reviews','deliverable_status',
+                           'deliverable_review_marks','step_flag_events'] loop
     assert (select count(*) from pg_publication_tables
             where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t) = 1,
       'realtime publication is missing ' || t || ' (step_evidence is 0007)';

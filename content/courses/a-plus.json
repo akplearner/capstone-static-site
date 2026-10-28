@@ -8122,7 +8122,7 @@
           ],
           "status": "computed",
           "scored": true,
-          "note": "Loads when the page hands the queue in."
+          "note": "R136: counted from the queue every surface reads; offline both counts are zero."
         },
         {
           "id": "metric.collab-stuck-helped",
@@ -8332,7 +8332,7 @@
           ],
           "status": "computed",
           "scored": true,
-          "note": "R132: two recorded stamps, the verification and the due date.",
+          "note": "R132: two recorded stamps, the verification and the due date. R136: loads wherever the cohort has a start date.",
           "timing": true
         },
         {
@@ -8447,7 +8447,7 @@
           ],
           "status": "computed",
           "scored": true,
-          "note": "R132: the flag history is append-only. Loads on the course page."
+          "note": "R132: the flag history is append-only. R136: loads on every surface."
         },
         {
           "id": "metric.decision-offered",

@@ -5,8 +5,10 @@ import { motion } from 'framer-motion';
 import { Upload, X, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Course, Member, TaskCompletion } from '@/lib/types';
 import type { DeliverableData } from '@/lib/docs/types';
-import { progressRepo, docsRepo, userStateRepo, labAccessRepo, evidenceRepo, pathRepo } from '@/lib/data';
-import type { EvidenceArtifact, LabAccessData, RehashCheck, StepEvidence, UserCourseState } from '@/lib/data';
+import { progressRepo, docsRepo, userStateRepo, labAccessRepo, evidenceRepo, pathRepo, stepNotesRepo, statusRepo } from '@/lib/data';
+import type { EvidenceArtifact, LabAccessData, RehashCheck, StepEvidence, StepNote, UserCourseState } from '@/lib/data';
+import type { DeliverableStatus } from '@/lib/docs/lifecycle';
+import { rewriteDecisionAuthors } from '@/lib/data/importRewrite';
 import { getBrowserClient } from '@/lib/supabase/client';
 import { useAuth } from '@/lib/useAuth';
 import { useMember } from '@/lib/useMember';
@@ -118,9 +120,25 @@ export function ImportPrompt({ course }: { course: Course }) {
     if (localDocs) {
       const cloudDocs = docsRepo.get(course.id, localCtx.teamId) ?? {};
       for (const [id, data] of Object.entries(localDocs)) {
-        if (!cloudDocs[id]) void docsRepo.saveOne(course.id, localCtx.teamId, id, data);
+        // R136: a decision this person made on the device travels as theirs, under the account's id.
+        if (!cloudDocs[id]) void docsRepo.saveOne(course.id, localCtx.teamId, id, rewriteDecisionAuthors(data, oldId, user.id));
       }
     }
+    // R136: the lifecycle rows this device holds (the team's draft → in review → approved → issued history),
+    // re-signed where this person made the transition, and only where the cloud has none for the form yet.
+    const localStatus = readLocal<DeliverableStatus[]>(KEYS.docStatus(course.id, localCtx.teamId));
+    if (localStatus?.length) {
+      const cloudStatus = new Set(statusRepo.list(course.id, localCtx.teamId).map((r) => r.deliverableId));
+      for (const row of localStatus) {
+        if (cloudStatus.has(row.deliverableId)) continue;
+        if (row.changedBy !== oldId) continue; // RLS admits only this person's own transitions
+        statusRepo.save({ ...row, changedBy: user.id });
+      }
+    }
+    // R136: the step notes and the stuck flags, which the cloud keeps per account; saving a flagged note
+    // leaves the raised event the history reads.
+    const localNotes = readLocal<Record<string, StepNote>>(KEYS.stepNotes(course.id, oldId));
+    for (const note of Object.values(localNotes ?? {})) stepNotesRepo.save(user.id, note);
 
     // 4. Lab access and the resume pointer + Week-0 ack. These also live in the
     //    cloud now, so an import that skipped them would silently drop a

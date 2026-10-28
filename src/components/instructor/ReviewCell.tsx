@@ -11,6 +11,20 @@ function nowMs(): number {
   return Date.now();
 }
 
+/** R136: the newest mark per category for one form and week; true where none was ever saved. */
+export function latestMarks(all: DeliverableReviewMark[], deliverableId: string, week: number): Record<DeliverableReviewMark['category'], boolean> {
+  const out: Record<DeliverableReviewMark['category'], boolean> = { completeness: true, correctness: true, authenticity: true, consistency: true };
+  const at: Partial<Record<DeliverableReviewMark['category'], number>> = {};
+  for (const m of all) {
+    if (m.deliverableId !== deliverableId || m.week !== week) continue;
+    if ((at[m.category] ?? -1) <= m.at) {
+      at[m.category] = m.at;
+      out[m.category] = m.ok;
+    }
+  }
+  return out;
+}
+
 /**
  * The instructor's side of the review loop: one verdict per form per week.
  * R134: beside the verdict, one mark per rubric category (completeness,
@@ -34,8 +48,11 @@ export function ReviewCell({
 }) {
   const [status, setStatus] = useState<ReviewStatus>(current?.status ?? 'pending');
   const [comment, setComment] = useState(current?.comment ?? '');
-  const [marks, setMarks] = useState<Record<DeliverableReviewMark['category'], boolean>>({ completeness: true, correctness: true, authenticity: true, consistency: true });
-  const dirty = status !== (current?.status ?? 'pending') || comment !== (current?.comment ?? '');
+  // R136: the marks start from the last ones saved for this form and week (all true when none), and a change
+  // of a mark alone is a change worth saving.
+  const previous = latestMarks(reviewRepo.marks(courseId, teamId), deliverableId, week);
+  const [marks, setMarks] = useState<Record<DeliverableReviewMark['category'], boolean>>(previous);
+  const dirty = status !== (current?.status ?? 'pending') || comment !== (current?.comment ?? '') || RUBRIC_CATEGORIES.some((c) => marks[c.id] !== previous[c.id]);
 
   const save = () => {
     const at = nowMs();

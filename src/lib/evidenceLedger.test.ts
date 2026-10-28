@@ -146,6 +146,17 @@ describe('selfAttested', () => {
     };
     expect(selfAttested(verified, base)).toBe(verified);
   });
+
+  it('R136: a tick is not an attempt — the first paste stamps firstAttemptAt, however long after the tick', () => {
+    const ticked = selfAttested(undefined, base);
+    expect(ticked.firstAttemptAt).toBeUndefined();
+    const pasted = foldAttempt(ticked, { ...base, at: 90_000, score: scoreOutput('Active agent.conf 10.10.100.5', VERIFY), outputSha256: 'h1' });
+    expect(pasted.firstAttemptAt).toBe(90_000);
+    expect(pasted.verifiedAt).toBe(90_000);
+    // A paste first, then a tick: the paste's stamp stays.
+    const pastedFirst = foldAttempt(undefined, { ...base, at: 500, score: scoreOutput('nothing here', VERIFY), outputSha256: 'h0' });
+    expect(selfAttested(pastedFirst, { ...base, at: 9_000 }).firstAttemptAt).toBe(500);
+  });
 });
 
 describe('verifiableSteps + methodLabel', () => {

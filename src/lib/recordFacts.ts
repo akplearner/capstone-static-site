@@ -2,13 +2,47 @@
 
 import { bareDocument, courseDocument } from '@/lib/content/docs';
 import { skillsOf } from '@/lib/content/read';
-import { courseRepo, docsRepo, earnedRepo, evidenceRepo, progressRepo, statusRepo, taskReportsRepo } from '@/lib/data';
+import { cohortRepo, courseRepo, docsRepo, earnedRepo, evidenceRepo, progressRepo, reviewRepo, statusRepo, stepNotesRepo, submissionsRepo, taskReportsRepo } from '@/lib/data';
+import { cohortKeyOf, weekDueFrom } from '@/lib/weekDue';
 import { deliverablesOf } from '@/lib/content/read';
 import { categoryForms, categoryTaskIds } from '@/lib/recordCard';
 import { buildIssues, type IssueDto, type IssuePeople } from '@/lib/issueInbox';
 import type { CourseFacts } from '@/lib/recordDetail';
-import type { SkillProfile } from '@/lib/skillProfile';
+import type { OwnFacts, SkillProfile, TeamFacts } from '@/lib/skillProfile';
 import type { Course, Member } from '@/lib/types';
+
+/**
+ * R136 — the team facts of a profile, read from the repositories in ONE place. Five callers (the course
+ * skill board, the Home skills card, the dashboard, the portfolio, the cohort report) each built this by
+ * hand, and each forgot the instructor's marks; so the marks indicator never loaded anywhere.
+ */
+export function teamFactsOf(course: Course, member: Pick<Member, 'teamId'>, currentWeek: number): TeamFacts {
+  return {
+    docs: docsRepo.get(course.id, member.teamId) ?? {},
+    status: statusRepo.list(course.id, member.teamId),
+    submissions: submissionsRepo.list(course.id, member.teamId),
+    reviews: reviewRepo.list(course.id, member.teamId),
+    currentWeek,
+    marks: reviewRepo.marks(course.id, member.teamId),
+  };
+}
+
+/** R136 — the member's own facts: notes and reports, the flag history, and the blind review queue as counts. */
+export function ownFactsOf(course: Course, member: Pick<Member, 'memberId'>): OwnFacts {
+  const peerReviews = submissionsRepo.peerReviewCounts(course.id);
+  return {
+    notes: Object.values(stepNotesRepo.getAll(course.id, member.memberId)),
+    reports: taskReportsRepo.list(course.id),
+    flagEvents: stepNotesRepo.flagEvents(course.id, member.memberId),
+    ...(peerReviews ? { peerReviews } : {}),
+  };
+}
+
+/** R136 — the cohort calendar as the projection reads it, or undefined until the instructor sets a start date. */
+export function weekDueOf(course: Course, member: Pick<Member, 'teamId' | 'cohort'>): ((week: number) => number | undefined) | undefined {
+  const key = cohortKeyOf(member);
+  return weekDueFrom(key ? cohortRepo.get(course.id, key) : null);
+}
 
 /**
  * R126 — the facts one course's figures were counted from, read from the repositories at the moment a
@@ -70,6 +104,7 @@ export function recordCourseInputOf(card: RecordCard & { capstoneFiled: boolean;
     deliverables: deliverablesOf(doc),
     status: statusRepo.list(course.id, member.teamId),
     docs: docsRepo.get(course.id, member.teamId) ?? {},
+    memberId: member.memberId,
     capstoneFiled: card.capstoneFiled,
     clearedWeeks: card.clearedWeeks,
   };

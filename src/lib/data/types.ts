@@ -517,6 +517,10 @@ export interface SubmissionsRepository {
   progress(submissionId: string): Promise<SubmissionProgress | null>;
   /** The caller's blind review queue (cloud; empty offline). */
   queue(): Promise<ReviewQueueItem[]>;
+  /** R136: the queue as counts, read synchronously from what the last hydrate fetched: reviews done over
+   *  reviews assigned in this course. Null until the queue has been read (cloud); offline there are no
+   *  peers on one device, so both counts are honestly zero. */
+  peerReviewCounts(courseId: string): { done: number; assigned: number } | null;
   packet(assignmentId: string): Promise<ReviewPacket | null>;
   /** Answer once; the database makes it final. False = rejected/failed. */
   submitReview(assignmentId: string, answers: Record<string, boolean>, confirm: boolean): Promise<boolean>;

@@ -1,5 +1,5 @@
 import type { Course, RosterEntry } from './types';
-import type { DeliverableReview, DeliverableSubmission, EvidenceArtifact, StepEvidence } from './data/types';
+import type { DeliverableReview, DeliverableReviewMark, DeliverableSubmission, EvidenceArtifact, StepEvidence, StepFlagEvent } from './data/types';
 import type { DeliverableData, DeliverableDef } from './docs/types';
 import type { DeliverableStatus } from './docs/lifecycle';
 import type { CertContent, SkillsContent } from './content/read';
@@ -75,6 +75,11 @@ export interface CohortKpiInput {
     statusFor(teamId: string): DeliverableStatus[];
     submissionsFor(teamId: string): DeliverableSubmission[];
     reviewsFor(teamId: string): DeliverableReview[];
+    /** R136: the instructor's marks per team, each member's flag history and review counts, and the cohort calendar; absent where the loader did not read them. */
+    marksFor?(teamId: string): DeliverableReviewMark[];
+    flagEventsFor?(memberId: string): StepFlagEvent[];
+    peerReviewsFor?(memberId: string): { done: number; assigned: number } | undefined;
+    weekDueFor?(cohort: string): ((week: number) => number | undefined) | undefined;
   };
 }
 
@@ -157,7 +162,10 @@ export function cohortKpiReport(input: CohortKpiInput): CohortKpiReport {
       registry,
       cert,
       deliverables,
-      team: { docs, status: facts.statusFor(m.teamId), submissions: facts.submissionsFor(m.teamId), reviews: facts.reviewsFor(m.teamId), currentWeek: week },
+      team: { docs, status: facts.statusFor(m.teamId), submissions: facts.submissionsFor(m.teamId), reviews: facts.reviewsFor(m.teamId), currentWeek: week, marks: facts.marksFor?.(m.teamId) },
+      // R136: the member's own history and queue, and the calendar, so the instructor's figures stand on the same facts as the member's.
+      own: facts.flagEventsFor || facts.peerReviewsFor ? { notes: [], reports: [], flagEvents: facts.flagEventsFor?.(m.memberId), peerReviews: facts.peerReviewsFor?.(m.memberId) } : undefined,
+      weekDue: facts.weekDueFor?.(m.cohort),
     });
     // The graded weeks with tasks for the role, and those whose required steps the member has all ticked.
     const weeks = gradedWeeksCleared(course, m.role, (t, s) => facts.isStepDone(m.memberId, t, s));

@@ -2370,7 +2370,7 @@ describe('R107 — skills, tools, standards and the member profile', () => {
     // The cross-course hydrate reads the four tables the profile needs and never the single-user ones.
     const cache = code('src/lib/data/supabaseCache.ts');
     const user = cache.slice(cache.indexOf('export async function hydrateUser'), cache.indexOf('export function submissionFromLightRow'));
-    for (const t of ['deliverable_status', 'deliverable_submissions', 'task_reports', 'step_notes']) expect(user, t).toContain(`from('${t}')`);
+    for (const t of ['deliverable_status', 'deliverable_submissions', 'task_reports', 'step_notes', 'deliverables', 'deliverable_review_marks', 'step_flag_events', 'step_flags', 'cohorts']) expect(user, t).toContain(`from('${t}')`);
     expect(user).not.toMatch(/lab_access|user_course_state/);
     expect(user).toContain('categories:snapshot->categories');
     // The cohort column reads the document, never the metrics loader.
@@ -4038,5 +4038,63 @@ describe('R135 — ownership and hardening', () => {
     expect(read('docs/FIX_LIST.md')).toContain('| F13 |');
     expect(read('docs/ARCHITECTURE.md')).toContain('### Ownership and the hardening layer (R135)');
     expect(read('SECURITY.md')).toContain('## What the code enforces (R135)');
+  });
+});
+
+describe('R136 — every fact reaches the projection', () => {
+  const CALLERS = ['src/app/courses/[courseId]/skills/page.tsx', 'src/components/skills/SkillsCard.tsx', 'src/app/dashboard/page.tsx', 'src/app/portfolio/page.tsx'];
+
+  it('the four member surfaces build the team and own facts through the one loader, and hand the calendar in', () => {
+    for (const f of CALLERS) {
+      const src = code(f);
+      expect(src, f).toContain('teamFactsOf(');
+      expect(src, f).toContain('ownFactsOf(');
+      expect(src, f).toContain('weekDueOf(');
+      expect(src, `${f} builds no team facts by hand`).not.toMatch(/reviews:\s*reviewRepo\.list\(/);
+    }
+    const facts = code('src/lib/recordFacts.ts');
+    for (const n of ['marks: reviewRepo.marks(', 'flagEvents: stepNotesRepo.flagEvents(', 'submissionsRepo.peerReviewCounts(', 'weekDueFrom(']) expect(facts, n).toContain(n);
+  });
+
+  it('the cohort report stands on the same facts: marks, flag history, review counts and the calendar', () => {
+    const page = code('src/app/instructor/[courseId]/cohort/page.tsx');
+    for (const n of ['marksFor: (t) => data.marks[t]', 'flagEventsFor: (m) => data.flagEvents[m]', 'peerReviewsFor: (m) => data.peerReviewCounts[m]', 'weekDueFor: (c) => weekDueFrom(']) expect(page, n).toContain(n);
+    const loader = code('src/lib/data/cohortLoader.ts');
+    for (const n of ["from('deliverable_review_marks')", "from('step_flag_events')", "select('id, submission_id, reviewer_id')"]) expect(loader, n).toContain(n);
+  });
+
+  it('the history tables arrive live, and a tick is not an attempt', () => {
+    const cache = code('src/lib/data/supabaseCache.ts');
+    const realtime = cache.slice(cache.indexOf('function subscribeRealtime'));
+    for (const t of ['deliverable_review_marks', 'step_flag_events']) expect(realtime, t).toContain(`table: '${t}'`);
+    expect(read('supabase/migrations/0024_history_realtime.sql')).toContain("array['deliverable_review_marks', 'step_flag_events']");
+    expect(read('supabase/setup.sql')).toContain('0024_history_realtime.sql');
+    const ledger = code('src/lib/evidenceLedger.ts');
+    const tick = ledger.slice(ledger.indexOf('export function selfAttested'));
+    expect(tick).toContain('firstAttemptAt: prev?.firstAttemptAt,');
+    expect(tick, 'only a paste stamps the first attempt').not.toContain('?? next.at');
+  });
+
+  it('one rule for the forms a role fills; a decision stamps only its maker; the import re-signs what travels', () => {
+    const profile = code('src/lib/skillProfile.ts');
+    expect(profile).toContain('export function roleFormsOf<');
+    expect((profile.match(/roleFormsOf\(input\.deliverables, role\)/g) ?? []).length).toBe(2);
+    expect(profile).not.toContain("d.raci?.reviews === role || d.raci?.approves === role");
+    expect(code('src/lib/recordCard.ts')).toContain("fields[`${decisionKey(b.id)}:by`] === input.memberId");
+    const imp = code('src/components/auth/ImportPrompt.tsx');
+    for (const n of ['rewriteDecisionAuthors(data, oldId, user.id)', 'statusRepo.save({ ...row, changedBy: user.id })', 'stepNotesRepo.save(user.id, note)']) expect(imp, n).toContain(n);
+    const cell = code('src/components/instructor/ReviewCell.tsx');
+    expect(cell).toContain('latestMarks(reviewRepo.marks(courseId, teamId), deliverableId, week)');
+    expect(cell).toContain('marks[c.id] !== previous[c.id]');
+  });
+
+  it('the docs say it', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### Every fact reaches the projection (R136)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| Every fact reaches the projection |');
+    expect(read('docs/FIX_LIST.md')).toContain('| F14 |');
+    expect(read('docs/OPERATIONS.md')).toContain('**Every fact reaches the projection (R136):**');
+    expect(read('SUPABASE_SETUP.md')).toContain('**Migration 0024**');
+    const catalogue = code('src/lib/docs/metricCatalogue.ts');
+    expect(catalogue).not.toContain('Loads when the page hands the queue in.');
   });
 });

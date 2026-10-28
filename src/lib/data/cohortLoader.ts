@@ -5,8 +5,8 @@ import { isSupabaseConfigured } from '../supabase/config';
 import type { Course, RosterEntry } from '../types';
 import type { DeliverableData } from '../docs/types';
 import type { DeliverableStatus } from '../docs/lifecycle';
-import type { Cohort, DeliverableReview, DeliverableSubmission, EvidenceArtifact, PeerReviewRow, StepEvidence, StuckFlag, TaskReport } from './types';
-import { rosterFromRow, stepEvidenceFromRow, reviewFromRow, taskReportFromRow, submissionFromRow, peerReviewFromRow, docStatusFromRow, artifactFromRow } from './supabaseCache';
+import type { Cohort, DeliverableReview, DeliverableSubmission, EvidenceArtifact, PeerReviewRow, StepEvidence, StuckFlag, TaskReport, DeliverableReviewMark, StepFlagEvent } from './types';
+import { rosterFromRow, stepEvidenceFromRow, reviewFromRow, taskReportFromRow, submissionFromRow, peerReviewFromRow, docStatusFromRow, artifactFromRow, reviewMarkFromRow, flagEventFromRow } from './supabaseCache';
 import { localStorageProgressRepo } from './localStorageProgressRepo';
 import { localStorageEvidenceRepo } from './localStorageEvidenceRepo';
 import { localStorageDocsRepo } from './localStorageDocsRepo';
@@ -56,6 +56,11 @@ export interface CohortData {
   /** R108: the lifecycle rows per team and the hashed files per member, for the KPI bands (0012 and 0004 let the instructor read both). */
   status: Record<string, DeliverableStatus[]>;
   artifacts: Record<string, EvidenceArtifact[]>;
+  /** R136: the instructor's marks per team, every member's flag history, and each member's blind-review counts,
+   *  so the cohort's figures stand on the same facts as the member's own pages. */
+  marks: Record<string, DeliverableReviewMark[]>;
+  flagEvents: Record<string, StepFlagEvent[]>;
+  peerReviewCounts: Record<string, { done: number; assigned: number }>;
 }
 
 export function isStepDoneIn(data: CohortData, courseId: string, memberId: string, taskId: string, stepId: string): boolean {
@@ -77,13 +82,22 @@ export function loadCohortLocal(course: Course): CohortData {
   const reviews: DeliverableReview[] = [];
   const status: CohortData['status'] = {};
   const artifacts: CohortData['artifacts'] = {};
+  const marks: CohortData['marks'] = {};
+  const flagEvents: CohortData['flagEvents'] = {};
+  const peerReviewCounts: CohortData['peerReviewCounts'] = {};
   for (const t of teams) {
     docs[t] = localStorageDocsRepo.get(course.id, t) ?? {};
     stuck.push(...localStorageStepNotesRepo.teamStuck(course.id, t));
     reviews.push(...localStorageReviewRepo.list(course.id, t));
     status[t] = localStorageStatusRepo.list(course.id, t);
+    marks[t] = localStorageReviewRepo.marks(course.id, t);
   }
-  for (const m of roster) artifacts[m.memberId] = localStorageEvidenceRepo.getArtifacts(course.id, m.memberId);
+  for (const m of roster) {
+    artifacts[m.memberId] = localStorageEvidenceRepo.getArtifacts(course.id, m.memberId);
+    flagEvents[m.memberId] = localStorageStepNotesRepo.flagEvents(course.id, m.memberId);
+    // One device has no peers: nothing assigned, nothing owed.
+    peerReviewCounts[m.memberId] = { done: 0, assigned: 0 };
+  }
   // `getTasksByRole` is imported so a course with no tasks for a role still
   // resolves cleanly in the page's derived rows; nothing else to do here.
   void getTasksByRole;
@@ -96,13 +110,13 @@ export function loadCohortLocal(course: Course): CohortData {
     .map((c) => localStorageCohortRepo.get(course.id, c))
     .filter((c): c is Cohort => !!c);
   // Offline has no peers on one device, so there are no verdict rows to show.
-  return { mode: 'local', roster, completions, evidence, docs, stuck, reviews, reports, profiles, submissions, peerReviews: [], assignedCounts: {}, cohortDates, status, artifacts };
+  return { mode: 'local', roster, completions, evidence, docs, stuck, reviews, reports, profiles, submissions, peerReviews: [], assignedCounts: {}, cohortDates, status, artifacts, marks, flagEvents, peerReviewCounts };
 }
 
 export async function loadCohortCloud(course: Course): Promise<CohortData> {
   const supabase = getBrowserClient();
   if (!supabase) return loadCohortLocal(course);
-  const [memberships, completions, evidence, deliverables, flags, reviews, reports, profileRows, submissionRows, peerReviewRows, assignmentRows, cohortRows, statusRows, artifactRows] = await Promise.all([
+  const [memberships, completions, evidence, deliverables, flags, reviews, reports, profileRows, submissionRows, peerReviewRows, assignmentRows, cohortRows, statusRows, artifactRows, markRows, flagEventRows] = await Promise.all([
     supabase.from('memberships').select('*').eq('course_id', course.id),
     // R112: the two tables that grow with every step are read a page at a time, past the PostgREST row cap.
     selectAll((from, to) => supabase.from('step_completions').select('*').eq('course_id', course.id).order('user_id').order('task_id').order('step_id').range(from, to)),
@@ -117,11 +131,15 @@ export async function loadCohortCloud(course: Course): Promise<CohortData> {
     // peer_reviews carries no course_id (anonymity) — the instructor reads
     // all of them and this filters to the course's submissions below.
     supabase.from('peer_reviews').select('*'),
-    supabase.from('peer_review_assignments').select('id, submission_id'),
+    // R136: the reviewer too, so each member's reviews done over assigned can be counted here (the instructor reads every assignment; identities never leave the loader).
+    supabase.from('peer_review_assignments').select('id, submission_id, reviewer_id'),
     supabase.from('cohorts').select('*').eq('course_id', course.id),
     // R108: the lifecycle rows and the hashed files, for the KPI bands.
     supabase.from('deliverable_status').select('*').eq('course_id', course.id),
     supabase.from('evidence_artifacts').select('*').eq('course_id', course.id),
+    // R136: the marks and the flag history (0021, 0022; an older database answers with an error, read as none).
+    supabase.from('deliverable_review_marks').select('*').eq('course_id', course.id),
+    supabase.from('step_flag_events').select('*').eq('course_id', course.id),
   ]);
   const profiles: CohortData['profiles'] = {};
   for (const p of profileRows.data ?? []) {
@@ -153,9 +171,17 @@ export async function loadCohortCloud(course: Course): Promise<CohortData> {
   const submissionIds = new Set(submissions.map((x) => x.id));
   const peerReviews = (peerReviewRows.data ?? []).map(peerReviewFromRow).filter((r) => submissionIds.has(r.submissionId));
   const assignedCounts: Record<string, number> = {};
+  const peerReviewCounts: CohortData['peerReviewCounts'] = {};
+  const doneAssignments = new Set((peerReviewRows.data ?? []).map((r) => String(r.assignment_id)));
   for (const a of assignmentRows.data ?? []) {
     const sid = String(a.submission_id);
-    if (submissionIds.has(sid)) assignedCounts[sid] = (assignedCounts[sid] ?? 0) + 1;
+    if (!submissionIds.has(sid)) continue;
+    assignedCounts[sid] = (assignedCounts[sid] ?? 0) + 1;
+    const reviewer = String(a.reviewer_id ?? '');
+    if (!reviewer) continue;
+    const c = (peerReviewCounts[reviewer] ??= { done: 0, assigned: 0 });
+    c.assigned += 1;
+    if (doneAssignments.has(String(a.id))) c.done += 1;
   }
   const cohortDates: Cohort[] = (cohortRows.data ?? []).map((r) => ({ courseId: course.id, cohort: String(r.cohort), startsOn: String(r.starts_on) }));
   const status: CohortData['status'] = {};
@@ -165,6 +191,16 @@ export async function loadCohortCloud(course: Course): Promise<CohortData> {
   }
   const artifacts: CohortData['artifacts'] = {};
   for (const r of artifactRows.data ?? []) (artifacts[String(r.user_id)] ??= []).push(artifactFromRow(r));
+  const marks: CohortData['marks'] = {};
+  for (const r of markRows.data ?? []) {
+    const m = reviewMarkFromRow(r);
+    (marks[m.teamId] ??= []).push(m);
+  }
+  const flagEvents: CohortData['flagEvents'] = {};
+  for (const r of flagEventRows.data ?? []) {
+    const e = flagEventFromRow(r);
+    (flagEvents[e.memberId] ??= []).push(e);
+  }
   return {
     mode: 'cloud',
     roster,
@@ -181,6 +217,9 @@ export async function loadCohortCloud(course: Course): Promise<CohortData> {
     cohortDates,
     status,
     artifacts,
+    marks,
+    flagEvents,
+    peerReviewCounts,
   };
 }
 

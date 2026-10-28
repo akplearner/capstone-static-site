@@ -930,6 +930,21 @@ folded score means and the group's timing into the cohort report, carried the re
 into the export, the credential's results, the PDF and the shared page, and gave the instructor one
 mark per rubric category beside the verdict (`ReviewCell`, appended to `deliverable_review_marks`).
 
+### Every fact reaches the projection (R136)
+
+An audit of the R132 pipeline found four facts written and stored but never handed to `skillProfile`: the instructor's
+marks (0021), the member's flag history (0022), the blind review queue and the cohort calendar. Five callers each built
+the team and own facts by hand and each forgot some of them, so three scored KPIs (on time, flags cleared, peer reviews
+given) and the marks indicator never loaded in production. R136 makes `lib/recordFacts.ts` the one loader (`teamFactsOf`,
+`ownFactsOf`, `weekDueOf`); the four member surfaces and the cohort report call it or pass the same four facts, and
+`page-shape.test.ts` pins that they do. `hydrateUser` now reads the team's forms, the marks, the flag history, the
+current flags and the calendars across courses, so the dashboard and the portfolio show team facts without a course page
+having been opened first; 0024 publishes the two history tables so they arrive live. The review queue is read by the
+hydrates as counts (`submissionsRepo.peerReviewCounts`), offline honestly zero. A tick no longer stamps `firstAttemptAt`
+(a tick is not an attempt; timing reads the first paste). One rule, `roleFormsOf`, says which forms a role fills, so the
+dimensions and the KPIs agree. A decision stamps the record of the member who chose it only. The first-sign-in import
+re-signs the decisions, the lifecycle rows and the notes under the account's id.
+
 ### Ownership and the hardening layer (R135)
 
 The repository is proprietary (`LICENSE`, `NOTICE.md`, `SECURITY.md`, `CODEOWNERS`; the owner makes it private). The

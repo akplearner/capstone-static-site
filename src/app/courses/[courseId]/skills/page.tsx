@@ -17,13 +17,12 @@ import { useMember } from '@/lib/useMember';
 import { useClientStore, EMPTY_OBJECT } from '@/lib/useClientStore';
 import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
 import { sampleProfiles } from '@/lib/content/profiles';
-import { docsRepo, evidenceRepo, progressRepo, reviewRepo, statusRepo, stepNotesRepo, submissionsRepo, taskReportsRepo } from '@/lib/data';
-import type { DeliverableSubmission, DeliverableReview, EvidenceArtifact, StepEvidence, StepNote, TaskReport, VerificationReceipt, RehashCheck } from '@/lib/data/types';
-import type { DeliverableData } from '@/lib/docs/types';
-import type { DeliverableStatus } from '@/lib/docs/lifecycle';
+import { evidenceRepo, progressRepo } from '@/lib/data';
+import { ownFactsOf, teamFactsOf, weekDueOf } from '@/lib/recordFacts';
+import type { EvidenceArtifact, StepEvidence, VerificationReceipt, RehashCheck } from '@/lib/data/types';
 import type { EnvironmentProfile } from '@/lib/docs/environmentProfile';
 import { ONTOLOGY_VERSION } from '@/lib/docs/ontology';
-import { skillProfile } from '@/lib/skillProfile';
+import { skillProfile, type OwnFacts, type TeamFacts } from '@/lib/skillProfile';
 import { defaultMeasure, kpiBoard, profileMeasure, workRoleMeasure, type MeasureAgainst } from '@/lib/kpiBoard';
 import { skymapLayout } from '@/lib/skymap';
 import { getImportedProfile, readProfileFile, setImportedProfile } from '@/lib/importedProfile';
@@ -59,12 +58,10 @@ interface Facts {
   keys: string[];
   evidence: Record<string, StepEvidence>;
   artifacts: EvidenceArtifact[];
-  docs: Record<string, DeliverableData>;
-  status: DeliverableStatus[];
-  submissions: DeliverableSubmission[];
-  reviews: DeliverableReview[];
-  notes: StepNote[];
-  reports: TaskReport[];
+  /** R136: the team and own facts, read by the one loader every profile caller uses (`currentWeek` is set below). */
+  team: TeamFacts;
+  own: OwnFacts;
+  weekDue: ((week: number) => number | undefined) | undefined;
   /** R113: the platform's receipts (null offline) and the re-hash checks. */
   receipts: Record<string, VerificationReceipt> | null;
   rehashes: RehashCheck[];
@@ -76,12 +73,9 @@ const gather = (course: Course, member: Member): Facts => ({
   keys: [...progressRepo.getCompletionKeySet(course.id, member.memberId)],
   evidence: evidenceRepo.getSteps(course.id, member.memberId),
   artifacts: evidenceRepo.getArtifacts(course.id, member.memberId),
-  docs: docsRepo.get(course.id, member.teamId) ?? {},
-  status: statusRepo.list(course.id, member.teamId),
-  submissions: submissionsRepo.list(course.id, member.teamId),
-  reviews: reviewRepo.list(course.id, member.teamId),
-  notes: Object.values(stepNotesRepo.getAll(course.id, member.memberId)),
-  reports: taskReportsRepo.list(course.id),
+  team: teamFactsOf(course, member, 0),
+  own: ownFactsOf(course, member),
+  weekDue: weekDueOf(course, member),
   receipts: evidenceRepo.getReceipts(course.id, member.memberId),
   rehashes: evidenceRepo.getRehashes(course.id, member.memberId),
 });
@@ -116,7 +110,7 @@ export default function SkillBoardPage() {
     for (const t of getTasksByRole(course, member.role, w.number)) taskStats[t.id] = progressRepo.getTaskPercent(course.id, member.memberId, t, keySet);
   }
   const activeWeek = resolveActiveWeek(course, member.role, weekStats, null);
-  const capstoneFiled = isCapstoneFiled(course.id, facts.docs);
+  const capstoneFiled = isCapstoneFiled(course.id, facts.team.docs);
   const crew = deriveCrewProgress(course, member.role, weekStats, taskStats, capstoneFiled);
   // R125: the member's earned rows are laid over the live profile, so a retake reads at what was already earned.
   const profile = withEarned(skillProfile({
@@ -129,8 +123,9 @@ export default function SkillBoardPage() {
     registry,
     cert,
     deliverables,
-    team: { docs: facts.docs, status: facts.status, submissions: facts.submissions, reviews: facts.reviews, currentWeek: activeWeek },
-    own: { notes: facts.notes, reports: facts.reports },
+    team: { ...facts.team, currentWeek: activeWeek },
+    own: facts.own,
+    weekDue: facts.weekDue,
     asOf,
     receipts: facts.receipts,
     rehashes: facts.rehashes,

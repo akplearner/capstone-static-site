@@ -27,6 +27,9 @@ const data = (roster: RosterEntry[]): CohortData => ({
   peerReviews: [],
   assignedCounts: {},
   cohortDates: [],
+  marks: {},
+  flagEvents: {},
+  peerReviewCounts: {},
   status: {},
   artifacts: {},
 });
