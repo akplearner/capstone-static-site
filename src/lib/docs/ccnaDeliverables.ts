@@ -440,7 +440,7 @@ const CCNA_FORMS: DeliverableDef[] = [
           columns: [
             c('vlan', 'VLAN', 'select', { options: VLAN_OPTIONS }),
             c('purpose', 'What it carries', 'text' ),
-            c('prefix', 'Prefix', 'text', { placeholder: prefixOf(vlan(10)) }),
+            c('prefix', 'Prefix', 'cidr', { placeholder: prefixOf(vlan(10)) }),
             c('gateway', 'Gateway', 'ipv4', { subnetFrom: 'prefix' }),
             c('dhcp', 'DHCP range', 'text', { placeholder: 'or "Static — no pool"' }),
           ],

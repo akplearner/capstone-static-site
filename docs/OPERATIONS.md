@@ -147,6 +147,12 @@ has failed silently in some deployment of some product; none takes more than a m
   has no issues section). The account page's **Export my data (JSON)** and the Deliverables page's
   **Export my work (.json)** (a handoff file with **Restore from file**) are still JSON on purpose.
   `docs/FIX_LIST.md` item F6.
+- [ ] **The project record (R139):** on `/courses/server-plus/docs` as any role, in the IP Plan give two hosts the same
+  address → the Expectations panel's Consistency lists "Address … is recorded on … and …" and turns grey; fix one → the
+  line goes and Consistency is green again; type `10.10.1.0` in a Prefix cell → the cell hints "A
+  prefix with its mask"; in the cloud, save a form twice with a change in between → `deliverable_history` has one row
+  holding the first version (the SQL editor: `select deliverable_id, data from deliverable_history`); a second save by
+  the same author within five minutes adds none.
 - [ ] **Every course feeds every KPI (R138):** on `/courses/ccna/skills` as any role, no tile reads "Not measured in this
   course for this role" except the three decision tiles for a non-drafting role; a CCNA task shows show-command steps with
   a verify box; a cloud Infrastructure member sees the Network Design Document as a form they draft; every form ends with a
@@ -340,8 +346,9 @@ owner can flip, in the order that matters:
 6. **Set `APP_ORIGIN` on the functions.** Supabase → **Edge Functions → Secrets → `APP_ORIGIN` =
    `https://<your-site>`**, then redeploy the six functions (`SUPABASE_SETUP.md`, "Deploy the server
    functions"). Since R135 a function without it refuses every browser call.
-7. **Paste `supabase/setup.sql` again** for migration 0023 (safe to repeat): the self-promotion hole,
-   the daily caps and the size limits are in the database, not the app.
+7. **Paste `supabase/setup.sql` again** for migrations 0023 to 0025 (safe to repeat): the self-promotion hole,
+   the daily caps and the size limits (0023), the two history tables on the live channel (0024) and the
+   form history the project record reads (0025) are in the database, not the app.
 
 ## Still open — decisions only you can make
 

@@ -190,8 +190,8 @@ const NETWORK_PLUS_FORMS: DeliverableDef[] = [
           columns: [
             c('vlan', 'VLAN', 'select', { options: VLAN_OPTIONS }),
             c('purpose', 'Purpose', 'text'),
-            c('prefix', 'Prefix', 'text', { placeholder: prefixOf(vlan(10)) }),
-            c('gateway', 'Gateway', 'ipv4', { placeholder: gatewayOf(vlan(10)) }),
+            c('prefix', 'Prefix', 'cidr', { placeholder: prefixOf(vlan(10)) }),
+            c('gateway', 'Gateway', 'ipv4', { placeholder: gatewayOf(vlan(10)), subnetFrom: 'prefix' }),
             c('pool', 'DHCP pool', 'text', { placeholder: dhcpRangeOf(vlan(10)) }),
           ],
           seed: [vlanRow(10)],

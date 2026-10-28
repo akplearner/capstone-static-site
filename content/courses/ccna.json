@@ -3241,7 +3241,7 @@
               {
                 "field": "prefix",
                 "label": "Prefix",
-                "type": "text",
+                "type": "cidr",
                 "placeholder": "10.50.10.0/24"
               },
               {

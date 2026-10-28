@@ -460,10 +460,10 @@ export const CISSP_DELIVERABLES: DeliverableDef[] = [
           help: 'The four processes with maximum tolerable downtime, recovery time, recovery point and work recovery time. RTO + WRT must fit inside MTD.',
           columns: [
             c('process', 'Process', 'text', { placeholder: 'Dispatch' }),
-            c('mtd', 'MTD', 'text', { placeholder: '8h' }),
-            c('rto', 'RTO', 'text', { placeholder: '4h' }),
-            c('rpo', 'RPO', 'text', { placeholder: '1h' }),
-            c('wrt', 'WRT', 'text', { placeholder: '2h' }),
+            c('mtd', 'MTD', 'duration', { placeholder: '8h' }),
+            c('rto', 'RTO', 'duration', { placeholder: '4h' }),
+            c('rpo', 'RPO', 'duration', { placeholder: '1h' }),
+            c('wrt', 'WRT', 'duration', { placeholder: '2h' }),
           ],
           seed: [
             { process: 'Dispatch (work orders and technician assignment)', mtd: '', rto: '', rpo: '', wrt: '' },

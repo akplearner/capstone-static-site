@@ -5,7 +5,7 @@ import { InfoTip } from '@/components/InfoTip';
 import { RegisterRow } from '@/lib/types';
 import { Column, cellValue } from '@/lib/grc/templates';
 import { emptyFormContext, type FormContext } from '@/lib/docs/types';
-import { DURATION_UNITS, addressPart, fitsInput, formatDuration, inSubnet, isIpv4OrCidr, parseDuration } from '@/lib/docs/formContext';
+import { DURATION_UNITS, addressPart, fitsInput, formatDuration, inSubnet, isCidr, isIpv4OrCidr, isPort, parseDuration } from '@/lib/docs/formContext';
 
 const inputClass =
   'w-full rounded depth-edge bg-panel px-2 py-1 text-sm text-ink';
@@ -204,6 +204,30 @@ function Cell({
         {badShape && <span className="mt-0.5 block text-2xs text-warn">Four numbers, 0–255, e.g. 192.0.2.10</span>}
         {wrongZone && (
           <span className="mt-0.5 block text-2xs text-warn">Outside {subnet} — is that deliberate?</span>
+        )}
+      </>
+    );
+  }
+
+  if (col.type === 'cidr' || col.type === 'port') {
+    // R139: the record reads these cells as a subnet and a port, so the shape is
+    // hinted here — never blocked, like an address.
+    const bad = !!value.trim() && !(col.type === 'cidr' ? isCidr(value) : isPort(value));
+    return (
+      <>
+        <input
+          {...named}
+          type="text"
+          inputMode={col.type === 'port' ? 'numeric' : undefined}
+          value={value}
+          placeholder={col.placeholder}
+          onChange={(e) => onChange(e.target.value)}
+          className={`${inputClass} ${bad ? 'border-warn' : ''}`}
+        />
+        {bad && (
+          <span className="mt-0.5 block text-2xs text-warn">
+            {col.type === 'cidr' ? 'A prefix with its mask, e.g. 10.10.1.0/24' : 'A port, e.g. 443 or 443/tcp'}
+          </span>
         )}
       </>
     );

@@ -3397,7 +3397,7 @@
               {
                 "field": "cidr",
                 "label": "CIDR",
-                "type": "text",
+                "type": "cidr",
                 "placeholder": "10.10.1.0/24"
               },
               {
@@ -3449,7 +3449,8 @@
               {
                 "field": "port",
                 "label": "Port",
-                "type": "text"
+                "type": "port",
+                "placeholder": "22/tcp"
               },
               {
                 "field": "action",
@@ -3711,6 +3712,13 @@
         },
         {
           "group": "plan",
+          "column": "cidr",
+          "rule": "pattern",
+          "value": "^(25[0-5]|2[0-4]\\d|1?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|1?\\d?\\d)){3}/(3[0-2]|[12]?\\d)$",
+          "hint": "CIDR: a prefix with its mask in every row, like 10.10.1.0/24"
+        },
+        {
+          "group": "plan",
           "column": "internet",
           "rule": "oneOf",
           "value": [
@@ -3728,6 +3736,13 @@
             "Outbound"
           ],
           "hint": "Direction: one of the listed options in every row"
+        },
+        {
+          "group": "rules",
+          "column": "port",
+          "rule": "pattern",
+          "value": "^([Aa][Nn][Yy]|[Aa][Ll][Ll]|\\*|\\d{1,5}(-\\d{1,5})?(/([Tt][Cc][Pp]|[Uu][Dd][Pp]|[Ii][Cc][Mm][Pp]|[Ss][Cc][Tt][Pp]|[Aa][Nn][Yy]))?)$",
+          "hint": "Port: a port in every row, with or without its protocol, like 443/tcp"
         },
         {
           "group": "rules",

@@ -17,6 +17,9 @@ import { EVIDENCE_NAMING } from '../evidence';
 const IPV4 = String.raw`^(25[0-5]|2[0-4]\d|1?\d?\d)(\.(25[0-5]|2[0-4]\d|1?\d?\d)){3}$`;
 // The evidence-file convention (src/lib/evidence.ts / utils.validateEvidenceFileName).
 const FILEREF = String.raw`^\d{8}_Team\d{2}_[A-Za-z0-9]+_[A-Za-z0-9-]+\.[A-Za-z0-9]+$`;
+// R139: a prefix is an address with its mask; a port is a number or a range, with or without its protocol (formContext.isPort agrees).
+const CIDR = String.raw`^(25[0-5]|2[0-4]\d|1?\d?\d)(\.(25[0-5]|2[0-4]\d|1?\d?\d)){3}/(3[0-2]|[12]?\d)$`;
+const PORT = String.raw`^([Aa][Nn][Yy]|[Aa][Ll][Ll]|\*|\d{1,5}(-\d{1,5})?(/([Tt][Cc][Pp]|[Uu][Dd][Pp]|[Ii][Cc][Mm][Pp]|[Ss][Cc][Tt][Pp]|[Aa][Nn][Yy]))?)$`;
 
 export const COURSE_DEFAULT_VISUAL: Record<string, DeliverableVisual> = {
   // R99: a form draws its course's picture as it stands in the form's week.
@@ -42,6 +45,8 @@ export function deriveChecks(def: DeliverableDef): FieldCheck[] {
     if (s.kind === 'fields') {
       for (const f of s.fields) {
         if (f.type === 'ipv4') add({ field: f.field, rule: 'pattern', value: IPV4, hint: `${f.label}: a valid IPv4 address (four numbers 0-255)` });
+        if (f.type === 'cidr') add({ field: f.field, rule: 'pattern', value: CIDR, hint: `${f.label}: a prefix with its mask, like 10.10.1.0/24` });
+        if (f.type === 'port') add({ field: f.field, rule: 'pattern', value: PORT, hint: `${f.label}: a port, with or without its protocol, like 443/tcp` });
         if (f.type === 'fileref') add({ field: f.field, rule: 'pattern', value: FILEREF, hint: `${f.label}: named ${EVIDENCE_NAMING}` });
         if (f.type === 'select' && f.options?.length) add({ field: f.field, rule: 'oneOf', value: f.options, hint: `${f.label}: one of the listed options` });
         if (f.type === 'area' && f.required) add({ field: f.field, rule: 'minLength', value: 40, hint: `${f.label}: a real answer, not a placeholder (40+ characters)` });
@@ -53,6 +58,8 @@ export function deriveChecks(def: DeliverableDef): FieldCheck[] {
     } else {
       for (const col of s.group.columns) {
         if (col.type === 'ipv4') add({ group: s.group.group, column: col.field, rule: 'pattern', value: IPV4, hint: `${col.label}: a valid IPv4 address in every row` });
+        if (col.type === 'cidr') add({ group: s.group.group, column: col.field, rule: 'pattern', value: CIDR, hint: `${col.label}: a prefix with its mask in every row, like 10.10.1.0/24` });
+        if (col.type === 'port') add({ group: s.group.group, column: col.field, rule: 'pattern', value: PORT, hint: `${col.label}: a port in every row, with or without its protocol, like 443/tcp` });
         if (col.type === 'select' && col.options?.length) add({ group: s.group.group, column: col.field, rule: 'oneOf', value: col.options, hint: `${col.label}: one of the listed options in every row` });
       }
     }

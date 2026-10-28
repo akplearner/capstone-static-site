@@ -252,8 +252,8 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
         fields(`Landing zone · Infrastructure`, [
           { field: 'group_name', label: v.group, type: 'text', required: true, placeholder: v.key === 'az' ? 'rg-capstone-team01' : 'capstone-team01 (stack)' },
           { field: 'net_name', label: v.net, type: 'text', required: true, placeholder: v.key === 'az' ? 'vnet-capstone-team01' : 'vpc-capstone-team01' },
-          { field: 'net_cidr', label: `${v.net} address space`, type: 'text', required: true, placeholder: '10.10.0.0/16' },
-          { field: 'subnet_cidr', label: `First ${v.subnet}`, type: 'text', required: true, placeholder: '10.10.1.0/24' },
+          { field: 'net_cidr', label: `${v.net} address space`, type: 'cidr', required: true, placeholder: '10.10.0.0/16' },
+          { field: 'subnet_cidr', label: `First ${v.subnet}`, type: 'cidr', required: true, placeholder: '10.10.1.0/24' },
         ]),
         fields('Team tooling · App / DevOps', [
           { field: 'repo_url', label: 'Team repository', type: 'text', required: true, placeholder: 'https://github.com/org/capstone-team01' },
@@ -484,14 +484,14 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
           control('CAP-NET-001'),
           group('plan', `Address plan · Infrastructure`, [
             c('name', 'Subnet', 'text', { placeholder: v.key === 'az' ? 'snet-app' : 'PublicSubnet' }),
-            c('cidr', 'CIDR', 'text', { placeholder: '10.10.1.0/24' }),
+            c('cidr', 'CIDR', 'cidr', { placeholder: '10.10.1.0/24' }),
             c('purpose', 'Holds', 'text', { placeholder: 'The tools VM' }),
             c('internet', 'Route to internet', 'select', { options: ['Yes — outbound', 'No'] }),
           ], { seed: [{ name: v.key === 'az' ? 'snet-app' : 'PublicSubnet', cidr: '10.10.1.0/24', purpose: 'Tools VM', internet: 'Yes — outbound' }] }),
           group('rules', `${v.firewall} rules · Security & Ops`, [
             c('dir', 'Direction', 'select', { options: ['Inbound', 'Outbound'] }),
             c('source', 'Source', 'text'),
-            c('port', 'Port', 'text'),
+            c('port', 'Port', 'port', { placeholder: '22/tcp' }),
             c('action', 'Action', 'select', { options: ['Allow', 'Deny'] }),
             c('why', 'Why', 'text'),
           ]),

@@ -209,10 +209,44 @@ do $$ begin
 end $$;
 reset role;
 
+-- ── R139: the form's history (0025) — appended by the database, read by the team ──
+-- Bob's edit replaced Ada's version: one history row holds what the form held before, and who replaced it.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+do $$ begin
+  assert (select count(*) from public.deliverable_history where team_id = '2026-01-T01') = 1, 'ada: one earlier version of the team''s form';
+  assert (select data->'fields'->>'x' from public.deliverable_history where team_id = '2026-01-T01') = '1', 'ada: the version holds what the form held BEFORE';
+  assert (select replaced_by from public.deliverable_history where team_id = '2026-01-T01') = '00000000-0000-4000-8000-00000000000b', 'ada: who replaced it';
+  -- A change by a different author is always a version; a second change by the same author within the sitting is not.
+  update public.deliverables set data = '{"fields":{"x":"3"}}', updated_by = '00000000-0000-4000-8000-00000000000a' where team_id = '2026-01-T01' and deliverable_id = 'as-built';
+  assert (select count(*) from public.deliverable_history where team_id = '2026-01-T01') = 2, 'ada: her change is a version';
+  update public.deliverables set data = '{"fields":{"x":"4"}}', updated_by = '00000000-0000-4000-8000-00000000000a' where team_id = '2026-01-T01' and deliverable_id = 'as-built';
+  assert (select count(*) from public.deliverable_history where team_id = '2026-01-T01') = 2, 'ada: a second save in the sitting is not a version';
+  -- The same data saved again is no change at all.
+  update public.deliverables set data = '{"fields":{"x":"4"}}' where team_id = '2026-01-T01' and deliverable_id = 'as-built';
+  assert (select count(*) from public.deliverable_history where team_id = '2026-01-T01') = 2, 'ada: an unchanged save is not a version';
+  -- Nobody writes the history by hand.
+  begin
+    insert into public.deliverable_history (course_id, team_id, deliverable_id, data, updated_at)
+      values ('security-plus', '2026-01-T01', 'as-built', '{}', now());
+    raise exception 'ada wrote a history row';
+  exception when insufficient_privilege then null; end;
+  begin
+    update public.deliverable_history set data = '{}' where team_id = '2026-01-T01';
+    raise exception 'ada rewrote the history';
+  exception when insufficient_privilege then null; end;
+  begin
+    delete from public.deliverable_history where team_id = '2026-01-T01';
+    raise exception 'ada erased the history';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+
 -- ── What Cy sees (other team) ───────────────────────────────────────────────
 set local role authenticated;
 set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000c';
 do $$ begin
+  assert (select count(*) from public.deliverable_history) = 0, 'cy: not team 01''s history';
   assert (select count(*) from public.task_reports) = 0, 'cy: never another team''s reports';
   assert (select count(*) from public.memberships) = 3, 'cy: the whole course roster';
   assert (select count(*) from public.step_completions) = 1, 'cy: only his own ticks';
@@ -1608,6 +1642,19 @@ do $$ begin
   assert (select level from public.earned_skills where user_id = '00000000-0000-4000-8000-00000000000c') = 'verified', 'cy: reviewed without a review is verified';
   update public.earned_skills set level = 'reviewed' where user_id = '00000000-0000-4000-8000-00000000000c';
   assert (select level from public.earned_skills where user_id = '00000000-0000-4000-8000-00000000000c') = 'verified', 'cy: nor by a raise';
+end $$;
+reset role;
+
+-- R139: the instructor reads every team's history; the signed-out read none of it.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000d';
+do $$ begin
+  assert (select count(*) from public.deliverable_history) = 2, 'ivy: every team''s history';
+end $$;
+reset role;
+set local role anon;
+do $$ begin
+  assert not has_table_privilege('anon', 'public.deliverable_history', 'select'), 'anon: no history';
 end $$;
 reset role;
 

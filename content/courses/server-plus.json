@@ -8202,6 +8202,83 @@
         {
           "kind": "group",
           "group": {
+            "group": "vms",
+            "label": "The virtual machines as built — what each one was given",
+            "help": "One row per VM, read off the hypervisor (qm config <id> on Proxmox), not off the plan. The project record sets these against the memory and cores the hardware discovery found, so an over-committed host shows up here before it shows up as a crash.",
+            "carryFrom": {
+              "deliverableId": "srv_business_reqs",
+              "group": "machines",
+              "columns": [
+                "hostname"
+              ]
+            },
+            "columns": [
+              {
+                "field": "hostname",
+                "label": "Hostname",
+                "type": "hostref",
+                "placeholder": "websrv",
+                "help": "The name from the Architecture Brief."
+              },
+              {
+                "field": "vcpu",
+                "label": "vCPU",
+                "type": "number",
+                "unit": "vCPU",
+                "placeholder": "2",
+                "help": "cores × sockets in qm config."
+              },
+              {
+                "field": "ram_gb",
+                "label": "RAM",
+                "type": "number",
+                "unit": "GB",
+                "placeholder": "4",
+                "help": "memory in qm config, in GB."
+              },
+              {
+                "field": "disk_gb",
+                "label": "Disk",
+                "type": "number",
+                "unit": "GB",
+                "placeholder": "40",
+                "help": "The size of the VM’s disk, in GB."
+              },
+              {
+                "field": "note",
+                "label": "Notes",
+                "type": "text",
+                "placeholder": "Ballooning on; min 2 GB"
+              }
+            ],
+            "seed": [
+              {
+                "hostname": "websrv",
+                "vcpu": "2",
+                "ram_gb": "4",
+                "disk_gb": "40",
+                "note": ""
+              },
+              {
+                "hostname": "winserver",
+                "vcpu": "2",
+                "ram_gb": "4",
+                "disk_gb": "60",
+                "note": ""
+              },
+              {
+                "hostname": "linuxsrv",
+                "vcpu": "2",
+                "ram_gb": "2",
+                "disk_gb": "40",
+                "note": ""
+              }
+            ]
+          }
+        },
+        {
+          "kind": "group",
+          "group": {
             "group": "access",
             "label": "Who can get in",
             "help": "One row per person, including yourself. Never record a password here — this document is exported to the client in the handover package. Names and rights only.",
@@ -8360,6 +8437,29 @@
               }
             ]
           }
+        },
+        {
+          "label": "Every virtual machine is sized: vCPU, RAM and disk recorded as built",
+          "when": {
+            "all": [
+              {
+                "group": "vms",
+                "atLeast": 3
+              },
+              {
+                "group": "vms",
+                "every": {
+                  "filled": [
+                    "hostname",
+                    "vcpu",
+                    "ram_gb",
+                    "disk_gb"
+                  ]
+                }
+              }
+            ]
+          },
+          "week": 2
         }
       ],
       "raci": {
@@ -8902,7 +9002,7 @@
               {
                 "field": "host_port",
                 "label": "Host port",
-                "type": "text",
+                "type": "port",
                 "placeholder": "80/tcp",
                 "help": "The port on the host’s campus address (10.10.30.T) that a campus machine connects to."
               },
@@ -9395,14 +9495,14 @@
               {
                 "field": "host",
                 "label": "Host",
-                "type": "text",
+                "type": "hostref",
                 "placeholder": "websrv",
                 "help": "Linux: sudo ss -tulpn · Windows: Get-NetTCPConnection -State Listen"
               },
               {
                 "field": "port",
                 "label": "Port / protocol",
-                "type": "text",
+                "type": "port",
                 "placeholder": "80/tcp",
                 "help": "From the Local Address:Port column."
               },

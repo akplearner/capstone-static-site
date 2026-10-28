@@ -2192,14 +2192,15 @@
               {
                 "field": "prefix",
                 "label": "Prefix",
-                "type": "text",
+                "type": "cidr",
                 "placeholder": "10.70.10.0/24"
               },
               {
                 "field": "gateway",
                 "label": "Gateway",
                 "type": "ipv4",
-                "placeholder": "10.70.10.1"
+                "placeholder": "10.70.10.1",
+                "subnetFrom": "prefix"
               },
               {
                 "field": "pool",

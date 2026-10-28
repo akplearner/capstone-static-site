@@ -3679,7 +3679,7 @@
               {
                 "field": "ip",
                 "label": "IP address",
-                "type": "text",
+                "type": "ipv4",
                 "placeholder": "10.10.10.5"
               },
               {

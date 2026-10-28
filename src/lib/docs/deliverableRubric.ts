@@ -5,6 +5,7 @@ import type { DeliverableReview, StepEvidence } from '../data/types';
 import { emptyData } from './types';
 import { withoutSeedRows } from './definitions';
 import { dodProgress } from './dod';
+import { conflictsOnForm, projectRecord, recordConflicts } from './projectRecord';
 
 /**
  * The four-category rubric (R84): every deliverable in every course is judged
@@ -31,7 +32,7 @@ export const RUBRIC_CATEGORIES: { id: RubricCategory; label: string; generic: st
   { id: 'completeness', label: 'Completeness', generic: 'Every required field is filled and every definition-of-done check passes.' },
   { id: 'correctness', label: 'Correctness', generic: 'Values have the right shape: addresses parse, names follow the convention, entries carry substance.' },
   { id: 'authenticity', label: 'Authenticity', generic: 'The terminal work behind this document is verified in your evidence ledger, stamped with your own mark.' },
-  { id: 'consistency', label: 'Consistency', generic: 'Nothing contradicts: no forbidden values, no impossible timestamps.' },
+  { id: 'consistency', label: 'Consistency', generic: 'Nothing contradicts: no forbidden values, no impossible timestamps, no value at odds with the team’s other documents.' },
 ];
 
 export interface BundleItem {
@@ -40,6 +41,8 @@ export interface BundleItem {
   ok: boolean;
   /** What a passing value looks like — shown while failing. */
   hint?: string;
+  /** R139: a record conflict's weight. `warn` is listed but does not fail its category. */
+  severity?: 'error' | 'warn';
 }
 
 export interface CategoryResult {
@@ -62,6 +65,11 @@ export interface BundleContext {
   /** The week being judged (dod checks are due BY this week). */
   week: number;
   now?: number;
+  /** R139: the team's other documents and the course's definitions, so Consistency
+   *  can read the project record and list what this form contradicts. Optional:
+   *  a frozen snapshot judges the form alone. */
+  docs?: Record<string, DeliverableData>;
+  defs?: DeliverableDef[];
 }
 
 /** The course's steps that feed one deliverable, by its file name. */
@@ -181,12 +189,23 @@ export function evaluateBundle(def: DeliverableDef, data: DeliverableData | unde
     const done = r.verifiedAt ?? first;
     return first <= done + 1 && done <= now + 60_000;
   });
+  // R139: what this form contradicts in the team's record — one address on two
+  // machines, a port assigned twice, a prefix overlapping another. Read only when
+  // the caller hands the other documents in; a snapshot judges the form alone.
+  const conflicts: BundleItem[] = [];
+  if (ctx.docs && ctx.defs) {
+    const own = conflictsOnForm(recordConflicts(projectRecord({ ...ctx.docs, [def.id]: d }, ctx.defs)), def.id);
+    for (const c of own) conflicts.push({ id: c.id, label: c.message, hint: c.message, ok: false, severity: c.severity });
+    if (own.length === 0) conflicts.push({ id: 'record', label: 'Nothing here contradicts the team’s other documents', ok: true });
+  }
   const consistency: CategoryResult = {
     items: [
       ...forbidden,
       { id: 'timestamps', label: 'Ledger timestamps tell a possible story', ok: timeSane },
+      ...conflicts,
     ],
-    ok: forbidden.every((i) => i.ok) && timeSane,
+    // A warning is listed, never a block: only a contradiction (an error) fails the category.
+    ok: forbidden.every((i) => i.ok) && timeSane && conflicts.every((i) => i.ok || i.severity === 'warn'),
   };
 
   const categories = { completeness, correctness, authenticity, consistency };

@@ -29,6 +29,8 @@ export const KEYS = {
     `${STORAGE_PREFIX}${courseId}_gate_${teamId}_${gateId}`,
   // Deliverable forms (Master Package), team-scoped: all 8 deliverables for a team.
   docs: (courseId: string, teamId: string) => `${STORAGE_PREFIX}${courseId}_docs_${teamId}`,
+  // R139: the versions a team's forms held before, newest last (the offline half of 0025).
+  docsHistory: (courseId: string, teamId: string) => `${STORAGE_PREFIX}${courseId}_docs_history_${teamId}`,
   // Personal lab access (target IPs/credentials + reachability checklist), per device.
   labAccess: (courseId: string) => `${STORAGE_PREFIX}${courseId}_lab_access`,
   // Per-device ack: "I'm building my own lab from home" — unlocks the Week-0 build task.

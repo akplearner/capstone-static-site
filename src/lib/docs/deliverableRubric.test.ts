@@ -50,12 +50,19 @@ describe('the derived bundle covers every deliverable in every course', () => {
           { field: 'ip', label: 'IP', type: 'ipv4' },
           { field: 'sev', label: 'Severity', type: 'select', options: ['low', 'high'] },
           { field: 'story', label: 'Story', type: 'area', required: true },
+          // R139: a prefix and a port each imply a pattern.
+          { field: 'net', label: 'Prefix', type: 'cidr' },
+          { field: 'svc', label: 'Port', type: 'port' },
         ] },
       ],
     } as never);
     const rules = (def.checks ?? []).map((c) => c.rule).sort();
     // R138: the derived document-control block adds a status select, and so one more oneOf.
-    expect(rules).toEqual(['minLength', 'oneOf', 'oneOf', 'pattern']);
+    expect(rules).toEqual(['minLength', 'oneOf', 'oneOf', 'pattern', 'pattern', 'pattern']);
+    const cidr = def.checks!.find((c) => c.field === 'net')!;
+    const port = def.checks!.find((c) => c.field === 'svc')!;
+    for (const [v, ok] of [['10.10.1.0/24', true], ['10.10.1.0', false], ['10.10.1.0/33', false]] as const) expect(passesCheck(cidr, v), v).toBe(ok);
+    for (const [v, ok] of [['443', true], ['443/tcp', true], ['8000-8080/UDP', true], ['any', true], ['https', false], ['443/tcp HTTPS', false]] as const) expect(passesCheck(port, v), v).toBe(ok);
     const last = def.sections[def.sections.length - 1];
     expect(last.kind === 'fields' && last.title).toBe('Document control');
   });
@@ -88,6 +95,28 @@ describe('evaluateBundle categories', () => {
     expect(evaluateBundle(def, emptyData(), ctx({ steps, evidence: { 't1::s1': rec('verified-output', true) } })).categories.authenticity.ok).toBe(true);
     expect(evaluateBundle(def, emptyData(), ctx({ steps, evidence: { 't1::s1': rec('self-attested', true) } })).categories.authenticity.ok).toBe(false);
     expect(evaluateBundle(def, emptyData(), ctx({ steps })).categories.authenticity.ok).toBe(false);
+  });
+
+  it('consistency lists what the form contradicts in the team’s record, a warning listed but not failing (R139)', () => {
+    const defs = seedDeliverablesForCourse('server-plus');
+    const plan = defs.find((d) => d.id === 'srv_ip_plan')!;
+    const docs = {
+      srv_business_reqs: { fields: {}, groups: { machines: [{ hostname: 'websrv', zone: 'vmbr1 — DMZ' }, { hostname: 'linuxsrv', zone: 'vmbr2 — private' }] } },
+    };
+    const data = { fields: {}, groups: { addresses: [{ hostname: 'websrv', address: '192.168.0.3/24', gateway: '1.1.1.1', dns: '1.1.1.1' }, { hostname: 'linuxsrv', address: '192.168.0.3/24', gateway: '1.1.1.1', dns: '1.1.1.1' }] } };
+    const withRecord = evaluateBundle(plan, data, ctx({ docs, defs }));
+    expect(withRecord.categories.consistency.ok).toBe(false);
+    expect(withRecord.categories.consistency.items.some((i) => i.id.startsWith('conflict:duplicate-address') && i.severity === 'error')).toBe(true);
+    // The same form judged alone (a frozen snapshot) reads nothing of the record.
+    expect(evaluateBundle(plan, data, ctx({})).categories.consistency.items.some((i) => i.id.startsWith('conflict:'))).toBe(false);
+    // A warning only: the item is listed, the category stays green.
+    const baseline = defs.find((d) => d.id === 'srv_standards')!;
+    const warn = evaluateBundle(baseline, { fields: {}, groups: { baseline: [{ host: 'dbsrv', what: 'x', command: 'x', file: 'x', hash: 'x' }] } }, ctx({ docs, defs }));
+    expect(warn.categories.consistency.items.some((i) => i.severity === 'warn' && !i.ok)).toBe(true);
+    expect(warn.categories.consistency.ok).toBe(true);
+    // Nothing to contradict: one green item says so.
+    const quiet = evaluateBundle(plan, { fields: {}, groups: { addresses: [{ hostname: 'websrv', address: '172.16.0.10/24', gateway: '1.1.1.1', dns: '1.1.1.1' }] } }, ctx({ docs, defs }));
+    expect(quiet.categories.consistency.items.find((i) => i.id === 'record')?.ok).toBe(true);
   });
 
   it('consistency rejects impossible ledger timestamps', () => {

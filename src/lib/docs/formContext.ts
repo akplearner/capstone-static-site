@@ -9,7 +9,7 @@ import type { DeliverableData, DeliverableDef, FormContext } from './types';
  */
 
 /** Column/field names that hold a machine name, wherever they appear. */
-const HOST_FIELDS = ['hostname', 'host', 'device', 'machine'];
+export const HOST_FIELDS = ['hostname', 'host', 'device', 'machine'];
 
 /**
  * Every hostname this team has written down, plus the ones the course's own
@@ -59,7 +59,7 @@ export function buildFormContext(
   defs: DeliverableDef[],
   evidence: { filename: string; sha256: string }[]
 ): FormContext {
-  return { docs, hostnames: teamHostnames(docs, defs), evidence };
+  return { docs, hostnames: teamHostnames(docs, defs), evidence, defs };
 }
 
 /** True when a string is a syntactically valid dotted-quad IPv4 address. */
@@ -169,6 +169,55 @@ export function isIpv4OrCidr(value: string): boolean {
   if (!isIpv4(addr)) return false;
   if (bits === undefined) return true;
   return /^\d{1,2}$/.test(bits) && Number(bits) <= 32;
+}
+
+/** R139: a network prefix — a dotted quad with its /0–32 mask, both present. */
+export function isCidr(value: string): boolean {
+  const [addr, bits, ...rest] = (value ?? '').trim().split('/');
+  return rest.length === 0 && bits !== undefined && isIpv4(addr) && /^\d{1,2}$/.test(bits) && Number(bits) <= 32;
+}
+
+/** The first and last address of a prefix as unsigned integers, or null when it does not parse. */
+export function cidrRange(cidr: string): { lo: number; hi: number } | null {
+  if (!isCidr(cidr)) return null;
+  const [net, bitsRaw] = cidr.trim().split('/');
+  const bits = Number(bitsRaw);
+  const toInt = (ip: string) => ip.split('.').reduce((n, o) => (n << 8) + Number(o), 0) >>> 0;
+  const mask = bits === 0 ? 0 : (0xffffffff << (32 - bits)) >>> 0;
+  const lo = (toInt(net) & mask) >>> 0;
+  const hi = (lo | (~mask >>> 0)) >>> 0;
+  return { lo, hi };
+}
+
+/** True when two prefixes share any address. Unparseable prefixes never overlap: a hint it cannot justify is worse than none. */
+export function cidrsOverlap(a: string, b: string): boolean {
+  const ra = cidrRange(a);
+  const rb = cidrRange(b);
+  if (!ra || !rb) return false;
+  return ra.lo <= rb.hi && rb.lo <= ra.hi;
+}
+
+/**
+ * R139: a port as the forms write it — a number, a range, with or without its
+ * protocol: 80, 80/tcp, 2200/tcp, 8000-8080/udp. Also the words a rule uses for
+ * "every port" (any, all, *). Case does not matter.
+ */
+export function isPort(value: string): boolean {
+  const v = (value ?? '').trim().toLowerCase();
+  if (/^(any|all|\*)$/.test(v)) return true;
+  const m = /^(\d{1,5})(?:-(\d{1,5}))?(?:\/(tcp|udp|icmp|sctp|any))?$/.exec(v);
+  if (!m) return false;
+  const lo = Number(m[1]);
+  const hi = m[2] === undefined ? lo : Number(m[2]);
+  return lo >= 0 && lo <= 65535 && hi >= lo && hi <= 65535;
+}
+
+/** The parts of a port cell: "80/tcp" → { port: 80, proto: 'tcp' }; a range keeps its first port. Null when it is not a port. */
+export function parsePort(value: string): { port: number; proto: string | null } | null {
+  const v = (value ?? '').trim().toLowerCase();
+  const m = /^(\d{1,5})(?:-\d{1,5})?(?:\/(tcp|udp|icmp|sctp|any))?$/.exec(v);
+  if (!m || !isPort(v)) return null;
+  return { port: Number(m[1]), proto: m[2] ?? null };
 }
 
 /**

@@ -3650,14 +3650,14 @@
             {
               "field": "net_cidr",
               "label": "VNet address space",
-              "type": "text",
+              "type": "cidr",
               "required": true,
               "placeholder": "10.10.0.0/16"
             },
             {
               "field": "subnet_cidr",
               "label": "First subnet",
-              "type": "text",
+              "type": "cidr",
               "required": true,
               "placeholder": "10.10.1.0/24"
             }

@@ -1,0 +1,1180 @@
+{
+  "schema": "capstone-ontology/1",
+  "version": "2.1.0",
+  "areas": [
+    {
+      "id": "infrastructure",
+      "label": "Infrastructure"
+    },
+    {
+      "id": "security",
+      "label": "Security"
+    },
+    {
+      "id": "architecture",
+      "label": "Architecture"
+    },
+    {
+      "id": "operations",
+      "label": "Operations"
+    },
+    {
+      "id": "decisions",
+      "label": "Decisions"
+    }
+  ],
+  "areaOfKind": {
+    "host": "infrastructure",
+    "ipv4": "infrastructure",
+    "cidr": "infrastructure",
+    "vlan": "infrastructure",
+    "port": "infrastructure",
+    "dns": "infrastructure",
+    "size": "infrastructure",
+    "resource": "infrastructure",
+    "rule": "security",
+    "iam": "security",
+    "mfa": "security",
+    "exception": "security",
+    "risk": "security",
+    "flow": "architecture",
+    "dependency": "architecture",
+    "change": "operations",
+    "incident": "operations",
+    "decision": "decisions"
+  },
+  "fields": [
+    {
+      "form": "asset_inventory",
+      "group": "assets",
+      "column": "hostname",
+      "kind": "host",
+      "label": "Host",
+      "unique": true,
+      "declares": true
+    },
+    {
+      "form": "asset_inventory",
+      "group": "assets",
+      "column": "ip",
+      "kind": "ipv4",
+      "label": "Address",
+      "unique": true
+    },
+    {
+      "form": "asset_inventory",
+      "group": "assets",
+      "column": "service",
+      "kind": "port",
+      "label": "Service port"
+    },
+    {
+      "form": "scope_roe",
+      "field": "network_scope",
+      "kind": "cidr",
+      "label": "Scope prefix"
+    },
+    {
+      "form": "risk_register",
+      "group": "risks",
+      "column": "threat",
+      "kind": "risk",
+      "label": "Risk",
+      "labelFrom": "asset"
+    },
+    {
+      "form": "hardening_baseline",
+      "group": "controls",
+      "column": "control",
+      "kind": "rule",
+      "label": "Hardening control"
+    },
+    {
+      "form": "change_log",
+      "group": "changes",
+      "column": "change",
+      "kind": "change",
+      "label": "Change"
+    },
+    {
+      "form": "incident_report",
+      "field": "title",
+      "kind": "incident",
+      "label": "Incident"
+    },
+    {
+      "form": "security_policy",
+      "group": "policies",
+      "column": "rule",
+      "kind": "rule",
+      "label": "Policy rule",
+      "labelFrom": "area"
+    },
+    {
+      "form": "pentest_report",
+      "group": "findings",
+      "column": "title",
+      "kind": "risk",
+      "label": "Finding"
+    },
+    {
+      "form": "mssp_engagement",
+      "field": "system_boundary",
+      "kind": "resource",
+      "label": "System boundary"
+    },
+    {
+      "form": "mssp_detection_rules",
+      "group": "rules",
+      "column": "logsource",
+      "kind": "resource",
+      "label": "Log source",
+      "labelFrom": "name"
+    },
+    {
+      "form": "mssp_evidence_packet",
+      "group": "evidence",
+      "column": "artifact",
+      "kind": "resource",
+      "label": "Evidence artifact",
+      "labelFrom": "control"
+    },
+    {
+      "form": "mssp_soa",
+      "group": "controls",
+      "column": "control",
+      "kind": "rule",
+      "label": "Applicable control"
+    },
+    {
+      "form": "mssp_control_matrix",
+      "group": "controls",
+      "column": "control",
+      "kind": "rule",
+      "label": "Mapped control"
+    },
+    {
+      "form": "mssp_control_matrix",
+      "group": "changes",
+      "column": "change",
+      "kind": "change",
+      "label": "Change"
+    },
+    {
+      "form": "mssp_gap_assessment",
+      "group": "gaps",
+      "column": "gap",
+      "kind": "risk",
+      "label": "Gap"
+    },
+    {
+      "form": "mssp_detection_rules",
+      "group": "rules",
+      "column": "name",
+      "kind": "rule",
+      "label": "Detection rule",
+      "unique": true
+    },
+    {
+      "form": "mssp_internal_audit",
+      "group": "findings",
+      "column": "finding",
+      "kind": "exception",
+      "label": "Audit finding"
+    },
+    {
+      "form": "cysa_soc_monitoring",
+      "group": "changes",
+      "column": "change",
+      "kind": "change",
+      "label": "Change"
+    },
+    {
+      "form": "cysa_sensor_deployment",
+      "group": "sensors",
+      "column": "host",
+      "kind": "host",
+      "label": "Monitored host",
+      "declares": true
+    },
+    {
+      "form": "cysa_coverage_validation",
+      "group": "sources",
+      "column": "host",
+      "kind": "host",
+      "label": "Log source host"
+    },
+    {
+      "form": "cysa_threat_investigation",
+      "field": "suspicious_ip",
+      "kind": "incident",
+      "label": "Suspicious address"
+    },
+    {
+      "form": "cysa_incident_response",
+      "field": "attacker_ip",
+      "kind": "incident",
+      "label": "Attacker address"
+    },
+    {
+      "form": "cysa_ioc_database",
+      "group": "iocs",
+      "column": "value",
+      "kind": "incident",
+      "label": "Indicator",
+      "labelFrom": "type"
+    },
+    {
+      "form": "cysa_vulnerability_assessment",
+      "group": "findings",
+      "column": "cve",
+      "kind": "risk",
+      "label": "Vulnerability",
+      "labelFrom": "finding"
+    },
+    {
+      "form": "cysa_alert_triage",
+      "group": "alerts",
+      "column": "alert",
+      "kind": "incident",
+      "label": "Alert"
+    },
+    {
+      "form": "srv_business_reqs",
+      "group": "machines",
+      "column": "hostname",
+      "kind": "host",
+      "label": "Machine",
+      "unique": true,
+      "declares": true
+    },
+    {
+      "form": "srv_business_reqs",
+      "group": "machines",
+      "column": "zone",
+      "kind": "vlan",
+      "label": "Zone"
+    },
+    {
+      "form": "srv_hardware",
+      "group": "discovery",
+      "column": "found",
+      "kind": "resource",
+      "label": "Discovered",
+      "labelFrom": "component"
+    },
+    {
+      "form": "srv_bringup",
+      "field": "hv_hostname",
+      "kind": "host",
+      "label": "Hypervisor host",
+      "declares": true
+    },
+    {
+      "form": "srv_bringup",
+      "field": "hv_address",
+      "kind": "ipv4",
+      "label": "Hypervisor address"
+    },
+    {
+      "form": "srv_bringup",
+      "field": "remote_host_ip",
+      "kind": "ipv4",
+      "label": "Remote-access address"
+    },
+    {
+      "form": "srv_bringup",
+      "field": "raid_level",
+      "kind": "resource",
+      "label": "RAID level"
+    },
+    {
+      "form": "srv_bringup",
+      "group": "access",
+      "column": "login",
+      "kind": "iam",
+      "label": "Account",
+      "labelFrom": "person"
+    },
+    {
+      "form": "srv_bringup",
+      "group": "vms",
+      "column": "hostname",
+      "kind": "host",
+      "label": "Virtual machine",
+      "unique": true
+    },
+    {
+      "form": "srv_bringup",
+      "group": "vms",
+      "column": "vcpu",
+      "kind": "size",
+      "label": "vCPU",
+      "of": "cpu",
+      "unit": "vCPU"
+    },
+    {
+      "form": "srv_bringup",
+      "group": "vms",
+      "column": "ram_gb",
+      "kind": "size",
+      "label": "RAM",
+      "of": "ram",
+      "unit": "GB"
+    },
+    {
+      "form": "srv_bringup",
+      "group": "vms",
+      "column": "disk_gb",
+      "kind": "size",
+      "label": "Disk",
+      "of": "disk",
+      "unit": "GB"
+    },
+    {
+      "form": "srv_rack_assets",
+      "group": "elevation",
+      "column": "device",
+      "kind": "resource",
+      "label": "Rack device"
+    },
+    {
+      "form": "srv_rack_assets",
+      "group": "elevation",
+      "column": "power_draw",
+      "kind": "size",
+      "label": "Power draw",
+      "of": "power",
+      "unit": "W"
+    },
+    {
+      "form": "srv_rack_assets",
+      "group": "assets",
+      "column": "asset_id",
+      "kind": "resource",
+      "label": "Asset",
+      "unique": true,
+      "labelFrom": "name"
+    },
+    {
+      "form": "srv_ip_plan",
+      "group": "addresses",
+      "column": "hostname",
+      "kind": "host",
+      "label": "Host"
+    },
+    {
+      "form": "srv_ip_plan",
+      "group": "addresses",
+      "column": "address",
+      "kind": "ipv4",
+      "label": "Address",
+      "unique": true
+    },
+    {
+      "form": "srv_ip_plan",
+      "group": "addresses",
+      "column": "dns",
+      "kind": "dns",
+      "label": "DNS server"
+    },
+    {
+      "form": "srv_ip_plan",
+      "group": "published",
+      "column": "host_port",
+      "kind": "port",
+      "label": "Published port",
+      "unique": true,
+      "host": "pve-host"
+    },
+    {
+      "form": "srv_ip_plan",
+      "group": "published",
+      "column": "to",
+      "kind": "dependency",
+      "label": "Forwarded to"
+    },
+    {
+      "form": "srv_ip_plan",
+      "group": "proof",
+      "column": "to",
+      "kind": "flow",
+      "label": "Path tested",
+      "labelFrom": "from"
+    },
+    {
+      "form": "srv_standards",
+      "group": "baseline",
+      "column": "host",
+      "kind": "host",
+      "label": "Baselined host"
+    },
+    {
+      "form": "srv_standards",
+      "group": "ports",
+      "column": "port",
+      "kind": "port",
+      "label": "Listening port"
+    },
+    {
+      "form": "srv_standards",
+      "group": "hardening",
+      "column": "control",
+      "kind": "rule",
+      "label": "Hardening control"
+    },
+    {
+      "form": "srv_standards",
+      "group": "policies",
+      "column": "policy",
+      "kind": "rule",
+      "label": "Policy"
+    },
+    {
+      "form": "srv_operations",
+      "group": "changes",
+      "column": "change",
+      "kind": "change",
+      "label": "Change"
+    },
+    {
+      "form": "srv_operations",
+      "group": "patches",
+      "column": "patch",
+      "kind": "change",
+      "label": "Patch",
+      "labelFrom": "system"
+    },
+    {
+      "form": "srv_operations",
+      "group": "alerts",
+      "column": "alert",
+      "kind": "incident",
+      "label": "Alert"
+    },
+    {
+      "form": "srv_as_built",
+      "group": "backups",
+      "column": "what",
+      "kind": "resource",
+      "label": "Backup"
+    },
+    {
+      "form": "srv_as_built",
+      "group": "tooling",
+      "column": "host",
+      "kind": "host",
+      "label": "Tooling host"
+    },
+    {
+      "form": "ccna_kit",
+      "group": "devices",
+      "column": "name",
+      "kind": "host",
+      "label": "Device",
+      "unique": true,
+      "declares": true
+    },
+    {
+      "form": "ccna_lld",
+      "group": "vlans",
+      "column": "vlan",
+      "kind": "vlan",
+      "label": "VLAN",
+      "unique": true
+    },
+    {
+      "form": "ccna_lld",
+      "group": "vlans",
+      "column": "prefix",
+      "kind": "cidr",
+      "label": "Prefix",
+      "unique": true
+    },
+    {
+      "form": "ccna_lld",
+      "group": "vlans",
+      "column": "gateway",
+      "kind": "ipv4",
+      "label": "Gateway",
+      "unique": true,
+      "within": {
+        "column": "prefix"
+      }
+    },
+    {
+      "form": "ccna_lld",
+      "group": "ports",
+      "column": "device",
+      "kind": "host",
+      "label": "Device"
+    },
+    {
+      "form": "ccna_build_log",
+      "group": "changes",
+      "column": "device",
+      "kind": "host",
+      "label": "Device changed"
+    },
+    {
+      "form": "ccna_build_log",
+      "group": "changes",
+      "column": "what",
+      "kind": "change",
+      "label": "Change",
+      "labelFrom": "device"
+    },
+    {
+      "form": "ccna_validation",
+      "group": "tests",
+      "column": "test",
+      "kind": "flow",
+      "label": "Test",
+      "labelFrom": "from"
+    },
+    {
+      "form": "ccna_security",
+      "group": "rules",
+      "column": "rule",
+      "kind": "rule",
+      "label": "ACL rule"
+    },
+    {
+      "form": "ccna_security",
+      "group": "hardening",
+      "column": "control",
+      "kind": "rule",
+      "label": "Hardening control"
+    },
+    {
+      "form": "ccna_hld",
+      "group": "decisions",
+      "column": "decision",
+      "kind": "decision",
+      "label": "Design decision"
+    },
+    {
+      "form": "ccna_ops",
+      "group": "changes",
+      "column": "what",
+      "kind": "change",
+      "label": "Change"
+    },
+    {
+      "form": "ccna_ops",
+      "group": "backups",
+      "column": "device",
+      "kind": "host",
+      "label": "Backed-up device"
+    },
+    {
+      "form": "ccna_monitoring",
+      "field": "inc_ref",
+      "kind": "incident",
+      "label": "Incident"
+    },
+    {
+      "form": "ap_intake",
+      "field": "hostname",
+      "kind": "host",
+      "label": "Machine",
+      "declares": true
+    },
+    {
+      "form": "ap_asset",
+      "group": "parts",
+      "column": "part",
+      "kind": "resource",
+      "label": "Part",
+      "labelFrom": "model"
+    },
+    {
+      "form": "ap_fault",
+      "field": "symptom",
+      "kind": "incident",
+      "label": "Fault"
+    },
+    {
+      "form": "ap_os",
+      "group": "fw_changes",
+      "column": "setting",
+      "kind": "change",
+      "label": "Firmware change"
+    },
+    {
+      "form": "ap_os",
+      "field": "ip",
+      "kind": "ipv4",
+      "label": "Address"
+    },
+    {
+      "form": "ap_os",
+      "field": "dns",
+      "kind": "dns",
+      "label": "DNS server"
+    },
+    {
+      "form": "ap_backup",
+      "group": "images",
+      "column": "name",
+      "kind": "resource",
+      "label": "Image",
+      "unique": true
+    },
+    {
+      "form": "ap_tickets",
+      "group": "tickets",
+      "column": "ref",
+      "kind": "incident",
+      "label": "Ticket",
+      "unique": true
+    },
+    {
+      "form": "ap_security",
+      "group": "diff",
+      "column": "service",
+      "kind": "rule",
+      "label": "Service decision",
+      "labelFrom": "side"
+    },
+    {
+      "form": "ap_handover",
+      "group": "known_issues",
+      "column": "issue",
+      "kind": "risk",
+      "label": "Known issue"
+    },
+    {
+      "form": "np_design",
+      "group": "vlans",
+      "column": "vlan",
+      "kind": "vlan",
+      "label": "VLAN",
+      "unique": true
+    },
+    {
+      "form": "np_design",
+      "group": "vlans",
+      "column": "prefix",
+      "kind": "cidr",
+      "label": "Prefix",
+      "unique": true
+    },
+    {
+      "form": "np_design",
+      "group": "vlans",
+      "column": "gateway",
+      "kind": "ipv4",
+      "label": "Gateway",
+      "unique": true,
+      "within": {
+        "column": "prefix"
+      }
+    },
+    {
+      "form": "np_design",
+      "group": "mgmt",
+      "column": "device",
+      "kind": "host",
+      "label": "Device",
+      "unique": true,
+      "declares": true
+    },
+    {
+      "form": "np_design",
+      "group": "mgmt",
+      "column": "address",
+      "kind": "ipv4",
+      "label": "Management address",
+      "unique": true
+    },
+    {
+      "form": "np_ports",
+      "field": "wan_router",
+      "kind": "ipv4",
+      "label": "WAN address"
+    },
+    {
+      "form": "np_ports",
+      "group": "ports",
+      "column": "device",
+      "kind": "host",
+      "label": "Device"
+    },
+    {
+      "form": "np_config",
+      "group": "changes",
+      "column": "device",
+      "kind": "host",
+      "label": "Device changed"
+    },
+    {
+      "form": "np_config",
+      "group": "changes",
+      "column": "what",
+      "kind": "change",
+      "label": "Change",
+      "labelFrom": "device"
+    },
+    {
+      "form": "np_verify",
+      "group": "matrix",
+      "column": "to",
+      "kind": "flow",
+      "label": "Path tested",
+      "labelFrom": "from"
+    },
+    {
+      "form": "np_changes",
+      "field": "chg_what",
+      "kind": "change",
+      "label": "Change"
+    },
+    {
+      "form": "np_changes",
+      "group": "faults",
+      "column": "ref",
+      "kind": "incident",
+      "label": "Fault",
+      "unique": true
+    },
+    {
+      "form": "np_bom",
+      "group": "bom",
+      "column": "item",
+      "kind": "resource",
+      "label": "Ordered item"
+    },
+    {
+      "form": "np_handover",
+      "group": "risks",
+      "column": "risk",
+      "kind": "risk",
+      "label": "Risk"
+    },
+    {
+      "form": "secai_system_map",
+      "group": "models",
+      "column": "model",
+      "kind": "resource",
+      "label": "Model",
+      "unique": true
+    },
+    {
+      "form": "secai_system_map",
+      "group": "models",
+      "column": "host",
+      "kind": "host",
+      "label": "Model host"
+    },
+    {
+      "form": "secai_system_map",
+      "group": "tools",
+      "column": "tool",
+      "kind": "resource",
+      "label": "Tool"
+    },
+    {
+      "form": "secai_control_set",
+      "group": "controls",
+      "column": "control",
+      "kind": "rule",
+      "label": "Control"
+    },
+    {
+      "form": "secai_control_set",
+      "group": "access",
+      "column": "subject",
+      "kind": "iam",
+      "label": "Access subject",
+      "labelFrom": "object"
+    },
+    {
+      "form": "secai_control_set",
+      "group": "changes",
+      "column": "change",
+      "kind": "change",
+      "label": "Change"
+    },
+    {
+      "form": "secai_attack_casebook",
+      "group": "cases",
+      "column": "case",
+      "kind": "incident",
+      "label": "Attack case"
+    },
+    {
+      "form": "secai_governance_pack",
+      "group": "risks",
+      "column": "risk",
+      "kind": "risk",
+      "label": "Risk"
+    },
+    {
+      "form": "secai_governance_pack",
+      "group": "weaknesses",
+      "column": "id",
+      "kind": "exception",
+      "label": "Weakness",
+      "unique": true,
+      "labelFrom": "condition"
+    },
+    {
+      "form": "cissp_d1",
+      "group": "risks",
+      "column": "risk",
+      "kind": "risk",
+      "label": "Risk"
+    },
+    {
+      "form": "cissp_d1",
+      "group": "weaknesses",
+      "column": "id",
+      "kind": "exception",
+      "label": "Weakness",
+      "unique": true,
+      "labelFrom": "condition"
+    },
+    {
+      "form": "cissp_d2",
+      "group": "assets",
+      "column": "asset",
+      "kind": "resource",
+      "label": "Asset",
+      "unique": true
+    },
+    {
+      "form": "cissp_d3",
+      "group": "shared",
+      "column": "control",
+      "kind": "rule",
+      "label": "Shared control"
+    },
+    {
+      "form": "cissp_d4",
+      "group": "flows",
+      "column": "to",
+      "kind": "flow",
+      "label": "Flow",
+      "labelFrom": "from"
+    },
+    {
+      "form": "cissp_d4",
+      "group": "flows",
+      "column": "port",
+      "kind": "port",
+      "label": "Flow port"
+    },
+    {
+      "form": "cissp_d5",
+      "group": "access",
+      "column": "role",
+      "kind": "iam",
+      "label": "Role",
+      "labelFrom": "system"
+    },
+    {
+      "form": "cissp_d5",
+      "field": "mfa",
+      "kind": "mfa",
+      "label": "MFA rule"
+    },
+    {
+      "form": "cissp_d8",
+      "group": "changes",
+      "column": "change",
+      "kind": "change",
+      "label": "Change"
+    },
+    {
+      "form": "cissp_controls",
+      "group": "controls",
+      "column": "id",
+      "kind": "rule",
+      "label": "Control",
+      "unique": true
+    },
+    {
+      "form": "foundation",
+      "field": "region",
+      "kind": "resource",
+      "label": "Region"
+    },
+    {
+      "form": "foundation",
+      "field": "group_name",
+      "kind": "resource",
+      "label": "Resource group"
+    },
+    {
+      "form": "foundation",
+      "field": "net_name",
+      "kind": "resource",
+      "label": "Network"
+    },
+    {
+      "form": "foundation",
+      "field": "net_cidr",
+      "kind": "cidr",
+      "label": "Network prefix"
+    },
+    {
+      "form": "foundation",
+      "field": "subnet_cidr",
+      "kind": "cidr",
+      "label": "First subnet"
+    },
+    {
+      "form": "foundation",
+      "group": "access",
+      "column": "who",
+      "kind": "iam",
+      "label": "Team access",
+      "labelFrom": "gets"
+    },
+    {
+      "form": "foundation",
+      "group": "access",
+      "column": "mfa",
+      "kind": "mfa",
+      "label": "MFA",
+      "labelFrom": "who"
+    },
+    {
+      "form": "sad",
+      "group": "components",
+      "column": "name",
+      "kind": "resource",
+      "label": "Component",
+      "unique": true,
+      "labelFrom": "service"
+    },
+    {
+      "form": "sad",
+      "field": "vm_name",
+      "kind": "host",
+      "label": "Virtual machine",
+      "declares": true
+    },
+    {
+      "form": "sad",
+      "field": "vm_size",
+      "kind": "size",
+      "label": "VM size",
+      "of": "sku"
+    },
+    {
+      "form": "sad",
+      "field": "vm_private_ip",
+      "kind": "ipv4",
+      "label": "VM private address",
+      "within": {
+        "form": "foundation",
+        "field": "subnet_cidr"
+      }
+    },
+    {
+      "form": "api",
+      "field": "db_name",
+      "kind": "resource",
+      "label": "Table"
+    },
+    {
+      "form": "api",
+      "group": "endpoints",
+      "column": "path",
+      "kind": "flow",
+      "label": "Endpoint",
+      "labelFrom": "method"
+    },
+    {
+      "form": "api",
+      "field": "team_group",
+      "kind": "iam",
+      "label": "Team group"
+    },
+    {
+      "form": "api",
+      "field": "mfa",
+      "kind": "mfa",
+      "label": "MFA"
+    },
+    {
+      "form": "incident",
+      "field": "inc_symptom",
+      "kind": "incident",
+      "label": "Incident"
+    },
+    {
+      "form": "incident",
+      "group": "changes",
+      "column": "change",
+      "kind": "change",
+      "label": "Change"
+    },
+    {
+      "form": "access",
+      "group": "matrix",
+      "column": "principal",
+      "kind": "iam",
+      "label": "Principal",
+      "labelFrom": "role"
+    },
+    {
+      "form": "network",
+      "group": "plan",
+      "column": "name",
+      "kind": "resource",
+      "label": "Subnet",
+      "unique": true
+    },
+    {
+      "form": "network",
+      "group": "plan",
+      "column": "cidr",
+      "kind": "cidr",
+      "label": "Subnet prefix",
+      "unique": true,
+      "labelFrom": "name"
+    },
+    {
+      "form": "network",
+      "group": "rules",
+      "column": "port",
+      "kind": "rule",
+      "label": "Rule port",
+      "labelFrom": "dir"
+    },
+    {
+      "form": "network",
+      "group": "rules",
+      "column": "source",
+      "kind": "rule",
+      "label": "Rule source",
+      "labelFrom": "port"
+    },
+    {
+      "form": "network",
+      "group": "paths",
+      "column": "path",
+      "kind": "flow",
+      "label": "Request path"
+    },
+    {
+      "form": "server",
+      "field": "size_now",
+      "kind": "size",
+      "label": "Instance size",
+      "of": "sku"
+    },
+    {
+      "form": "server",
+      "field": "db_engine",
+      "kind": "resource",
+      "label": "Database engine"
+    },
+    {
+      "form": "server",
+      "field": "queue_name",
+      "kind": "resource",
+      "label": "Queue"
+    },
+    {
+      "form": "server",
+      "group": "changes",
+      "column": "change",
+      "kind": "change",
+      "label": "Change"
+    },
+    {
+      "form": "dr",
+      "group": "bia",
+      "column": "asset",
+      "kind": "resource",
+      "label": "Protected asset",
+      "labelFrom": "criticality"
+    },
+    {
+      "form": "iac",
+      "group": "inventory",
+      "column": "name",
+      "kind": "resource",
+      "label": "Templated resource",
+      "unique": true,
+      "labelFrom": "type"
+    },
+    {
+      "form": "iac",
+      "group": "params",
+      "column": "name",
+      "kind": "resource",
+      "label": "Parameter",
+      "unique": true
+    },
+    {
+      "form": "change",
+      "field": "rfc_what",
+      "kind": "change",
+      "label": "Request for change"
+    },
+    {
+      "form": "change",
+      "group": "runs",
+      "column": "run",
+      "kind": "change",
+      "label": "Pipeline run",
+      "labelFrom": "stage"
+    },
+    {
+      "form": "governance",
+      "group": "findings",
+      "column": "finding",
+      "kind": "exception",
+      "label": "Finding",
+      "labelFrom": "severity"
+    },
+    {
+      "form": "governance",
+      "group": "slos",
+      "column": "sli",
+      "kind": "resource",
+      "label": "SLO",
+      "labelFrom": "target"
+    },
+    {
+      "form": "handover",
+      "group": "catalogue",
+      "column": "service",
+      "kind": "resource",
+      "label": "Service",
+      "unique": true,
+      "labelFrom": "url"
+    },
+    {
+      "form": "handover",
+      "group": "risks",
+      "column": "risk",
+      "kind": "risk",
+      "label": "Risk"
+    },
+    {
+      "form": "handover",
+      "group": "scenarios",
+      "column": "scenario",
+      "kind": "incident",
+      "label": "Scenario",
+      "labelFrom": "result"
+    }
+  ],
+  "conflictRules": [
+    "duplicate-value",
+    "duplicate-address",
+    "address-outside-prefix",
+    "prefixes-overlap",
+    "port-reused",
+    "undeclared-host",
+    "ram-over-committed",
+    "cpu-over-committed",
+    "published-port-not-listening"
+  ]
+}

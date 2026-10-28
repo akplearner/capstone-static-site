@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { CheckCircle2, Circle, Lock, Send } from 'lucide-react';
 import type { DeliverableData, DeliverableDef } from '@/lib/docs/types';
 import type { StepEvidence, SubmissionProgress, SubmissionSnapshot } from '@/lib/data/types';
+import type { FormContext } from '@/lib/docs/types';
 import { RUBRIC_CATEGORIES, evaluateBundle, stepsProducing, verdictOf, type BundleResult } from '@/lib/docs/deliverableRubric';
 import { evidenceRepo, progressRepo, statusRepo, submissionsRepo } from '@/lib/data';
 import { allowedActions, isVacant, transition } from '@/lib/docs/lifecycle';
@@ -33,11 +34,14 @@ export function ExpectationsPanel({
   teamId,
   role,
   instructorReview,
+  ctx,
 }: {
   def: DeliverableDef;
   data: DeliverableData;
   week: number;
   memberId: string;
+  /** R139: the team's other documents and the definitions, so Consistency lists what this form contradicts. */
+  ctx?: FormContext;
   /** R103: the viewer's role — only the drafting role submits. */
   role?: string;
   /** With a team, the panel also carries the Submit bar (R84 phase 3). */
@@ -53,7 +57,7 @@ export function ExpectationsPanel({
     EMPTY_OBJECT as Record<string, StepEvidence>
   );
   const steps = useMemo(() => stepsProducing(course, def), [course, def]);
-  const result = evaluateBundle(def, data, { evidence, steps, week });
+  const result = evaluateBundle(def, data, { evidence, steps, week, docs: ctx?.docs, defs: ctx?.defs });
 
   return (
     <div className="rounded-lg depth-edge bg-panel-2 p-3">

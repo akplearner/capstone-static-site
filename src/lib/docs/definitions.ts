@@ -117,7 +117,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
           label: 'Assets',
           columns: [
             c('hostname', 'Hostname', 'text', { placeholder: 'dvwa-vm' }),
-            c('ip', 'IP address', 'text', { placeholder: '10.10.10.5' }),
+            c('ip', 'IP address', 'ipv4', { placeholder: '10.10.10.5' }),
             c('service', 'Service / port', 'text', { placeholder: '80/tcp HTTP' }),
             c('version', 'Version', 'text', { placeholder: 'Apache 2.4.41' }),
             c('os', 'OS', 'text', { placeholder: 'Ubuntu 20.04' }),

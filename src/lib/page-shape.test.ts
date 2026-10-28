@@ -4188,3 +4188,62 @@ describe('R138 — every course feeds every KPI for every role', () => {
     expect(read('docs/OPERATIONS.md')).toContain('**Every course feeds every KPI (R138):**');
   });
 });
+
+describe('R139 — the project record, its history and its conflicts', () => {
+  it('the registry, the extractor and the rules are one pure module, published in the ontology', () => {
+    const r = code('src/lib/docs/projectRecord.ts');
+    for (const n of ['export const RECORD_FIELDS: RecordField[]', 'export function projectRecord(', 'export function recordConflicts(', 'export function conflictsOnForm(', 'withoutSeedRows(def, raw)']) expect(r, n).toContain(n);
+    for (const rule of ['duplicate-value', 'duplicate-address', 'address-outside-prefix', 'prefixes-overlap', 'port-reused', 'undeclared-host', 'ram-over-committed', 'cpu-over-committed', 'published-port-not-listening']) expect(r, rule).toContain(`'${rule}'`);
+    expect(r).not.toMatch(/from '\.\.\/data|Repo\b/);
+    const o = code('src/lib/docs/ontology.ts');
+    expect(o).toContain("'project-record'");
+    expect(o).toContain("export const ONTOLOGY_VERSION = '2.1.0';");
+  });
+
+  it('two typed columns, hinted in both renderers and checked by the derived validators; the free-text columns are retyped', () => {
+    expect(code('src/lib/grc/templates.ts')).toMatch(/\| 'cidr'[\s\S]*\| 'port';/);
+    expect(code('src/lib/docs/types.ts')).toMatch(/\| 'cidr'\n\s+\| 'port';/);
+    for (const n of ['isCidr', 'isPort']) {
+      expect(code('src/components/grc/RegisterTable.tsx'), n).toContain(n);
+      expect(code('src/components/docs/DeliverableForm.tsx'), n).toContain(n);
+    }
+    expect(code('src/lib/docs/derive.ts')).toContain("if (col.type === 'cidr')");
+    expect(code('src/lib/docs/derive.ts')).toContain("if (col.type === 'port')");
+    expect(code('src/lib/docs/cloudDeliverables.ts')).toContain("type: 'cidr'");
+    expect(code('src/lib/docs/cloudDeliverables.ts')).toContain("c('port', 'Port', 'port'");
+    expect(code('src/lib/docs/ccnaDeliverables.ts')).toContain("c('prefix', 'Prefix', 'cidr'");
+    expect(code('src/lib/docs/networkPlusDeliverables.ts')).toContain("c('prefix', 'Prefix', 'cidr'");
+    expect(code('src/lib/docs/serverPlusDeliverables.ts')).toContain("c('host_port', 'Host port', 'port'");
+    expect(code('src/lib/docs/serverPlusDeliverables.ts')).toContain("group: 'vms',");
+    expect(code('src/lib/docs/definitions.ts')).toContain("c('ip', 'IP address', 'ipv4'");
+  });
+
+  it('the Consistency category reads the record when the documents are handed in, and the live panel hands them in', () => {
+    const rubric = code('src/lib/docs/deliverableRubric.ts');
+    expect(rubric).toContain('docs?: Record<string, DeliverableData>;');
+    expect(rubric).toContain("conflictsOnForm(recordConflicts(projectRecord({ ...ctx.docs, [def.id]: d }, ctx.defs)), def.id)");
+    expect(rubric).toContain("conflicts.every((i) => i.ok || i.severity === 'warn')");
+    expect(code('src/components/docs/ExpectationsPanel.tsx')).toContain('docs: ctx?.docs, defs: ctx?.defs');
+    expect(code('src/app/courses/[courseId]/docs/page.tsx')).toContain('instructorReview={review?.status} ctx={ctx} />');
+    // A frozen snapshot judges the form alone.
+    expect(code('src/lib/docs/validateDeliverable.ts')).toContain("evaluateBundle(derived, data, { evidence: {}, steps: [], week: def.weeks[0] })");
+  });
+
+  it('migration 0025 keeps the history: append-only, the database’s clock, the trigger the only writer; both repositories read it', () => {
+    const sql = read('supabase/migrations/0025_deliverable_history.sql');
+    for (const n of ['create table if not exists public.deliverable_history', 'revoke insert, update, delete, truncate on public.deliverable_history from anon, authenticated', "interval '5 minutes'", '>= 500', 'before update on public.deliverables', 'security definer set search_path = public', 'public.on_team(course_id, team_id)']) expect(sql, n).toContain(n);
+    expect(read('supabase/tests/rls.sql')).toContain("'ada: a second save in the sitting is not a version'");
+    expect(read('supabase/tests/rls.sql')).toContain("'cy: not team 01''s history'");
+    expect(code('src/lib/data/types.ts')).toContain('history(courseId: string, teamId: string): Promise<DeliverableVersion[]>;');
+    expect(code('src/lib/data/supabaseDocsRepo.ts')).toContain(".from('deliverable_history')");
+    expect(code('src/lib/data/localStorageDocsRepo.ts')).toContain('export const HISTORY_SITTING_MS = 5 * 60_000;');
+  });
+
+  it('the docs say it', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### The project record (R139)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| The project record, its history and its conflicts |');
+    expect(read('docs/FIX_LIST.md')).toContain('| F17 |');
+    expect(read('docs/OPERATIONS.md')).toContain('**The project record (R139):**');
+    expect(read('SUPABASE_SETUP.md')).toContain('**Migration 0025**');
+  });
+});

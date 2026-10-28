@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { derive } from '@/lib/docs/predicate';
 import { AlertTriangle, ArrowDownToLine, ExternalLink } from 'lucide-react';
 import { DeliverableData, DeliverableDef, Field, FieldGroup, decisionKey, emptyFormContext, type DecisionBlock, type FormContext } from '@/lib/docs/types';
-import { DURATION_UNITS, fitsInput, formatDuration, isIpv4OrCidr, parseDuration } from '@/lib/docs/formContext';
+import { DURATION_UNITS, fitsInput, formatDuration, isCidr, isIpv4OrCidr, isPort, parseDuration } from '@/lib/docs/formContext';
 import { RegisterTable } from '@/components/grc/RegisterTable';
 import { deliverableTitle } from '@/lib/docs/definitions';
 import { validateEvidenceFileName } from '@/lib/utils';
@@ -29,6 +29,8 @@ function SingleField({
   const namingBad = f.type === 'fileref' && !empty && !validateEvidenceFileName(value).valid;
   // Shape only, and only once they have left the field — same rule as required.
   const badAddress = f.type === 'ipv4' && !empty && !isIpv4OrCidr(value);
+  // R139: a prefix and a port are hinted the same way (the record reads them as a subnet and a port).
+  const badShape = !empty && ((f.type === 'cidr' && !isCidr(value)) || (f.type === 'port' && !isPort(value)));
   const suggestions =
     f.type === 'hostref' ? ctx.hostnames : f.type === 'evidence' ? ctx.evidence.map((e) => e.filename) : [];
   const listId = `field-${f.field}-options`;
@@ -170,16 +172,21 @@ function SingleField({
       ) : (
         <input
           type={f.type === 'date' && fitsInput('date', value) ? 'date' : 'text'}
-          inputMode={f.type === 'ipv4' ? 'numeric' : undefined}
+          inputMode={f.type === 'ipv4' || f.type === 'port' ? 'numeric' : undefined}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onBlur={() => setTouched(true)}
           placeholder={f.placeholder}
-          className={`${inputClass} ${badAddress && touched ? 'border-warn' : ''}`}
+          className={`${inputClass} ${(badAddress || badShape) && touched ? 'border-warn' : ''}`}
         />
       )}
       {badAddress && touched && (
         <span className="mt-1 block text-xs text-warn">Four numbers, 0–255, e.g. 192.0.2.10</span>
+      )}
+      {badShape && touched && (
+        <span className="mt-1 block text-xs text-warn">
+          {f.type === 'cidr' ? 'A prefix with its mask, e.g. 10.10.1.0/24' : 'A port, e.g. 443 or 443/tcp'}
+        </span>
       )}
       {f.help && <span className="mt-1 block text-xs text-muted">{f.help}</span>}
       {f.required && empty && touched && (

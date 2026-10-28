@@ -12,6 +12,11 @@ import {
   isIpv4,
   parseDuration,
   teamHostnames,
+  cidrRange,
+  cidrsOverlap,
+  isCidr,
+  isPort,
+  parsePort,
 } from './formContext';
 import { emptyData, emptyFormContext, type DeliverableDef, type FieldType } from './types';
 import type { ColumnType } from '../grc/templates';
@@ -154,6 +159,23 @@ describe('address and duration helpers', () => {
     expect(inSubnet('172.16.0.10', '')).toBe(true);
   });
 
+  it('R139: reads a prefix, its range and overlaps, and a port as the forms write it', () => {
+    expect(isCidr('10.10.1.0/24')).toBe(true);
+    expect(isCidr('10.10.1.0')).toBe(false);
+    expect(isCidr('10.10.1.0/33')).toBe(false);
+    expect(isCidr('10.10.1.0/24/x')).toBe(false);
+    expect(cidrRange('10.0.0.0/30')).toEqual({ lo: 0x0a000000, hi: 0x0a000003 });
+    expect(cidrRange('nope')).toBeNull();
+    expect(cidrsOverlap('10.0.0.0/16', '10.0.20.0/24')).toBe(true);
+    expect(cidrsOverlap('10.0.10.0/24', '10.0.20.0/24')).toBe(false);
+    expect(cidrsOverlap('the DMZ', '10.0.20.0/24')).toBe(false);
+    for (const v of ['80', '80/tcp', '2200/TCP', '8000-8080/udp', 'any', '*', '0']) expect(isPort(v), v).toBe(true);
+    for (const v of ['http', '70000', '80/http', '8080-8000', '80/tcp HTTP']) expect(isPort(v), v).toBe(false);
+    expect(parsePort('2200/tcp')).toEqual({ port: 2200, proto: 'tcp' });
+    expect(parsePort('443')).toEqual({ port: 443, proto: null });
+    expect(parsePort('https')).toBeNull();
+  });
+
   it('round-trips a duration through its editor', () => {
     expect(parseDuration('4 hours')).toEqual({ amount: '4', unit: 'hours' });
     expect(parseDuration('30 minutes')).toEqual({ amount: '30', unit: 'minutes' });
@@ -210,10 +232,10 @@ const read = (p: string) => readFileSync(resolve(process.cwd(), p), 'utf8');
 describe('every field and column type is actually rendered', () => {
   const FIELD_TYPES: FieldType[] = [
     'text', 'area', 'select', 'date', 'paste', 'fileref', 'signature',
-    'number', 'ipv4', 'hostref', 'duration', 'evidence',
+    'number', 'ipv4', 'hostref', 'duration', 'evidence', 'cidr', 'port',
   ];
   const COLUMN_TYPES: ColumnType[] = [
-    'text', 'number', 'select', 'area', 'date', 'ipv4', 'hostref', 'duration', 'evidence',
+    'text', 'number', 'select', 'area', 'date', 'ipv4', 'hostref', 'duration', 'evidence', 'cidr', 'port',
   ];
 
   it.each(FIELD_TYPES)('DeliverableForm handles the %s field', (t) => {

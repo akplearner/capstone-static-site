@@ -5784,25 +5784,25 @@
               {
                 "field": "mtd",
                 "label": "MTD",
-                "type": "text",
+                "type": "duration",
                 "placeholder": "8h"
               },
               {
                 "field": "rto",
                 "label": "RTO",
-                "type": "text",
+                "type": "duration",
                 "placeholder": "4h"
               },
               {
                 "field": "rpo",
                 "label": "RPO",
-                "type": "text",
+                "type": "duration",
                 "placeholder": "1h"
               },
               {
                 "field": "wrt",
                 "label": "WRT",
-                "type": "text",
+                "type": "duration",
                 "placeholder": "2h"
               }
             ],

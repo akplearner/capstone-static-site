@@ -3,7 +3,7 @@
 import type { DeliverableData } from '../docs/types';
 import { getBrowserClient } from '../supabase/client';
 import { notifyStore } from '../useClientStore';
-import { DocsRepository } from './types';
+import { DeliverableVersion, DocsRepository } from './types';
 import { cache, getCurrentUserId, markDocPending, clearDocPending } from './supabaseCache';
 import { queueDeliverable, flushDeliverableOutbox } from './outbox';
 import { toast } from '@/lib/toastBus';
@@ -77,5 +77,31 @@ export const supabaseDocsRepo: DocsRepository = {
     // Anything owed from an earlier failure rides along on the next edit.
     void flushDeliverableOutbox();
     return send(courseId, teamId, [row(courseId, teamId, deliverableId, data)]);
+  },
+
+  // R139: the team's history, appended by the database (0025) as the forms change.
+  // Read on demand — the instructor console and the record — never hydrated.
+  async history(courseId: string, teamId: string): Promise<DeliverableVersion[]> {
+    const supabase = getBrowserClient();
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from('deliverable_history')
+      .select('deliverable_id, data, updated_by, updated_at, replaced_by, at')
+      .eq('course_id', courseId)
+      .eq('team_id', teamId)
+      .order('at', { ascending: false })
+      .limit(500);
+    if (error || !data) {
+      if (error) console.error('docs history failed', error.message);
+      return [];
+    }
+    return (data as { deliverable_id: string; data: DeliverableData; updated_by: string | null; updated_at: string; replaced_by: string | null; at: string }[]).map((r) => ({
+      deliverableId: r.deliverable_id,
+      data: r.data ?? { fields: {}, groups: {} },
+      updatedBy: r.updated_by,
+      updatedAt: new Date(r.updated_at).getTime(),
+      replacedBy: r.replaced_by,
+      replacedAt: new Date(r.at).getTime(),
+    }));
   },
 };

@@ -179,6 +179,27 @@ export interface DocsRepository {
   /** Save ONE deliverable — what the autosave calls. Resolves false when the
    *  write did not reach the backend (it is queued for retry in cloud mode). */
   saveOne(courseId: string, teamId: string, deliverableId: string, data: DeliverableData): Promise<boolean>;
+  /** R139: the versions a form held before its current one, newest first — the
+   *  team's history (0025 in the cloud; a per-device list offline). */
+  history(courseId: string, teamId: string): Promise<DeliverableVersion[]>;
+}
+
+/**
+ * R139: one earlier version of a team's form. In the cloud the database appends
+ * it when the current row changes (migration 0025, append-only, its own clock);
+ * the first save of a sitting is kept, later saves of the same author within
+ * five minutes are not, so a version is a sitting, not a keystroke.
+ */
+export interface DeliverableVersion {
+  deliverableId: string;
+  /** The data as it stood BEFORE the change that replaced it. */
+  data: DeliverableData;
+  /** Who had saved that version, and when (the row's own updated_by/updated_at). */
+  updatedBy: string | null;
+  updatedAt: number;
+  /** Who replaced it, and when the database saw the replacement. */
+  replacedBy: string | null;
+  replacedAt: number;
 }
 
 export interface JoinResult {

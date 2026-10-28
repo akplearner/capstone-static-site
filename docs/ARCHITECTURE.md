@@ -930,6 +930,28 @@ folded score means and the group's timing into the cohort report, carried the re
 into the export, the credential's results, the PDF and the shared page, and gave the instructor one
 mark per rubric category beside the verdict (`ReviewCell`, appended to `deliverable_review_marks`).
 
+### The project record (R139)
+
+A team's documents hold the real values of their project — addresses, prefixes, VLANs, ports, sizes, rules, accounts,
+exceptions, risks, changes, incidents and decisions — but only as cells in forms, overwritten on every save. R139 reads
+them as a whole. `docs/projectRecord.ts` is a registry (`RECORD_FIELDS`: per form, by id or cloud base, the columns and
+fields that are facts, each with a kind and so an area: infrastructure, security, architecture, operations, decisions),
+a pure extractor (`projectRecord(docs, defs)`: the team's own rows, the worked examples removed, every decision block
+with who chose and when) and the conflict rules (`recordConflicts`: one address on two machines, a unique value twice
+in a table, a gateway outside its prefix, two prefixes overlapping, a port assigned twice on one host, a machine named
+but never declared, RAM committed above the discovered hardware, vCPUs past twice the threads, a published port no
+listening row records). Two column types carry the shapes the rules read, `cidr` and `port`, hinted in the cells and
+checked by the derived validators; the free-text prefix, port and address columns are retyped, and Server+ gains a
+per-VM sizing table on the bring-up log so over-commit can be set against the hardware discovery. The Consistency
+category of the rubric lists a form's own conflicts when the caller hands the team's documents in (the live
+Expectations panel does; a frozen snapshot judges the form alone); an error fails the category, a warning is listed.
+Migration 0025 keeps the history: a trigger on `deliverables` appends the version a change replaced (append-only, the
+database's clock, who had saved it and who replaced it; a version is a sitting, so a second save by the same author
+within five minutes is not one; 500 per team per day), readable by the team and the instructor, written by nobody
+else; `docsRepo.history` reads it, and offline the device keeps sixty versions per team under the same rule. The
+registry and the rules are published in the ontology (`project-record.json`, 2.1.0). The record as a whole is hidden
+from learners; R140 asks the team about it and R141 shows it to the instructor.
+
 ### Every course feeds every KPI for every role (R138)
 
 The R137 test named 198 KPI × role gaps the courses could not measure; R138 authors what closes them, and the

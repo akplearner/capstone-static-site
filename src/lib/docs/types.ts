@@ -36,7 +36,9 @@ export type FieldType =
   | 'ipv4'
   | 'hostref'
   | 'duration'
-  | 'evidence';
+  | 'evidence'
+  | 'cidr'
+  | 'port';
 
 export interface Field {
   field: string;
@@ -71,6 +73,8 @@ export interface FormContext {
   hostnames: string[];
   /** Artifacts this member has hashed — filename first, hash for the record. */
   evidence: { filename: string; sha256: string }[];
+  /** R139: the course's definitions, so the project record can be read beside the form. */
+  defs?: DeliverableDef[];
 }
 
 export function emptyFormContext(): FormContext {

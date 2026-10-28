@@ -440,6 +440,27 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
       {
         kind: 'group',
         group: {
+          group: 'vms',
+          label: 'The virtual machines as built — what each one was given',
+          help: 'One row per VM, read off the hypervisor (qm config <id> on Proxmox), not off the plan. The project record sets these against the memory and cores the hardware discovery found, so an over-committed host shows up here before it shows up as a crash.',
+          carryFrom: { deliverableId: 'srv_business_reqs', group: 'machines', columns: ['hostname'] },
+          columns: [
+            c('hostname', 'Hostname', 'hostref', { placeholder: 'websrv', help: 'The name from the Architecture Brief.' }),
+            c('vcpu', 'vCPU', 'number', { unit: 'vCPU', placeholder: '2', help: 'cores × sockets in qm config.' }),
+            c('ram_gb', 'RAM', 'number', { unit: 'GB', placeholder: '4', help: 'memory in qm config, in GB.' }),
+            c('disk_gb', 'Disk', 'number', { unit: 'GB', placeholder: '40', help: 'The size of the VM’s disk, in GB.' }),
+            c('note', 'Notes', 'text', { placeholder: 'Ballooning on; min 2 GB' }),
+          ],
+          seed: [
+            { hostname: 'websrv', vcpu: '2', ram_gb: '4', disk_gb: '40', note: '' },
+            { hostname: 'winserver', vcpu: '2', ram_gb: '4', disk_gb: '60', note: '' },
+            { hostname: 'linuxsrv', vcpu: '2', ram_gb: '2', disk_gb: '40', note: '' },
+          ],
+        },
+      },
+      {
+        kind: 'group',
+        group: {
           group: 'access',
           label: 'Who can get in',
           help: 'One row per person, including yourself. Never record a password here — this document is exported to the client in the handover package. Names and rights only.',
@@ -462,6 +483,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
       { label: 'The hypervisor is installed and reachable on its management address', when: { fields: ['hv_version', 'hv_address', 'hv_proof'] }},
       { label: 'The host has a remote-access address, and it was proved from off campus', when: { fields: ['remote_host_ip', 'remote_proof'] }},
       { label: 'Every teammate has their own named account — nobody is sharing root', when: { all: [{ group: 'access', atLeast: 2 }, { group: 'access', every: { filled: ['person', 'login'] } }] }},
+      { label: 'Every virtual machine is sized: vCPU, RAM and disk recorded as built', when: { all: [{ group: 'vms', atLeast: 3 }, { group: 'vms', every: { filled: ['hostname', 'vcpu', 'ram_gb', 'disk_gb'] } }] }, week: 2 },
     ],
   },
 
@@ -659,7 +681,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
           label: 'Published ports — what the campus LAN reaches through the host',
           help: 'One row per DNAT rule in the host’s rules file. Each is a deliberate hole in the segmentation: say what answers behind it and why anyone outside needs it. A row you cannot justify is a rule you remove.',
           columns: [
-            c('host_port', 'Host port', 'text', { placeholder: '80/tcp', help: 'The port on the host’s campus address (10.10.30.T) that a campus machine connects to.' }),
+            c('host_port', 'Host port', 'port', { placeholder: '80/tcp', help: 'The port on the host’s campus address (10.10.30.T) that a campus machine connects to.' }),
             c('to', 'Forwarded to', 'text', { placeholder: 'websrv:80', help: 'The VM and port the DNAT rule hands the packet to — read it off iptables -t nat -L PREROUTING -n.' }),
             c('service', 'Service', 'text', { placeholder: 'nginx', help: 'What is listening at the far end. "nothing yet" is a valid — and important — answer.' }),
             c('why', 'Why it is published', 'text', { placeholder: 'The public site — anyone on the campus', help: 'Who needs it and from where. This column is what the instructor reads.' }),
@@ -806,8 +828,8 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
           label: 'Port allow-list — everything listening, justified or closed',
           help: 'Run the command on every host and account for EVERY line. A port you cannot justify is a port you close.',
           columns: [
-            c('host', 'Host', 'text', { placeholder: 'websrv', help: 'Linux: sudo ss -tulpn · Windows: Get-NetTCPConnection -State Listen' }),
-            c('port', 'Port / protocol', 'text', { placeholder: '80/tcp', help: 'From the Local Address:Port column.' }),
+            c('host', 'Host', 'hostref', { placeholder: 'websrv', help: 'Linux: sudo ss -tulpn · Windows: Get-NetTCPConnection -State Listen' }),
+            c('port', 'Port / protocol', 'port', { placeholder: '80/tcp', help: 'From the Local Address:Port column.' }),
             c('service', 'Service', 'text', { placeholder: 'nginx', help: 'The process holding it open — ss -tulpn names it in the last column.' }),
             c('who', 'Reachable from', 'text', { placeholder: 'Anywhere — it is the public website', help: 'The networks your firewall rule actually allows, not "everyone" by default.' }),
             c('decision', 'Decision', 'select', { options: ['Keep — justified', 'Restrict', 'Close'], help: 'Anything you cannot justify in the previous column gets closed.' }),

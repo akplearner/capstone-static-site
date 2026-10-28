@@ -23,7 +23,11 @@ export type ColumnType =
   | 'ipv4'
   | 'hostref'
   | 'duration'
-  | 'evidence';
+  | 'evidence'
+  /** R139: a network prefix (10.10.1.0/24) — the record reads it as a subnet, so overlaps can be found. */
+  | 'cidr'
+  /** R139: a port, with or without its protocol (80, 80/tcp, 8000-8080/udp) — the record reads it per host. */
+  | 'port';
 export interface Column {
   field: string;
   label: string;

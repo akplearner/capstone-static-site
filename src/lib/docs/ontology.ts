@@ -9,6 +9,7 @@ import { DEPRECATED_KPIS, KPIS, KPI_FAMILIES } from './kpis';
 import { WORK_ROLES, WORK_ROLE_OF } from './workRoles';
 import { SKILL_DOMAINS } from './skillDomains';
 import { CATEGORY_DEFS, CHANGE_GROUPS, FORM_CATEGORY, PROFESSIONAL_THRESHOLD, RATIONALE_PATTERN, TROUBLE_GROUPS } from './recordCategories';
+import { AREA_LABEL as RECORD_AREA_LABEL, AREA_OF_KIND, RECORD_AREAS, RECORD_FIELDS } from './projectRecord';
 import { SCORES } from './scoring';
 
 /**
@@ -32,12 +33,12 @@ import { SCORES } from './scoring';
  * and the published scores.
  */
 export const ONTOLOGY_SCHEMA = 'capstone-ontology/1';
-export const ONTOLOGY_VERSION = '2.0.0';
+export const ONTOLOGY_VERSION = '2.1.0';
 export const MEMBER_PROFILE_SCHEMA = 'capstone-member-profile/2';
 
 const GENERATED_FROM = ['src/lib/docs/skills.ts', 'src/lib/docs/tools.ts', 'src/lib/docs/standards.ts', 'src/lib/docs/sops.ts', 'src/lib/docs/tactics.ts', 'src/lib/docs/metricCatalogue.ts', 'src/lib/docs/certs.ts', 'src/lib/docs/kpis.ts', 'src/lib/docs/workRoles.ts', 'src/lib/docs/skillDomains.ts', 'src/lib/docs/recordCategories.ts', 'src/lib/docs/scoring.ts'];
 
-export const ONTOLOGY_FILES = ['index', 'competencies', 'tools', 'standards', 'sops', 'tactics', 'practices', 'metrics', 'domains', 'kpis', 'work-roles', 'skill-domains', 'record-categories', 'scoring'] as const;
+export const ONTOLOGY_FILES = ['index', 'competencies', 'tools', 'standards', 'sops', 'tactics', 'practices', 'metrics', 'domains', 'kpis', 'work-roles', 'skill-domains', 'record-categories', 'scoring', 'project-record'] as const;
 export type OntologyFile = (typeof ONTOLOGY_FILES)[number];
 
 const stamp = () => ({ schema: ONTOLOGY_SCHEMA, version: ONTOLOGY_VERSION });
@@ -69,6 +70,8 @@ export function ontologyFiles(): Record<OntologyFile, Record<string, unknown>> {
     'skill-domains': { ...stamp(), domains: SKILL_DOMAINS },
     'record-categories': { ...stamp(), threshold: PROFESSIONAL_THRESHOLD, categories: CATEGORY_DEFS, formCategories: FORM_CATEGORY, troubleGroups: TROUBLE_GROUPS, changeGroups: CHANGE_GROUPS, rationalePattern: RATIONALE_PATTERN },
     scoring: { ...stamp(), scores: SCORES },
+    // R139: the project record — the facts a form records, by kind and area, and the conflict rules read over them.
+    'project-record': { ...stamp(), areas: RECORD_AREAS.map((a) => ({ id: a, label: RECORD_AREA_LABEL[a] })), areaOfKind: AREA_OF_KIND, fields: RECORD_FIELDS, conflictRules: ['duplicate-value', 'duplicate-address', 'address-outside-prefix', 'prefixes-overlap', 'port-reused', 'undeclared-host', 'ram-over-committed', 'cpu-over-committed', 'published-port-not-listening'] },
   };
   const index = {
     ...stamp(),
@@ -90,6 +93,7 @@ export function ontologyFiles(): Record<OntologyFile, Record<string, unknown>> {
       skillDomains: SKILL_DOMAINS.length,
       recordCategories: CATEGORY_DEFS.length,
       scores: SCORES.length,
+      recordFields: RECORD_FIELDS.length,
     },
     idStyle: {
       competency: 'comp.<area>.<slug>',

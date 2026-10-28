@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "generatedFrom": [
     "src/lib/docs/skills.ts",
     "src/lib/docs/tools.ts",
@@ -28,7 +28,8 @@
     "work-roles": "work-roles.json",
     "skill-domains": "skill-domains.json",
     "record-categories": "record-categories.json",
-    "scoring": "scoring.json"
+    "scoring": "scoring.json",
+    "project-record": "project-record.json"
   },
   "counts": {
     "competencies": 286,
@@ -44,7 +45,8 @@
     "workRoles": 13,
     "skillDomains": 8,
     "recordCategories": 14,
-    "scores": 6
+    "scores": 6,
+    "recordFields": 151
   },
   "idStyle": {
     "competency": "comp.<area>.<slug>",
