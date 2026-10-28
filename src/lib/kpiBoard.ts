@@ -50,6 +50,13 @@ export interface KpiValue {
   scored: boolean;
   /** False when the fact behind it was not handed in (team facts load on the course page). */
   loaded: boolean;
+  /**
+   * R137: false when the row is loaded and there is nothing to measure: `notMeasured` says whether this
+   * course gives this role nothing here (`role`: the KPI is not measured in this course for this role) or
+   * there is simply nothing to count yet (`yet`). A count is always measured. A score skips the row either way.
+   */
+  applies: boolean;
+  notMeasured?: 'role' | 'yet';
   fact: KpiFact;
   /** First-try is never shown alone: persistence rides beside it. */
   beside?: { value: number; of: number };
@@ -127,7 +134,7 @@ export function kpiBoard(input: KpiBoardInput): KpiBoard {
   const weightOf = new Map((cert.CERT?.domains ?? []).map((d) => [d.id, d.weight]));
   const practisedDomains = rows.domains.filter((r) => r.tasks.length > 0);
   const coverage = profileCoverage(measure.requiredCompetencies, skills);
-  const indicator = (i: { value: number; of?: number; loaded: boolean }) => ({ value: i.value, of: i.of ?? 0, loaded: i.loaded });
+  const indicator = (i: { value: number; of?: number; loaded: boolean; offered?: number }) => ({ value: i.value, of: i.of ?? 0, loaded: i.loaded, ...(i.offered !== undefined ? { offered: i.offered } : {}) });
   const citing = (r: ProfileRow) => r.deliverables.some((id) => (registry.CONTROL_OF[id] ?? []).length > 0);
 
   // R111: the role's own share of each attributable team fact.
@@ -135,19 +142,26 @@ export function kpiBoard(input: KpiBoardInput): KpiBoard {
   const ownRow = (r: ProfileRow) => r.deliverables.some((id) => drafted.has(id));
   const same = (i: { value: number; of?: number }) => ({ value: i.value, of: i.of ?? 0 });
   const ownOf = (i: { value: number; of?: number; own?: { value: number; of: number } }) => i.own ?? same(i);
-  const values: Record<string, { value: number; of: number; loaded: boolean; pct?: number; beside?: { value: number; of: number }; contribution?: { value: number; of: number } }> = {
+  // R137: a skill has an evidence path when a checkable step or a mapped form can raise it; only those sit in
+  // the denominator, and only those count in the numerator, so the percentage cannot pass one hundred.
+  const evidenced = (r: ProfileRow) => r.verifiableSteps > 0 || r.deliverables.length > 0;
+  const evidencedSkills = skills.filter(evidenced);
+  const values: Record<string, { value: number; of: number; loaded: boolean; offered?: number; notMeasured?: 'yet'; pct?: number; beside?: { value: number; of: number }; contribution?: { value: number; of: number } }> = {
     // ── technical ──
-    'kpi.technical.skills-verified': { value: skills.filter(atLeastVerified).length, of: skills.filter((r) => r.verifiableSteps > 0).length, loaded: true },
+    'kpi.technical.skills-verified': { value: evidencedSkills.filter(atLeastVerified).length, of: evidencedSkills.length, loaded: true, offered: evidencedSkills.length },
+    // R137: "a domain with a verified step", as documented: a verified step, not a level a form or the ledger raised.
     'kpi.technical.exam-weight-verified': {
-      value: practisedDomains.filter(atLeastVerified).reduce((n, r) => n + (weightOf.get(r.id) ?? 0), 0),
+      value: practisedDomains.filter((r) => r.verifiedSteps > 0).reduce((n, r) => n + (weightOf.get(r.id) ?? 0), 0),
       of: practisedDomains.reduce((n, r) => n + (weightOf.get(r.id) ?? 0), 0),
       loaded: true,
+      offered: practisedDomains.reduce((n, r) => n + (weightOf.get(r.id) ?? 0), 0),
     },
     'kpi.technical.commands-verified': indicator(abilities.commandSteps),
     'kpi.technical.procedures-to-standard': {
       value: rows.procedures.filter((r) => r.level === 'reviewed' && citing(r)).length,
       of: rows.procedures.filter(atLeastVerified).length,
       loaded: team,
+      offered: rows.procedures.length,
       contribution: {
         value: rows.procedures.filter((r) => r.level === 'reviewed' && citing(r) && ownRow(r)).length,
         of: rows.procedures.filter((r) => atLeastVerified(r) && ownRow(r)).length,
@@ -158,7 +172,8 @@ export function kpiBoard(input: KpiBoardInput): KpiBoard {
     'kpi.problem-solving.persistence': indicator(abilities.persistence),
     'kpi.problem-solving.flags-cleared': indicator(abilities.flagsCleared),
     // Minutes: the median is the value, the steps timed the denominator, and the share within the hour the percentage.
-    'kpi.problem-solving.time-to-resolution': { value: profile.timing.medianMinutes ?? 0, of: profile.timing.timedSteps, loaded: true, pct: pctOf(profile.timing.withinHour, profile.timing.timedSteps) },
+    // R137: with no step timed there is nothing to measure yet; a null median (every timed step left over a day) keeps its zero and the board prints a dash.
+    'kpi.problem-solving.time-to-resolution': { value: profile.timing.medianMinutes ?? 0, of: profile.timing.timedSteps, loaded: true, pct: pctOf(profile.timing.withinHour, profile.timing.timedSteps), ...(profile.timing.timedSteps === 0 ? { offered: abilities.persistence.offered ?? 0 } : {}) },
     // ── execution ──
     'kpi.execution.steps-in-order': indicator(abilities.inOrder),
     'kpi.execution.first-try': { ...indicator(abilities.firstTry), beside: { value: abilities.persistence.value, of: abilities.persistence.of ?? 0 } },
@@ -173,22 +188,26 @@ export function kpiBoard(input: KpiBoardInput): KpiBoard {
     'kpi.teamwork.handoffs': { ...indicator(abilities.handoffsCompleted), contribution: same(abilities.handoffsCompleted) },
     'kpi.teamwork.raci-respected': indicator(abilities.raciRespected),
     'kpi.teamwork.peer-reviews-given': indicator(abilities.peerReviewsGiven),
-    'kpi.teamwork.teammate-steps': { value: abilities.teammateStepsTicked.value, of: 0, loaded: abilities.teammateStepsTicked.loaded },
+    'kpi.teamwork.teammate-steps': { value: abilities.teammateStepsTicked.value, of: 0, loaded: abilities.teammateStepsTicked.loaded, offered: 1 },
     // ── professionalism ──
     'kpi.professionalism.on-time': indicator(abilities.onTime),
     'kpi.professionalism.document-control': { ...indicator(abilities.docControl), contribution: ownOf(abilities.docControl) },
     'kpi.professionalism.controls-cited': { ...indicator(abilities.controlsCited), contribution: same(abilities.controlsCited) },
     'kpi.professionalism.instructor-approved': { ...indicator(abilities.instructorApproved), contribution: ownOf(abilities.instructorApproved) },
     // ── growth ──
-    'kpi.growth.skills-transferred': { value: skills.filter((r) => atLeastVerified(r) && r.verifiedTasks >= 2).length, of: skills.filter(atLeastVerified).length, loaded: true },
+    // R137: "skills with at least one verified step", as documented, over the same; offered where a skill maps to two tasks with checkable steps.
+    'kpi.growth.skills-transferred': { value: skills.filter((r) => r.verifiedSteps > 0 && r.verifiedTasks >= 2).length, of: skills.filter((r) => r.verifiedSteps > 0).length, loaded: true, offered: skills.filter((r) => r.verifiableSteps > 0 && r.tasks.length >= 2).length },
     'kpi.growth.retention': indicator(abilities.retention),
-    // Velocity: this window's verified steps over the previous window's; the percentage caps at one hundred.
-    'kpi.growth.learning-velocity': { ...indicator(abilities.learningVelocity), pct: abilities.learningVelocity.loaded ? Math.min(100, Math.round((100 * abilities.learningVelocity.value) / Math.max(1, abilities.learningVelocity.of ?? 0))) : 0 },
-    'kpi.growth.profile-coverage': { value: coverage.value, of: coverage.of, loaded: true },
+    // Velocity: this window's verified steps over the previous window's; the percentage caps at one hundred. R137: with no prior window there is nothing to compare yet.
+    'kpi.growth.learning-velocity': { ...indicator(abilities.learningVelocity), pct: abilities.learningVelocity.loaded && (abilities.learningVelocity.of ?? 0) > 0 ? Math.min(100, Math.round((100 * abilities.learningVelocity.value) / (abilities.learningVelocity.of ?? 1))) : 0 },
+    // R137: over the competencies the course teaches; the untaught ones are listed beside the measure, never counted against the member.
+    'kpi.growth.profile-coverage': { value: coverage.value, of: coverage.of - coverage.untaught, loaded: true, offered: coverage.of - coverage.untaught },
   };
 
   const kpis: KpiValue[] = registry.KPIS.map((def: KpiDef) => {
     const v = values[def.id] ?? { value: 0, of: 0, loaded: false };
+    // R137: loaded with nothing to count is a state, not a zero: structural when the course offers the role nothing here.
+    const notMeasured: KpiValue['notMeasured'] | undefined = !v.loaded ? undefined : v.notMeasured ? v.notMeasured : def.unit === 'count' ? undefined : v.of === 0 ? (v.offered === 0 ? 'role' : 'yet') : undefined;
     return {
       id: def.id,
       family: def.family,
@@ -199,6 +218,8 @@ export function kpiBoard(input: KpiBoardInput): KpiBoard {
       unit: def.unit,
       scored: def.scored,
       loaded: v.loaded,
+      applies: !notMeasured,
+      ...(notMeasured ? { notMeasured } : {}),
       fact: def.fact,
       ...(v.beside ? { beside: v.beside } : {}),
       // Only where the fact was handed in: an unloaded team fact attributes nothing.
@@ -252,6 +273,8 @@ export function sumKpi(boards: KpiBoard[], id: string): { value: number; of: num
       loaded = false;
       continue;
     }
+    // R137: a course where the KPI is not measured for the role adds nothing and takes nothing away.
+    if (k.notMeasured === 'role') continue;
     value += k.value;
     of += k.of;
   }

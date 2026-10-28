@@ -107,7 +107,7 @@ export function KpiBoard({ board, defs, families, workRoles, copy, persistenceLa
               </h3>
               <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {board.kpis.filter((k) => k.family === f.id).map((k) => (
-                  <KpiTile key={k.id} k={k} def={defOf.get(k.id)} copy={copy} audience={audience} persistenceLabel={persistenceLabel} weeks={weeks} replayKey={replay} />
+                  <KpiTile key={k.id} k={k} def={defOf.get(k.id)} copy={copy} audience={audience} persistenceLabel={persistenceLabel} weeks={weeks} replayKey={replay} medianNull={board.timing.medianMinutes === null} />
                 ))}
               </ul>
             </section>
@@ -127,34 +127,39 @@ function factLine(k: KpiValue, copy: BoardCopy): { Icon: typeof User; text: stri
   return { Icon: BookOpen, text: copy.factContent };
 }
 
-function KpiTile({ k, def, copy, audience, persistenceLabel, weeks, replayKey }: { k: KpiValue; def?: KpiDef; copy: BoardCopy; audience: Audience; persistenceLabel: string; weeks: { value: number; of: number }; replayKey: number }) {
+function KpiTile({ k, def, copy, audience, persistenceLabel, weeks, replayKey, medianNull }: { k: KpiValue; def?: KpiDef; copy: BoardCopy; audience: Audience; persistenceLabel: string; weeks: { value: number; of: number }; replayKey: number; medianNull: boolean }) {
   const n = useCountUp(k.loaded ? k.value : 0, replayKey);
   const { Icon, text } = factLine(k, copy);
   const why = audience === 'hiring' ? def?.whyCompany : def?.whyMember;
   // R132: a count has no denominator; a minutes row prints the median over the steps timed, the percentage being the share within the hour.
   const minutes = k.unit === 'minutes';
   const count = k.unit === 'count';
-  const after = !k.loaded ? '' : minutes ? (k.of > 0 ? ` min · ${k.of} ${copy.timedSteps}` : ` · ${copy.noTiming}`) : count ? '' : ` of ${k.of}`;
+  // R137: loaded with nothing to measure is a state of its own, never "0 of 0"; a null median (every timed step left over a day) prints a dash too.
+  const off = k.loaded && !k.applies;
+  const noMedian = minutes && k.loaded && k.of > 0 && medianNull;
+  const after = !k.loaded || off ? '' : minutes ? (k.of > 0 ? ` min · ${k.of} ${copy.timedSteps}` : ` · ${copy.noTiming}`) : count ? '' : ` of ${k.of}`;
+  const state = !k.loaded ? (k.fact === 'team' ? copy.notLoaded : copy.notLoadedOwn) : off ? (k.notMeasured === 'role' ? copy.notMeasuredRole : copy.notMeasuredYet) : '';
   return (
-    <li data-kpi={k.id} data-fact={k.fact} data-loaded={k.loaded} data-unit={k.unit} data-scored={k.scored || undefined} className="min-w-0">
+    <li data-kpi={k.id} data-fact={k.fact} data-loaded={k.loaded} data-applies={k.applies} data-not-measured={k.notMeasured} data-unit={k.unit} data-scored={k.scored || undefined} className="min-w-0">
       <Surface variant="dense" padding="sm" className="flex h-full flex-col gap-2">
         <h4 className="text-sm font-semibold text-ink">{def?.label ?? k.id}</h4>
         <div className="flex items-baseline gap-1">
-          <span className="text-xl font-semibold tabular-nums text-ink" aria-hidden>{k.loaded ? (minutes && k.of === 0 ? '—' : n) : '—'}</span>
-          {after && <span className="text-sm text-muted" aria-hidden>{after}</span>}
-          <span className="sr-only">{k.loaded ? `${k.value}${after}` : copy.notLoaded}</span>
-          {k.loaded && k.of > 0 && !count && <span className="ml-auto text-sm tabular-nums text-muted" title={minutes ? copy.withinHour : undefined}>{k.pct}%</span>}
+          <span className="text-xl font-semibold tabular-nums text-ink" aria-hidden>{k.loaded && !off && !noMedian ? n : '—'}</span>
+          {after && <span className="text-sm text-muted" aria-hidden>{noMedian ? after.replace(/^ min/, '') : after}</span>}
+          {!state && <span className="sr-only">{noMedian ? `${copy.notMeasuredShort}${after}` : `${k.value}${after}`}</span>}
+          {k.loaded && !off && k.of > 0 && !count && <span className="ml-auto text-sm tabular-nums text-muted" title={minutes ? copy.withinHour : undefined}>{k.pct}%</span>}
         </div>
         <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={k.loaded ? k.pct : 0} aria-label={def?.label ?? k.id} className="relative h-1.5 w-full overflow-hidden rounded-full bg-panel-2">
-          <motion.div className="absolute inset-0 origin-left rounded-full bg-accent" initial={{ scaleX: 0 }} animate={{ scaleX: k.loaded ? k.pct / 100 : 0 }} transition={meter} />
+          <motion.div className="absolute inset-0 origin-left rounded-full bg-accent" initial={{ scaleX: 0 }} animate={{ scaleX: k.loaded && !off ? k.pct / 100 : 0 }} transition={meter} />
         </div>
-        {k.beside && k.loaded && (
+        {state && <p className="text-2xs text-muted" data-state>{state}</p>}
+        {k.beside && k.loaded && !off && (
           <p className="text-2xs text-muted" data-beside>{persistenceLabel}: {k.beside.value} of {k.beside.of}</p>
         )}
         {k.id === 'kpi.execution.dod-met' && k.loaded && (
           <p className="text-2xs text-muted" data-weeks>{copy.weeksLabel}: {weeks.value} of {weeks.of}</p>
         )}
-        {k.loaded && k.contribution && (k.contribution.value !== k.value || k.contribution.of !== k.of) && (
+        {k.loaded && !off && k.contribution && (k.contribution.value !== k.value || k.contribution.of !== k.of) && (
           <p className="text-2xs text-muted" data-contribution>{copy.contributionColumn}: {k.contribution.value} of {k.contribution.of}</p>
         )}
         <p className="flex items-center gap-1 text-2xs text-muted">

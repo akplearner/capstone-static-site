@@ -256,6 +256,17 @@
         },
         "scored": {
           "type": "boolean"
+        },
+        "applies": {
+          "description": "R137: false when the row is loaded and there is nothing to measure; notMeasured says why. A score skips such a row.",
+          "type": "boolean"
+        },
+        "notMeasured": {
+          "description": "R137: 'role' \u2014 this course gives this role nothing to measure here; 'yet' \u2014 nothing to count yet.",
+          "enum": [
+            "role",
+            "yet"
+          ]
         }
       }
     },

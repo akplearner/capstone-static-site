@@ -1,0 +1,366 @@
+{
+  "security-plus": {
+    "red": [
+      "kpi.decision-making.change-rollback",
+      "kpi.problem-solving.faults-resolved",
+      "kpi.teamwork.handoffs"
+    ],
+    "blue": [
+      "kpi.decision-making.change-rollback",
+      "kpi.teamwork.handoffs"
+    ],
+    "grc": [
+      "kpi.decision-making.change-rollback",
+      "kpi.execution.steps-in-order",
+      "kpi.problem-solving.faults-resolved",
+      "kpi.teamwork.handoffs"
+    ]
+  },
+  "mssp": {
+    "red": [
+      "kpi.decision-making.change-rollback",
+      "kpi.execution.steps-in-order",
+      "kpi.teamwork.handoffs"
+    ],
+    "blue": [
+      "kpi.decision-making.change-rollback",
+      "kpi.execution.steps-in-order",
+      "kpi.problem-solving.faults-resolved",
+      "kpi.teamwork.handoffs"
+    ],
+    "grc": [
+      "kpi.decision-making.change-rollback",
+      "kpi.execution.first-try",
+      "kpi.execution.steps-in-order",
+      "kpi.growth.learning-velocity",
+      "kpi.growth.retention",
+      "kpi.growth.skills-transferred",
+      "kpi.problem-solving.faults-resolved",
+      "kpi.problem-solving.persistence",
+      "kpi.problem-solving.time-to-resolution",
+      "kpi.professionalism.on-time",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.commands-verified"
+    ]
+  },
+  "cysa-plus": {
+    "blue": [
+      "kpi.decision-making.change-rollback",
+      "kpi.teamwork.handoffs"
+    ],
+    "grc": [
+      "kpi.decision-making.change-rollback",
+      "kpi.problem-solving.faults-resolved",
+      "kpi.teamwork.handoffs"
+    ],
+    "red": [
+      "kpi.decision-making.change-rollback",
+      "kpi.teamwork.handoffs"
+    ]
+  },
+  "server-plus": {
+    "net": [
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs"
+    ],
+    "win": [
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs"
+    ],
+    "lnx": [
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs"
+    ],
+    "mgmt": [
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs"
+    ]
+  },
+  "ccna": {
+    "arch": [
+      "kpi.execution.first-try",
+      "kpi.execution.steps-in-order",
+      "kpi.growth.learning-velocity",
+      "kpi.growth.retention",
+      "kpi.growth.skills-transferred",
+      "kpi.problem-solving.persistence",
+      "kpi.problem-solving.time-to-resolution",
+      "kpi.professionalism.controls-cited",
+      "kpi.professionalism.on-time",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.commands-verified"
+    ],
+    "impl": [
+      "kpi.execution.first-try",
+      "kpi.execution.steps-in-order",
+      "kpi.growth.learning-velocity",
+      "kpi.growth.retention",
+      "kpi.growth.skills-transferred",
+      "kpi.problem-solving.persistence",
+      "kpi.problem-solving.time-to-resolution",
+      "kpi.professionalism.controls-cited",
+      "kpi.professionalism.on-time",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.commands-verified"
+    ],
+    "ops": [
+      "kpi.execution.first-try",
+      "kpi.execution.steps-in-order",
+      "kpi.growth.learning-velocity",
+      "kpi.growth.retention",
+      "kpi.growth.skills-transferred",
+      "kpi.problem-solving.persistence",
+      "kpi.problem-solving.time-to-resolution",
+      "kpi.professionalism.on-time",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.commands-verified"
+    ],
+    "auto": [
+      "kpi.execution.first-try",
+      "kpi.execution.steps-in-order",
+      "kpi.growth.learning-velocity",
+      "kpi.growth.retention",
+      "kpi.growth.skills-transferred",
+      "kpi.problem-solving.persistence",
+      "kpi.problem-solving.time-to-resolution",
+      "kpi.professionalism.controls-cited",
+      "kpi.professionalism.on-time",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.commands-verified"
+    ]
+  },
+  "a-plus": {
+    "hw": [
+      "kpi.decision-making.change-rollback",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs"
+    ],
+    "os": [
+      "kpi.decision-making.change-rollback",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs"
+    ],
+    "support": [
+      "kpi.decision-making.change-rollback",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs"
+    ],
+    "records": [
+      "kpi.decision-making.change-rollback",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs"
+    ]
+  },
+  "network-plus": {
+    "design": [
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ],
+    "sw": [
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ],
+    "rt": [
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ],
+    "ops": [
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ]
+  },
+  "secai-plus": {
+    "redteam": [
+      "kpi.decision-making.change-rollback",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ],
+    "defender": [
+      "kpi.decision-making.change-rollback",
+      "kpi.problem-solving.faults-resolved",
+      "kpi.teamwork.handoffs"
+    ],
+    "governance": [
+      "kpi.decision-making.change-rollback",
+      "kpi.problem-solving.faults-resolved",
+      "kpi.teamwork.handoffs"
+    ]
+  },
+  "cissp": {
+    "govrisk": [
+      "kpi.decision-making.change-rollback",
+      "kpi.execution.steps-in-order",
+      "kpi.teamwork.handoffs"
+    ],
+    "archnet": [
+      "kpi.decision-making.change-rollback",
+      "kpi.problem-solving.faults-resolved",
+      "kpi.teamwork.handoffs"
+    ],
+    "idops": [
+      "kpi.decision-making.change-rollback",
+      "kpi.problem-solving.faults-resolved",
+      "kpi.teamwork.handoffs"
+    ]
+  },
+  "azure-fundamentals": {
+    "arch": [
+      "kpi.decision-making.change-rollback",
+      "kpi.execution.steps-in-order",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ],
+    "infra": [
+      "kpi.decision-making.change-rollback",
+      "kpi.growth.profile-coverage",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ],
+    "dev": [
+      "kpi.decision-making.change-rollback",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ],
+    "secops": [
+      "kpi.decision-making.change-rollback",
+      "kpi.growth.profile-coverage",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ]
+  },
+  "azure-administrator": {
+    "arch": [
+      "kpi.decision-making.change-rollback",
+      "kpi.execution.steps-in-order",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ],
+    "infra": [
+      "kpi.decision-making.change-rollback",
+      "kpi.growth.profile-coverage",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ],
+    "dev": [
+      "kpi.decision-making.change-rollback",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ],
+    "secops": [
+      "kpi.decision-making.change-rollback",
+      "kpi.growth.profile-coverage",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ]
+  },
+  "azure-devops": {
+    "arch": [
+      "kpi.execution.steps-in-order",
+      "kpi.teamwork.handoffs"
+    ],
+    "infra": [
+      "kpi.growth.profile-coverage",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs"
+    ],
+    "dev": [
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs"
+    ],
+    "secops": [
+      "kpi.growth.profile-coverage",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs"
+    ]
+  },
+  "aws-cloud-practitioner": {
+    "arch": [
+      "kpi.decision-making.change-rollback",
+      "kpi.execution.steps-in-order",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ],
+    "infra": [
+      "kpi.decision-making.change-rollback",
+      "kpi.growth.profile-coverage",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ],
+    "dev": [
+      "kpi.decision-making.change-rollback",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ],
+    "secops": [
+      "kpi.decision-making.change-rollback",
+      "kpi.growth.profile-coverage",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ]
+  },
+  "aws-solutions-architect": {
+    "arch": [
+      "kpi.decision-making.change-rollback",
+      "kpi.execution.steps-in-order",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ],
+    "infra": [
+      "kpi.decision-making.change-rollback",
+      "kpi.growth.profile-coverage",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ],
+    "dev": [
+      "kpi.decision-making.change-rollback",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ],
+    "secops": [
+      "kpi.decision-making.change-rollback",
+      "kpi.growth.profile-coverage",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs",
+      "kpi.technical.procedures-to-standard"
+    ]
+  },
+  "aws-devops": {
+    "arch": [
+      "kpi.decision-making.change-rollback",
+      "kpi.execution.steps-in-order",
+      "kpi.teamwork.handoffs"
+    ],
+    "infra": [
+      "kpi.decision-making.change-rollback",
+      "kpi.growth.profile-coverage",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs"
+    ],
+    "dev": [
+      "kpi.decision-making.change-rollback",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs"
+    ],
+    "secops": [
+      "kpi.decision-making.change-rollback",
+      "kpi.growth.profile-coverage",
+      "kpi.professionalism.controls-cited",
+      "kpi.teamwork.handoffs"
+    ]
+  }
+}

@@ -147,6 +147,9 @@ has failed silently in some deployment of some product; none takes more than a m
   has no issues section). The account page's **Export my data (JSON)** and the Deliverables page's
   **Export my work (.json)** (a handoff file with **Restore from file**) are still JSON on purpose.
   `docs/FIX_LIST.md` item F6.
+- [ ] **Not measured is a state (R137):** on `/courses/ccna/skills` as any role, the own-output tiles read "Not
+  measured in this course for this role" with a dash, never "0 of 0"; a fresh member on `/courses/server-plus/skills`
+  reads "Nothing to count yet" on First-try; the cohort report shows a fifth band, Not measured.
 - [ ] **Every fact reaches the projection (R136):** with a cohort start date set, `/dashboard` shows the On time tile
   loaded (not a dash) without opening a course page first; raise and clear a stuck flag → Stuck flags cleared reads 1 of 1
   on the course skill board and the dashboard; the instructor saves marks → the cohort report's marks band moves and a

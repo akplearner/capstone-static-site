@@ -123,6 +123,8 @@ export default function CohortPage() {
         flagEventsFor: (m) => data.flagEvents[m] ?? [],
         peerReviewsFor: (m) => data.peerReviewCounts[m],
         weekDueFor: (c) => weekDueFrom(data.cohortDates.find((d) => d.cohort === c)),
+        // R137: the member's earned ledger, so the cohort reads what the member's own pages read.
+        earnedFor: (m) => data.earned[m] ?? [],
       },
     });
   }, [course, data, rows, team, role, reviewWeek]);

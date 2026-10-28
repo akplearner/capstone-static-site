@@ -5,6 +5,7 @@ import type { DeliverableStatus } from './docs/lifecycle';
 import type { CertContent, SkillsContent } from './content/read';
 import type { KpiFact, KpiFamily } from './docs/kpis';
 import { skillProfile } from './skillProfile';
+import { applyEarned, type EarnedRow } from './earnedSkills';
 import { defaultMeasure, kpiBoard, type KpiBoard, type KpiValue } from './kpiBoard';
 import { isDeliverableFiled } from './deliverableChain';
 import { gradedWeeksCleared } from './course-helpers';
@@ -22,7 +23,8 @@ import { toCsv } from './csv';
 
 export const COHORT_KPI_SCHEMA = 'capstone-cohort-kpis/1';
 
-export type KpiBand = 'notStarted' | 'inProgress' | 'complete' | 'noDenominator';
+/** R137: `notMeasured` is a row not loaded, or loaded with nothing the course measures for the role; `noDenominator` is a measured ratio with nothing to count yet. */
+export type KpiBand = 'notStarted' | 'inProgress' | 'complete' | 'noDenominator' | 'notMeasured';
 
 export interface CohortKpiRow {
   id: string;
@@ -80,23 +82,30 @@ export interface CohortKpiInput {
     flagEventsFor?(memberId: string): StepFlagEvent[];
     peerReviewsFor?(memberId: string): { done: number; assigned: number } | undefined;
     weekDueFor?(cohort: string): ((week: number) => number | undefined) | undefined;
+    /** R137: the member's earned ledger, laid over the live profile as the member's own pages do. */
+    earnedFor?(memberId: string): readonly EarnedRow[];
   };
 }
 
-export function bandOf(v: Pick<KpiValue, 'value' | 'of'>): KpiBand {
+export function bandOf(v: Pick<KpiValue, 'value' | 'of'> & Partial<Pick<KpiValue, 'unit' | 'loaded' | 'applies' | 'notMeasured' | 'pct'>>): KpiBand {
+  // R137: per unit. Not loaded, or not measured in this course for the role, is its own band.
+  if (v.loaded === false || v.notMeasured === 'role') return 'notMeasured';
+  if (v.unit === 'count') return v.value > 0 ? 'complete' : 'notStarted';
   if (v.of === 0) return 'noDenominator';
+  // A minutes row's value is a median; its percentage (the share within the hour) is what bands it.
+  if (v.unit === 'minutes') return (v.pct ?? 0) >= 100 ? 'complete' : (v.pct ?? 0) > 0 ? 'inProgress' : 'notStarted';
   if (v.value === 0) return 'notStarted';
   if (v.value >= v.of) return 'complete';
   return 'inProgress';
 }
 
-const BANDS: KpiBand[] = ['notStarted', 'inProgress', 'complete', 'noDenominator'];
+const BANDS: KpiBand[] = ['notStarted', 'inProgress', 'complete', 'noDenominator', 'notMeasured'];
 
 function emptyGroup(cohort: string, template: KpiValue[], scoreIds: string[]): CohortKpiGroup {
   return {
     cohort,
     members: 0,
-    kpis: template.map((k) => ({ id: k.id, family: k.family, metricId: k.metricId, fact: k.fact, members: 0, loaded: 0, bands: { notStarted: 0, inProgress: 0, complete: 0, noDenominator: 0 }, sumValue: 0, sumOf: 0 })),
+    kpis: template.map((k) => ({ id: k.id, family: k.family, metricId: k.metricId, fact: k.fact, members: 0, loaded: 0, bands: { notStarted: 0, inProgress: 0, complete: 0, noDenominator: 0, notMeasured: 0 }, sumValue: 0, sumOf: 0 })),
     scores: scoreIds.map((id) => ({ id, mean: 0, loaded: 0 })),
     timing: { timedSteps: 0, withinHour: 0, over24h: 0, medianMinutes: null },
   };
@@ -115,8 +124,8 @@ function fold(group: CohortKpiGroup, running: Running, board: Pick<KpiBoard, 'kp
     row.members += 1;
     if (k.loaded) row.loaded += 1;
     row.bands[bandOf(k)] += 1;
-    // A count has no denominator and a minutes row's value is a median: neither sums into a ratio.
-    if (k.unit === 'ratio') {
+    // A count has no denominator and a minutes row's value is a median: neither sums into a ratio. R137: a row not measured for the role sums nothing.
+    if (k.unit === 'ratio' && k.notMeasured !== 'role') {
       row.sumValue += k.value;
       row.sumOf += k.of;
     }
@@ -152,7 +161,7 @@ export function cohortKpiReport(input: CohortKpiInput): CohortKpiReport {
 
   for (const m of roster) {
     const docs = facts.docsFor(m.teamId);
-    const profile = skillProfile({
+    const live = skillProfile({
       course,
       role: m.role,
       memberId: m.memberId,
@@ -167,6 +176,8 @@ export function cohortKpiReport(input: CohortKpiInput): CohortKpiReport {
       own: facts.flagEventsFor || facts.peerReviewsFor ? { notes: [], reports: [], flagEvents: facts.flagEventsFor?.(m.memberId), peerReviews: facts.peerReviewsFor?.(m.memberId) } : undefined,
       weekDue: facts.weekDueFor?.(m.cohort),
     });
+    const ledger = facts.earnedFor?.(m.memberId);
+    const profile = ledger ? applyEarned(live, ledger) : live;
     // The graded weeks with tasks for the role, and those whose required steps the member has all ticked.
     const weeks = gradedWeeksCleared(course, m.role, (t, s) => facts.isStepDone(m.memberId, t, s));
     const board = kpiBoard({
@@ -197,7 +208,7 @@ export function cohortKpiReport(input: CohortKpiInput): CohortKpiReport {
 
 /** The twenty-eight as empty values, for a report with nobody in it. */
 function kpiBoardTemplate(registry: SkillsContent): KpiValue[] {
-  return registry.KPIS.map((k) => ({ id: k.id, family: k.family, metricId: k.metricId, value: 0, of: 0, pct: 0, unit: k.unit, scored: k.scored, loaded: false, fact: k.fact }));
+  return registry.KPIS.map((k) => ({ id: k.id, family: k.family, metricId: k.metricId, value: 0, of: 0, pct: 0, unit: k.unit, scored: k.scored, loaded: false, applies: true, fact: k.fact }));
 }
 
 export const COHORT_KPI_CSV_HEADER = ['course', 'cohort', 'week', 'kpi', 'family', 'metric', 'fact', 'members', 'loaded', ...BANDS.map((b) => b.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`)), 'sum_value', 'sum_of'];

@@ -221,6 +221,11 @@
               "minimum": 0
             }
           }
+        },
+        "offered": {
+          "description": "R137: how much the course offers the role to measure here; zero means not measured for the role.",
+          "type": "integer",
+          "minimum": 0
         }
       }
     }
@@ -246,7 +251,7 @@
       "type": "string"
     },
     "denominator": {
-      "const": "own ticks · graded and advanced weeks · required steps"
+      "const": "own ticks \u00b7 graded weeks \u00b7 required steps"
     },
     "rows": {
       "type": "object",

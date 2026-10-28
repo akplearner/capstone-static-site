@@ -38,7 +38,8 @@ describe('KpiPack', () => {
     const NEEDS_MORE = ['kpi.problem-solving.flags-cleared', 'kpi.teamwork.peer-reviews-given', 'kpi.professionalism.on-time', 'kpi.growth.learning-velocity'];
     for (const b of sockets.filter((x) => x.dataset.fact !== 'team' && !NEEDS_MORE.includes(x.dataset.kpi ?? ''))) {
       expect(b.dataset.loaded, b.dataset.kpi).toBe('true');
-      if (b.dataset.kpi !== 'kpi.teamwork.teammate-steps' && b.dataset.kpi !== 'kpi.problem-solving.time-to-resolution') expect(b.getAttribute('aria-label'), b.dataset.kpi).toMatch(/: \d+ of \d+/);
+      // R137: a socket with nothing to count yet says so instead of "0 of 0".
+      if (b.dataset.kpi !== 'kpi.teamwork.teammate-steps' && b.dataset.kpi !== 'kpi.problem-solving.time-to-resolution') expect(b.getAttribute('aria-label'), b.dataset.kpi).toMatch(/: \d+ of \d+|: Nothing to count yet\.|: Not measured in this course for this role\./);
     }
     for (const b of sockets.filter((x) => x.dataset.fact === 'team')) {
       expect(b.dataset.loaded, b.dataset.kpi).toBe('false');
@@ -46,7 +47,8 @@ describe('KpiPack', () => {
       expect(b.querySelectorAll('circle'), 'a dim socket is the dashed track only').toHaveLength(1);
     }
     const firstTry = sockets.find((b) => b.dataset.kpi === 'kpi.execution.first-try')!;
-    expect(firstTry.getAttribute('aria-label')).toContain(SKILLS_COPY.abilityLabels.persistence);
+    // R137: with nothing verified yet the socket says so; persistence rides beside it once something is counted.
+    expect(firstTry.getAttribute('aria-label')).toMatch(new RegExp(`${SKILLS_COPY.abilityLabels.persistence}|Nothing to count yet`));
     expect(container.querySelector('[data-kpi-dim]')?.textContent).toContain(copy.notLoaded);
     expect(container.querySelector('[data-kpi-hero]')?.textContent).toMatch(/\d+ of \d+/);
     expect(container.querySelector('[data-skill-board-link]')?.getAttribute('href')).toBe('/courses/security-plus/skills');

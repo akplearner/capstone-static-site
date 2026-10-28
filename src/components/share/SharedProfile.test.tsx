@@ -97,7 +97,7 @@ describe('SharedProfile (R114)', () => {
             skills: {
               courseId: 'security-plus',
               role: 'red',
-              denominator: 'own ticks · graded and advanced weeks · required steps',
+              denominator: 'own ticks · graded weeks · required steps',
               rows: {
                 ...empty,
                 skills: [

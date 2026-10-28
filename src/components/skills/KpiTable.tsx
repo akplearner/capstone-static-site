@@ -17,7 +17,9 @@ export interface ToolLine {
 export function KpiTable({ board, defs, families, copy, perTool, title, scores }: { board: Pick<KpiBoard, 'kpis'>; defs: KpiDef[]; families: KpiFamilyDef[]; copy: BoardCopy; perTool?: ToolLine[]; title?: string; /** R132: the scores, printed beneath the KPIs when handed in. */ scores?: Pick<ScoreValue, 'id' | 'value' | 'counted' | 'of' | 'loaded'>[] }) {
   const defOf = new Map(defs.map((d) => [d.id, d]));
   const familyOf = new Map(families.map((f) => [f.id, f.label]));
-  const fact = (k: KpiBoard['kpis'][number]) => (!k.loaded ? copy.notLoaded : k.fact === 'own' ? copy.factOwn : k.fact === 'team' ? copy.factTeam : copy.factContent).split(':')[0];
+  // R137: a row loaded with nothing to measure says so, never "0 / 0".
+  const off = (k: KpiBoard['kpis'][number]) => k.loaded && !k.applies;
+  const fact = (k: KpiBoard['kpis'][number]) => (!k.loaded ? (k.fact === 'team' ? copy.notLoaded : copy.notLoadedOwn) : off(k) ? (k.notMeasured === 'role' ? copy.notMeasuredRole : copy.notMeasuredYet) : k.fact === 'own' ? copy.factOwn : k.fact === 'team' ? copy.factTeam : copy.factContent).split(':')[0];
   return (
     <div className="space-y-3" data-kpi-table-wrap>
       <h3 className="text-sm font-semibold text-ink">{title ?? copy.tableTitle}</h3>
@@ -35,14 +37,14 @@ export function KpiTable({ board, defs, families, copy, perTool, title, scores }
           </thead>
           <tbody>
             {board.kpis.map((k) => (
-              <tr key={k.id} data-kpi-row={k.id} className="border-t border-line align-top">
+              <tr key={k.id} data-kpi-row={k.id} data-applies={k.applies} className="border-t border-line align-top">
                 <td className="px-3 py-2 font-medium text-ink">
                   {defOf.get(k.id)?.label ?? k.id}
                   <div className="font-normal text-muted">{defOf.get(k.id)?.whyMember}</div>
                 </td>
                 <td className="whitespace-nowrap px-3 py-2 text-body">{familyOf.get(k.family) ?? k.family}</td>
-                <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-ink">{!k.loaded ? '—' : k.unit === 'minutes' ? (k.of > 0 ? `${k.value} min · ${k.of}` : '—') : k.unit === 'count' ? `${k.value}` : `${k.value} / ${k.of}`}</td>
-                <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-body">{k.loaded && k.of > 0 && k.unit !== 'count' ? `${k.pct}%` : '—'}</td>
+                <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-ink">{!k.loaded || off(k) ? '—' : k.unit === 'minutes' ? (k.of > 0 ? `${k.value} min · ${k.of}` : '—') : k.unit === 'count' ? `${k.value}` : `${k.value} / ${k.of}`}</td>
+                <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-body">{k.loaded && !off(k) && k.of > 0 && k.unit !== 'count' ? `${k.pct}%` : '—'}</td>
                 <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-body" data-contribution={k.contribution ? `${k.contribution.value}/${k.contribution.of}` : ''}>{k.contribution ? `${k.contribution.value} / ${k.contribution.of}` : '—'}</td>
                 <td className="px-3 py-2 text-muted">{fact(k)}</td>
               </tr>

@@ -169,6 +169,12 @@ export const SKILLS_COPY = {
     factTeam: 'Team fact: a document the team filled, approved or issued.',
     factContent: 'Content fact: read from the course and the registries.',
     notLoaded: 'Team facts load on the course page.',
+    /** R137: an own fact that needs something the page did not hand in: the cohort start date, the review queue or the page clock. */
+    notLoadedOwn: 'Needs a fact not handed in: the cohort start date, the review queue or the page clock.',
+    /** R137: loaded with nothing to measure, and why. */
+    notMeasuredRole: 'Not measured in this course for this role.',
+    notMeasuredYet: 'Nothing to count yet.',
+    notMeasuredShort: 'Not measured',
     replay: 'Replay',
     measuredAgainst: 'Measured against',
     importProfile: 'Import a profile file',
@@ -193,8 +199,8 @@ export const SKILLS_COPY = {
     credentialClaim: 'An Open Badges 3.0 envelope around the member profile, unsigned: it carries no proof and claims none.',
     cohortTitle: 'KPI bands per cohort',
     cohortLede: 'Counts per band for the members shown; nobody is ranked; team facts are judged through the review week.',
-    cohortColumns: ['KPI', 'Family', 'Fact', 'Members', 'Not started', 'In progress', 'Complete', 'No denominator', 'Sum'] as string[],
-    bands: { notStarted: 'Not started', inProgress: 'In progress', complete: 'Complete', noDenominator: 'No denominator' },
+    cohortColumns: ['KPI', 'Family', 'Fact', 'Members', 'Not started', 'In progress', 'Complete', 'No denominator', 'Not measured', 'Sum'] as string[],
+    bands: { notStarted: 'Not started', inProgress: 'In progress', complete: 'Complete', noDenominator: 'No denominator', notMeasured: 'Not measured' },
     /** R109: the KPI pack on the Home card and the dashboard card, and the DTO chip beside it. */
     packTitle: 'Twenty-eight KPIs',
     packIdle: 'Hover or focus a socket to read it.',

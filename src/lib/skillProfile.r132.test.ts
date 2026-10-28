@@ -67,23 +67,28 @@ describe('R132 — troubleshooting, decisions and change rows read off the team�
 
   it('a decision counts for the member who chose it: recorded, then justified, then approved by the team', () => {
     const k = decisionKey(raid.id);
-    const offered = profileOf({ team: team({}) });
+    // R137: a decision belongs to the role that drafts the decision form; every other role reads not measured.
+    const drafter = bringup.raci?.drafts ?? bringup.owner;
+    const asDrafter = (over: Parameters<typeof profileOf>[0]) => profileOf({ role: drafter, ...over });
+    const otherRole = course.roles.find((r) => r.id !== drafter)!.id;
+    expect(profileOf({ role: otherRole, team: team({}) }).abilities.decisionsRecorded).toMatchObject({ value: 0, of: 0, offered: 0, loaded: true });
+    const offered = asDrafter({ team: team({}) });
     expect(offered.abilities.decisionsRecorded).toMatchObject({ value: 0, loaded: true });
     expect(offered.abilities.decisionsRecorded.of).toBeGreaterThanOrEqual(1);
-    const someoneElse = profileOf({ team: team({ srv_bringup: { ...empty(), fields: { [k]: 'raid10', [`${k}:by`]: 'them', [`${k}:at`]: String(T0) } } }) });
+    const someoneElse = asDrafter({ team: team({ srv_bringup: { ...empty(), fields: { [k]: 'raid10', [`${k}:by`]: 'them', [`${k}:at`]: String(T0) } } }) });
     expect(someoneElse.abilities.decisionsRecorded.value, 'a teammate’s choice is not this member’s').toBe(0);
-    const chosen = profileOf({ team: team({ srv_bringup: { ...empty(), fields: { [k]: 'raid10', [`${k}:by`]: 'me', [`${k}:at`]: String(T0) } } }) });
+    const chosen = asDrafter({ team: team({ srv_bringup: { ...empty(), fields: { [k]: 'raid10', [`${k}:by`]: 'me', [`${k}:at`]: String(T0) } } }) });
     expect(chosen.abilities.decisionsRecorded.value).toBe(1);
     expect(chosen.abilities.decisionsJustified).toMatchObject({ value: 0, of: 1 });
     const row = chosen.rows.decisions.find((r) => r.id === `decision.srv_bringup.${raid.id}`)!;
     expect(row).toMatchObject({ uses: 1, successes: 0, level: 'practised', lastVerifiedAt: T0 });
     const answers = Object.fromEntries(raid.questions.filter((q) => q.required).map((q) => [q.field, 'Because the rebuild has to be fast and cannot slow the VMs.']));
-    const justified = profileOf({ team: team({ srv_bringup: { ...empty(), fields: { [k]: 'raid10', [`${k}:by`]: 'me', [`${k}:at`]: String(T0), ...answers } } }) });
+    const justified = asDrafter({ team: team({ srv_bringup: { ...empty(), fields: { [k]: 'raid10', [`${k}:by`]: 'me', [`${k}:at`]: String(T0), ...answers } } }) });
     expect(justified.abilities.decisionsJustified).toMatchObject({ value: 1, of: 1 });
     expect(justified.abilities.decisionsApproved).toMatchObject({ value: 0, of: 1 });
     const rowId = `decision.srv_bringup.${raid.id}`;
     expect(justified.rows.decisions.find((r) => r.id === rowId)!.level).toBe('verified');
-    const approved = profileOf({ team: team({ srv_bringup: { ...empty(), fields: { [k]: 'raid10', [`${k}:by`]: 'me', [`${k}:at`]: String(T0), ...answers } } }, [{ courseId: course.id, teamId: 't', deliverableId: 'srv_bringup', status: 'approved', changedBy: 'them', role: role, at: T0, version: 1 }]) });
+    const approved = asDrafter({ team: team({ srv_bringup: { ...empty(), fields: { [k]: 'raid10', [`${k}:by`]: 'me', [`${k}:at`]: String(T0), ...answers } } }, [{ courseId: course.id, teamId: 't', deliverableId: 'srv_bringup', status: 'approved', changedBy: 'them', role: role, at: T0, version: 1 }]) });
     expect(approved.abilities.decisionsApproved).toMatchObject({ value: 1, of: 1 });
     expect(approved.rows.decisions.find((r) => r.id === rowId)!.level).toBe('reviewed');
   });
@@ -113,9 +118,9 @@ describe('R132 — retention, velocity, on time and the flag history read off st
   it('the learning velocity is this window’s verified steps over the previous window’s, against the page clock only', () => {
     const evidence = { [keys[0]]: verified(keys[0], T0 - 3 * DAY), [keys[1]]: verified(keys[1], T0 - (VELOCITY_DAYS + 3) * DAY) };
     expect(profileOf({ done: keys, evidence }).abilities.learningVelocity.loaded, 'no clock, no velocity').toBe(false);
-    expect(profileOf({ done: keys, evidence, asOf: T0 }).abilities.learningVelocity).toEqual({ value: 1, of: 1, loaded: true });
-    expect(profileOf({ done: keys, evidence, asOf: T0 + (VELOCITY_DAYS + 1) * DAY }).abilities.learningVelocity, 'a month on: the recent step is now the prior window').toEqual({ value: 0, of: 1, loaded: true });
-    expect(profileOf({ done: keys, evidence, asOf: T0 + 3 * VELOCITY_DAYS * DAY }).abilities.learningVelocity, 'both windows empty').toEqual({ value: 0, of: 0, loaded: true });
+    expect(profileOf({ done: keys, evidence, asOf: T0 }).abilities.learningVelocity).toMatchObject({ value: 1, of: 1, loaded: true });
+    expect(profileOf({ done: keys, evidence, asOf: T0 + (VELOCITY_DAYS + 1) * DAY }).abilities.learningVelocity, 'a month on: the recent step is now the prior window').toMatchObject({ value: 0, of: 1, loaded: true });
+    expect(profileOf({ done: keys, evidence, asOf: T0 + 3 * VELOCITY_DAYS * DAY }).abilities.learningVelocity, 'both windows empty').toMatchObject({ value: 0, of: 0, loaded: true });
     expect(profileOf({ done: keys, evidence, asOf: T0 }).abilities.skillsCurrent.loaded).toBe(true);
   });
 
@@ -123,8 +128,8 @@ describe('R132 — retention, velocity, on time and the flag history read off st
     const evidence = { [keys[0]]: verified(keys[0], T0), [keys[1]]: verified(keys[1], T0 + 10 * DAY) };
     expect(profileOf({ done: keys, evidence }).abilities.onTime.loaded).toBe(false);
     const due = () => T0 + 5 * DAY;
-    expect(profileOf({ done: keys, evidence, weekDue: due }).abilities.onTime).toEqual({ value: 1, of: 2, loaded: true });
-    expect(profileOf({ done: keys, evidence, weekDue: () => undefined }).abilities.onTime).toEqual({ value: 0, of: 0, loaded: true });
+    expect(profileOf({ done: keys, evidence, weekDue: due }).abilities.onTime).toMatchObject({ value: 1, of: 2, loaded: true });
+    expect(profileOf({ done: keys, evidence, weekDue: () => undefined }).abilities.onTime).toMatchObject({ value: 0, of: 0, loaded: true });
     expect(profileOf({ done: keys, evidence, weekDue: due }).rows.execution.find((r) => r.id === 'exec.on-time')).toMatchObject({ uses: 2, successes: 1 });
   });
 
@@ -144,8 +149,8 @@ describe('R132 — retention, velocity, on time and the flag history read off st
     ];
     expect(profileOf({ own: { notes: [], reports: [] } }).abilities.flagsCleared.loaded).toBe(false);
     const p = profileOf({ own: { notes: [], reports: [], flagEvents: flags, peerReviews: { done: 2, assigned: 3 } } });
-    expect(p.abilities.flagsCleared).toEqual({ value: 1, of: 2, loaded: true });
-    expect(p.abilities.peerReviewsGiven).toEqual({ value: 2, of: 3, loaded: true });
+    expect(p.abilities.flagsCleared).toMatchObject({ value: 1, of: 2, loaded: true });
+    expect(p.abilities.peerReviewsGiven).toMatchObject({ value: 2, of: 3, loaded: true });
     expect(p.rows.troubleshooting.find((r) => r.id === 'trouble.flags')).toMatchObject({ uses: 2, successes: 1 });
   });
 
@@ -155,7 +160,7 @@ describe('R132 — retention, velocity, on time and the flag history read off st
       { courseId: course.id, teamId: 't', deliverableId: 'srv_bringup', week: 1, category: 'correctness' as const, ok: false, note: 'x', reviewer: 'Ivy', at: T0 },
     ];
     expect(profileOf({ team: team({}) }).abilities.reviewMarks.loaded).toBe(false);
-    expect(profileOf({ team: { ...team({}), marks } }).abilities.reviewMarks).toEqual({ value: 1, of: 2, loaded: true });
+    expect(profileOf({ team: { ...team({}), marks } }).abilities.reviewMarks).toMatchObject({ value: 1, of: 2, loaded: true });
   });
 });
 

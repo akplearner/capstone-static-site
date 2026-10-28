@@ -1,4 +1,4 @@
-import { CheckCircle2, CircleDashed, CircleDot, MinusCircle } from 'lucide-react';
+import { CheckCircle2, CircleDashed, CircleDot, CircleOff, MinusCircle } from 'lucide-react';
 import { Surface } from '@/components/ui/Surface';
 import type { CohortKpiReport, KpiBand } from '@/lib/cohortKpi';
 import type { KpiDef, KpiFamilyDef } from '@/lib/docs/kpis';
@@ -15,6 +15,8 @@ const BANDS: { id: KpiBand; Icon: typeof CheckCircle2 }[] = [
   { id: 'inProgress', Icon: CircleDot },
   { id: 'complete', Icon: CheckCircle2 },
   { id: 'noDenominator', Icon: MinusCircle },
+  // R137: not loaded, or not measured in this course for the role.
+  { id: 'notMeasured', Icon: CircleOff },
 ];
 
 export function CohortKpiPanel({ report, defs, families, copy }: { report: CohortKpiReport; defs: KpiDef[]; families: KpiFamilyDef[]; copy: BoardCopy }) {

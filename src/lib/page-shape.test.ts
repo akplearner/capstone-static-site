@@ -3914,13 +3914,13 @@ describe('R134 — scores, timing and the record by category on every surface', 
     const table = code('src/components/skills/KpiTable.tsx');
     for (const n of ['data-kpi-scores-table', "k.unit === 'minutes'", "k.unit === 'count'"]) expect(table, n).toContain(n);
     const pack = code('src/components/skills/KpiPack.tsx');
-    expect(pack).toContain("const figureOf = (k: KpiValue) => (k.unit === 'count'");
+    expect(pack).toContain("const figureOf = (k: KpiValue) => (off(k) ? offWord(k) : k.unit === 'count'");
     expect(pack).toContain("const HERO = 'kpi.technical.skills-verified'");
   });
 
   it('the cohort report folds score means and the timing, carries no member, and sums only ratios', () => {
     const cohort = code('src/lib/cohortKpi.ts');
-    for (const n of ['scores: { id: string; mean: number; loaded: number }[]', 'timing: { timedSteps: number; withinHour: number; over24h: number; medianMinutes: number | null }', "if (k.unit === 'ratio')"]) expect(cohort, n).toContain(n);
+    for (const n of ['scores: { id: string; mean: number; loaded: number }[]', 'timing: { timedSteps: number; withinHour: number; over24h: number; medianMinutes: number | null }', "if (k.unit === 'ratio' && k.notMeasured !== 'role')"]) expect(cohort, n).toContain(n);
     expect(cohort, 'the running sums stay out of the report').toContain('interface Running');
     expect(code('src/components/instructor/CohortKpiPanel.tsx')).toContain('data-cohort-scores');
     expect(code('src/components/instructor/CohortKpiPanel.tsx')).toContain('data-cohort-timing');
@@ -4096,5 +4096,49 @@ describe('R136 — every fact reaches the projection', () => {
     expect(read('SUPABASE_SETUP.md')).toContain('**Migration 0024**');
     const catalogue = code('src/lib/docs/metricCatalogue.ts');
     expect(catalogue).not.toContain('Loads when the page hands the queue in.');
+  });
+});
+
+describe('R137 — measured as documented, and not measured is a state', () => {
+  it('the board carries applies and the reason; the surfaces say it in words; no 0 of 0', () => {
+    const board = code('src/lib/kpiBoard.ts');
+    for (const n of ['applies: boolean;', "notMeasured?: 'role' | 'yet';", "v.offered === 0 ? 'role' : 'yet'", 'const evidenced = (r: ProfileRow)', 'of: coverage.of - coverage.untaught']) expect(board, n).toContain(n);
+    expect(read('content/schemas/kpi-board.schema.json')).toContain('"notMeasured"');
+    for (const f of ['src/components/skills/KpiBoard.tsx', 'src/components/skills/KpiTable.tsx', 'src/components/skills/KpiPack.tsx']) {
+      const src = code(f);
+      expect(src, f).toContain('data-applies={k.applies}');
+      expect(src, f).toContain('notMeasuredRole');
+    }
+    expect(code('src/components/instructor/CohortKpiPanel.tsx')).toContain("{ id: 'notMeasured', Icon: CircleOff }");
+    const copy = code('src/lib/docs/skillsCopy.ts');
+    for (const n of ['notMeasuredRole:', 'notMeasuredYet:', 'notLoadedOwn:', "notMeasured: 'Not measured'"]) expect(copy, n).toContain(n);
+  });
+
+  it('graded weeks only; decisions are the drafter’s; the cohort lays the ledger over and bands per unit', () => {
+    const profile = code('src/lib/skillProfile.ts');
+    expect(profile).toContain("DENOMINATOR = 'own ticks · graded weeks · required steps'");
+    expect(profile).toContain('getTasksByRole(course, role).filter((t) => isGradedWeek(course, t.week))');
+    expect(profile).toContain('for (const d of draftForms) for (const b of decisionBlocksOf(d))');
+    expect(profile).toContain('offered?: number;');
+    const cohort = code('src/lib/cohortKpi.ts');
+    for (const n of ["'notMeasured'", 'earnedFor?(memberId: string)', 'applyEarned(live, ledger)', "if (v.unit === 'count')"]) expect(cohort, n).toContain(n);
+    expect(code('src/lib/data/cohortLoader.ts')).toContain("from('earned_skills')");
+    expect(code('src/app/instructor/[courseId]/cohort/page.tsx')).toContain('earnedFor: (m) => data.earned[m]');
+    expect(code('src/lib/scores.ts')).toContain('applies !== false');
+  });
+
+  it('every course and role runs through the pipeline, with the content debt pinned for R138', () => {
+    expect(read('src/lib/kpiBoard.allCourses.test.ts')).toContain('SEED_COURSES.flatMap((c) => c.roles.map((r) => [c.id, r.id] as const))');
+    expect(read('src/lib/kpiBoard.allCourses.fixture.ts')).toContain('export function fullMemberInput(');
+    expect(read('scripts/kpi-debt.ts')).toContain('kpiBoard.allCourses.allow.json');
+    expect(() => JSON.parse(read('src/lib/kpiBoard.allCourses.allow.json'))).not.toThrow();
+  });
+
+  it('the docs say it', () => {
+    expect(read('docs/SCORING.md')).toContain('## Not measured, and the graded weeks (R137)');
+    expect(read('docs/ARCHITECTURE.md')).toContain('### Measured as documented, and "not measured" is a state (R137)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| Measured as documented, not-measured state |');
+    expect(read('docs/FIX_LIST.md')).toContain('| F15 |');
+    expect(read('docs/OPERATIONS.md')).toContain('**Not measured is a state (R137):**');
   });
 });

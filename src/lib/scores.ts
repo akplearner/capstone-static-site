@@ -30,11 +30,12 @@ export interface ScoreValue {
   components: ScoreComponentValue[];
 }
 
-export function scoreValue(def: ScoreDef, kpis: Pick<KpiValue, 'id' | 'pct' | 'of' | 'loaded'>[]): ScoreValue {
+export function scoreValue(def: ScoreDef, kpis: Pick<KpiValue, 'id' | 'pct' | 'of' | 'loaded'>[] & Partial<Pick<KpiValue, 'applies'>>[]): ScoreValue {
   const byId = new Map(kpis.map((k) => [k.id, k]));
   const components: ScoreComponentValue[] = def.components.map((c) => {
     const k = byId.get(c.kpi);
-    const counted = !!k && k.loaded && k.of > 0;
+    // R137: a row the course does not measure for this role, or that has nothing to count yet, is left out like an unloaded one.
+    const counted = !!k && k.loaded && k.of > 0 && (k as { applies?: boolean }).applies !== false;
     return { kpi: c.kpi, weight: c.weight, pct: counted ? k!.pct : null, counted };
   });
   const used = components.filter((c) => c.counted);
@@ -43,7 +44,7 @@ export function scoreValue(def: ScoreDef, kpis: Pick<KpiValue, 'id' | 'pct' | 'o
   return { id: def.id, value: Math.max(0, Math.min(100, value)), counted: used.length, of: components.length, loaded: used.length > 0, components };
 }
 
-export function scoreValues(defs: ScoreDef[], kpis: Pick<KpiValue, 'id' | 'pct' | 'of' | 'loaded'>[]): ScoreValue[] {
+export function scoreValues(defs: ScoreDef[], kpis: Pick<KpiValue, 'id' | 'pct' | 'of' | 'loaded'>[] & Partial<Pick<KpiValue, 'applies'>>[]): ScoreValue[] {
   return defs.map((d) => scoreValue(d, kpis));
 }
 

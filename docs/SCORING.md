@@ -19,6 +19,23 @@ measured, and the surfaces print a dash. The computation is `src/lib/scores.ts`;
 every component with its weight, its percentage and whether it counted, so a reader can redo the
 sum (`content/schemas/kpi-board.schema.json`, `score`).
 
+## Not measured, and the graded weeks (R137)
+
+A KPI is a count over what the course offers the role: checkable steps, fault tables, decision blocks, hand-offs.
+Where the course offers the role nothing, the row is **not measured** (`applies: false`, `notMeasured: 'role'` in
+`capstone-kpi-board/2`), the surfaces say "Not measured in this course for this role", and no score reads it.
+Where the course offers something and the member has not yet done it, the row reads "Nothing to count yet"
+(`notMeasured: 'yet'`). Neither is ever printed as `0 of 0`, and neither lowers a score. A decision belongs to
+the role that drafts the decision form; every other role reads not measured on the three decision KPIs.
+
+Every denominator is counted over the **graded weeks** only (`isGradedWeek`): not the setup week, not an
+advanced week, which is "never required". The record cards already counted that way; since R137 the board does
+too, so a course with four optional advanced weeks is no longer compared on a denominator twice the size.
+
+`src/lib/kpiBoard.allCourses.test.ts` runs every course and every role through the pipeline with a member who
+did everything the course offers, and asserts that every KPI is either measured or named in
+`src/lib/kpiBoard.allCourses.allow.json`, the content debt R138 pays off (`scripts/kpi-debt.ts` prints it).
+
 ## The scores
 
 | Score | Components (weight) | Caveat |
@@ -50,7 +67,8 @@ learning velocity.
   loaded and the surfaces say so.
 - **Learning velocity** (`kpi.growth.learning-velocity`): verified steps in the twenty-eight days
   before the page clock, over verified steps in the twenty-eight days before those; the
-  percentage caps at one hundred.
+  percentage caps at one hundred. R137: with no prior window there is nothing to compare yet, and
+  the row reads so rather than one hundred.
 - **Retention** (`kpi.growth.retention`): skills verified again seven or more days after their
   first verification, over skills verified.
 

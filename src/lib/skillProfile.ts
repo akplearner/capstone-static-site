@@ -5,7 +5,7 @@ import type { DeliverableStatus } from './docs/lifecycle';
 import type { CertContent, SkillsContent } from './content/read';
 import type { Dimension } from './docs/metricCatalogue';
 import type { SkillLevel } from './docs/skillsCopy';
-import { getTasksByRole, isGradedWeek, isSetupWeek } from './course-helpers';
+import { getTasksByRole, isGradedWeek } from './course-helpers';
 import { latestRehashes, verifiableSteps } from './evidenceLedger';
 import { coverOf, latestStatus } from './docs/lifecycle';
 import { dodProgress } from './docs/dod';
@@ -101,6 +101,12 @@ export interface Indicator {
   of?: number;
   /** False when the facts behind it were not handed in (team and own facts load on the course page). */
   loaded: boolean;
+  /**
+   * R137: how much this course gives this role to measure here, whatever the member has done: the
+   * checkable steps, the fault tables, the decision blocks, the hand-offs. Zero means the KPI is not
+   * measured in this course for this role; a positive number with `of` zero means nothing to count yet.
+   */
+  offered?: number;
   /** R111: the same count restricted to the forms the member's role drafts (the RACI drafter), where the indicator also folds shared forms. */
   own?: { value: number; of: number };
 }
@@ -246,7 +252,9 @@ export interface SkillPortfolio {
   domainsTotal: number;
 }
 
-export const DENOMINATOR = 'own ticks · graded and advanced weeks · required steps';
+/** R137: the graded weeks only. Advanced weeks are "never required" (`isAdvancedWeek`), so they no longer sit in a
+ *  denominator a course without them is compared against; the record cards already counted graded weeks only. */
+export const DENOMINATOR = 'own ticks · graded weeks · required steps';
 const LEVELS: SkillLevel[] = ['not-started', 'practised', 'verified', 'reviewed'];
 const CONTROL_FIELDS = ['doc_id', 'version', 'doc_owner', 'doc_date', 'doc_status'];
 
@@ -503,7 +511,8 @@ const EMPTY_INDICATOR: Indicator = { value: 0, loaded: false };
 
 export function skillProfile(input: SkillProfileInput): SkillProfile {
   const { course, role, registry, cert } = input;
-  const own = getTasksByRole(course, role).filter((t) => !isSetupWeek(course, t.week));
+  // R137: graded weeks only — not setup, not advanced — so every course's denominators mean the same thing.
+  const own = getTasksByRole(course, role).filter((t) => isGradedWeek(course, t.week));
   const facts = new Map(own.map((t) => [t.id, taskFacts(t, input)]));
   const forms = new Map(input.deliverables.map((d) => [d.id, formFacts(d, input)]));
   const byFile = new Map(input.deliverables.map((d) => [d.file, d.id]));
@@ -567,13 +576,15 @@ export function skillProfile(input: SkillProfileInput): SkillProfile {
   troubleshooting.push(factRow({ dimension: 'troubleshooting', id: 'trouble.retries', label: 'Verified after a failed paste', uses: abilities.persistence.value + abilities.partialProgress.value, successes: abilities.persistence.value, tasks: own.map((t) => t.id) }));
   if (abilities.flagsCleared.loaded) troubleshooting.push(factRow({ dimension: 'troubleshooting', id: 'trouble.flags', label: 'Stuck flags raised and cleared', uses: abilities.flagsCleared.of ?? 0, successes: abilities.flagsCleared.value }));
 
-  // R132 — decisions: the decision blocks of the role's forms, and the reasons written on their rows.
+  // R132 — decisions: the decision blocks of the forms the role DRAFTS (R137: a decision is the drafter's;
+  // every other role reads "not measured"), and the reasons written on the rows of the role's forms.
   const decisions: ProfileRow[] = [];
+  const decisionForms = new Set(draftedFormsOf(input).map((d) => d.id));
   if (input.team) {
     for (const d of roleForms) {
       const data = input.team.docs[d.id];
       const approved = forms.get(d.id)?.approved ? 1 : 0;
-      for (const b of decisionBlocksOf(d)) {
+      for (const b of decisionForms.has(d.id) ? decisionBlocksOf(d) : []) {
         const k = decisionKey(b.id);
         const chosen = filled(data?.fields[k]) && data?.fields[`${k}:by`] === input.memberId;
         const justified = chosen && b.questions.filter((q) => q.required).every((q) => filled(data?.fields[q.field]));
@@ -673,7 +684,7 @@ function abilityIndicators(input: SkillProfileInput, own: Task[], facts: Map<str
 
   let teammateSteps = 0;
   for (const t of course.tasks) {
-    if (ownIds.has(t.id) || isSetupWeek(course, t.week)) continue;
+    if (ownIds.has(t.id) || !isGradedWeek(course, t.week)) continue;
     teammateSteps += t.steps.filter((s) => !s.optional && input.isStepDone(t.id, s.id)).length;
   }
 
@@ -706,21 +717,24 @@ function abilityIndicators(input: SkillProfileInput, own: Task[], facts: Map<str
   const groupRead = (list: { form: string; group: string }[], success: (row: Record<string, string>, g: never) => boolean) => {
     let value = 0;
     let of = 0;
+    let offered = 0;
     for (const d of roleForms) for (const g of list.filter((x) => x.form === d.id || x.form === formBase(d.id))) {
+      offered += 1;
       const rows = ownRows(d, team!.docs[d.id], g.group);
       of += rows.length;
       value += rows.filter((r) => success(r, g as never)).length;
     }
-    return { value, of };
+    return { value, of, offered };
   };
   const faults = () => groupRead(registry.TROUBLE_GROUPS, (r, g: { outcome: string; resolved: string }) => filled(r[g.outcome]) && new RegExp(g.resolved, 'i').test(r[g.outcome] ?? ''));
   const rollbacks = () => groupRead(registry.CHANGE_GROUPS, (r, g: { rollback: string }) => filled(r[g.rollback]));
+  // R137: a decision belongs to the role that drafts the form; other roles read "not measured".
   const decisionRead = () => {
     let offered = 0;
     let chosen = 0;
     let justified = 0;
     let approved = 0;
-    for (const d of roleForms) for (const b of decisionBlocksOf(d)) {
+    for (const d of draftForms) for (const b of decisionBlocksOf(d)) {
       offered += 1;
       const data = team!.docs[d.id];
       const k = decisionKey(b.id);
@@ -750,9 +764,13 @@ function abilityIndicators(input: SkillProfileInput, own: Task[], facts: Map<str
         }
       }
     }
-    return { value: written, of: offered };
+    return { value: written, of: offered, offered };
   };
   // R132 — own facts from stamps and the cohort calendar.
+  // R137: what the course offers this role, so a zero denominator can say whether it is structural.
+  const orderedOffered = own.filter((t) => verifiableSteps(t.steps.filter((x) => !x.optional)).length >= 2).length;
+  const dodOffered = roleForms.reduce((n, d) => n + (d.dod?.length ?? 0), 0);
+  const raciOffered = input.deliverables.filter((d) => d.raci).length;
   const onTime = () => {
     let value = 0;
     let of = 0;
@@ -780,13 +798,14 @@ function abilityIndicators(input: SkillProfileInput, own: Task[], facts: Map<str
     return { value: recent, of: prior };
   };
   const verifiedSkills = skillRows.filter((r) => r.verifiedSteps > 0);
+  const verifiableSkills = skillRows.filter((r) => r.verifiableSteps > 0).length;
   const flagEvents = mine?.flagEvents;
   const marks = team?.marks;
   const roleFormIds = new Set(roleForms.map((d) => d.id));
 
   return {
-    firstTry: { value: firstTry, of: verified, loaded: true },
-    persistence: { value: persistence, of: verified, loaded: true },
+    firstTry: { value: firstTry, of: verified, loaded: true, offered: verifiable },
+    persistence: { value: persistence, of: verified, loaded: true, offered: verifiable },
     partialProgress: { value: partial, of: verifiable, loaded: true },
     evidenceNaming: { value: artifacts.filter((a) => a.nameOk).length, of: artifacts.length, loaded: true },
     activeDays: { value: days.size, loaded: true },
@@ -802,34 +821,34 @@ function abilityIndicators(input: SkillProfileInput, own: Task[], facts: Map<str
       const minePacks = team!.submissions.filter((s) => s.submittedBy === memberId);
       return { value: minePacks.filter((s) => Object.values(s.snapshot?.categories ?? {}).length > 0 && Object.values(s.snapshot.categories).every(Boolean)).length, of: minePacks.length, loaded: true };
     }),
-    dodMet: teamOr(() => ({ ...dodOver(roleForms), loaded: true, own: dodOver(draftForms) })),
+    dodMet: teamOr(() => ({ ...dodOver(roleForms), loaded: true, own: dodOver(draftForms), offered: dodOffered })),
     teammateStepsTicked: { value: teammateSteps, loaded: true },
-    handoffsCompleted: teamOr(() => ({ value: handoffs.filter((id) => forms.get(id)?.approved).length, of: handoffs.length, loaded: true })),
+    handoffsCompleted: teamOr(() => ({ value: handoffs.filter((id) => forms.get(id)?.approved).length, of: handoffs.length, loaded: true, offered: handoffs.length })),
     peerReviewsGiven: mine?.peerReviews ? { value: mine.peerReviews.done, of: mine.peerReviews.assigned, loaded: true } : EMPTY_INDICATOR,
-    inOrder: { value: allFacts.filter((f) => f.inOrder).length, of: allFacts.filter((f) => f.ordered).length, loaded: true },
-    commandSteps: { value: commandVerified, of: commandVerifiable, loaded: true },
-    controlsCited: teamOr(() => ({ value: codesOf(draftForms.filter((d) => forms.get(d.id)?.approved)).size, of: codesOf(draftForms).size, loaded: true })),
-    docControl: teamOr(() => ({ ...controlOver(roleForms), loaded: true, own: controlOver(draftForms) })),
-    instructorApproved: teamOr(() => ({ ...approvedOver(roleForms), loaded: true, own: approvedOver(draftForms) })),
+    inOrder: { value: allFacts.filter((f) => f.inOrder).length, of: allFacts.filter((f) => f.ordered).length, loaded: true, offered: orderedOffered },
+    commandSteps: { value: commandVerified, of: commandVerifiable, loaded: true, offered: commandVerifiable },
+    controlsCited: teamOr(() => ({ value: codesOf(draftForms.filter((d) => forms.get(d.id)?.approved)).size, of: codesOf(draftForms).size, loaded: true, offered: codesOf(draftForms).size })),
+    docControl: teamOr(() => ({ ...controlOver(roleForms), loaded: true, own: controlOver(draftForms), offered: roleForms.length })),
+    instructorApproved: teamOr(() => ({ ...approvedOver(roleForms), loaded: true, own: approvedOver(draftForms), offered: roleForms.length })),
     raciRespected: teamOr(() => {
       // R117: a move made as cover for an empty role is neither respected nor broken, so it is not counted.
       const moves = team!.status.filter((r) => r.changedBy === memberId && raciOf.has(r.deliverableId) && coverOf(r.note) === null);
-      return { value: moves.filter((r) => expectedRoles(r.status, raciOf.get(r.deliverableId)!).includes(r.role)).length, of: moves.length, loaded: true };
+      return { value: moves.filter((r) => expectedRoles(r.status, raciOf.get(r.deliverableId)!).includes(r.role)).length, of: moves.length, loaded: true, offered: raciOffered };
     }),
     receipted: input.receipts ? { value: receipted, of: verified, loaded: true } : EMPTY_INDICATOR,
     faultsResolved: teamOr(() => ({ ...faults(), loaded: true })),
     changeRollback: teamOr(() => ({ ...rollbacks(), loaded: true })),
     decisionsRecorded: teamOr(() => {
       const d = decisionRead();
-      return { value: d.chosen, of: d.offered, loaded: true };
+      return { value: d.chosen, of: d.offered, loaded: true, offered: d.offered };
     }),
     decisionsJustified: teamOr(() => {
       const d = decisionRead();
-      return { value: d.justified, of: d.chosen, loaded: true };
+      return { value: d.justified, of: d.chosen, loaded: true, offered: d.offered };
     }),
     decisionsApproved: teamOr(() => {
       const d = decisionRead();
-      return { value: d.approved, of: d.chosen, loaded: true };
+      return { value: d.approved, of: d.chosen, loaded: true, offered: d.offered };
     }),
     rationaleWritten: teamOr(() => ({ ...rationale(), loaded: true })),
     reviewMarks: marks ? { value: marks.filter((m) => roleFormIds.has(m.deliverableId) && m.ok).length, of: marks.filter((m) => roleFormIds.has(m.deliverableId)).length, loaded: true } : EMPTY_INDICATOR,
@@ -840,10 +859,10 @@ function abilityIndicators(input: SkillProfileInput, own: Task[], facts: Map<str
           return { value: Math.min(raised, mineEvents.filter((e) => e.kind === 'cleared').length), of: raised, loaded: true };
         })()
       : EMPTY_INDICATOR,
-    onTime: input.weekDue ? { ...onTime(), loaded: true } : EMPTY_INDICATOR,
-    retention: { value: verifiedSkills.filter((r) => r.retained).length, of: verifiedSkills.length, loaded: true },
+    onTime: input.weekDue ? { ...onTime(), loaded: true, offered: own.length } : EMPTY_INDICATOR,
+    retention: { value: verifiedSkills.filter((r) => r.retained).length, of: verifiedSkills.length, loaded: true, offered: verifiableSkills },
     skillsCurrent: input.asOf !== undefined ? { value: verifiedSkills.filter((r) => r.current).length, of: verifiedSkills.length, loaded: true } : EMPTY_INDICATOR,
-    learningVelocity: input.asOf !== undefined ? { ...velocity(), loaded: true } : EMPTY_INDICATOR,
+    learningVelocity: input.asOf !== undefined ? { ...velocity(), loaded: true, offered: verifiable } : EMPTY_INDICATOR,
     rehashConfirmed: input.rehashes
       ? (() => {
           const latest = latestRehashes(input.rehashes!);

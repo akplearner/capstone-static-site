@@ -68,8 +68,11 @@ export function KpiPack({ board, defs, families, copy, href, persistenceLabel }:
   // R111: the role's own share, printed only where it differs from the team count.
   const ownOf = (k: KpiValue) => (k.contribution && (k.contribution.value !== k.value || k.contribution.of !== k.of) ? ` · ${copy.contribution} ${k.contribution.value} of ${k.contribution.of}` : '');
   // R132: a count has no denominator; a minutes row is the median over the steps timed.
-  const figureOf = (k: KpiValue) => (k.unit === 'count' ? `${k.value}` : k.unit === 'minutes' ? (k.of > 0 ? `${k.value} min over ${k.of}` : copy.noTiming) : `${k.value} of ${k.of}`);
-  const labelOf = (k: KpiValue) => (k.loaded ? `${nameOf(k)}: ${figureOf(k)}${k.beside ? `; ${persistenceLabel} ${k.beside.value} of ${k.beside.of}` : ''}${ownOf(k).replace(' · ', '; ')}` : `${nameOf(k)}: ${copy.notLoaded}`);
+  // R137: a socket loaded with nothing to measure reads as such, never "0 of 0".
+  const off = (k: KpiValue) => k.loaded && !k.applies;
+  const offWord = (k: KpiValue) => (k.notMeasured === 'role' ? copy.notMeasuredRole : copy.notMeasuredYet);
+  const figureOf = (k: KpiValue) => (off(k) ? offWord(k) : k.unit === 'count' ? `${k.value}` : k.unit === 'minutes' ? (k.of > 0 ? `${k.value} min over ${k.of}` : copy.noTiming) : `${k.value} of ${k.of}`);
+  const labelOf = (k: KpiValue) => (k.loaded ? `${nameOf(k)}: ${figureOf(k)}${!off(k) && k.beside ? `; ${persistenceLabel} ${k.beside.value} of ${k.beside.of}` : ''}${off(k) ? '' : ownOf(k).replace(' · ', '; ')}` : `${nameOf(k)}: ${k.fact === 'team' ? copy.notLoaded : copy.notLoadedOwn}`);
 
   const move = (e: KeyboardEvent<HTMLButtonElement>, i: number) => {
     const delta = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : e.key === 'ArrowDown' ? 4 : e.key === 'ArrowUp' ? -4 : e.key === 'Home' ? -i : e.key === 'End' ? ordered.length - 1 - i : 0;
@@ -113,7 +116,7 @@ export function KpiPack({ board, defs, families, copy, href, persistenceLabel }:
               {board.kpis.filter((k) => k.family === f.id).map((k) => {
                 const i = indexOf.get(k.id) ?? 0;
                 const lit = isLit(k);
-                const state = lit ? 'depth-edge bg-panel-2' : k.loaded ? 'bg-panel-2' : 'border border-dashed border-line';
+                const state = lit ? 'depth-edge bg-panel-2' : off(k) ? 'border border-dotted border-line opacity-70' : k.loaded ? 'bg-panel-2' : 'border border-dashed border-line';
                 return (
                   <li key={k.id}>
                     <button
@@ -124,7 +127,8 @@ export function KpiPack({ board, defs, families, copy, href, persistenceLabel }:
                       data-kpi={k.id}
                       data-fact={k.fact}
                       data-loaded={k.loaded}
-                      data-pct={k.loaded ? k.pct : 0}
+                      data-applies={k.applies}
+                      data-pct={k.loaded && !off(k) ? k.pct : 0}
                       data-lit={lit}
                       aria-label={labelOf(k)}
                       aria-pressed={pinned === k.id}
@@ -143,7 +147,7 @@ export function KpiPack({ board, defs, families, copy, href, persistenceLabel }:
                       <svg viewBox="0 0 24 24" className="h-6 w-6 -rotate-90" aria-hidden>
                         {lit && <circle cx={12} cy={12} r={11.5} fill={`url(#${glowId})`} className={reduce ? undefined : 'qa-breathe'} />}
                         <circle cx={12} cy={12} r={R} fill="none" strokeWidth={2.5} className="stroke-line" strokeDasharray={k.loaded ? undefined : '2 2'} />
-                        {k.loaded && (
+                        {k.loaded && !off(k) && (
                           <motion.circle
                             cx={12}
                             cy={12}
@@ -158,7 +162,7 @@ export function KpiPack({ board, defs, families, copy, href, persistenceLabel }:
                             transition={meter}
                           />
                         )}
-                        {lit ? <circle cx={12} cy={12} r={4} style={{ fill: ACC }} /> : k.loaded ? <circle cx={12} cy={12} r={4} className="fill-line" /> : null}
+                        {lit ? <circle cx={12} cy={12} r={4} style={{ fill: ACC }} /> : k.loaded && !off(k) ? <circle cx={12} cy={12} r={4} className="fill-line" /> : null}
                       </svg>
                     </button>
                   </li>
@@ -173,7 +177,7 @@ export function KpiPack({ board, defs, families, copy, href, persistenceLabel }:
         {shown ? (
           shown.loaded ? (
             <>
-              <span className="font-semibold text-ink">{nameOf(shown)}</span> · {figureOf(shown)}{shown.unit !== 'count' && shown.of > 0 ? ` · ${shown.pct}%` : ''} · {factWord(shown)}{besideOf(shown)}{ownOf(shown)}
+              <span className="font-semibold text-ink">{nameOf(shown)}</span> · {figureOf(shown)}{!off(shown) && shown.unit !== 'count' && shown.of > 0 ? ` · ${shown.pct}%` : ''} · {factWord(shown)}{off(shown) ? '' : besideOf(shown)}{off(shown) ? '' : ownOf(shown)}
             </>
           ) : (
             <>

@@ -930,6 +930,20 @@ folded score means and the group's timing into the cohort report, carried the re
 into the export, the credential's results, the PDF and the shared page, and gave the instructor one
 mark per rubric category beside the verdict (`ReviewCell`, appended to `deliverable_review_marks`).
 
+### Measured as documented, and "not measured" is a state (R137)
+
+A KPI tile used to print `0 of 0` whether the member had done nothing yet or the course gave the role nothing to
+count. R137 adds `applies` and `notMeasured` (`role` or `yet`) to every `KpiValue`: the board computes them from
+how much the course offers the role (`Indicator.offered`: checkable steps, fault tables, decision blocks, hand-offs,
+codes, forms), the tiles, the table, the pack and the cohort bands show the state in words, and a score skips the
+row. Denominators count graded weeks only, as the record cards did. Definitions now match `docs/SCORING.md`: skills
+verified counts skills with an evidence path, so it cannot pass one hundred; exam weight reads verified steps; profile
+coverage is over what the course teaches, the untaught listed beside; velocity with no prior window is not yet
+measured; a decision belongs to the role that drafts the decision form. The cohort report lays each member's earned
+ledger over the live profile, as the member's own pages do, and bands per unit. `kpiBoard.allCourses.test.ts` runs
+all fifteen courses and every role through the pipeline with a member who did everything, and pins the content debt
+in `kpiBoard.allCourses.allow.json`, which R138 empties.
+
 ### Every fact reaches the projection (R136)
 
 An audit of the R132 pipeline found four facts written and stored but never handed to `skillProfile`: the instructor's

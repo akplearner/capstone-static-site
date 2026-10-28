@@ -57,7 +57,7 @@ describe('cohortKpiReport', () => {
       expect(g.kpis.map((k) => k.id)).toEqual(KPIS.map((k) => k.id));
       for (const k of g.kpis) {
         expect(k.members).toBe(g.members);
-        expect(k.bands.notStarted + k.bands.inProgress + k.bands.complete + k.bands.noDenominator, k.id).toBe(g.members);
+        expect(k.bands.notStarted + k.bands.inProgress + k.bands.complete + k.bands.noDenominator + k.bands.notMeasured, k.id).toBe(g.members);
         // R132: a count KPI (teammate steps) has no denominator.
         if (k.id !== 'kpi.teamwork.teammate-steps') expect(k.sumValue, k.id).toBeLessThanOrEqual(k.sumOf);
         // R132: the flag history, the review queue, the cohort calendar and the page clock are not handed to the cohort report yet.
@@ -67,7 +67,8 @@ describe('cohortKpiReport', () => {
     const a1 = report.all.kpis.find((k) => k.id === 'kpi.technical.skills-verified')!;
     expect(a1.bands.inProgress + a1.bands.complete).toBeGreaterThanOrEqual(1);
     expect(a1.bands.notStarted).toBeGreaterThanOrEqual(2);
-    expect(report.all.kpis.find((k) => k.id === 'kpi.execution.dod-met')!.bands.notStarted + report.all.kpis.find((k) => k.id === 'kpi.execution.dod-met')!.bands.noDenominator).toBe(3);
+    const dod = report.all.kpis.find((k) => k.id === 'kpi.execution.dod-met')!;
+    expect(dod.bands.notStarted + dod.bands.noDenominator + dod.bands.notMeasured).toBe(3);
   });
 
   it('carries no member', () => {
@@ -75,18 +76,26 @@ describe('cohortKpiReport', () => {
     for (const word of ['Ana', 'Ben', 'Cy', 'memberId', 'displayName', '"a"', '"b"']) expect(json, word).not.toContain(word);
   });
 
-  it('bands: no denominator, not started, in progress, complete', () => {
+  it('bands: no denominator, not started, in progress, complete — and, R137, per unit and not measured', () => {
     expect(bandOf({ value: 0, of: 0 })).toBe('noDenominator');
     expect(bandOf({ value: 0, of: 3 })).toBe('notStarted');
     expect(bandOf({ value: 1, of: 3 })).toBe('inProgress');
     expect(bandOf({ value: 3, of: 3 })).toBe('complete');
+    expect(bandOf({ value: 0, of: 0, loaded: false })).toBe('notMeasured');
+    expect(bandOf({ value: 0, of: 0, loaded: true, applies: false, notMeasured: 'role' })).toBe('notMeasured');
+    expect(bandOf({ value: 0, of: 0, loaded: true, applies: false, notMeasured: 'yet' })).toBe('noDenominator');
+    expect(bandOf({ value: 2, of: 0, unit: 'count' })).toBe('complete');
+    expect(bandOf({ value: 0, of: 0, unit: 'count' })).toBe('notStarted');
+    expect(bandOf({ value: 30, of: 4, unit: 'minutes', pct: 50 })).toBe('inProgress');
+    expect(bandOf({ value: 30, of: 4, unit: 'minutes', pct: 100 })).toBe('complete');
+    expect(bandOf({ value: 900, of: 4, unit: 'minutes', pct: 0 })).toBe('notStarted');
   });
 
   it('the CSV has the fixed header and one line per KPI for the whole course and per cohort', () => {
     const csv = cohortKpiCsv(report, SERVER_PLUS);
     const lines = csv.trim().split('\r\n');
     expect(lines[0]).toBe(COHORT_KPI_CSV_HEADER.join(','));
-    expect(lines[0]).toBe('course,cohort,week,kpi,family,metric,fact,members,loaded,not_started,in_progress,complete,no_denominator,sum_value,sum_of');
+    expect(lines[0]).toBe('course,cohort,week,kpi,family,metric,fact,members,loaded,not_started,in_progress,complete,no_denominator,not_measured,sum_value,sum_of');
     expect(lines).toHaveLength(1 + 28 * (report.groups.length + 1));
     expect(lines[1].startsWith('server-plus,all,2,kpi.technical.skills-verified,technical,metric.skill-verified,own,3,3,')).toBe(true);
     expect(csv).not.toContain('Ana');

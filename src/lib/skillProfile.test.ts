@@ -186,9 +186,9 @@ describe('skillProfile — rows and levels', () => {
     const approved = skillProfile(input({ team: { docs: { form: { fields: { ...base.fields, summary: 'x' }, groups: { rows: [{ what: 'mine' }] } } }, status: [...status, { ...status[0], status: 'in_review', at: 4 }], submissions: [], reviews: [], currentWeek: 1 } }));
     expect(row(approved, 'procedures', 'sop.runbook').level).toBe('reviewed');
     expect(row(approved, 'procedures', 'sop.runbook').draftedByMember).toBe(1);
-    expect(approved.abilities.drafted).toEqual({ value: 1, loaded: true });
-    expect(approved.abilities.handoffsCompleted).toEqual({ value: 1, of: 1, loaded: true });
-    expect(approved.abilities.dodMet).toEqual({ value: 2, of: 2, loaded: true, own: { value: 2, of: 2 } });
+    expect(approved.abilities.drafted).toMatchObject({ value: 1, loaded: true });
+    expect(approved.abilities.handoffsCompleted).toMatchObject({ value: 1, of: 1, loaded: true });
+    expect(approved.abilities.dodMet).toMatchObject({ value: 2, of: 2, loaded: true, own: { value: 2, of: 2 } });
   });
 
   it('step order is a sequence fact: only tasks with two or more verification records count, and no duration is read', () => {
@@ -212,12 +212,12 @@ describe('skillProfile — rows and levels', () => {
       evidence: { 't1::a': verified('t1', 'a', 100, 1), 't1::b': verified('t1', 'b', 200, 3), 'r1::a': rec('r1', 'a', { matchedTokens: 1, totalTokens: 2 }) },
       artifacts,
     }));
-    expect(p.abilities.firstTry).toEqual({ value: 1, of: 2, loaded: true });
-    expect(p.abilities.persistence).toEqual({ value: 1, of: 2, loaded: true });
-    expect(p.abilities.evidenceNaming).toEqual({ value: 1, of: 2, loaded: true });
+    expect(p.abilities.firstTry).toMatchObject({ value: 1, of: 2, loaded: true });
+    expect(p.abilities.persistence).toMatchObject({ value: 1, of: 2, loaded: true });
+    expect(p.abilities.evidenceNaming).toMatchObject({ value: 1, of: 2, loaded: true });
     expect(p.abilities.activeDays.value).toBe(2);
-    expect(p.abilities.activeWeeks).toEqual({ value: 1, of: 2, loaded: true });
-    expect(p.abilities.teammateStepsTicked).toEqual({ value: 2, loaded: true });
+    expect(p.abilities.activeWeeks).toMatchObject({ value: 1, of: 2, loaded: true });
+    expect(p.abilities.teammateStepsTicked).toMatchObject({ value: 2, loaded: true });
     expect(p.abilities.peerReviewsGiven.loaded).toBe(false);
     expect(row(p, 'skills', 'comp.a.one').artifacts).toBe(2);
   });
@@ -226,7 +226,7 @@ describe('skillProfile — rows and levels', () => {
     const evidence = { 't1::a': verified('t1', 'a', 100), 't1::b': rec('t1', 'b', { matchedTokens: 1, totalTokens: 2 }) };
     const receipt = (stepId: string) => ({ courseId: 'c', taskId: 't1', stepId, outputSha256: 'f'.repeat(64), receiptedAt: 5 });
     const offline = skillProfile(input({ done: ['t1::a', 't1::b'], evidence }));
-    expect(offline.abilities.receipted, 'offline: a dash, never a zero').toEqual({ value: 0, loaded: false });
+    expect(offline.abilities.receipted, 'offline: a dash, never a zero').toMatchObject({ value: 0, loaded: false });
     expect(offline.abilities.rehashConfirmed.loaded).toBe(false);
     const artifacts: EvidenceArtifact[] = [
       { courseId: 'c', sha256: '1', filename: 'one', sizeBytes: 1, nameOk: true, hashedAt: 1 },
@@ -241,38 +241,38 @@ describe('skillProfile — rows and levels', () => {
         { courseId: 'c', sha256: '2', filename: 'two-edited', ok: false, checkedAt: 2 },
       ],
     });
-    expect(cloud.abilities.receipted, 'b is not verified, so its receipt counts for nothing').toEqual({ value: 1, of: 1, loaded: true });
-    expect(cloud.abilities.rehashConfirmed, 'the later check on two differs').toEqual({ value: 1, of: 2, loaded: true });
+    expect(cloud.abilities.receipted, 'b is not verified, so its receipt counts for nothing').toMatchObject({ value: 1, of: 1, loaded: true });
+    expect(cloud.abilities.rehashConfirmed, 'the later check on two differs').toMatchObject({ value: 1, of: 2, loaded: true });
   });
 
   // R108: the board's own and team indicators, and the per-row task count behind "proved twice".
   it('R108: steps in order and command steps are own facts; controls cited, document control and instructor approval are team facts', () => {
     const ordered = skillProfile(input({ done: ['t1::a', 't1::b'], evidence: { 't1::a': verified('t1', 'a', 100), 't1::b': verified('t1', 'b', 200) } }));
-    expect(ordered.abilities.inOrder).toEqual({ value: 1, of: 1, loaded: true });
-    expect(ordered.abilities.commandSteps).toEqual({ value: 1, of: 1, loaded: true });
+    expect(ordered.abilities.inOrder).toMatchObject({ value: 1, of: 1, loaded: true });
+    expect(ordered.abilities.commandSteps).toMatchObject({ value: 1, of: 1, loaded: true });
     expect(row(ordered, 'skills', 'comp.a.one').verifiedTasks).toBe(1);
     const reversed = skillProfile(input({ done: ['t1::a', 't1::b'], evidence: { 't1::a': verified('t1', 'a', 300), 't1::b': verified('t1', 'b', 200) } }));
-    expect(reversed.abilities.inOrder).toEqual({ value: 0, of: 1, loaded: true });
+    expect(reversed.abilities.inOrder).toMatchObject({ value: 0, of: 1, loaded: true });
     const none = skillProfile(input());
-    expect(none.abilities.inOrder).toEqual({ value: 0, of: 0, loaded: true });
-    expect(none.abilities.commandSteps).toEqual({ value: 0, of: 1, loaded: true });
+    expect(none.abilities.inOrder).toMatchObject({ value: 0, of: 0, loaded: true });
+    expect(none.abilities.commandSteps).toMatchObject({ value: 0, of: 1, loaded: true });
     expect(row(none, 'skills', 'comp.a.one').verifiedTasks).toBe(0);
     for (const k of ['controlsCited', 'docControl', 'instructorApproved'] as const) expect(none.abilities[k].loaded, k).toBe(false);
 
     const controlled = { fields: { doc_id: 'D-1', version: '1', doc_owner: 'me', doc_date: '2026-01-01', doc_status: 'draft', summary: 'done' }, groups: { rows: [{ what: 'a row' }] } };
     const approved: DeliverableStatus = { courseId: 'c', teamId: 't', deliverableId: 'form', status: 'approved', changedBy: 'x', role: 'red', at: 1, version: 1 };
     const drafted = skillProfile(input({ team: { docs: { form: controlled }, status: [], submissions: [], reviews: [], currentWeek: 1 } }));
-    expect(drafted.abilities.controlsCited).toEqual({ value: 0, of: 1, loaded: true });
-    expect(drafted.abilities.docControl).toEqual({ value: 1, of: 1, loaded: true, own: { value: 1, of: 1 } });
-    expect(drafted.abilities.instructorApproved).toEqual({ value: 0, of: 1, loaded: true, own: { value: 0, of: 1 } });
+    expect(drafted.abilities.controlsCited).toMatchObject({ value: 0, of: 1, loaded: true });
+    expect(drafted.abilities.docControl).toMatchObject({ value: 1, of: 1, loaded: true, own: { value: 1, of: 1 } });
+    expect(drafted.abilities.instructorApproved).toMatchObject({ value: 0, of: 1, loaded: true, own: { value: 0, of: 1 } });
     const uncontrolled = { fields: { summary: 'done' }, groups: {} };
     const loose = skillProfile(input({ team: { docs: { form: uncontrolled }, status: [approved], submissions: [], reviews: [{ courseId: 'c', teamId: 't', deliverableId: 'form', week: 1, status: 'revise', comment: '', reviewer: 'i', at: 1 }, { courseId: 'c', teamId: 't', deliverableId: 'form', week: 1, status: 'approved', comment: '', reviewer: 'i', at: 2 }], currentWeek: 1 } }));
-    expect(loose.abilities.controlsCited).toEqual({ value: 1, of: 1, loaded: true });
-    expect(loose.abilities.docControl).toEqual({ value: 0, of: 1, loaded: true, own: { value: 0, of: 1 } });
-    expect(loose.abilities.instructorApproved, 'the latest review counts').toEqual({ value: 1, of: 1, loaded: true, own: { value: 1, of: 1 } });
+    expect(loose.abilities.controlsCited).toMatchObject({ value: 1, of: 1, loaded: true });
+    expect(loose.abilities.docControl).toMatchObject({ value: 0, of: 1, loaded: true, own: { value: 0, of: 1 } });
+    expect(loose.abilities.instructorApproved, 'the latest review counts').toMatchObject({ value: 1, of: 1, loaded: true, own: { value: 1, of: 1 } });
     const revised = skillProfile(input({ team: { docs: {}, status: [], submissions: [], reviews: [{ courseId: 'c', teamId: 't', deliverableId: 'form', week: 1, status: 'approved', comment: '', reviewer: 'i', at: 1 }, { courseId: 'c', teamId: 't', deliverableId: 'form', week: 1, status: 'revise', comment: '', reviewer: 'i', at: 2 }], currentWeek: 1 } }));
-    expect(revised.abilities.instructorApproved).toEqual({ value: 0, of: 1, loaded: true, own: { value: 0, of: 1 } });
-    expect(revised.abilities.docControl, 'no data, no denominator').toEqual({ value: 0, of: 0, loaded: true, own: { value: 0, of: 0 } });
+    expect(revised.abilities.instructorApproved).toMatchObject({ value: 0, of: 1, loaded: true, own: { value: 0, of: 1 } });
+    expect(revised.abilities.docControl, 'no data, no denominator').toMatchObject({ value: 0, of: 0, loaded: true, own: { value: 0, of: 0 } });
   });
 
   it('R111: a row knows its last verification and, given the page clock, whether it is current; no clock is read without one', () => {
@@ -306,14 +306,14 @@ describe('skillProfile — rows and levels', () => {
     ];
     const p = skillProfile(input({ deliverables: [RACI_FORM, SHARED], team: { docs: { form: filled, shared: filled }, status, submissions: [], reviews: [], currentWeek: 1 } }));
     expect(p.draftedForms).toEqual(['form']);
-    expect(p.abilities.dodMet).toEqual({ value: 4, of: 4, loaded: true, own: { value: 2, of: 2 } });
-    expect(p.abilities.docControl.own).toEqual({ value: 1, of: 1 });
+    expect(p.abilities.dodMet).toMatchObject({ value: 4, of: 4, loaded: true, own: { value: 2, of: 2 } });
+    expect(p.abilities.docControl.own).toMatchObject({ value: 1, of: 1 });
     expect(p.abilities.docControl.of).toBe(2);
-    expect(p.abilities.raciRespected).toEqual({ value: 3, of: 4, loaded: true });
+    expect(p.abilities.raciRespected).toMatchObject({ value: 3, of: 4, loaded: true });
     // R117: a move made as cover for an empty role is neither respected nor broken, so it leaves the count as it was.
     const covered = [...status, { ...move('form', 'approved', 'blue'), note: 'Covering for red.' }, { ...move('shared', 'issued', 'blue'), note: 'Covering for blue. Scope says no RDP' }];
     const withCover = skillProfile(input({ deliverables: [RACI_FORM, SHARED], team: { docs: { form: filled, shared: filled }, status: covered, submissions: [], reviews: [], currentWeek: 1 } }));
-    expect(withCover.abilities.raciRespected).toEqual({ value: 3, of: 4, loaded: true });
+    expect(withCover.abilities.raciRespected).toMatchObject({ value: 3, of: 4, loaded: true });
     const alone = skillProfile(input({ deliverables: [RACI_FORM, SHARED] }));
     expect(alone.abilities.raciRespected.loaded, 'a team fact').toBe(false);
     expect(alone.abilities.dodMet.own, 'nothing attributed when the team was not handed in').toBeUndefined();
