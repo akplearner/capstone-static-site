@@ -30,7 +30,7 @@ const schema = (name: string) => JSON.parse(readFileSync(resolve(DIR, `${name}.s
 describe('content/schemas — the published shapes validate', () => {
   it('every schema file is draft 2020-12 and inside the subset', () => {
     const files = readdirSync(DIR).filter((f) => f.endsWith('.schema.json'));
-    expect(files.sort()).toEqual(['competency-node', 'content-fix', 'content-fixes', 'course-index-entry', 'credential', 'decision-record', 'environment-profile', 'event', 'issue', 'kpi-board', 'member-profile', 'record-category', 'scoring', 'skill-profile', 'sop', 'standard', 'tool', 'work-role', 'xapi-statement'].map((n) => `${n}.schema.json`));
+    expect(files.sort()).toEqual(['competency-node', 'competency', 'content-fix', 'content-fixes', 'course-index-entry', 'credential', 'decision-record', 'environment-profile', 'event', 'issue', 'kpi-board', 'member-profile', 'project-architecture', 'project-infrastructure', 'record-category', 'scoring', 'skill-profile', 'skill-validation', 'sop', 'standard', 'tool', 'work-role', 'xapi-statement'].map((n) => `${n}.schema.json`));
     for (const f of files) {
       const s = schema(f.replace('.schema.json', ''));
       expect(s.$schema, f).toBe('https://json-schema.org/draft/2020-12/schema');

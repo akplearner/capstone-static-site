@@ -1,0 +1,471 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://capstone.example/schemas/project-architecture.schema.json",
+  "title": "Project architecture",
+  "description": "R141: capstone-project-architecture/1 \u2014 a team's project as the record reads it (src/lib/docs/projectRecord.ts): the version (one more than the replaced versions the history holds, migration 0025), the values by area, the design decisions with who chose and when, the risk and exception rows, the history of changes, the conflicts found, and each validation checkpoint with what was offered, answered and correct. Team-level; the instructor console builds and downloads it.",
+  "type": "object",
+  "required": [
+    "schema",
+    "courseId",
+    "teamId",
+    "version",
+    "areas",
+    "designDecisions",
+    "riskDecisions",
+    "historicalChanges",
+    "conflicts",
+    "validationCheckpoints"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "capstone-project-architecture/1"
+    },
+    "courseId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "teamId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "areas": {
+      "type": "object",
+      "required": [
+        "infrastructure",
+        "security",
+        "architecture",
+        "operations",
+        "decisions"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "infrastructure": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "key",
+              "kind",
+              "label",
+              "value",
+              "form"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "key": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "type": "string",
+                "minLength": 1
+              },
+              "form": {
+                "type": "string",
+                "minLength": 1
+              },
+              "host": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "security": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "key",
+              "kind",
+              "label",
+              "value",
+              "form"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "key": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "type": "string",
+                "minLength": 1
+              },
+              "form": {
+                "type": "string",
+                "minLength": 1
+              },
+              "host": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "architecture": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "key",
+              "kind",
+              "label",
+              "value",
+              "form"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "key": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "type": "string",
+                "minLength": 1
+              },
+              "form": {
+                "type": "string",
+                "minLength": 1
+              },
+              "host": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "key",
+              "kind",
+              "label",
+              "value",
+              "form"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "key": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "type": "string",
+                "minLength": 1
+              },
+              "form": {
+                "type": "string",
+                "minLength": 1
+              },
+              "host": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "key",
+              "kind",
+              "label",
+              "value",
+              "form"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "key": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "value": {
+                "type": "string",
+                "minLength": 1
+              },
+              "form": {
+                "type": "string",
+                "minLength": 1
+              },
+              "host": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "designDecisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "value",
+          "form",
+          "enteredBy",
+          "enteredAt"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1
+          },
+          "form": {
+            "type": "string",
+            "minLength": 1
+          },
+          "enteredBy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "enteredAt": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "riskDecisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "key",
+          "kind",
+          "label",
+          "value",
+          "form"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1
+          },
+          "form": {
+            "type": "string",
+            "minLength": 1
+          },
+          "host": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "historicalChanges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "deliverableId",
+          "updatedAt",
+          "updatedBy",
+          "replacedBy",
+          "replacedAt"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "deliverableId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "updatedAt": {
+            "type": "integer"
+          },
+          "updatedBy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "replacedBy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "replacedAt": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "rule",
+          "severity",
+          "keys",
+          "forms",
+          "message"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rule": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "enum": [
+              "error",
+              "warn"
+            ]
+          },
+          "keys": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "forms": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "validationCheckpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "week",
+          "kind",
+          "offered",
+          "answered",
+          "correct"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "week": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "kind": {
+            "enum": [
+              "recall",
+              "apply",
+              "extend"
+            ]
+          },
+          "offered": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "answered": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "correct": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    }
+  }
+}

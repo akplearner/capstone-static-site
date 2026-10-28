@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://capstone.example/schemas/competency.schema.json",
+  "title": "Professional competency",
+  "description": "R141: capstone-competency/1 \u2014 the eight professional competency facets of one member on one course (decision quality, investigation quality, troubleshooting success, process compliance, collaboration, communication, reliability, independence), each a weighted mean of KPI percentages by the published registry (src/lib/docs/competencyFacets.ts), with every component and whether it counted. A facet is a lens over the same KPI board the scores read; nothing ranks one member against another.",
+  "type": "object",
+  "required": [
+    "schema",
+    "courseId",
+    "role",
+    "facets"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "capstone-competency/1"
+    },
+    "courseId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "role": {
+      "type": "string",
+      "minLength": 1
+    },
+    "facets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "value",
+          "counted",
+          "of",
+          "loaded",
+          "components",
+          "caveat"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "enum": [
+              "decisionQuality",
+              "investigationQuality",
+              "troubleshootingSuccess",
+              "processCompliance",
+              "collaboration",
+              "communication",
+              "reliability",
+              "independence"
+            ]
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "counted": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "of": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "loaded": {
+            "type": "boolean"
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "kpi",
+                "weight",
+                "pct",
+                "counted"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "kpi": {
+                  "type": "string",
+                  "pattern": "^kpi\\.[a-z-]+\\.[a-z][a-z0-9-]*$"
+                },
+                "weight": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "pct": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "counted": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "minItems": 1
+          },
+          "caveat": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "minItems": 8,
+      "maxItems": 8
+    }
+  }
+}

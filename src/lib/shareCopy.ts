@@ -59,7 +59,11 @@ export type ShareKpi = Pick<MemberProfileCourse['kpis'][number], 'id' | 'value' 
 /** R132: a score as a link carries it: the value and what it stands on; the components come back from the published weights and the KPIs. */
 export type ShareScore = Pick<MemberProfileCourse['scores'][number], 'id' | 'value' | 'counted' | 'of' | 'loaded'> & Partial<Pick<MemberProfileCourse['scores'][number], 'components'>>;
 
-export type ShareCourse = Omit<MemberProfileCourse, 'skills' | 'kpis' | 'scores'> & { skills: ShareSkillProfile; kpis: ShareKpi[]; scores: ShareScore[] };
+/** R141: a facet as a link carries it: the figure, not the words or the components. */
+export type ShareFacet = Pick<NonNullable<MemberProfileCourse['competency']>['facets'][number], 'id' | 'value' | 'counted' | 'of' | 'loaded'>;
+export type ShareCompetency = Omit<NonNullable<MemberProfileCourse['competency']>, 'facets'> & { facets: ShareFacet[] };
+
+export type ShareCourse = Omit<MemberProfileCourse, 'skills' | 'kpis' | 'scores' | 'competency' | 'skillValidation'> & { skills: ShareSkillProfile; kpis: ShareKpi[]; scores: ShareScore[]; competency?: ShareCompetency };
 
 export interface ShareProfile extends Omit<MemberProfileExport, 'courses'> {
   courses: ShareCourse[];
@@ -88,8 +92,13 @@ const DERIVABLE_DIMENSIONS = new Set(['retention', 'execution']);
 export function shareCourse(c: MemberProfileCourse): ShareCourse {
   const rows: Record<string, ShareRow[]> = {};
   for (const [dimension, list] of Object.entries(c.skills.rows)) rows[dimension] = DERIVABLE_DIMENSIONS.has(dimension) ? [] : list.map(shareRow);
+  // R141: a link's copy keeps the facets as eight small rows (the reader restores the words and the
+  // components from the registry) and leaves the per-skill validation out.
+  const { skillValidation: _skillValidation, competency, ...rest } = c;
+  void _skillValidation;
   return {
-    ...c,
+    ...rest,
+    ...(competency ? { competency: { ...competency, facets: competency.facets.map((f) => ({ id: f.id, value: f.value, counted: f.counted, of: f.of, loaded: f.loaded })) } } : {}),
     skills: { courseId: c.skills.courseId, role: c.skills.role, denominator: c.skills.denominator, rows, loaded: c.skills.loaded, draftedForms: c.skills.draftedForms },
     kpis: c.kpis.map((k) => ({ id: k.id, value: k.value, of: k.of, pct: k.pct, loaded: k.loaded, fact: k.fact, ...(k.beside ? { beside: k.beside } : {}), ...(k.contribution ? { contribution: k.contribution } : {}) })),
     scores: c.scores.map((sc) => ({ id: sc.id, value: sc.value, counted: sc.counted, of: sc.of, loaded: sc.loaded })),

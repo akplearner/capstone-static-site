@@ -15,7 +15,7 @@ import { SignInPanel } from '@/components/auth/SignInPanel';
 import { DemoBanner } from '@/components/auth/DemoBanner';
 import { PathRail, PathPicker } from '@/components/catalog/PathRail';
 import { VerificationBar } from '@/components/catalog/VerificationBar';
-import { courseRepo, progressRepo, docsRepo, evidenceRepo, earnedRepo, pathRepo } from '@/lib/data';
+import { courseRepo, progressRepo, docsRepo, evidenceRepo, earnedRepo, pathRepo, validationRepo } from '@/lib/data';
 import { courseDocument, bareDocument } from '@/lib/content/docs';
 import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
 import { skillProfile, skillPortfolio } from '@/lib/skillProfile';
@@ -184,6 +184,8 @@ function buildCard(course: Course): CourseCard | null {
     role: course.roles.find((r) => r.id === member.role)?.name ?? member.role,
     stage: crew.stage,
     examCode: cert.CERT?.code ?? null,
+    // R141: the member's answers, so the export carries the skill validation.
+    validation: validationRepo.list(course.id, member.memberId),
     activeWeek,
     level: entry ? levelDef(entry.level).name : undefined,
     capstoneFiled,

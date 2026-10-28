@@ -10,7 +10,7 @@ import { DemoBanner } from '@/components/auth/DemoBanner';
 import { CapstoneStone } from '@/components/quarry/CapstoneStone';
 import { RelicTrophy, SealLedger } from '@/components/quarry/items';
 import { VerificationBar } from '@/components/catalog/VerificationBar';
-import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo } from '@/lib/data';
+import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo, validationRepo } from '@/lib/data';
 import { ownFactsOf, teamFactsOf, weekDueOf } from '@/lib/recordFacts';
 import { courseDocument, bareDocument } from '@/lib/content/docs';
 import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
@@ -133,6 +133,8 @@ function buildRow(courseId: string): Row | null {
     board,
     workRoles,
     examCode: certOf(doc).CERT?.code ?? null,
+    // R141: the member's answers, so the export carries the skill validation.
+    validation: validationRepo.list(course.id, member.memberId),
     title: course.title,
     courseId: course.id,
     role: roleName,

@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://capstone.example/schemas/skill-validation.schema.json",
+  "title": "Skill validation",
+  "description": "R141: capstone-skill-validation/1 \u2014 per skill of one member on one course: when it was first demonstrated (the first verification stamp), when it was last validated (a correct answer to a validation activity on a form the skill maps to), how many answers and how many correct, the confidence (correct over judged, 0 to 1) and whether it was retained (verified again seven or more days after the first). Built by src/lib/skillValidation.ts from the profile and the member's validation answers.",
+  "type": "object",
+  "required": [
+    "schema",
+    "courseId",
+    "role",
+    "skills"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "capstone-skill-validation/1"
+    },
+    "courseId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "role": {
+      "type": "string",
+      "minLength": 1
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "skillId",
+          "label",
+          "firstDemonstratedAt",
+          "lastValidatedAt",
+          "validationCount",
+          "correctCount",
+          "confidence",
+          "retained"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "skillId": {
+            "type": "string",
+            "pattern": "^comp\\.[a-z-]+\\.[a-z0-9-]+$"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "firstDemonstratedAt": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lastValidatedAt": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "validationCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "correctCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "retained": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

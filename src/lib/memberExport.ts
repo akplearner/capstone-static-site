@@ -1,5 +1,8 @@
 import type { SkillProfile, SkillPortfolio } from './skillProfile';
 import type { CourseMetrics, PortfolioSummary } from './metrics';
+import { competencyOf, type CompetencyDto } from './competency';
+import { skillValidationOf, type SkillValidationDto } from './skillValidation';
+import type { ValidationAnswer } from './data/types';
 import type { EvidenceArtifact } from './data/types';
 import type { KpiBoard } from './kpiBoard';
 import type { TimingFacts } from './skillProfile';
@@ -41,6 +44,8 @@ export interface MemberCourseRow {
   workRoles: WorkRoleDef[];
   board: KpiBoard;
   examCode: string | null;
+  /** R141: the member's validation answers on the course, so the export carries the skill validation; absent where a page has not read them. */
+  validation?: ValidationAnswer[];
 }
 
 export type ExportCopy = Pick<SkillsCopy, 'exportClaim' | 'exportSchemaNote'> & { board: Pick<SkillsCopy['board'], 'issuer' | 'credentialName' | 'credentialClaim' | 'contribution'> };
@@ -71,6 +76,10 @@ export interface MemberProfileCourse {
   kpis: KpiBoard['kpis'];
   /** R132: the scores by the published method and the minutes between two recorded stamps. */
   scores: ScoreValue[];
+  /** R141: the eight competency facets, a lens over the same board. */
+  competency?: CompetencyDto;
+  /** R141: per skill, first demonstrated, last validated, confidence, retained; absent where the page handed no answers in. */
+  skillValidation?: SkillValidationDto;
   timing: TimingFacts;
 }
 
@@ -110,6 +119,9 @@ export function buildMemberProfile(input: MemberExportInput): MemberProfileExpor
       kpis: r.board.kpis,
       scores: r.board.scores,
       timing: r.board.timing,
+      // R141: the facets always; the skill validation when the page handed the answers in.
+      competency: competencyOf(r.board),
+      ...(r.validation ? { skillValidation: skillValidationOf(r.skills, r.validation) } : {}),
     })),
     ...(input.categories ? { categories: input.categories } : {}),
     signature: null,

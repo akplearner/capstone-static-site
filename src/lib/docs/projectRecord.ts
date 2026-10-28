@@ -431,6 +431,8 @@ export function recordConflicts(record: ProjectRecord): RecordConflict[] {
   }
   for (const dupes of groupsSeen.values()) {
     if (dupes.length < 2) continue;
+    // An address held by two different machines is rule 2's, which names the machines.
+    if (dupes[0].kind === 'ipv4' && new Set(dupes.map((e) => lower(e.host ?? ''))).size > 1) continue;
     const rule: ConflictRule = dupes[0].kind === 'ipv4' ? 'duplicate-address' : 'duplicate-value';
     out.push(conflict(rule, 'error', dupes, `${dupes[0].label} ${dupes[0].value} appears ${dupes.length} times in the same table.`));
   }

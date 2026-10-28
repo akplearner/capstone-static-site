@@ -55,11 +55,22 @@ const EDGE_LABEL: Record<ArchEdgeKind, string> = { traffic: 'traffic', trust: 't
 
 const size = (n: ArchNode) => (n.kind === 'record' ? PILL : BOX);
 
+/**
+ * R141 — the hidden validation layer, drawn over the picture on instructor
+ * surfaces only: per form (a part's `records`), how many facts the team's
+ * record holds and how many conflicts touch it. Props only; the console
+ * computes the counts from the record (`projectRecord.ts`).
+ */
+export interface ArchValidationOverlay {
+  byForm: Record<string, { values: number; conflicts: number; answered?: number }>;
+}
+
 export function ArchDiagram({
   builtThrough,
   glow = [],
   process,
   highlightRole,
+  validation,
 }: {
   /** Parts that arrive after this week are faded and tagged. Omitted = the whole system. */
   builtThrough?: number;
@@ -69,6 +80,8 @@ export function ArchDiagram({
   process?: WeekProcess;
   /** The viewer's role: its parts stay bright, the others dim. */
   highlightRole?: string;
+  /** R141: the validation layer (record counts and conflicts per form); instructor surfaces only. */
+  validation?: ArchValidationOverlay;
 } = {}) {
   const { ARCH, ARCH_BUILD } = archOf(useCourseDocument());
   const mid = useId().replace(/:/g, '');
@@ -198,6 +211,20 @@ export function ArchDiagram({
                 <text x={n.x + w / 2 - 4} y={n.y - h / 2 + 9} textAnchor="end" fontSize="7.5" fontWeight="700" style={{ fill: 'var(--color-muted)' }}>
                   Week {arrives[n.id]}
                 </text>
+              )}
+              {validation && n.records && validation.byForm[n.records] && (
+                <g data-validation-badge={n.records} transform={`translate(${n.x - w / 2 - 6}, ${n.y - h / 2 - 6})`}>
+                  <title>{`${validation.byForm[n.records].values} recorded facts, ${validation.byForm[n.records].conflicts} conflicts`}</title>
+                  <rect x={0} y={0} width={validation.byForm[n.records].conflicts > 0 ? 40 : 22} height={13} rx={6.5} fill={validation.byForm[n.records].conflicts > 0 ? 'var(--color-warn)' : 'var(--color-accent)'} />
+                  <text x={11} y={9.5} textAnchor="middle" fontSize="8" fontWeight="700" style={{ fill: 'var(--color-panel)' }}>
+                    {validation.byForm[n.records].values}
+                  </text>
+                  {validation.byForm[n.records].conflicts > 0 && (
+                    <text x={30} y={9.5} textAnchor="middle" fontSize="8" fontWeight="700" style={{ fill: 'var(--color-panel)' }}>
+                      !{validation.byForm[n.records].conflicts}
+                    </text>
+                  )}
+                </g>
               )}
             </g>
           );

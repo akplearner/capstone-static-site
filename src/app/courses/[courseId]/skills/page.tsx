@@ -17,7 +17,7 @@ import { useMember } from '@/lib/useMember';
 import { useClientStore, EMPTY_OBJECT } from '@/lib/useClientStore';
 import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
 import { sampleProfiles } from '@/lib/content/profiles';
-import { evidenceRepo, progressRepo } from '@/lib/data';
+import { evidenceRepo, progressRepo, validationRepo } from '@/lib/data';
 import { ownFactsOf, teamFactsOf, weekDueOf } from '@/lib/recordFacts';
 import type { EvidenceArtifact, StepEvidence, VerificationReceipt, RehashCheck } from '@/lib/data/types';
 import type { EnvironmentProfile } from '@/lib/docs/environmentProfile';
@@ -164,6 +164,8 @@ export default function SkillBoardPage() {
     workRoles,
     board,
     examCode: cert.CERT?.code ?? null,
+    // R141: the member's answers, so the export carries the skill validation.
+    validation: validationRepo.list(course.id, member.memberId),
   };
   const shareProfile = () =>
     buildMemberProfile({

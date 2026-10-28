@@ -906,19 +906,19 @@ read, and every number names the fact it was counted from.
  step_evidence ─ stamps ──┐          skillProfile.ts                                   /courses/<id>/skills
  step_completions         │   ┌──▶   rows: 7 registry dims + troubleshooting,          ├─ SkyMap (competency map)
  evidence_artifacts       │   │      decisions, retention, execution                   ├─ DomainBoard   ◀── skillDomainsView.ts (8 domains)
- verification_receipts    ├───┤      abilities (38 indicators), timing (2 stamps)      ├─ KpiBoard: 28 tiles, 6 scores, timing
- deliverables (forms)     │   │              │                                          └─ KpiTable, Agent view (kpi-board/2)
+ verification_receipts    ├───┤      abilities (38 indicators), timing (2 stamps)      ├─ KpiBoard: 32 tiles, 7 scores, timing
+ deliverables (forms)     │   │              │                                          └─ KpiTable, Agent view (kpi-board/3)
    decision blocks        │   │              ▼
  deliverable_status       │   │      kpiBoard.ts ──▶ scores.ts (docs/scoring.ts)        /dashboard
- deliverable_reviews      │   │      28 KPIs · 6 scores · timing                       ├─ RecordCategories ◀── recordCard.ts (14 categories, tier at 10)
+ deliverable_reviews      │   │      32 KPIs · 7 scores · timing                       ├─ RecordCategories ◀── recordCard.ts (14 categories, tier at 10)
  deliverable_review_marks │   │              │                                          ├─ RecordStrip (12 progress figures)
  step_flag_events         │   │              ▼                                          └─ KpiPack per course
- cohorts (start date) ────┘   │      memberExport.ts ──▶ member-profile/2 + credential
+ cohorts (start date) ────┘   │      memberExport.ts ──▶ member-profile/3 + credential
                               │      cohortKpi.ts   ──▶ cohort-kpis (bands, score means, timing)   /instructor/<id>/cohort
                               │      recordPdf.ts   ──▶ the PDF (figures, categories, scores)     /share (SharedProfile)
  registries (data) ───────────┘
    skills · tools · sops · standards · certs · workRoles
-   kpis (7×4) · scoring (6) · skillDomains (8) · recordCategories (14, TROUBLE_GROUPS, CHANGE_GROUPS)
+   kpis (8×4) · scoring (7) · skillDomains (8) · recordCategories (14, TROUBLE_GROUPS, CHANGE_GROUPS) · projectRecord (RECORD_FIELDS)
 ```
 
 The method behind the scores, the timing and the tier is `docs/SCORING.md`; the published shapes
@@ -929,6 +929,58 @@ denominator; a minutes row prints the median over the steps timed and the share 
 folded score means and the group's timing into the cohort report, carried the record by category
 into the export, the credential's results, the PDF and the shared page, and gave the instructor one
 mark per rubric category beside the verdict (`ReviewCell`, appended to `deliverable_review_marks`).
+
+### The validation layer (R139 to R141)
+
+Two lanes: what the learner sees above, what the platform keeps and asks below. Nothing in the lower
+lane is shown to a learner as a whole; a form shows its own conflicts as hints and the Tasks tab asks
+the questions, while the instructor's record console shows the rest.
+
+```text
+ the student view                                                                 surfaces
+ ──────────────────────────────────────────────────────────────────────────       ─────────────────────────────
+ forms (deliverables) ── cidr/port/ipv4 cells hint the shape ──┐                   /courses/<id>/docs
+ Expectations panel: Consistency lists this form's conflicts  ◀┤                   (ExpectationsPanel)
+ Tasks tab: "Validate what you built" ── recall · explain ·    │                   /courses/<id>?tab=tasks
+            apply · resolve, from the TEAM's own values        │                   (ValidationSection/Panel)
+ Pause ── the cover hides the content, the timer stops         │                   (PauseCover, sub-nav)
+ Skill board: validation family (4) · Understanding score      │                   /courses/<id>/skills
+ ══════════════════════════════════════════════════════════════╪══════════════════════════════════════════════
+ the hidden validation layer                                   │
+ ──────────────────────────────────────────────────────────────┤
+ deliverables ──▶ projectRecord (RECORD_FIELDS: form → kind → area) ──▶ recordConflicts (9 rules)
+      │                 │                                                     │
+      ▼                 ▼                                                     ▼
+ deliverable_history    validationPlanOf (recall · apply · extend)   ──▶ validationActivities (ids from keys)
+ (0025, every replaced  │                                                     │
+  version, a sitting)   ▼                                                     ▼
+                        validation_answers (0026, hash + correct, append-only) ◀── ValidationSection
+                                │
+                                ▼
+ skillProfile.validationIndicators ──▶ kpiBoard (validation family) ──▶ score.understanding
+                                │
+                                ▼
+ projectArchitecture/1 · projectInfrastructure/1 (team) · skillValidation/1 · competency/1 (member)
+                                │
+                                ▼
+ /instructor/<id>/record (ProjectRecordPanel + ArchDiagram validation overlay) · the member export
+```
+
+### The record console and the four documents (R141)
+
+The instructor's record console, `/instructor/<courseId>/record`, shows one team's hidden layer: the
+record by area with who entered each decision and when, the history of versions (0025) as a timeline
+with who replaced what, the conflicts the record finds, the validation answers per member and per
+checkpoint with correctness (an explanation is shown for reading; marking it is a later round), the
+architecture picture with the validation overlay (per form: facts recorded, conflicts), and per member
+the Skill Validation and Competency documents. It ranks nobody. Four published documents carry the
+layer: `capstone-project-architecture/1` and `capstone-project-infrastructure/1` (team-level, built by
+`projectArchitecture.ts` and `projectInfrastructure.ts`, downloaded from the console), and
+`capstone-skill-validation/1` and `capstone-competency/1` (member-level, `skillValidation.ts` and
+`competency.ts`; the member export carries both, a link's copy the facets as figures). A competency
+facet is a lens over the same KPI board the scores read, by a published registry
+(`docs/competencyFacets.ts`): the scores answer how ready, the facets what kind of professional, and a
+fact may inform both. `ArchDiagram` takes a props-only `validation` overlay that only the console passes.
 
 ### Longitudinal validation, the task timer and the Understanding score (R140)
 

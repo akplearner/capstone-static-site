@@ -262,6 +262,12 @@ export default function InstructorHomePage() {
                   <Users className="h-3.5 w-3.5" /> Cohort
                 </Button>
               </Link>
+              {/* R141: one team's record, history, conflicts, answers and documents. */}
+              <Link href={`/instructor/${course.id}/record`}>
+                <Button size="sm" variant="secondary" className="flex items-center gap-1">
+                  <Layers className="h-3.5 w-3.5" /> Record
+                </Button>
+              </Link>
               {/* R112: the funnel and the step friction map for the course. */}
               <Link href={`/instructor/${course.id}/effectiveness`}>
                 <Button size="sm" variant="secondary" className="flex items-center gap-1">

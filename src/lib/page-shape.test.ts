@@ -3770,6 +3770,7 @@ describe('R127 — exports are a compact PDF', () => {
       'src/app/instructor/page.tsx', // the course export, imported again
       'src/app/instructor/issues/page.tsx', // the fix bundle and the live course document, for folding fixes into the code
       'src/components/cloud/IacViewer.tsx', // template files a lab step asks for, which are JSON because the tool reads JSON
+      'src/app/instructor/[courseId]/record/page.tsx', // R141: the project architecture and infrastructure documents, published shapes an agent reads
     ];
     const saves = collectSourceFiles('src').filter((f) => {
       const src = code(f);
@@ -4330,5 +4331,47 @@ describe('R140 — longitudinal validation, the task timer, the validation famil
     expect(read('docs/SCORING.md')).toContain('## The validation family and the seventh score (R140)');
     expect(read('SUPABASE_SETUP.md')).toContain('**Migration 0026**');
     expect(read('docs/VALUE_REGISTER.md')).toContain('Understanding retained: values the team recorded');
+  });
+});
+
+describe('R141 — the four documents, the two-lane diagram and the record console', () => {
+  it('four pure builders, four published schemas, the facets as a registry, the export carrying two of them', () => {
+    for (const f of ['src/lib/competency.ts', 'src/lib/skillValidation.ts', 'src/lib/projectArchitecture.ts', 'src/lib/projectInfrastructure.ts', 'src/lib/teamRecord.ts']) {
+      const src = code(f);
+      expect(src, `${f}: no repository, no clock`).not.toMatch(/from '\.\/data'|from '\.\/data\/index'|Repo\b|Date\.now/);
+      expect(src, `${f}: no ranking`).not.toMatch(/\brank(ing|ed)?\b|leaderboard|badge|\bXP\b/i);
+    }
+    for (const s of ['competency', 'skill-validation', 'project-architecture', 'project-infrastructure']) expect(existsSync(`content/schemas/${s}.schema.json`), s).toBe(true);
+    expect(code('src/lib/docs/competencyFacets.ts')).toContain('export const COMPETENCY_FACETS: CompetencyFacetDef[]');
+    const exp = code('src/lib/memberExport.ts');
+    expect(exp).toContain('competency: competencyOf(r.board),');
+    expect(exp).toContain("...(r.validation ? { skillValidation: skillValidationOf(r.skills, r.validation) } : {})");
+    expect(code('src/lib/shareCopy.ts')).toContain("facets: competency.facets.map((f) => ({ id: f.id, value: f.value, counted: f.counted, of: f.of, loaded: f.loaded }))");
+    for (const f of ['src/app/dashboard/page.tsx', 'src/app/portfolio/page.tsx', 'src/app/courses/[courseId]/skills/page.tsx']) expect(code(f), f).toContain('validation: validationRepo.list(course.id, member.memberId),');
+  });
+
+  it('the diagram takes a props-only overlay that only the console passes; the console is a loader, a pure view and a props-only panel', () => {
+    const diagram = code('src/components/diagrams/ArchDiagram.tsx');
+    expect(diagram).toContain('export interface ArchValidationOverlay');
+    expect(diagram).toContain('data-validation-badge={n.records}');
+    for (const f of ['src/components/course/WeekVisualPanel.tsx', 'src/components/diagrams/WeekBuildDiagram.tsx']) expect(code(f), `${f}: a learner surface passes no overlay`).not.toContain('validation={');
+    expect(code('src/components/instructor/ProjectRecordPanel.tsx')).toContain('<ArchDiagram validation={view.overlay} />');
+    expect(code('src/components/instructor/ProjectRecordPanel.tsx')).not.toMatch(/Repo\b|from '@\/lib\/data'/);
+    expect(code('src/lib/data/projectRecordLoader.ts')).toContain('export function teamRecordFacts(');
+    expect(code('src/app/instructor/[courseId]/record/page.tsx')).toContain("teamRecordView(teamRecordFacts(course, data, selected, history, week))");
+    expect(code('src/app/instructor/page.tsx')).toContain('href={`/instructor/${course.id}/record`}');
+    // No learner page mounts the console's panel or reads the record as a whole.
+    expect(code('src/app/courses/[courseId]/page.tsx')).not.toContain('ProjectRecordPanel');
+    expect(code('src/app/courses/[courseId]/docs/page.tsx')).not.toContain('projectRecord(');
+  });
+
+  it('the docs say it', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### The validation layer (R139 to R141)');
+    expect(read('docs/ARCHITECTURE.md')).toContain('### The record console and the four documents (R141)');
+    expect(read('docs/courses/arch-pictures.md')).toContain('## The validation overlay (R141)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| The record console and the four documents |');
+    expect(read('docs/FIX_LIST.md')).toContain('| F19 |');
+    expect(read('docs/OPERATIONS.md')).toContain('**The record console (R141):**');
+    expect(read('content/schemas/README.md')).toContain('`competency.schema.json`');
   });
 });

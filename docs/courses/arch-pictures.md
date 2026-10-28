@@ -35,6 +35,16 @@ id · label · purpose · records · arrives rows. The six cloud courses carry a
 `purpose` on every non-plumbing template resource (`azureTopology.ts`,
 `awsTopology.ts`).
 
+## The validation overlay (R141)
+
+An instructor surface may pass `ArchDiagram` a `validation` overlay: per form id (a part's
+`records`), the number of facts the team's project record holds for that form and the number
+of conflicts that touch it. The picture draws a badge at the part's corner (the count, and
+`!n` in the warning colour when a conflict touches the form). The overlay is props only and is
+computed by the console from `projectRecord` and `recordConflicts`; a learner's surface never
+passes it, so the picture a learner sees is unchanged. The contract on the picture itself does
+not change: parts, zones, edges and the records lane are as above.
+
 ## The weekly breakdown
 
 `partsOf(doc)` (`src/lib/content/read.ts`) returns the catalogue of any

@@ -147,6 +147,12 @@ has failed silently in some deployment of some product; none takes more than a m
   has no issues section). The account page's **Export my data (JSON)** and the Deliverables page's
   **Export my work (.json)** (a handoff file with **Restore from file**) are still JSON on purpose.
   `docs/FIX_LIST.md` item F6.
+- [ ] **The record console (R141):** as an instructor, `/instructor/server-plus/record` → pick a team → the record by
+  area with the team's values, the decisions with who and when, the history timeline (one row per replaced version
+  in the cloud), the conflicts, the answers per member, and two **Download** buttons (`capstone-project-architecture/1`,
+  `capstone-project-infrastructure/1`) that give JSON; the architecture picture carries a badge per form with the count
+  of recorded facts; a member row shows the eight facets and the skill validation. No member is ranked. A learner's
+  pages show none of this (the record as a whole is not on any `/courses/` page).
 - [ ] **Validate what you built (R140):** on `/courses/server-plus?tab=tasks` as any role, with the Architecture Brief and
   the IP Plan filled and the week at 3 or later, the Tasks tab ends with **Validate what you built**: a recall card
   offers four values and never says which is recorded; a right answer stamps, a wrong one allows a retry; the Skill
@@ -358,6 +364,9 @@ owner can flip, in the order that matters:
    the daily caps and the size limits (0023), the two history tables on the live channel (0024), the
    form history the project record reads (0025) and the validation answers (0026) are in the database,
    not the app.
+
+8. **Review the record console** (`/instructor/<course>/record`) with a real team's forms: the history timeline
+   needs 0025 pasted, the answers 0026; decide how long to keep `deliverable_history` rows (nothing deletes them).
 
 ## Still open — decisions only you can make
 
