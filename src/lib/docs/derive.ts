@@ -60,8 +60,39 @@ export function deriveChecks(def: DeliverableDef): FieldCheck[] {
   return out;
 }
 
+/** R138: the document-control fields every form carries (`skillProfile.ts` reads the same five). */
+export const DOC_CONTROL_FIELDS = ['doc_id', 'version', 'doc_owner', 'doc_date', 'doc_status'] as const;
+
+/**
+ * R138 — every form closes with a document-control block. The cloud documents declared one; the others
+ * did not, and a form that declares no control fields counted as controlled, so the Document control
+ * KPI passed by default in nine courses. The block is derived here, once, so no seed restates it.
+ */
+export function withDocumentControl(def: DeliverableDef): DeliverableDef {
+  const declared = new Set(def.sections.flatMap((s) => (s.kind === 'fields' ? s.fields.map((f) => f.field) : [])));
+  if (DOC_CONTROL_FIELDS.some((f) => declared.has(f))) return def;
+  return {
+    ...def,
+    sections: [
+      ...def.sections,
+      {
+        kind: 'fields',
+        title: 'Document control',
+        fields: [
+          { field: 'doc_id', label: 'Document ID', type: 'text', required: true, placeholder: def.file.replace(/\.[a-z]+$/i, '') },
+          { field: 'version', label: 'Version', type: 'text', required: true, placeholder: '1.0' },
+          { field: 'doc_owner', label: 'Owner', type: 'text', required: true, placeholder: 'Your name and role' },
+          { field: 'doc_date', label: 'Date', type: 'date', required: true },
+          { field: 'doc_status', label: 'Status', type: 'select', required: true, options: ['Draft', 'In review', 'Approved'] },
+        ],
+      },
+    ],
+  };
+}
+
 /** The definition with its R84 bundle filled in. Explicit values win. */
-export function withDerivedBundle(def: DeliverableDef): DeliverableDef {
+export function withDerivedBundle(raw: DeliverableDef): DeliverableDef {
+  const def = withDocumentControl(raw);
   const courseId = def.courseId ?? 'security-plus';
   return {
     ...def,

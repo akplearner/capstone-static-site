@@ -467,6 +467,14 @@
             "producesDeliverable": "02_Design_Brief_and_IP_Plan.md",
             "whatItMeans": "The survey is why the design has two switches and not one: the consulting rooms are too far for one cabinet."
           }
+        ],
+        "handoff": [
+          {
+            "to": "ops",
+            "artifact": "Design Brief & IP Plan",
+            "note": "Your section of the Design Brief & IP Plan, for the review that approves it.",
+            "deliverable": "np_design"
+          }
         ]
       },
       {
@@ -539,6 +547,14 @@
             "usesForm": "VLAN & Port Map",
             "producesDeliverable": "03_VLAN_and_Port_Map.md",
             "whatItMeans": "Configuring first and documenting later is how the map and the switch end up different, usually on the port nobody checked."
+          }
+        ],
+        "handoff": [
+          {
+            "to": "ops",
+            "artifact": "Design Brief & IP Plan",
+            "note": "Your section of the Design Brief & IP Plan, for the review that approves it.",
+            "deliverable": "np_design"
           }
         ]
       },
@@ -644,6 +660,14 @@
                 "fix": "Wait thirty seconds of simulation time; CDP announces on a timer. Then check the link is up at both ends."
               }
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "ops",
+            "artifact": "VLAN & Port Map",
+            "note": "Your section of the VLAN & Port Map, for the review that approves it.",
+            "deliverable": "np_ports"
           }
         ]
       },
@@ -768,6 +792,14 @@
               }
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "ops",
+            "artifact": "Configuration Record",
+            "note": "Your section of the Configuration Record, for the review that approves it.",
+            "deliverable": "np_config"
+          }
         ]
       },
       {
@@ -886,6 +918,14 @@
               }
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "ops",
+            "artifact": "Configuration Record",
+            "note": "Your section of the Configuration Record, for the review that approves it.",
+            "deliverable": "np_config"
+          }
         ]
       },
       {
@@ -1000,6 +1040,14 @@
               "Name:"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "design",
+            "artifact": "Services & Verification Log",
+            "note": "Your section of the Services & Verification Log, for the review that approves it.",
+            "deliverable": "np_verify"
+          }
         ]
       },
       {
@@ -1101,6 +1149,14 @@
                 "fix": "The server's TFTP service is off, or the switch has no management address in the same VLAN. Check both."
               }
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "design",
+            "artifact": "Change & Fault Log",
+            "note": "Your section of the Change & Fault Log, for the review that approves it.",
+            "deliverable": "np_changes"
           }
         ]
       },
@@ -1208,6 +1264,14 @@
               "Violation"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "design",
+            "artifact": "Services & Verification Log",
+            "note": "Your section of the Services & Verification Log, for the review that approves it.",
+            "deliverable": "np_verify"
+          }
         ]
       },
       {
@@ -1302,6 +1366,14 @@
               "0/0/0.40",
               "up"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "design",
+            "artifact": "Change & Fault Log",
+            "note": "Your section of the Change & Fault Log, for the review that approves it.",
+            "deliverable": "np_changes"
           }
         ]
       },
@@ -1413,6 +1485,14 @@
               }
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "design",
+            "artifact": "Change & Fault Log",
+            "note": "Your section of the Change & Fault Log, for the review that approves it.",
+            "deliverable": "np_changes"
+          }
         ]
       },
       {
@@ -1491,6 +1571,14 @@
             ],
             "whatItMeans": "The team that reads the datasheet buys a switch that routes, or knows it did not. The team that reads the listing finds out on install day."
           }
+        ],
+        "handoff": [
+          {
+            "to": "rt",
+            "artifact": "Equipment Research & BOM",
+            "note": "Your section of the Equipment Research & BOM, for the review that approves it.",
+            "deliverable": "np_bom"
+          }
         ]
       },
       {
@@ -1543,6 +1631,14 @@
               "A used switch with no warranty is a risk line, not a saving."
             ],
             "whatItMeans": "The bill of materials is what the business signs. A total with no cables in it is wrong by a day's work."
+          }
+        ],
+        "handoff": [
+          {
+            "to": "rt",
+            "artifact": "Equipment Research & BOM",
+            "note": "Your section of the Equipment Research & BOM, for the review that approves it.",
+            "deliverable": "np_bom"
           }
         ]
       },
@@ -1629,6 +1725,14 @@
               ".pkt",
               ".cfg"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "rt",
+            "artifact": "Migration Plan & Handover",
+            "note": "Your section of the Migration Plan & Handover, for the review that approves it.",
+            "deliverable": "np_handover"
           }
         ]
       },
@@ -1793,7 +1897,7 @@
       "owner": "ops",
       "shared": true,
       "folder": "00_Preparation",
-      "standard": "Inventory & capability baseline",
+      "standard": "Inventory & capability baseline · NIST SP 800-53 CM-8",
       "weeks": [
         0
       ],
@@ -1935,7 +2039,7 @@
       "owner": "design",
       "shared": true,
       "folder": "01_Design",
-      "standard": "RFC 1918 addressing · segmentation",
+      "standard": "RFC 1918 addressing · segmentation · NIST SP 800-53 SC-7",
       "weeks": [
         1
       ],
@@ -2240,7 +2344,7 @@
       "owner": "sw",
       "shared": true,
       "folder": "01_Design",
-      "standard": "Detailed design · IPAM",
+      "standard": "Detailed design · IPAM · NIST SP 800-53 CM-8",
       "weeks": [
         1,
         2
@@ -2434,7 +2538,7 @@
       "owner": "rt",
       "shared": true,
       "folder": "02_Build",
-      "standard": "Configuration record",
+      "standard": "Configuration record · NIST SP 800-53 CM-2",
       "weeks": [
         1,
         2,
@@ -2580,7 +2684,7 @@
       "owner": "rt",
       "shared": true,
       "folder": "02_Build",
-      "standard": "Test & acceptance",
+      "standard": "Test & acceptance · NIST SP 800-53 CA-2",
       "weeks": [
         2,
         3
@@ -2819,7 +2923,7 @@
       "owner": "ops",
       "shared": true,
       "folder": "03_Operate",
-      "standard": "Change & patch management, standard operating procedures",
+      "standard": "Change & patch management, standard operating procedures · NIST SP 800-53 CM-3",
       "weeks": [
         3
       ],
@@ -3022,7 +3126,7 @@
       "owner": "design",
       "shared": true,
       "folder": "04_Move",
-      "standard": "Hardware audit & compatibility validation",
+      "standard": "Hardware audit & compatibility validation · NIST SP 800-53 CM-8",
       "weeks": [
         4
       ],
@@ -3370,7 +3474,7 @@
       "shared": true,
       "capstone": true,
       "folder": "04_Move",
-      "standard": "As-built documentation · operational handover",
+      "standard": "As-built documentation · operational handover · NIST SP 800-53 PL-2",
       "weeks": [
         4
       ],
@@ -5566,6 +5670,13 @@
           "cites": []
         },
         {
+          "code": "NIST.800-53.PL",
+          "standard": "NIST_800_53",
+          "label": "Planning",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
           "code": "NIST.800-53.SC",
           "standard": "NIST_800_53",
           "label": "System and Communications Protection",
@@ -5609,12 +5720,30 @@
           ]
         },
         {
+          "code": "NIST.800-53.CM-8",
+          "standard": "NIST_800_53",
+          "label": "System Component Inventory",
+          "parent": "NIST.800-53.CM",
+          "cites": [
+            "CM-8"
+          ]
+        },
+        {
           "code": "NIST.800-53.CP-9",
           "standard": "NIST_800_53",
           "label": "System Backup",
           "parent": "NIST.800-53.CP",
           "cites": [
             "CP-9"
+          ]
+        },
+        {
+          "code": "NIST.800-53.PL-2",
+          "standard": "NIST_800_53",
+          "label": "System Security and Privacy Plans",
+          "parent": "NIST.800-53.PL",
+          "cites": [
+            "PL-2"
           ]
         },
         {
@@ -5949,7 +6078,32 @@
           ]
         }
       ],
-      "CONTROL_OF": {},
+      "CONTROL_OF": {
+        "np_lab": [
+          "NIST.800-53.CM-8"
+        ],
+        "np_design": [
+          "NIST.800-53.SC-7"
+        ],
+        "np_ports": [
+          "NIST.800-53.CM-8"
+        ],
+        "np_config": [
+          "NIST.800-53.CM-2"
+        ],
+        "np_verify": [
+          "NIST.800-53.CA-2"
+        ],
+        "np_changes": [
+          "NIST.800-53.CM-3"
+        ],
+        "np_bom": [
+          "NIST.800-53.CM-8"
+        ],
+        "np_handover": [
+          "NIST.800-53.PL-2"
+        ]
+      },
       "COPY": {
         "cardTitle": "Skills",
         "cardIntro": "What this course has recorded for this member: exam domains, skills, tools, procedures and standards.",
@@ -10238,7 +10392,8 @@
             "virt",
             "continuity",
             "observe",
-            "docs"
+            "docs",
+            "cloud"
           ],
           "requiredCompetencies": [
             "comp.hardware.receive-and-inspect",
@@ -10308,7 +10463,56 @@
             "comp.continuity.restore-from-image",
             "comp.docs.equipment-research",
             "comp.docs.bill-of-materials",
-            "comp.docs.migration-plan"
+            "comp.docs.migration-plan",
+            "comp.cloud.budget-and-tags",
+            "comp.cloud.shared-responsibility",
+            "comp.cloud.network-foundation",
+            "comp.cloud.team-repo-and-board",
+            "comp.cloud.identity-and-groups",
+            "comp.cloud.cost-estimate",
+            "comp.cloud.launch-vm",
+            "comp.cloud.static-site-https",
+            "comp.cloud.ssh-from-one-ip",
+            "comp.cloud.request-flow",
+            "comp.cloud.managed-database",
+            "comp.cloud.serverless-api",
+            "comp.cloud.read-only-access",
+            "comp.cloud.cost-report",
+            "comp.cloud.error-alert",
+            "comp.cloud.read-logs",
+            "comp.cloud.audit-trail",
+            "comp.cloud.access-matrix",
+            "comp.cloud.secrets-in-vault",
+            "comp.cloud.managed-identity",
+            "comp.cloud.prove-denial",
+            "comp.cloud.two-zone-design",
+            "comp.cloud.scale-set",
+            "comp.cloud.load-balancer",
+            "comp.cloud.private-access-path",
+            "comp.cloud.data-store-choice",
+            "comp.cloud.ha-database",
+            "comp.cloud.queue-and-ledger",
+            "comp.cloud.data-lockdown",
+            "comp.cloud.autoscale-target",
+            "comp.cloud.autoscale-and-self-heal",
+            "comp.cloud.restore-file-and-database",
+            "comp.cloud.recovery-drill-and-teardown",
+            "comp.cloud.template-map",
+            "comp.cloud.inventory-and-drift",
+            "comp.cloud.deploy-from-template",
+            "comp.cloud.policy-as-code",
+            "comp.cloud.change-request-and-gates",
+            "comp.cloud.branch-protection",
+            "comp.cloud.staged-pipeline",
+            "comp.cloud.oidc-deploy-identity",
+            "comp.cloud.cost-by-service-and-slos",
+            "comp.cloud.blue-green",
+            "comp.cloud.canary",
+            "comp.cloud.dashboard-and-compliance",
+            "comp.cloud.handover-package",
+            "comp.cloud.rebuild-and-automate",
+            "comp.cloud.fix-through-ci",
+            "comp.cloud.contain-and-post-mortem"
           ]
         },
         {

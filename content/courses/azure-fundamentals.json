@@ -418,6 +418,51 @@
             ]
           },
           {
+            "id": "az-w1-arch-s4",
+            "title": "Read the budget back",
+            "description": "Read the budget back",
+            "where": "Azure portal · or Cloud Shell",
+            "instruction": "Confirm the budget exists at $5, monthly.",
+            "instructionList": [
+              "Cost Management → Budgets: the list shows budget-capstone-team01, $5, Monthly.",
+              "Open it: one alert, Actual, 80%, the team email."
+            ],
+            "commands": [
+              {
+                "cmd": "az consumption budget list --query \"[].{name:name,amount:amount,grain:timeGrain}\" -o table",
+                "explain": "Reads every budget on the subscription. Yours, at 5, monthly, is the line that says the guardrail exists.",
+                "sample": "Name                    Amount    Grain\n----------------------  --------  -------\nbudget-capstone-team01  5.0       Monthly",
+                "flags": [
+                  {
+                    "flag": "--query \"[].{…}\"",
+                    "meaning": "Pick three fields per budget: name, amount, time grain."
+                  },
+                  {
+                    "flag": "-o table",
+                    "meaning": "Print rows and columns instead of JSON."
+                  }
+                ]
+              }
+            ],
+            "verify": [
+              "budget-capstone-team01"
+            ],
+            "whatItMeans": "What you created in the portal is what the shell reads back. A guardrail that exists in only one view is not yet a fact.",
+            "frameworks": [
+              "AZ_900",
+              "WAF"
+            ],
+            "expectedOutput": "The budget list shows budget-capstone-team01 at $5 with a monthly reset, in the portal and in the shell.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "View and manage budgets",
+                "url": "https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets",
+                "lookFor": "the “View budgets” section: the list, the amount, and the alert conditions each budget carries"
+              }
+            ]
+          },
+          {
             "id": "az-w1-arch-s9",
             "title": "Record it in the Cloud Foundation & Naming Standard",
             "description": "Your section: Account and guardrails, Service model, Naming, Tags, RACI.",
@@ -435,6 +480,14 @@
               "AZ_900",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "secops",
+            "artifact": "Cloud Foundation & Naming Standard",
+            "note": "Your section of the Cloud Foundation & Naming Standard, for the review that approves it.",
+            "deliverable": "azf_foundation"
           }
         ]
       },
@@ -620,6 +673,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Cloud Foundation & Naming Standard",
+            "note": "Your section of the Cloud Foundation & Naming Standard, for the review that approves it.",
+            "deliverable": "azf_foundation"
+          }
         ]
       },
       {
@@ -742,6 +803,14 @@
               "AZ_900",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Cloud Foundation & Naming Standard",
+            "note": "Your section of the Cloud Foundation & Naming Standard, for the review that approves it.",
+            "deliverable": "azf_foundation"
           }
         ]
       },
@@ -1029,6 +1098,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Cloud Foundation & Naming Standard",
+            "note": "Your section of the Cloud Foundation & Naming Standard, for the review that approves it.",
+            "deliverable": "azf_foundation"
+          }
         ]
       },
       {
@@ -1158,6 +1235,14 @@
               "AZ_900",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "dev",
+            "artifact": "Solution Architecture Document",
+            "note": "Your section of the Solution Architecture Document, for the review that approves it.",
+            "deliverable": "azf_sad"
           }
         ]
       },
@@ -1384,6 +1469,14 @@
               }
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "dev",
+            "artifact": "Solution Architecture Document",
+            "note": "Your section of the Solution Architecture Document, for the review that approves it.",
+            "deliverable": "azf_sad"
+          }
         ]
       },
       {
@@ -1594,6 +1687,14 @@
               "AZ_900",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "secops",
+            "artifact": "Solution Architecture Document",
+            "note": "Your section of the Solution Architecture Document, for the review that approves it.",
+            "deliverable": "azf_sad"
           }
         ]
       },
@@ -1856,6 +1957,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "dev",
+            "artifact": "Solution Architecture Document",
+            "note": "Your section of the Solution Architecture Document, for the review that approves it.",
+            "deliverable": "azf_sad"
+          }
         ]
       },
       {
@@ -1972,6 +2081,14 @@
               "AZ_900",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "secops",
+            "artifact": "Application & API Design Specification",
+            "note": "Your section of the Application & API Design Specification, for the review that approves it.",
+            "deliverable": "azf_api"
           }
         ]
       },
@@ -2149,6 +2266,14 @@
               "AZ_900",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Application & API Design Specification",
+            "note": "Your section of the Application & API Design Specification, for the review that approves it.",
+            "deliverable": "azf_api"
           }
         ]
       },
@@ -2353,6 +2478,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Application & API Design Specification",
+            "note": "Your section of the Application & API Design Specification, for the review that approves it.",
+            "deliverable": "azf_api"
+          }
         ]
       },
       {
@@ -2537,6 +2670,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Application & API Design Specification",
+            "note": "Your section of the Application & API Design Specification, for the review that approves it.",
+            "deliverable": "azf_api"
+          }
         ]
       },
       {
@@ -2688,6 +2829,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "infra",
+            "artifact": "Monitoring & Incident Report",
+            "note": "Your section of the Monitoring & Incident Report, for the review that approves it.",
+            "deliverable": "azf_incident"
+          }
         ]
       },
       {
@@ -2833,6 +2982,14 @@
               "AZ_900",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Monitoring & Incident Report",
+            "note": "Your section of the Monitoring & Incident Report, for the review that approves it.",
+            "deliverable": "azf_incident"
           }
         ]
       },
@@ -3003,6 +3160,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Monitoring & Incident Report",
+            "note": "Your section of the Monitoring & Incident Report, for the review that approves it.",
+            "deliverable": "azf_incident"
+          }
         ]
       },
       {
@@ -3168,6 +3333,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Monitoring & Incident Report",
+            "note": "Your section of the Monitoring & Incident Report, for the review that approves it.",
+            "deliverable": "azf_incident"
+          }
         ]
       }
     ],
@@ -3210,10 +3383,10 @@
       "num": 1,
       "file": "01_Cloud_Foundation_and_Naming_Standard.md",
       "title": "Cloud Foundation & Naming Standard",
-      "owner": "arch",
+      "owner": "infra",
       "shared": true,
       "folder": "Week_01",
-      "standard": "Microsoft Cloud Adoption Framework — naming and tagging",
+      "standard": "Microsoft Cloud Adoption Framework — naming and tagging · NIST SP 800-53 CM-8",
       "weeks": [
         1
       ],
@@ -3224,12 +3397,12 @@
         "week": 1
       },
       "raci": {
-        "drafts": "arch",
+        "drafts": "infra",
         "reviews": "secops",
-        "approves": "infra"
+        "approves": "arch"
       },
       "handoff": {
-        "to": "infra",
+        "to": "arch",
         "when": "approved"
       },
       "feeds": [
@@ -4127,10 +4300,10 @@
       "num": 3,
       "file": "03_Application_and_API_Design_Spec.md",
       "title": "Application & API Design Specification",
-      "owner": "arch",
+      "owner": "dev",
       "shared": true,
       "folder": "Week_03",
-      "standard": "OpenAPI-style interface specification",
+      "standard": "OpenAPI-style interface specification · NIST SP 800-53 SC-8",
       "weeks": [
         3
       ],
@@ -4141,12 +4314,12 @@
         "week": 3
       },
       "raci": {
-        "drafts": "arch",
+        "drafts": "dev",
         "reviews": "secops",
-        "approves": "dev"
+        "approves": "arch"
       },
       "handoff": {
-        "to": "dev",
+        "to": "arch",
         "when": "approved"
       },
       "feeds": [
@@ -4437,10 +4610,10 @@
       "num": 4,
       "file": "04_Monitoring_and_Incident_Report.md",
       "title": "Monitoring & Incident Report",
-      "owner": "arch",
+      "owner": "secops",
       "shared": true,
       "folder": "Week_04",
-      "standard": "ITIL 4 incident management",
+      "standard": "ITIL 4 incident management · NIST SP 800-53 IR-4",
       "weeks": [
         4
       ],
@@ -4451,12 +4624,12 @@
         "week": 4
       },
       "raci": {
-        "drafts": "arch",
+        "drafts": "secops",
         "reviews": "infra",
-        "approves": "secops"
+        "approves": "arch"
       },
       "handoff": {
-        "to": "secops",
+        "to": "arch",
         "when": "approved"
       },
       "feeds": [],
@@ -4618,6 +4791,44 @@
               "placeholder": "An alert on this signal."
             }
           ]
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "changes",
+            "label": "Changes made to resolve · Infrastructure",
+            "columns": [
+              {
+                "field": "change",
+                "label": "Change",
+                "type": "text",
+                "placeholder": "Raised the alert threshold to 5 errors in 5 minutes"
+              },
+              {
+                "field": "why",
+                "label": "Why",
+                "type": "text",
+                "placeholder": "The first threshold paged on one retry"
+              },
+              {
+                "field": "rollback",
+                "label": "Rollback",
+                "type": "text",
+                "placeholder": "Set the threshold back to 1; redeploy the alert rule"
+              },
+              {
+                "field": "result",
+                "label": "Result",
+                "type": "select",
+                "options": [
+                  "Applied",
+                  "Rolled back",
+                  "Pending"
+                ]
+              }
+            ],
+            "help": "One row per change made during or after the incident."
+          }
         },
         {
           "kind": "fields",
@@ -6956,7 +7167,13 @@
           ]
         }
       ],
-      "CHANGE_GROUPS": [],
+      "CHANGE_GROUPS": [
+        {
+          "form": "incident",
+          "group": "changes",
+          "rollback": "rollback"
+        }
+      ],
       "CONTROLS": [
         {
           "code": "NIST.CSF",
@@ -7061,9 +7278,23 @@
           "cites": []
         },
         {
+          "code": "NIST.800-53.CM",
+          "standard": "NIST_800_53",
+          "label": "Configuration Management",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
           "code": "NIST.800-53.IA",
           "standard": "NIST_800_53",
           "label": "Identification and Authentication",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.IR",
+          "standard": "NIST_800_53",
+          "label": "Incident Response",
           "parent": "NIST.800-53",
           "cites": []
         },
@@ -7107,12 +7338,30 @@
           ]
         },
         {
+          "code": "NIST.800-53.CM-8",
+          "standard": "NIST_800_53",
+          "label": "System Component Inventory",
+          "parent": "NIST.800-53.CM",
+          "cites": [
+            "CM-8"
+          ]
+        },
+        {
           "code": "NIST.800-53.IA-5",
           "standard": "NIST_800_53",
           "label": "Authenticator Management",
           "parent": "NIST.800-53.IA",
           "cites": [
             "IA-5"
+          ]
+        },
+        {
+          "code": "NIST.800-53.IR-4",
+          "standard": "NIST_800_53",
+          "label": "Incident Handling",
+          "parent": "NIST.800-53.IR",
+          "cites": [
+            "IR-4"
           ]
         },
         {
@@ -7360,10 +7609,17 @@
         }
       ],
       "CONTROL_OF": {
+        "azf_foundation": [
+          "NIST.800-53.CM-8"
+        ],
         "azf_sad": [
           "ISO42010"
         ],
+        "azf_api": [
+          "NIST.800-53.SC-8"
+        ],
         "azf_incident": [
+          "NIST.800-53.IR-4",
           "ITIL.incident"
         ]
       },
@@ -11468,7 +11724,8 @@
           "areas": [
             "detect",
             "harden",
-            "ops"
+            "ops",
+            "cloud"
           ],
           "requiredCompetencies": [
             "comp.harden.linux-baseline",
@@ -11499,7 +11756,56 @@
             "comp.detect.shadow-ai",
             "comp.ops.logging-first-hour",
             "comp.ops.detection-fires",
-            "comp.ops.contingency-phases"
+            "comp.ops.contingency-phases",
+            "comp.cloud.budget-and-tags",
+            "comp.cloud.shared-responsibility",
+            "comp.cloud.network-foundation",
+            "comp.cloud.team-repo-and-board",
+            "comp.cloud.identity-and-groups",
+            "comp.cloud.cost-estimate",
+            "comp.cloud.launch-vm",
+            "comp.cloud.static-site-https",
+            "comp.cloud.ssh-from-one-ip",
+            "comp.cloud.request-flow",
+            "comp.cloud.managed-database",
+            "comp.cloud.serverless-api",
+            "comp.cloud.read-only-access",
+            "comp.cloud.cost-report",
+            "comp.cloud.error-alert",
+            "comp.cloud.read-logs",
+            "comp.cloud.audit-trail",
+            "comp.cloud.access-matrix",
+            "comp.cloud.secrets-in-vault",
+            "comp.cloud.managed-identity",
+            "comp.cloud.prove-denial",
+            "comp.cloud.two-zone-design",
+            "comp.cloud.scale-set",
+            "comp.cloud.load-balancer",
+            "comp.cloud.private-access-path",
+            "comp.cloud.data-store-choice",
+            "comp.cloud.ha-database",
+            "comp.cloud.queue-and-ledger",
+            "comp.cloud.data-lockdown",
+            "comp.cloud.autoscale-target",
+            "comp.cloud.autoscale-and-self-heal",
+            "comp.cloud.restore-file-and-database",
+            "comp.cloud.recovery-drill-and-teardown",
+            "comp.cloud.template-map",
+            "comp.cloud.inventory-and-drift",
+            "comp.cloud.deploy-from-template",
+            "comp.cloud.policy-as-code",
+            "comp.cloud.change-request-and-gates",
+            "comp.cloud.branch-protection",
+            "comp.cloud.staged-pipeline",
+            "comp.cloud.oidc-deploy-identity",
+            "comp.cloud.cost-by-service-and-slos",
+            "comp.cloud.blue-green",
+            "comp.cloud.canary",
+            "comp.cloud.dashboard-and-compliance",
+            "comp.cloud.handover-package",
+            "comp.cloud.rebuild-and-automate",
+            "comp.cloud.fix-through-ci",
+            "comp.cloud.contain-and-post-mortem"
           ]
         },
         {
@@ -11566,7 +11872,8 @@
             "virt",
             "continuity",
             "observe",
-            "docs"
+            "docs",
+            "cloud"
           ],
           "requiredCompetencies": [
             "comp.hardware.receive-and-inspect",
@@ -11636,7 +11943,56 @@
             "comp.continuity.restore-from-image",
             "comp.docs.equipment-research",
             "comp.docs.bill-of-materials",
-            "comp.docs.migration-plan"
+            "comp.docs.migration-plan",
+            "comp.cloud.budget-and-tags",
+            "comp.cloud.shared-responsibility",
+            "comp.cloud.network-foundation",
+            "comp.cloud.team-repo-and-board",
+            "comp.cloud.identity-and-groups",
+            "comp.cloud.cost-estimate",
+            "comp.cloud.launch-vm",
+            "comp.cloud.static-site-https",
+            "comp.cloud.ssh-from-one-ip",
+            "comp.cloud.request-flow",
+            "comp.cloud.managed-database",
+            "comp.cloud.serverless-api",
+            "comp.cloud.read-only-access",
+            "comp.cloud.cost-report",
+            "comp.cloud.error-alert",
+            "comp.cloud.read-logs",
+            "comp.cloud.audit-trail",
+            "comp.cloud.access-matrix",
+            "comp.cloud.secrets-in-vault",
+            "comp.cloud.managed-identity",
+            "comp.cloud.prove-denial",
+            "comp.cloud.two-zone-design",
+            "comp.cloud.scale-set",
+            "comp.cloud.load-balancer",
+            "comp.cloud.private-access-path",
+            "comp.cloud.data-store-choice",
+            "comp.cloud.ha-database",
+            "comp.cloud.queue-and-ledger",
+            "comp.cloud.data-lockdown",
+            "comp.cloud.autoscale-target",
+            "comp.cloud.autoscale-and-self-heal",
+            "comp.cloud.restore-file-and-database",
+            "comp.cloud.recovery-drill-and-teardown",
+            "comp.cloud.template-map",
+            "comp.cloud.inventory-and-drift",
+            "comp.cloud.deploy-from-template",
+            "comp.cloud.policy-as-code",
+            "comp.cloud.change-request-and-gates",
+            "comp.cloud.branch-protection",
+            "comp.cloud.staged-pipeline",
+            "comp.cloud.oidc-deploy-identity",
+            "comp.cloud.cost-by-service-and-slos",
+            "comp.cloud.blue-green",
+            "comp.cloud.canary",
+            "comp.cloud.dashboard-and-compliance",
+            "comp.cloud.handover-package",
+            "comp.cloud.rebuild-and-automate",
+            "comp.cloud.fix-through-ci",
+            "comp.cloud.contain-and-post-mortem"
           ]
         },
         {

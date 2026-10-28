@@ -1,6 +1,6 @@
 # Server+ Build & Handover — skills sheet
 
-31 graded tasks and 25 advanced · 63 skills · 46 tools · 14 procedures · 2 standards (0 controls cited) · 0 tactics · 33 practices
+31 graded tasks and 25 advanced · 63 skills · 46 tools · 14 procedures · 3 standards (7 controls cited) · 0 tactics · 33 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -150,6 +150,17 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | --- | --- | --- |
 | NIST CSF | Bring the server up; Document what it is; Build the array; Install Proxmox and get the team in; Scope the startup and draft the architecture; Plan the 24U rack; Rack and cable per the plan; Prepare the host and create the VMs; Deploy the services and register the software; Record the addresses the machines actually hold; Connect the server and prove it reaches; Write the procedures the company will run on; Harden every server and patch every system; Disaster recovery and a real restore; Assemble and hand over the as-built package; Design the advanced hosts into the brief; Watch every host: Prometheus, Grafana, Loki and the alerts; Pulse: watch the backups; Your own Wazuh; The lab as code; The rack and the IP plan become NetBox; Assets and changes become GLPI; Record it in the As-Built; Wire the ops network; The ops VM: a home for the toolchain; Put the infrastructure in Git; The site from the golden template; Configuration as code; Onboard the site into the Core plane; Back up to the vault; The MSP’s XDR over the fleet; Destroy it and rebuild it from Git; Deep-dive: the cabling and port plan; Deep-dive: bridges and NIC mapping; Deep-dive: routing and the published ports; Deep-dive: recovering the network path; Deep-dive: what the Windows VM will need; Deep-dive: the Windows baseline, captured; Deep-dive: password policy and the DHCP scope; Deep-dive: Windows patching and the restore; Deep-dive: firmware and virtualization flags; Deep-dive: the hypervisor and Linux baseline; Deep-dive: netplan, persistence and resolution; Deep-dive: the allow-list and the snapshot restore; Deep-dive: compliance and SLA mapping; Deep-dive: the naming standard, applied; Deep-dive: change control with an approver; Deep-dive: the numbers and the handover; Deep-dive: IPAM that matches the plan; Deep-dive: winserver fully instrumented; Deep-dive: state that matches reality, logs that reach Loki; Deep-dive: change control that the tool enforces; Deep-dive: the trunk and the fence; Deep-dive: winserver under Ansible; Deep-dive: the base role as the hardening standard; Deep-dive: the runbook, the SLO and the demo | — |
 | CIS | Document what it is; Install Proxmox and get the team in; Rack and cable per the plan; Deploy the services and register the software; Connect the server and prove it reaches; Harden every server and patch every system; Assemble and hand over the as-built package; Watch every host: Prometheus, Grafana, Loki and the alerts; Your own Wazuh; The lab as code; Assets and changes become GLPI; The ops VM: a home for the toolchain; Put the infrastructure in Git; The site from the golden template; Configuration as code; Onboard the site into the Core plane; The MSP’s XDR over the fleet | — |
+| NIST SP 800-53 | — | Architecture Brief; Hardware Discovery, HCL & Upgrade Plan; Server Bring-Up Log; Rack, Power & Asset Register; IP Plan & Connectivity Proof; Baselines, Policies & Standards; Operations Log & SOPs; DR Plan & As-Built Handover |
+
+| Control cited | Standard | By |
+| --- | --- | --- |
+| NIST.800-53.CM-2 Baseline Configuration | NIST_800_53 | Server Bring-Up Log |
+| NIST.800-53.CM-3 Configuration Change Control | NIST_800_53 | Operations Log & SOPs |
+| NIST.800-53.CM-6 Configuration Settings | NIST_800_53 | Baselines, Policies & Standards |
+| NIST.800-53.CM-8 System Component Inventory | NIST_800_53 | Hardware Discovery, HCL & Upgrade Plan; Rack, Power & Asset Register |
+| NIST.800-53.CP-9 System Backup | NIST_800_53 | DR Plan & As-Built Handover |
+| NIST.800-53.PL-8 Security and Privacy Architectures | NIST_800_53 | Architecture Brief |
+| NIST.800-53.SC-7 Boundary Protection | NIST_800_53 | IP Plan & Connectivity Proof |
 
 Forms whose standard names a practice rather than a control:
 
@@ -224,16 +235,16 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | net: 1 decision block; win: 1 decision block; lnx: 1 decision block; mgmt: 1 decision block |
 | Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | net: 1 decision block; win: 1 decision block; lnx: 1 decision block; mgmt: 1 decision block |
 | Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | net: 2 change tables with a rollback column; win: 2 change tables with a rollback column; lnx: 2 change tables with a rollback column; mgmt: 2 change tables with a rollback column |
-| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | net: 0 hand-offs; win: 0 hand-offs; lnx: 0 hand-offs; mgmt: 0 hand-offs |
+| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | net: 19 hand-offs; win: 19 hand-offs; lnx: 19 hand-offs; mgmt: 19 hand-offs |
 | RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | net: 8 forms with a RACI; win: 8 forms with a RACI; lnx: 8 forms with a RACI; mgmt: 8 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
 | On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | net: 38 tasks of the role; win: 38 tasks of the role; lnx: 38 tasks of the role; mgmt: 38 tasks of the role |
 | Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | net: 8 forms; win: 8 forms; lnx: 8 forms; mgmt: 8 forms |
-| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | net: 0 control codes on 3 forms; win: 0 control codes on 2 forms; lnx: 0 control codes on 2 forms; mgmt: 0 control codes on 1 form |
+| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | net: 3 control codes on 3 forms; win: 2 control codes on 2 forms; lnx: 2 control codes on 2 forms; mgmt: 1 control code on 1 form |
 | Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | net: 8 forms; win: 8 forms; lnx: 8 forms; mgmt: 8 forms |
 | Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | net: 12 skills on two or more tasks; win: 11 skills on two or more tasks; lnx: 14 skills on two or more tasks; mgmt: 10 skills on two or more tasks |
 | Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | net: 48 skills with a verifiable step; win: 49 skills with a verifiable step; lnx: 48 skills with a verifiable step; mgmt: 47 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
-| Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | net: Network Operations Specialist: 62 required, 38 not taught here; win: System Administrator: 68 required, 24 not taught here; lnx: System Administrator: 68 required, 25 not taught here; mgmt: System Administrator: 68 required, 23 not taught here |
+| Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | net: Network Operations Specialist: 62 required, 38 not taught here; win: System Administrator: 117 required, 73 not taught here; lnx: System Administrator: 117 required, 74 not taught here; mgmt: System Administrator: 117 required, 72 not taught here |
 

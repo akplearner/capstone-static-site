@@ -255,6 +255,8 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
     file: '05_Change_Log.md',
     title: 'Change Log',
     owner: 'blue',
+    // R138: every role logs the changes it makes; the team's one change record.
+    shared: true,
     folder: '03_Security_Setup',
     standard: 'ITIL change record',
     framework: 'ISO_27001',
@@ -274,10 +276,12 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
             c('change', 'Change made', 'text', { placeholder: 'Enabled UFW (allow 22,80)' }),
             c('who', 'Who', 'text', { placeholder: 'Blue team' }),
             c('reason', 'Reason', 'text', { placeholder: 'network protection' }),
+            // R138: the way back, written before the change; the Judgment score reads it.
+            c('rollback', 'Rollback', 'text', { placeholder: 'ufw disable' }),
             c('evidence', 'Evidence', 'text', { placeholder: 'ufw status output' }),
           ],
           seed: [
-            { date: '2026-02-05', change: 'Enabled UFW (allow 22, 80)', who: 'Blue team', reason: 'network protection', evidence: 'ufw status output' },
+            { date: '2026-02-05', change: 'Enabled UFW (allow 22, 80)', who: 'Blue team', reason: 'network protection', rollback: 'ufw disable', evidence: 'ufw status output' },
           ],
         },
       },

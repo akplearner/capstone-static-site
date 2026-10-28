@@ -146,6 +146,13 @@ const TASKS: Task[] = [
       docs: [doc('Resource abbreviations', 'azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations', 'the abbreviation column: rg, vnet, snet, nsg, vm, st, func — the prefixes in your standard')],
       fixes: [{ symptom: 'Storage account name refused', fix: 'Storage names allow only lowercase letters and digits, 3–24 characters, unique across all of Azure. stwebteam01 plus four digits fits.' }],
     }),
+    // R138: a second proof, portal first and the shell beside it, so the Architect's tasks carry an order to verify in.
+    both(s(1, 'arch', 4), 'Read the budget back', 'Confirm the budget exists at $5, monthly.', PORTAL, [
+      'Cost Management → Budgets: the list shows budget-capstone-team01, $5, Monthly.',
+      'Open it: one alert, Actual, 80%, the team email.',
+    ], [
+      { cmd: 'az consumption budget list --query "[].{name:name,amount:amount,grain:timeGrain}" -o table', explain: 'Reads every budget on the subscription. Yours, at 5, monthly, is the line that says the guardrail exists.', sample: 'Name                    Amount    Grain\n----------------------  --------  -------\nbudget-capstone-team01  5.0       Monthly', flags: [{ flag: '--query "[].{…}"', meaning: 'Pick three fields per budget: name, amount, time grain.' }, { flag: '-o table', meaning: 'Print rows and columns instead of JSON.' }] },
+    ], ['budget-capstone-team01'], 'What you created in the portal is what the shell reads back. A guardrail that exists in only one view is not yet a fact.', out('The budget list shows budget-capstone-team01 at $5 with a monthly reset, in the portal and in the shell.', doc('View and manage budgets', 'azure/cost-management-billing/costs/tutorial-acm-create-budgets', 'the “View budgets” section: the list, the amount, and the alert conditions each budget carries'))),
     rec(1, 'arch', 'Account and guardrails, Service model, Naming, Tags, RACI', [
       'Subscription, region and zone, and the budget.',
       'One service-model row per service; one naming row per resource type.',
@@ -710,6 +717,14 @@ app.http('visitorCount', {
       'Edge (the static site, the load balancer), network (subnets, NSGs), identity (roles, scopes), application (CORS), data (encryption, data-plane roles).',
       'For each layer write what it refuses and which role owns the rule.',
     ], 'Five layers, each with a refusal and an owner.', 'The exam asks which layer stops a given request; the matrix is where the team agrees on it before anything is built.'),
+    // R138: a second proof, portal first and the shell beside it, so the Architect's tasks carry an order to verify in.
+    both(s(5, 'arch', 3), 'Read the role assignments back', 'Compare the group’s role assignments with the matrix.', PORTAL, [
+      'rg-capstone-team01 → Access control (IAM) → Role assignments.',
+      'Each row (who, role, scope) must be a row of the access matrix.',
+      'Mark any grant broader than the matrix allows.',
+    ], [
+      { cmd: 'az role assignment list -g rg-capstone-team01 --query "[].{who:principalName,role:roleDefinitionName}" -o table', explain: 'Every grant on the group as the platform holds it. Each row must be a row of the access matrix, or the matrix is wrong.', sample: 'Who                 Role\n------------------  -----------\nteam01-readers      Reader\nteam01-infra        Contributor', flags: [{ flag: '-g rg-capstone-team01', meaning: 'Only the assignments scoped to this group.' }, { flag: '--query "[].{…}"', meaning: 'Two fields per grant: who, and which role.' }] },
+    ], ['Reader', 'Contributor'], 'The access matrix is a claim; the assignment list is the state. Least privilege is proved when the two agree and nothing broader appears.', out('The IAM blade and the shell list the same grants: readers hold Reader, infrastructure holds Contributor, nothing at subscription scope.', doc('List Azure role assignments', 'azure/role-based-access-control/role-assignments-list-portal', 'the “List role assignments for a resource group” steps and the columns: principal, role, scope'))),
     rec(5, 'arch', 'Access matrix', ['One row per grant: principal, role, scope, why.', 'Mark any grant broader than it needs to be.', 'The layers, each with what it refuses.'], 'Week 11’s posture review reads this matrix.'),
   ]),
   T(5, 'infra', 'Move the key into Key Vault, protected and audited', 'Create the vault in RBAC mode, store the Cosmos connection string, point the Function at it, then turn on purge protection and the audit log.', 55,
@@ -1363,6 +1378,14 @@ app.storageQueue('ledger', {
       'Latency: Function HttpResponseTime p95 under 500 ms. Errors: Http5xx under 1% of requests.',
       'The error budget: how many bad minutes a month the targets allow, and who decides to spend it.',
     ], 'Three SLIs with targets and the monthly error budget.', 'An SLO turns “is it up?” into a number a dashboard can show and a release can be judged against — the canary in App’s task is swapped back when it eats the budget.'),
+    // R138: a second proof, portal first and the shell beside it, so the Architect's tasks carry an order to verify in.
+    both(s(11, 'arch', 3), 'Read cost by service from the shell', 'Match the month’s cost by service to the table.', PORTAL, [
+      'Cost Management → Cost analysis → group by Service name.',
+      'Note the top three services and their spend.',
+      'The same three must head the cost table.',
+    ], [
+      { cmd: 'az consumption usage list --query "[].{service:meterCategory,cost:pretaxCost}" -o table | sort | uniq -c | sort -rn | head', explain: 'The month’s charges grouped by service. The top lines are the services your cost table must name first.', sample: '     14 Virtual Machines      0.1200\n      9 Storage               0.0020\n      4 Virtual Network       0.0036', flags: [{ flag: '--query "[].{…}"', meaning: 'Two fields per usage line: the service and its pre-tax cost.' }, { flag: 'sort | uniq -c | sort -rn', meaning: 'Count lines per service and put the busiest first.' }] },
+    ], ['Virtual Machines'], 'A cost report built from the export is a measurement; one typed from the portal screen is a reading. The governance report wants the first.', out('Cost analysis grouped by service and the shell agree on the top three services; Virtual Machines leads.', doc('Cost analysis', 'azure/cost-management-billing/costs/quick-acm-cost-analysis', 'the “Group by” control: Service name, and how the donut and the table change with it'))),
     rec(11, 'arch', 'Cost by service and service levels', ['Three or more services, spend, action.', 'Three SLIs, targets, the error budget.'], 'The cost section of the governance report, and the levels the dashboard watches.'),
   ]),
   T(11, 'infra', 'Blue/green the fleet with a second pool and a cut-over', 'Build a green scale set beside blue, test it on a second port, cut the production rule over to green, retire blue, park.', 60,

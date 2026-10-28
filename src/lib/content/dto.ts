@@ -22,6 +22,7 @@
  * is better than one that silently drops it.
  */
 
+import { withHandoffForms } from '../docs/handoffForms';
 import type { Course } from '@/lib/types';
 import type { ContentFix } from '@/lib/contentFix';
 import { SECURITY_PLUS } from '@/lib/data/seed/securityPlus';
@@ -265,7 +266,8 @@ export function courseDto(courseId: string): CourseDto {
   const dto: CourseDto = {
     schema: DTO_SCHEMA,
     generatedFrom,
-    course: serialisable(course),
+    // R138: every hand-off names the form it lands in (docs/handoffForms.ts), so the Hand-offs KPI can read it.
+    course: serialisable(withHandoffForms(course, seedDeliverablesForCourse(courseId))),
     deliverables: serialisable(seedDeliverablesForCourse(courseId)),
   };
 

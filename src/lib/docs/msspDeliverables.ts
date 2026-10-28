@@ -140,7 +140,7 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
     num: 3,
     file: '03_Control_Matrix.csv',
     title: 'Control Matrix',
-    owner: 'grc',
+    owner: 'grc', shared: true,
     folder: '02_Risk_and_Controls',
     standard: 'SOC 2 TSC ↔ ISO 27001',
     framework: 'SOC_2',
@@ -171,6 +171,23 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
             { control: 'MFA on all administrative access', soc2: 'CC6.1', iso: 'A.8.5', owner: 'Blue', status: 'Operating', evidence: 'IdP policy export + Q2 access review' },
             { control: 'Centralised logging & alerting', soc2: 'CC7.2', iso: 'A.8.15/A.8.16', owner: 'Blue', status: 'Operating', evidence: 'SIEM rule pack + sample alert ticket' },
             { control: 'Annual penetration test', soc2: 'CC4.1', iso: 'A.8.8', owner: 'Red', status: 'Implemented', evidence: 'Pentest report + retest' },
+          ],
+        },
+      },
+      // R138: every control implemented is a change with a way back.
+      {
+        kind: 'group',
+        group: {
+          group: 'changes',
+          label: 'Changes made to implement a control',
+          help: 'One row per change on a client system: what, why, who approved it, and how it is undone if it breaks something.',
+          columns: [
+            c('date', 'Date', 'date'),
+            c('change', 'Change', 'text', { placeholder: 'Enforced MFA on the admin group' }),
+            c('control', 'Control', 'text', { placeholder: 'CC6.1 / A.8.5' }),
+            c('why', 'Why', 'text', { placeholder: 'Closes finding F-2' }),
+            c('rollback', 'Rollback', 'text', { placeholder: 'Disable the conditional-access policy; re-run the access review' }),
+            c('result', 'Result', 'select', { options: ['Applied', 'Rolled back', 'Pending'] }),
           ],
         },
       },

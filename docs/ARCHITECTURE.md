@@ -930,6 +930,22 @@ folded score means and the group's timing into the cohort report, carried the re
 into the export, the credential's results, the PDF and the shared page, and gave the instructor one
 mark per rubric category beside the verdict (`ReviewCell`, appended to `deliverable_review_marks`).
 
+### Every course feeds every KPI for every role (R138)
+
+The R137 test named 198 KPI × role gaps the courses could not measure; R138 authors what closes them, and the
+allow-list is empty. Every task hand-off names the form it lands in (`docs/handoffForms.ts`, written into the export;
+a graded task authored without one gets the RACI's: its form, handed to the role that approves it). Every course has a
+change table with a rollback column on a shared form (`CHANGE_GROUPS`), and every role a fault table with a real outcome
+column (`TROUBLE_GROUPS`; CISSP D7 gains a drills table). Every form carries a document-control block, derived once at
+read time (`withDocumentControl`), so the Document control KPI no longer passes by default. Every practice-only standard
+also cites a NIST SP 800-53 control, so Controls cited is measured in Server+, A+, Network+, CCNA and the cloud courses
+(`practiceKeyOf` keeps the practices). The four cloud roles each draft one document per course (`CLOUD_RACI`), and the
+System Administrator and Cyber Defense Analyst work roles include the cloud competencies, so profile coverage applies to
+Infrastructure and Security & Ops. CCNA gains two proof steps per graded task (show commands, console samples, verify
+tokens); MSSP, the Security+ GRC lane, the CISSP governance lane and the cloud Architect gain the hash, count and
+read-back steps that give every role tasks with two checkable steps in order. Skills now map across tasks where the
+same skill is practised twice.
+
 ### Measured as documented, and "not measured" is a state (R137)
 
 A KPI tile used to print `0 of 0` whether the member had done nothing yet or the course gave the role nothing to

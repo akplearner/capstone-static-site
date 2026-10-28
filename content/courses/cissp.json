@@ -402,12 +402,14 @@
           {
             "to": "archnet",
             "artifact": "Company facts",
-            "note": "The systems list starts from them."
+            "note": "The systems list starts from them.",
+            "deliverable": "cissp_d2"
           },
           {
             "to": "idops",
             "artifact": "Contract terms",
-            "note": "The 72-hour notice comes from them."
+            "note": "The 72-hour notice comes from them.",
+            "deliverable": "cissp_d7"
           }
         ],
         "steps": [
@@ -567,7 +569,8 @@
           {
             "to": "govrisk",
             "artifact": "Systems list",
-            "note": "The asset inventory starts from it."
+            "note": "The asset inventory starts from it.",
+            "deliverable": "cissp_d2"
           }
         ],
         "steps": [
@@ -915,6 +918,14 @@
               "NIST_CSF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "archnet",
+            "artifact": "D1 Governance & Risk",
+            "note": "Your section of the D1 Governance & Risk, for the review that approves it.",
+            "deliverable": "cissp_d1"
+          }
         ]
       },
       {
@@ -958,7 +969,8 @@
           {
             "to": "govrisk",
             "artifact": "D3 and D4 v1",
-            "note": "Scored in D6."
+            "note": "Scored in D6.",
+            "deliverable": "cissp_d3"
           }
         ],
         "steps": [
@@ -1088,7 +1100,8 @@
           {
             "to": "govrisk",
             "artifact": "D5 and D7 v1",
-            "note": "Scored in D6."
+            "note": "Scored in D6.",
+            "deliverable": "cissp_d5"
           }
         ],
         "steps": [
@@ -1237,7 +1250,8 @@
           {
             "to": "idops",
             "artifact": "Screening standard",
-            "note": "Contractors are screened before access — S-8."
+            "note": "Contractors are screened before access — S-8.",
+            "deliverable": "cissp_d1"
           }
         ],
         "steps": [
@@ -1412,7 +1426,8 @@
           {
             "to": "govrisk",
             "artifact": "D3, D4, D8 v2",
-            "note": "Rescored in D6."
+            "note": "Rescored in D6.",
+            "deliverable": "cissp_d4"
           }
         ],
         "steps": [
@@ -1554,7 +1569,8 @@
           {
             "to": "govrisk",
             "artifact": "D5, D7 v2",
-            "note": "Rescored in D6."
+            "note": "Rescored in D6.",
+            "deliverable": "cissp_d7"
           }
         ],
         "steps": [
@@ -1695,7 +1711,8 @@
           {
             "to": "govrisk",
             "artifact": "Lab results with ledger entries",
-            "note": "Each proof earns a level 3 in D6."
+            "note": "Each proof earns a level 3 in D6.",
+            "deliverable": "cissp_d4"
           }
         ],
         "steps": [
@@ -1983,7 +2000,8 @@
           {
             "to": "govrisk",
             "artifact": "Identity proofs with ledger entries",
-            "note": "D5 reaches level 3."
+            "note": "D5 reaches level 3.",
+            "deliverable": "cissp_d5"
           }
         ],
         "steps": [
@@ -2310,6 +2328,75 @@
             "frameworks": [
               "CISSP"
             ]
+          },
+          {
+            "id": "ci-w3-gov-s3",
+            "title": "Verify the migrated data against the ledger",
+            "description": "S-10: the hash still matches.",
+            "where": "The cloud database host · terminal",
+            "instruction": "Re-hash the migrated database and check it against the ledger.",
+            "instructionList": [
+              "Append the migrated file to the ledger first: `sha256sum migrated/scheduling.db >> ledger.sha256`.",
+              "Run the check; every line must read OK.",
+              "Paste the OK lines into D2 beside the decommission record."
+            ],
+            "commands": [
+              {
+                "cmd": "sha256sum -c ledger.sha256 | grep -c \": OK$\" && echo \"LEDGER lines verified\"",
+                "explain": "Re-hashes every file the ledger names and counts the lines that still match, then says so.",
+                "flags": [
+                  {
+                    "flag": "-c ledger.sha256",
+                    "meaning": "check each file against the hash recorded for it"
+                  },
+                  {
+                    "flag": "grep -c \": OK$\"",
+                    "meaning": "count the lines that passed"
+                  }
+                ],
+                "sample": "9\nLEDGER lines verified"
+              }
+            ],
+            "expectedOutput": "9\nLEDGER lines verified",
+            "outputHighlights": [
+              {
+                "text": "LEDGER lines verified",
+                "label": "every ledger line, the migrated database included, still matches"
+              }
+            ],
+            "verify": [
+              "LEDGER lines verified"
+            ],
+            "usesForm": "D2 Assets & Data",
+            "docs": [
+              {
+                "title": "coreutils — sha256sum",
+                "url": "https://www.gnu.org/software/coreutils/manual/html_node/sha2-utilities.html",
+                "lookFor": "the -c option: check every hash in a list and print OK or FAILED per file"
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "A line reads FAILED",
+                "fix": "The file changed after it was hashed: find out why before anything else, then re-hash and record the reason in D2."
+              },
+              {
+                "symptom": "No such file",
+                "fix": "The ledger names a path that moved: fix the path in the ledger, never the hash."
+              }
+            ],
+            "whatItMeans": "A migration is proved by the same hash on both sides; the ledger check is the proof an assessor can rerun.",
+            "frameworks": [
+              "NIST_800_53"
+            ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "archnet",
+            "artifact": "D1 Governance & Risk",
+            "note": "Your section of the D1 Governance & Risk, for the review that approves it.",
+            "deliverable": "cissp_d1"
           }
         ]
       },
@@ -2358,7 +2445,8 @@
           {
             "to": "govrisk",
             "artifact": "Restore and detection records",
-            "note": "D7 reaches level 3."
+            "note": "D7 reaches level 3.",
+            "deliverable": "cissp_d7"
           }
         ],
         "steps": [
@@ -2737,6 +2825,79 @@
               "CISSP",
               "NIST_AI_RMF"
             ]
+          },
+          {
+            "id": "ci-w4-gov-s3",
+            "title": "Hash the sanitized dataset",
+            "description": "The after-state, in the ledger.",
+            "where": "The dataset folder · terminal",
+            "instruction": "Hash every sanitized file and count the lines.",
+            "instructionList": [
+              "Run the command in the folder the sanitizer wrote to.",
+              "Paste the count and the DATASET line into D2 beside S-11.",
+              "Add dataset.sha256 to the ledger with `sha256sum dataset.sha256 >> ledger.sha256`."
+            ],
+            "commands": [
+              {
+                "cmd": "find dataset/ -type f -exec sha256sum {} + | sort > dataset.sha256 && echo \"DATASET $(wc -l < dataset.sha256) files hashed\"",
+                "explain": "One hash per sanitized file, sorted so two runs compare line for line, then the count as a sentence.",
+                "flags": [
+                  {
+                    "flag": "find dataset/ -type f",
+                    "meaning": "every file under the folder, however deep"
+                  },
+                  {
+                    "flag": "-exec sha256sum {} +",
+                    "meaning": "hash them all in one call"
+                  },
+                  {
+                    "flag": "sort > dataset.sha256",
+                    "meaning": "a stable, comparable list"
+                  }
+                ],
+                "sample": "DATASET 14 files hashed"
+              }
+            ],
+            "expectedOutput": "DATASET 14 files hashed",
+            "outputHighlights": [
+              {
+                "text": "DATASET 14 files hashed",
+                "label": "fourteen files, each with a hash in dataset.sha256 — the after-state the ledger will cite"
+              }
+            ],
+            "verify": [
+              "files hashed"
+            ],
+            "usesForm": "D2 Assets & Data",
+            "docs": [
+              {
+                "title": "coreutils — sha256sum",
+                "url": "https://www.gnu.org/software/coreutils/manual/html_node/sha2-utilities.html",
+                "lookFor": "the -c option: check every hash in a list and print OK or FAILED per file"
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The count is 0",
+                "fix": "The sanitizer wrote elsewhere, or the folder is empty: run `ls dataset/` and point the command at the right path."
+              },
+              {
+                "symptom": "Two runs give different hashes",
+                "fix": "A file is still being written, or the sanitizer is not deterministic: run it once more and hash again."
+              }
+            ],
+            "whatItMeans": "Categorization is a claim about data; the hash list is what an assessor can check the claim against.",
+            "frameworks": [
+              "NIST_800_53"
+            ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "archnet",
+            "artifact": "D2 Assets & Data",
+            "note": "Your section of the D2 Assets & Data, for the review that approves it.",
+            "deliverable": "cissp_d2"
           }
         ]
       },
@@ -2787,7 +2948,8 @@
           {
             "to": "govrisk",
             "artifact": "Five configuration findings",
-            "note": "Dated in the remediation plan."
+            "note": "Dated in the remediation plan.",
+            "deliverable": "cissp_d8"
           }
         ],
         "steps": [
@@ -3064,6 +3226,14 @@
               "SOC_2"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "archnet",
+            "artifact": "D6 Assessment",
+            "note": "Your section of the D6 Assessment, for the review that approves it.",
+            "deliverable": "cissp_d6"
+          }
         ]
       },
       {
@@ -3111,7 +3281,8 @@
           {
             "to": "govrisk",
             "artifact": "Re-test results",
-            "note": "Cited in the assessment."
+            "note": "Cited in the assessment.",
+            "deliverable": "cissp_d6"
           }
         ],
         "steps": [
@@ -3232,7 +3403,8 @@
           {
             "to": "govrisk",
             "artifact": "Timed disablement and tabletop report",
-            "note": "Cited in the assessment."
+            "note": "Cited in the assessment.",
+            "deliverable": "cissp_d6"
           }
         ],
         "steps": [
@@ -3524,6 +3696,14 @@
               "NIST_800_171"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "archnet",
+            "artifact": "D6 Assessment",
+            "note": "Your section of the D6 Assessment, for the review that approves it.",
+            "deliverable": "cissp_d6"
+          }
         ]
       },
       {
@@ -3570,7 +3750,8 @@
           {
             "to": "govrisk",
             "artifact": "Federal mappings",
-            "note": "Governance folds them into the SSP."
+            "note": "Governance folds them into the SSP.",
+            "deliverable": "cissp_ssp"
           }
         ],
         "steps": [
@@ -3667,7 +3848,8 @@
           {
             "to": "govrisk",
             "artifact": "Incident reporting",
-            "note": "Governance folds it into the SSP."
+            "note": "Governance folds it into the SSP.",
+            "deliverable": "cissp_ssp"
           }
         ],
         "steps": [
@@ -5655,6 +5837,49 @@
               }
             ]
           }
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "drills",
+            "label": "Recovery drills and detections (v3 onwards)",
+            "help": "One row per restore, disablement or tabletop: which process, what was tested, when, and whether the target was met.",
+            "columns": [
+              {
+                "field": "process",
+                "label": "Process",
+                "type": "text",
+                "placeholder": "Dispatch"
+              },
+              {
+                "field": "test",
+                "label": "Test",
+                "type": "text",
+                "placeholder": "Restore from last night’s backup"
+              },
+              {
+                "field": "date",
+                "label": "Date",
+                "type": "date"
+              },
+              {
+                "field": "measured",
+                "label": "Measured",
+                "type": "text",
+                "placeholder": "RTO 3h 10m"
+              },
+              {
+                "field": "result",
+                "label": "Result",
+                "type": "select",
+                "options": [
+                  "Met",
+                  "Missed",
+                  "Not run"
+                ]
+              }
+            ]
+          }
         }
       ],
       "dod": [
@@ -5732,6 +5957,7 @@
       "file": "08_Software_and_Change.md",
       "title": "D8 Software & Change",
       "owner": "archnet",
+      "shared": true,
       "folder": "08_Software",
       "standard": "NIST SP 800-218 (SSDF) · OWASP",
       "framework": "NIST_800_53",
@@ -5785,6 +6011,59 @@
               "placeholder": "Steps, rollback trigger, decommission record."
             }
           ]
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "changes",
+            "label": "Changes under the rule (v2 onwards)",
+            "help": "One row per change the team made under the change rule: approver, risk, rollback, result.",
+            "columns": [
+              {
+                "field": "date",
+                "label": "Date",
+                "type": "date"
+              },
+              {
+                "field": "change",
+                "label": "Change",
+                "type": "text",
+                "placeholder": "Pipeline gate added before prod"
+              },
+              {
+                "field": "approver",
+                "label": "Approver",
+                "type": "text",
+                "placeholder": "Not the author"
+              },
+              {
+                "field": "risk",
+                "label": "Risk",
+                "type": "select",
+                "options": [
+                  "High",
+                  "Medium",
+                  "Low"
+                ]
+              },
+              {
+                "field": "rollback",
+                "label": "Rollback",
+                "type": "text",
+                "placeholder": "Revert the commit; redeploy the previous build"
+              },
+              {
+                "field": "result",
+                "label": "Result",
+                "type": "select",
+                "options": [
+                  "Applied",
+                  "Rolled back",
+                  "Pending"
+                ]
+              }
+            ]
+          }
         }
       ],
       "dod": [
@@ -8047,7 +8326,13 @@
           ]
         }
       ],
-      "CHANGE_GROUPS": [],
+      "CHANGE_GROUPS": [
+        {
+          "form": "cissp_d8",
+          "group": "changes",
+          "rollback": "rollback"
+        }
+      ],
       "CONTROLS": [
         {
           "code": "NIST.CSF",
@@ -14188,6 +14473,7 @@
           "tool.restic"
         ],
         "ci-w4-gov": [
+          "tool.linux-shell",
           "tool.capstone-forms",
           "tool.presidio",
           "tool.python"
@@ -14231,6 +14517,18 @@
         ]
       },
       "TROUBLE_GROUPS": [
+        {
+          "form": "cissp_d4",
+          "group": "flows",
+          "outcome": "review",
+          "resolved": "approved|accepted|ok|pass|allow|closed|kept"
+        },
+        {
+          "form": "cissp_d7",
+          "group": "drills",
+          "outcome": "result",
+          "resolved": "met"
+        },
         {
           "form": "cissp_d1",
           "group": "weaknesses",

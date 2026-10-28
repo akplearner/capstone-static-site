@@ -326,7 +326,8 @@
         "handoff": [
           {
             "to": "grc",
-            "note": "Acknowledge the Rules of Engagement so GRC knows scope is understood."
+            "note": "Acknowledge the Rules of Engagement so GRC knows scope is understood.",
+            "deliverable": "scope_roe"
           }
         ],
         "steps": [
@@ -428,7 +429,8 @@
           {
             "to": "grc",
             "artifact": "Asset_List.md + Recon_Findings.md",
-            "note": "Feed recon into the asset inventory and risk mapping."
+            "note": "Feed recon into the asset inventory and risk mapping.",
+            "deliverable": "asset_inventory"
           }
         ],
         "learn": [
@@ -667,7 +669,8 @@
           {
             "to": "grc",
             "artifact": "Vulnerability_Summary.md",
-            "note": "Hand findings to GRC for risk scoring."
+            "note": "Hand findings to GRC for risk scoring.",
+            "deliverable": "risk_register"
           }
         ],
         "learn": [
@@ -898,7 +901,8 @@
           {
             "to": "grc",
             "artifact": "Evidence_Photos.zip",
-            "note": "Submit attack evidence for chain of custody."
+            "note": "Submit attack evidence for chain of custody.",
+            "deliverable": "evidence_log"
           }
         ],
         "learn": [
@@ -1464,7 +1468,8 @@
           {
             "to": "grc",
             "artifact": "Technical_Explanation.md",
-            "note": "Feed the technical narrative into the final report."
+            "note": "Feed the technical narrative into the final report.",
+            "deliverable": "final_report"
           }
         ],
         "learn": [
@@ -1567,11 +1572,13 @@
         "handoff": [
           {
             "to": "grc",
-            "note": "Confirm both targets are reachable so GRC can finalize the hardening standard."
+            "note": "Confirm both targets are reachable so GRC can finalize the hardening standard.",
+            "deliverable": "hardening_standard"
           },
           {
             "to": "red",
-            "note": "Tell Red the DVWA target URL (http://<UBUNTU_IP>/) once the container is up."
+            "note": "Tell Red the DVWA target URL (http://<UBUNTU_IP>/) once the container is up.",
+            "deliverable": "scope_roe"
           }
         ],
         "steps": [
@@ -1779,7 +1786,8 @@
           {
             "to": "grc",
             "artifact": "Hardening_Checklist.txt",
-            "note": "Report what was hardened on both hosts for the policy baseline."
+            "note": "Report what was hardened on both hosts for the policy baseline.",
+            "deliverable": "hardening_baseline"
           }
         ],
         "learn": [
@@ -2250,7 +2258,8 @@
           {
             "to": "grc",
             "artifact": "Detection_Rules.txt",
-            "note": "Report the detections now in place for the VM SOP."
+            "note": "Report the detections now in place for the VM SOP.",
+            "deliverable": "vm_sop"
           }
         ],
         "learn": [
@@ -2560,7 +2569,8 @@
           {
             "to": "grc",
             "artifact": "Incident_Response.txt",
-            "note": "Submit IR notes and logs for chain of custody."
+            "note": "Submit IR notes and logs for chain of custody.",
+            "deliverable": "evidence_log"
           }
         ],
         "learn": [
@@ -2884,7 +2894,8 @@
           {
             "to": "grc",
             "artifact": "Detection_Summary.md",
-            "note": "Feed detection/response results into the final report."
+            "note": "Feed detection/response results into the final report.",
+            "deliverable": "final_report"
           }
         ],
         "learn": [
@@ -2964,11 +2975,13 @@
           {
             "to": "red",
             "artifact": "Rules_of_Engagement.md",
-            "note": "Send the authorized scope before any scanning."
+            "note": "Send the authorized scope before any scanning.",
+            "deliverable": "scope_roe"
           },
           {
             "to": "blue",
-            "note": "Tell Blue which two systems (Ubuntu + Windows) to harden."
+            "note": "Tell Blue which two systems (Ubuntu + Windows) to harden.",
+            "deliverable": "hardening_standard"
           }
         ],
         "steps": [
@@ -3033,12 +3046,14 @@
           {
             "to": "blue",
             "artifact": "Hardening_Standard.md",
-            "note": "The OS-specific controls Blue must implement on both hosts."
+            "note": "The OS-specific controls Blue must implement on both hosts.",
+            "deliverable": "hardening_standard"
           },
           {
             "to": "red",
             "artifact": "Rules_of_Engagement.md",
-            "note": "Reconfirm Week 2 scanning stays within authorized scope."
+            "note": "Reconfirm Week 2 scanning stays within authorized scope.",
+            "deliverable": "scope_roe"
           }
         ],
         "learn": [
@@ -3108,6 +3123,50 @@
               "NIST_CSF"
             ],
             "usesForm": "Hardening Standard"
+          },
+          {
+            "id": "grc-w1-s6",
+            "title": "Hash the standard and the mapping",
+            "description": "The two documents Blue builds from, fingerprinted.",
+            "instruction": "Run it in the team evidence folder and paste the output.",
+            "commands": [
+              {
+                "cmd": "cd ~/team-artifacts/week-1 && sha256sum 09_Framework_Mapping.md 11_Hardening_Standard.md | tee -a Evidence_Hashes.txt",
+                "explain": "Fingerprints the mapping and the standard as handed to Blue, so Week 4 can show which version the hardening followed.",
+                "sample": "2d6f…81ac  09_Framework_Mapping.md\n9b3e…47d0  11_Hardening_Standard.md"
+              }
+            ],
+            "expectedOutput": "2d6f81ac3b7e5c9a1d4f6b8e2c5a7d9f3b1e6c8a4d2f7b5e9c3a1d6f8b4e2c7a  09_Framework_Mapping.md\n9b3e47d02a6c8e1b5d7f3a9c4e6b2d8f1a5c7e3b9d4f6a2c8e1b5d7f3a9c4e6b  11_Hardening_Standard.md",
+            "outputKind": "console",
+            "verify": [
+              "11_Hardening_Standard.md"
+            ],
+            "whatItMeans": "Blue hardens to the standard as it stood today. The hash is what lets the final report say which version that was.",
+            "frameworks": [
+              "NIST_CSF"
+            ]
+          },
+          {
+            "id": "grc-w1-s7",
+            "title": "Count the mapped controls",
+            "description": "Every CSF function has at least one control mapped.",
+            "instruction": "Run it in the team evidence folder and paste the output.",
+            "commands": [
+              {
+                "cmd": "cd ~/team-artifacts/week-1 && grep -c \"PR\\.\\|DE\\.\\|RS\\.\\|ID\\.\\|GV\\.\" 09_Framework_Mapping.md && echo \"CSF references counted\"",
+                "explain": "Counts the CSF category references in the mapping. Fewer than five means a function is unmapped.",
+                "sample": "11\nCSF references counted"
+              }
+            ],
+            "expectedOutput": "11\nCSF references counted",
+            "outputKind": "console",
+            "verify": [
+              "CSF references counted"
+            ],
+            "whatItMeans": "A framework mapping with a function missing is a plan with a hole in it. The count is the quickest way to see the hole.",
+            "frameworks": [
+              "NIST_CSF"
+            ]
           }
         ]
       },
@@ -3138,7 +3197,8 @@
           {
             "to": "blue",
             "artifact": "VM_SOP.md",
-            "note": "Remediation order and process Blue follows."
+            "note": "Remediation order and process Blue follows.",
+            "deliverable": "vm_sop"
           }
         ],
         "learn": [
@@ -3228,7 +3288,8 @@
           {
             "to": "blue",
             "artifact": "IR_Runbook.md",
-            "note": "The steps Blue follows the moment an attack is detected."
+            "note": "The steps Blue follows the moment an attack is detected.",
+            "deliverable": "ir_runbook"
           }
         ],
         "learn": [
@@ -3335,6 +3396,28 @@
               "NIST_800_61",
               "ISO_27001"
             ]
+          },
+          {
+            "id": "grc-w3-s7",
+            "title": "Verify the evidence hashes",
+            "description": "Every artifact still matches the hash you took.",
+            "instruction": "Run it in the team evidence folder and paste the output.",
+            "commands": [
+              {
+                "cmd": "cd ~/team-artifacts/week-3 && sha256sum -c Evidence_Hashes.txt",
+                "explain": "Re-hashes every attack artifact and compares with the hash file. OK on every line is the chain of custody holding.",
+                "sample": "Attack_Pcap.pcap: OK\nAttack_Logs.txt: OK\nEvidence_Photos.zip: OK"
+              }
+            ],
+            "expectedOutput": "Attack_Pcap.pcap: OK\nAttack_Logs.txt: OK\nEvidence_Photos.zip: OK",
+            "outputKind": "console",
+            "verify": [
+              "OK"
+            ],
+            "whatItMeans": "Chain of custody is proved by re-checking, not by having checked once. FAILED on any line means the evidence can no longer be relied on.",
+            "frameworks": [
+              "NIST_800_61"
+            ]
           }
         ]
       },
@@ -3363,11 +3446,13 @@
         "handoff": [
           {
             "to": "red",
-            "note": "Confirm the findings are technically accurate."
+            "note": "Confirm the findings are technically accurate.",
+            "deliverable": "final_report"
           },
           {
             "to": "blue",
-            "note": "Confirm the response timeline is accurate."
+            "note": "Confirm the response timeline is accurate.",
+            "deliverable": "final_report"
           }
         ],
         "learn": [
@@ -4096,6 +4181,7 @@
       "file": "05_Change_Log.md",
       "title": "Change Log",
       "owner": "blue",
+      "shared": true,
       "folder": "03_Security_Setup",
       "standard": "ITIL change record",
       "framework": "ISO_27001",
@@ -4138,6 +4224,12 @@
                 "placeholder": "network protection"
               },
               {
+                "field": "rollback",
+                "label": "Rollback",
+                "type": "text",
+                "placeholder": "ufw disable"
+              },
+              {
                 "field": "evidence",
                 "label": "Evidence",
                 "type": "text",
@@ -4150,6 +4242,7 @@
                 "change": "Enabled UFW (allow 22, 80)",
                 "who": "Blue team",
                 "reason": "network protection",
+                "rollback": "ufw disable",
                 "evidence": "ufw status output"
               }
             ]
@@ -7635,7 +7728,13 @@
           ]
         }
       ],
-      "CHANGE_GROUPS": [],
+      "CHANGE_GROUPS": [
+        {
+          "form": "change_log",
+          "group": "changes",
+          "rollback": "rollback"
+        }
+      ],
       "CONTROLS": [
         {
           "code": "NIST.CSF",
@@ -13012,6 +13111,8 @@
           "tool.markdown"
         ],
         "grc-w1-framework": [
+          "tool.linux-shell",
+          "tool.sha256sum",
           "tool.markdown"
         ],
         "grc-w2-risk": [
@@ -13036,10 +13137,16 @@
           "resolved": "."
         },
         {
-          "form": "change_log",
-          "group": "changes",
-          "outcome": "evidence",
+          "form": "pentest_report",
+          "group": "findings",
+          "outcome": "remediation",
           "resolved": "."
+        },
+        {
+          "form": "risk_register",
+          "group": "risks",
+          "outcome": "status",
+          "resolved": "closed"
         }
       ],
       "WORK_ROLES": [
@@ -13053,7 +13160,8 @@
           "areas": [
             "detect",
             "harden",
-            "ops"
+            "ops",
+            "cloud"
           ],
           "requiredCompetencies": [
             "comp.harden.linux-baseline",
@@ -13084,7 +13192,56 @@
             "comp.detect.shadow-ai",
             "comp.ops.logging-first-hour",
             "comp.ops.detection-fires",
-            "comp.ops.contingency-phases"
+            "comp.ops.contingency-phases",
+            "comp.cloud.budget-and-tags",
+            "comp.cloud.shared-responsibility",
+            "comp.cloud.network-foundation",
+            "comp.cloud.team-repo-and-board",
+            "comp.cloud.identity-and-groups",
+            "comp.cloud.cost-estimate",
+            "comp.cloud.launch-vm",
+            "comp.cloud.static-site-https",
+            "comp.cloud.ssh-from-one-ip",
+            "comp.cloud.request-flow",
+            "comp.cloud.managed-database",
+            "comp.cloud.serverless-api",
+            "comp.cloud.read-only-access",
+            "comp.cloud.cost-report",
+            "comp.cloud.error-alert",
+            "comp.cloud.read-logs",
+            "comp.cloud.audit-trail",
+            "comp.cloud.access-matrix",
+            "comp.cloud.secrets-in-vault",
+            "comp.cloud.managed-identity",
+            "comp.cloud.prove-denial",
+            "comp.cloud.two-zone-design",
+            "comp.cloud.scale-set",
+            "comp.cloud.load-balancer",
+            "comp.cloud.private-access-path",
+            "comp.cloud.data-store-choice",
+            "comp.cloud.ha-database",
+            "comp.cloud.queue-and-ledger",
+            "comp.cloud.data-lockdown",
+            "comp.cloud.autoscale-target",
+            "comp.cloud.autoscale-and-self-heal",
+            "comp.cloud.restore-file-and-database",
+            "comp.cloud.recovery-drill-and-teardown",
+            "comp.cloud.template-map",
+            "comp.cloud.inventory-and-drift",
+            "comp.cloud.deploy-from-template",
+            "comp.cloud.policy-as-code",
+            "comp.cloud.change-request-and-gates",
+            "comp.cloud.branch-protection",
+            "comp.cloud.staged-pipeline",
+            "comp.cloud.oidc-deploy-identity",
+            "comp.cloud.cost-by-service-and-slos",
+            "comp.cloud.blue-green",
+            "comp.cloud.canary",
+            "comp.cloud.dashboard-and-compliance",
+            "comp.cloud.handover-package",
+            "comp.cloud.rebuild-and-automate",
+            "comp.cloud.fix-through-ci",
+            "comp.cloud.contain-and-post-mortem"
           ]
         },
         {

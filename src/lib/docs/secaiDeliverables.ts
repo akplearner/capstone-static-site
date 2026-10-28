@@ -199,7 +199,7 @@ export const SECAI_DELIVERABLES: DeliverableDef[] = [
     num: 4,
     file: '04_Control_Set.md',
     title: 'P3 Control Set',
-    owner: 'defender',
+    owner: 'defender', shared: true,
     folder: '04_Control_Set',
     standard: 'NIST CSF (Protect)',
     framework: 'NIST_CSF',
@@ -277,6 +277,22 @@ export const SECAI_DELIVERABLES: DeliverableDef[] = [
             c('subject', 'Subject', 'text', { placeholder: 'Dispatch agent' }),
             c('object', 'Object', 'text', { placeholder: 'Work-order tool' }),
             c('access', 'Access', 'select', { options: ['None', 'Read', 'Write', 'Read/Write'] }),
+          ],
+        },
+      },
+      // R138: a control released is a change with a way back.
+      {
+        kind: 'group',
+        group: {
+          group: 'changes',
+          label: 'Changes to the assistant and its guardrails',
+          help: 'One row per release: what changed, which case it closes, and how it is undone if the suite regresses.',
+          columns: [
+            c('date', 'Date', 'date'),
+            c('change', 'Change', 'text', { placeholder: 'Added the output redaction filter' }),
+            c('why', 'Why', 'text', { placeholder: 'Closes case C-3 (sensitive disclosure)' }),
+            c('rollback', 'Rollback', 'text', { placeholder: 'Revert to control set v1; re-run the suite' }),
+            c('result', 'Result', 'select', { options: ['Applied', 'Rolled back', 'Pending'] }),
           ],
         },
       },

@@ -38,8 +38,8 @@ export const AWS_CLOUD_VOCAB: CloudVocab = {
   oidc: 'IAM OIDC provider + role assumed by the workflow (no access key)',
   region: 'us-east-1',
   calculator: 'AWS Pricing Calculator',
-  standardW1: 'AWS tagging best practices — naming and tagging',
-  standardW11: 'AWS Well-Architected — cost and security pillars',
+  standardW1: 'AWS tagging best practices — naming and tagging · NIST SP 800-53 CM-8',
+  standardW11: 'AWS Well-Architected — cost and security pillars · NIST SP 800-53 AU-6',
   naming: [
     { resource: 'VPC', pattern: 'vpc-{workload}-{team}', example: 'vpc-capstone-team01' },
     { resource: 'Subnet', pattern: 'snet-{public|private}-{team}', example: 'snet-public-team01' },

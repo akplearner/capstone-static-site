@@ -4142,3 +4142,49 @@ describe('R137 — measured as documented, and not measured is a state', () => {
     expect(read('docs/OPERATIONS.md')).toContain('**Not measured is a state (R137):**');
   });
 });
+
+describe('R138 — every course feeds every KPI for every role', () => {
+  it('hand-offs name their form, generated where none was authored; the export carries them', () => {
+    const h = code('src/lib/docs/handoffForms.ts');
+    for (const n of ['export const HANDOFF_FORMS', 'export function generatedHandoff(', 'export function withHandoffForms<']) expect(h, n).toContain(n);
+    expect(code('src/lib/content/dto.ts')).toContain('course: serialisable(withHandoffForms(course, seedDeliverablesForCourse(courseId)))');
+  });
+
+  it('a change table with a rollback column in every course, a fault table per role, document control on every form', () => {
+    const cats = code('src/lib/docs/recordCategories.ts');
+    for (const form of ['change_log', 'mssp_control_matrix', 'cysa_soc_monitoring', 'ap_os', 'secai_control_set', 'cissp_d8', 'incident', 'server', 'change']) expect(cats, form).toMatch(new RegExp(`form: '${form}', group: '[a-z_]+', rollback: 'rollback'`));
+    for (const form of ['pentest_report', 'risk_register', 'mssp_detection_rules', 'mssp_internal_audit', 'cysa_scan_validation', 'secai_control_set', 'secai_governance_pack', 'cissp_d4', 'cissp_d7']) expect(cats, form).toContain(`{ form: '${form}', group:`);
+    expect(code('src/lib/docs/derive.ts')).toContain('export function withDocumentControl(');
+    expect(code('src/lib/docs/derive.ts')).toContain('const def = withDocumentControl(raw);');
+  });
+
+  it('every standard cites a control and keeps its practices; the cloud roles each draft a document; the work roles carry the cloud area', () => {
+    expect(code('src/lib/docs/standards.ts')).toContain('export function practiceKeyOf(');
+    expect(code('src/lib/docs/skillsSection.ts')).toContain('CONTROL_EXCEPTIONS[practiceKeyOf(f.standard)]');
+    expect(code('src/lib/docs/skillCoverage.ts')).toContain('CONTROL_EXCEPTIONS[practiceKeyOf(form.standard)]');
+    const raci = code('src/lib/docs/raci.ts');
+    for (const n of ["foundation: r('infra'", "api: r('dev'", "incident: r('secops'", "handover: r('arch'"]) expect(raci, n).toContain(n);
+    expect(code('src/lib/docs/cloudDeliverables.ts')).toContain('owner: CLOUD_RACI[slug].drafts,');
+    const roles = code('src/lib/docs/workRoles.ts');
+    expect(roles).toContain("['detect', 'harden', 'ops', 'cloud']");
+    expect(roles).toContain("['sysadmin', 'hardware', 'virt', 'continuity', 'observe', 'docs', 'cloud']");
+  });
+
+  it('the proof steps: CCNA show commands, the GRC lanes’ hashes and counts, the cloud Architect’s read-backs; the debt is empty', () => {
+    const ccna = read('src/lib/data/seed/ccna.ts');
+    expect((ccna.match(/R138: the proof step/g) ?? []).length).toBe(22);
+    for (const n of ["cmd: 'show vlan brief'", "cmd: 'show interfaces trunk'", "cmd: 'show ip ospf neighbor'", "cmd: 'show ip access-lists'", "cmd: 'show port-security'"]) expect(ccna, n).toContain(n);
+    expect((read('src/lib/data/seed/mssp.ts').match(/R138: the proof step/g) ?? []).length).toBe(18);
+    expect((read('src/lib/content-data.ts').match(/R138: the proof step/g) ?? []).length).toBe(3);
+    expect(code('src/lib/data/seed/cissp.ts')).toContain("id: 'ci-w3-gov-s3'");
+    for (const f of ['src/lib/data/seed/azureCloud.ts', 'src/lib/data/seed/awsCloud.ts']) expect((read(f).match(/R138: a second proof/g) ?? []).length, f).toBe(3);
+    expect(JSON.parse(read('src/lib/kpiBoard.allCourses.allow.json'))).toEqual({});
+  });
+
+  it('the docs say it', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### Every course feeds every KPI for every role (R138)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| Every course feeds every KPI for every role |');
+    expect(read('docs/FIX_LIST.md')).toContain('| F16 |');
+    expect(read('docs/OPERATIONS.md')).toContain('**Every course feeds every KPI (R138):**');
+  });
+});

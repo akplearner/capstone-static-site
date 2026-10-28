@@ -826,6 +826,14 @@
               "NIST_CSF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "net",
+            "artifact": "Hardware Discovery, HCL & Upgrade Plan",
+            "note": "Your section of the Hardware Discovery, HCL & Upgrade Plan, for the review that approves it.",
+            "deliverable": "srv_hardware"
+          }
         ]
       },
       {
@@ -1008,6 +1016,14 @@
               "CIS"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "net",
+            "artifact": "Hardware Discovery, HCL & Upgrade Plan",
+            "note": "Your section of the Hardware Discovery, HCL & Upgrade Plan, for the review that approves it.",
+            "deliverable": "srv_hardware"
+          }
         ]
       },
       {
@@ -1093,6 +1109,14 @@
                 "fix": "You do not have the drive count for it. Fall back to a level the populated bays support and record the change and the reason."
               }
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "lnx",
+            "artifact": "Server Bring-Up Log",
+            "note": "Your section of the Server Bring-Up Log, for the review that approves it.",
+            "deliverable": "srv_bringup"
           }
         ]
       },
@@ -1387,6 +1411,14 @@
               }
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "lnx",
+            "artifact": "Server Bring-Up Log",
+            "note": "Your section of the Server Bring-Up Log, for the review that approves it.",
+            "deliverable": "srv_bringup"
+          }
         ]
       },
       {
@@ -1457,6 +1489,14 @@
               "NIST_CSF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "win",
+            "artifact": "Architecture Brief",
+            "note": "Your section of the Architecture Brief, for the review that approves it.",
+            "deliverable": "srv_business_reqs"
+          }
         ]
       },
       {
@@ -1510,6 +1550,14 @@
             "frameworks": [
               "NIST_CSF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "win",
+            "artifact": "Rack, Power & Asset Register",
+            "note": "Your section of the Rack, Power & Asset Register, for the review that approves it.",
+            "deliverable": "srv_rack_assets"
           }
         ]
       },
@@ -1595,6 +1643,14 @@
               "NIST_CSF",
               "CIS"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "win",
+            "artifact": "Rack, Power & Asset Register",
+            "note": "Your section of the Rack, Power & Asset Register, for the review that approves it.",
+            "deliverable": "srv_rack_assets"
           }
         ]
       },
@@ -1805,6 +1861,14 @@
             "frameworks": [
               "NIST_CSF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "lnx",
+            "artifact": "Server Bring-Up Log",
+            "note": "Your section of the Server Bring-Up Log, for the review that approves it.",
+            "deliverable": "srv_bringup"
           }
         ]
       },
@@ -2143,6 +2207,14 @@
               "CIS"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "win",
+            "artifact": "Rack, Power & Asset Register",
+            "note": "Your section of the Rack, Power & Asset Register, for the review that approves it.",
+            "deliverable": "srv_rack_assets"
+          }
         ]
       },
       {
@@ -2220,6 +2292,14 @@
             "frameworks": [
               "NIST_CSF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "win",
+            "artifact": "IP Plan & Connectivity Proof",
+            "note": "Your section of the IP Plan & Connectivity Proof, for the review that approves it.",
+            "deliverable": "srv_ip_plan"
           }
         ]
       },
@@ -2790,6 +2870,14 @@
             "expectedOutput": "vmbr2 carries the physical NIC as a member, the private-zone hosts still reach 192.168.0.1 — now the Cisco router — and they reach the internet through it.",
             "outputKind": "result"
           }
+        ],
+        "handoff": [
+          {
+            "to": "win",
+            "artifact": "IP Plan & Connectivity Proof",
+            "note": "Your section of the IP Plan & Connectivity Proof, for the review that approves it.",
+            "deliverable": "srv_ip_plan"
+          }
         ]
       },
       {
@@ -2855,6 +2943,14 @@
             "frameworks": [
               "NIST_CSF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "mgmt",
+            "artifact": "Operations Log & SOPs",
+            "note": "Your section of the Operations Log & SOPs, for the review that approves it.",
+            "deliverable": "srv_operations"
           }
         ]
       },
@@ -3497,6 +3593,14 @@
               }
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "lnx",
+            "artifact": "Operations Log & SOPs",
+            "note": "Your section of the Operations Log & SOPs, for the review that approves it.",
+            "deliverable": "srv_operations"
+          }
         ]
       },
       {
@@ -3660,6 +3764,14 @@
               "capstone_db"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "net",
+            "artifact": "DR Plan & As-Built Handover",
+            "note": "Your section of the DR Plan & As-Built Handover, for the review that approves it.",
+            "deliverable": "srv_as_built"
+          }
         ]
       },
       {
@@ -3721,6 +3833,14 @@
               "NIST_CSF",
               "CIS"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "net",
+            "artifact": "DR Plan & As-Built Handover",
+            "note": "Your section of the DR Plan & As-Built Handover, for the review that approves it.",
+            "deliverable": "srv_as_built"
           }
         ]
       },
@@ -5618,6 +5738,14 @@
               "NIST_CSF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "mgmt",
+            "artifact": "Rack, Power & Asset Register",
+            "note": "Your section of the Rack, Power & Asset Register, for the review that approves it.",
+            "deliverable": "srv_rack_assets"
+          }
         ]
       },
       {
@@ -5682,6 +5810,14 @@
             "frameworks": [
               "NIST_CSF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "mgmt",
+            "artifact": "Server Bring-Up Log",
+            "note": "Your section of the Server Bring-Up Log, for the review that approves it.",
+            "deliverable": "srv_bringup"
           }
         ]
       },
@@ -5755,6 +5891,14 @@
               "NIST_CSF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "mgmt",
+            "artifact": "IP Plan & Connectivity Proof",
+            "note": "Your section of the IP Plan & Connectivity Proof, for the review that approves it.",
+            "deliverable": "srv_ip_plan"
+          }
         ]
       },
       {
@@ -5811,6 +5955,14 @@
               "NIST_CSF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "mgmt",
+            "artifact": "DR Plan & As-Built Handover",
+            "note": "Your section of the DR Plan & As-Built Handover, for the review that approves it.",
+            "deliverable": "srv_as_built"
+          }
         ]
       },
       {
@@ -5850,6 +6002,14 @@
             "frameworks": [
               "NIST_CSF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "mgmt",
+            "artifact": "Architecture Brief",
+            "note": "Your section of the Architecture Brief, for the review that approves it.",
+            "deliverable": "srv_business_reqs"
           }
         ]
       },
@@ -5916,6 +6076,14 @@
               "NIST_CSF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "mgmt",
+            "artifact": "Server Bring-Up Log",
+            "note": "Your section of the Server Bring-Up Log, for the review that approves it.",
+            "deliverable": "srv_bringup"
+          }
         ]
       },
       {
@@ -5981,6 +6149,14 @@
               "NIST_CSF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "mgmt",
+            "artifact": "Baselines, Policies & Standards",
+            "note": "Your section of the Baselines, Policies & Standards, for the review that approves it.",
+            "deliverable": "srv_standards"
+          }
         ]
       },
       {
@@ -6045,6 +6221,14 @@
             "frameworks": [
               "NIST_CSF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "mgmt",
+            "artifact": "DR Plan & As-Built Handover",
+            "note": "Your section of the DR Plan & As-Built Handover, for the review that approves it.",
+            "deliverable": "srv_as_built"
           }
         ]
       },
@@ -6112,6 +6296,14 @@
               "NIST_CSF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "mgmt",
+            "artifact": "Hardware Discovery, HCL & Upgrade Plan",
+            "note": "Your section of the Hardware Discovery, HCL & Upgrade Plan, for the review that approves it.",
+            "deliverable": "srv_hardware"
+          }
         ]
       },
       {
@@ -6173,6 +6365,14 @@
             "frameworks": [
               "NIST_CSF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "mgmt",
+            "artifact": "Server Bring-Up Log",
+            "note": "Your section of the Server Bring-Up Log, for the review that approves it.",
+            "deliverable": "srv_bringup"
           }
         ]
       },
@@ -6239,6 +6439,14 @@
             "frameworks": [
               "NIST_CSF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "mgmt",
+            "artifact": "IP Plan & Connectivity Proof",
+            "note": "Your section of the IP Plan & Connectivity Proof, for the review that approves it.",
+            "deliverable": "srv_ip_plan"
           }
         ]
       },
@@ -6313,6 +6521,14 @@
               "NIST_CSF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "mgmt",
+            "artifact": "Baselines, Policies & Standards",
+            "note": "Your section of the Baselines, Policies & Standards, for the review that approves it.",
+            "deliverable": "srv_standards"
+          }
         ]
       },
       {
@@ -6352,6 +6568,14 @@
             "frameworks": [
               "NIST_CSF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "win",
+            "artifact": "Architecture Brief",
+            "note": "Your section of the Architecture Brief, for the review that approves it.",
+            "deliverable": "srv_business_reqs"
           }
         ]
       },
@@ -6393,6 +6617,14 @@
               "NIST_CSF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "net",
+            "artifact": "Baselines, Policies & Standards",
+            "note": "Your section of the Baselines, Policies & Standards, for the review that approves it.",
+            "deliverable": "srv_standards"
+          }
         ]
       },
       {
@@ -6433,6 +6665,14 @@
               "NIST_CSF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "lnx",
+            "artifact": "Operations Log & SOPs",
+            "note": "Your section of the Operations Log & SOPs, for the review that approves it.",
+            "deliverable": "srv_operations"
+          }
         ]
       },
       {
@@ -6472,6 +6712,14 @@
             "frameworks": [
               "NIST_CSF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "net",
+            "artifact": "DR Plan & As-Built Handover",
+            "note": "Your section of the DR Plan & As-Built Handover, for the review that approves it.",
+            "deliverable": "srv_as_built"
           }
         ]
       },
@@ -6948,7 +7196,7 @@
       "owner": "net",
       "shared": true,
       "folder": "00_Planning",
-      "standard": "Architecture definition",
+      "standard": "Architecture definition · NIST SP 800-53 PL-8",
       "weeks": [
         2
       ],
@@ -7199,7 +7447,7 @@
       "owner": "lnx",
       "shared": true,
       "folder": "01_Hardware",
-      "standard": "Hardware audit & compatibility validation",
+      "standard": "Hardware audit & compatibility validation · NIST SP 800-53 CM-8",
       "weeks": [
         1
       ],
@@ -7616,7 +7864,7 @@
       "owner": "win",
       "shared": true,
       "folder": "02_BringUp",
-      "standard": "Troubleshooting method, RAID & hypervisor build record",
+      "standard": "Troubleshooting method, RAID & hypervisor build record · NIST SP 800-53 CM-2",
       "weeks": [
         1,
         2
@@ -8136,7 +8384,7 @@
       "owner": "net",
       "shared": true,
       "folder": "03_Rack",
-      "standard": "Physical installation & asset inventory",
+      "standard": "Physical installation & asset inventory · NIST SP 800-53 CM-8",
       "weeks": [
         2
       ],
@@ -8517,7 +8765,7 @@
       "owner": "net",
       "shared": true,
       "folder": "04_Network",
-      "standard": "Addressing plan & connectivity verification",
+      "standard": "Addressing plan & connectivity verification · NIST SP 800-53 SC-7",
       "weeks": [
         3
       ],
@@ -8980,7 +9228,7 @@
       "owner": "lnx",
       "shared": true,
       "folder": "05_Standards",
-      "standard": "Configuration baseline, hardening benchmark & written policy",
+      "standard": "Configuration baseline, hardening benchmark & written policy · NIST SP 800-53 CM-6",
       "weeks": [
         3,
         4
@@ -9467,7 +9715,7 @@
       "owner": "win",
       "shared": true,
       "folder": "06_Operations",
-      "standard": "Change & patch management, standard operating procedures",
+      "standard": "Change & patch management, standard operating procedures · NIST SP 800-53 CM-3",
       "weeks": [
         2,
         3,
@@ -9903,7 +10151,7 @@
       "owner": "mgmt",
       "shared": true,
       "folder": "07_Handover",
-      "standard": "Disaster recovery & as-built handover documentation",
+      "standard": "Disaster recovery & as-built handover documentation · NIST SP 800-53 CP-9",
       "weeks": [
         4,
         5,
@@ -15363,6 +15611,15 @@
           ]
         },
         {
+          "code": "NIST.800-53.CM-8",
+          "standard": "NIST_800_53",
+          "label": "System Component Inventory",
+          "parent": "NIST.800-53.CM",
+          "cites": [
+            "CM-8"
+          ]
+        },
+        {
           "code": "NIST.800-53.CP-4",
           "standard": "NIST_800_53",
           "label": "Contingency Plan Testing",
@@ -15846,7 +16103,32 @@
           ]
         }
       ],
-      "CONTROL_OF": {},
+      "CONTROL_OF": {
+        "srv_business_reqs": [
+          "NIST.800-53.PL-8"
+        ],
+        "srv_hardware": [
+          "NIST.800-53.CM-8"
+        ],
+        "srv_bringup": [
+          "NIST.800-53.CM-2"
+        ],
+        "srv_rack_assets": [
+          "NIST.800-53.CM-8"
+        ],
+        "srv_ip_plan": [
+          "NIST.800-53.SC-7"
+        ],
+        "srv_standards": [
+          "NIST.800-53.CM-6"
+        ],
+        "srv_operations": [
+          "NIST.800-53.CM-3"
+        ],
+        "srv_as_built": [
+          "NIST.800-53.CP-9"
+        ]
+      },
       "COPY": {
         "cardTitle": "Skills",
         "cardIntro": "What this course has recorded for this member: exam domains, skills, tools, procedures and standards.",
@@ -21709,7 +21991,8 @@
             "virt",
             "continuity",
             "observe",
-            "docs"
+            "docs",
+            "cloud"
           ],
           "requiredCompetencies": [
             "comp.hardware.receive-and-inspect",
@@ -21779,7 +22062,56 @@
             "comp.continuity.restore-from-image",
             "comp.docs.equipment-research",
             "comp.docs.bill-of-materials",
-            "comp.docs.migration-plan"
+            "comp.docs.migration-plan",
+            "comp.cloud.budget-and-tags",
+            "comp.cloud.shared-responsibility",
+            "comp.cloud.network-foundation",
+            "comp.cloud.team-repo-and-board",
+            "comp.cloud.identity-and-groups",
+            "comp.cloud.cost-estimate",
+            "comp.cloud.launch-vm",
+            "comp.cloud.static-site-https",
+            "comp.cloud.ssh-from-one-ip",
+            "comp.cloud.request-flow",
+            "comp.cloud.managed-database",
+            "comp.cloud.serverless-api",
+            "comp.cloud.read-only-access",
+            "comp.cloud.cost-report",
+            "comp.cloud.error-alert",
+            "comp.cloud.read-logs",
+            "comp.cloud.audit-trail",
+            "comp.cloud.access-matrix",
+            "comp.cloud.secrets-in-vault",
+            "comp.cloud.managed-identity",
+            "comp.cloud.prove-denial",
+            "comp.cloud.two-zone-design",
+            "comp.cloud.scale-set",
+            "comp.cloud.load-balancer",
+            "comp.cloud.private-access-path",
+            "comp.cloud.data-store-choice",
+            "comp.cloud.ha-database",
+            "comp.cloud.queue-and-ledger",
+            "comp.cloud.data-lockdown",
+            "comp.cloud.autoscale-target",
+            "comp.cloud.autoscale-and-self-heal",
+            "comp.cloud.restore-file-and-database",
+            "comp.cloud.recovery-drill-and-teardown",
+            "comp.cloud.template-map",
+            "comp.cloud.inventory-and-drift",
+            "comp.cloud.deploy-from-template",
+            "comp.cloud.policy-as-code",
+            "comp.cloud.change-request-and-gates",
+            "comp.cloud.branch-protection",
+            "comp.cloud.staged-pipeline",
+            "comp.cloud.oidc-deploy-identity",
+            "comp.cloud.cost-by-service-and-slos",
+            "comp.cloud.blue-green",
+            "comp.cloud.canary",
+            "comp.cloud.dashboard-and-compliance",
+            "comp.cloud.handover-package",
+            "comp.cloud.rebuild-and-automate",
+            "comp.cloud.fix-through-ci",
+            "comp.cloud.contain-and-post-mortem"
           ]
         },
         {

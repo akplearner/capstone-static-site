@@ -127,7 +127,9 @@ describe('lookup helpers', () => {
   it('deliverablesForRole returns only that role+course and matches getDeliverable', () => {
     const grc = deliverablesForRole('grc', 'security-plus');
     expect(grc.length).toBeGreaterThan(0);
-    expect(grc.every((d) => d.owner === 'grc')).toBe(true);
+    // R138: the team's change log is shared, so every role fills it beside the forms it owns.
+    expect(grc.every((d) => d.owner === 'grc' || d.shared)).toBe(true);
+    expect(grc.some((d) => d.owner === 'grc')).toBe(true);
     expect(grc.every((d) => courseIdOf(d) === 'security-plus')).toBe(true);
     expect(getDeliverable(grc[0].id)).toEqual(grc[0]);
   });

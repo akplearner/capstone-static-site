@@ -634,10 +634,64 @@
       "resolved": "."
     },
     {
-      "form": "change_log",
-      "group": "changes",
-      "outcome": "evidence",
+      "form": "pentest_report",
+      "group": "findings",
+      "outcome": "remediation",
       "resolved": "."
+    },
+    {
+      "form": "risk_register",
+      "group": "risks",
+      "outcome": "status",
+      "resolved": "closed"
+    },
+    {
+      "form": "mssp_detection_rules",
+      "group": "rules",
+      "outcome": "validated",
+      "resolved": "fired"
+    },
+    {
+      "form": "mssp_internal_audit",
+      "group": "findings",
+      "outcome": "result",
+      "resolved": "conformity|opportunity"
+    },
+    {
+      "form": "cysa_scan_validation",
+      "group": "comparison",
+      "outcome": "agree",
+      "resolved": "yes"
+    },
+    {
+      "form": "cysa_coverage_validation",
+      "group": "sources",
+      "outcome": "present",
+      "resolved": "yes"
+    },
+    {
+      "form": "secai_control_set",
+      "group": "controls",
+      "outcome": "result",
+      "resolved": "pass|ok|blocked|contained|closed|held|green"
+    },
+    {
+      "form": "secai_governance_pack",
+      "group": "weaknesses",
+      "outcome": "status",
+      "resolved": "handled|accepted"
+    },
+    {
+      "form": "cissp_d4",
+      "group": "flows",
+      "outcome": "review",
+      "resolved": "approved|accepted|ok|pass|allow|closed|kept"
+    },
+    {
+      "form": "cissp_d7",
+      "group": "drills",
+      "outcome": "result",
+      "resolved": "met"
     },
     {
       "form": "mssp_retest",
@@ -768,6 +822,21 @@
   ],
   "changeGroups": [
     {
+      "form": "change_log",
+      "group": "changes",
+      "rollback": "rollback"
+    },
+    {
+      "form": "mssp_control_matrix",
+      "group": "changes",
+      "rollback": "rollback"
+    },
+    {
+      "form": "cysa_soc_monitoring",
+      "group": "changes",
+      "rollback": "rollback"
+    },
+    {
       "form": "srv_operations",
       "group": "changes",
       "rollback": "rollback"
@@ -783,14 +852,39 @@
       "rollback": "rollback"
     },
     {
+      "form": "ap_os",
+      "group": "fw_changes",
+      "rollback": "rollback"
+    },
+    {
       "form": "np_handover",
       "group": "risks",
       "rollback": "rollback"
     },
     {
-      "form": "azd_change",
+      "form": "secai_control_set",
+      "group": "changes",
+      "rollback": "rollback"
+    },
+    {
+      "form": "cissp_d8",
+      "group": "changes",
+      "rollback": "rollback"
+    },
+    {
+      "form": "incident",
+      "group": "changes",
+      "rollback": "rollback"
+    },
+    {
+      "form": "server",
+      "group": "changes",
+      "rollback": "rollback"
+    },
+    {
+      "form": "change",
       "group": "runs",
-      "rollback": "result"
+      "rollback": "rollback"
     }
   ],
   "rationalePattern": "(^|_)(why|because|rationale|reason|justification|rejected|decision|treatment)($|_)"

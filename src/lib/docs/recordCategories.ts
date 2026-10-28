@@ -135,8 +135,18 @@ export interface TroubleGroup {
 }
 
 export const TROUBLE_GROUPS: TroubleGroup[] = [
+  // R138: a fault table on a form of EVERY role, with a column that says how the case ended.
   { form: 'incident_report', group: 'iocs', outcome: 'attack_type', resolved: '.' },
-  { form: 'change_log', group: 'changes', outcome: 'evidence', resolved: '.' },
+  { form: 'pentest_report', group: 'findings', outcome: 'remediation', resolved: '.' },
+  { form: 'risk_register', group: 'risks', outcome: 'status', resolved: 'closed' },
+  { form: 'mssp_detection_rules', group: 'rules', outcome: 'validated', resolved: 'fired' },
+  { form: 'mssp_internal_audit', group: 'findings', outcome: 'result', resolved: 'conformity|opportunity' },
+  { form: 'cysa_scan_validation', group: 'comparison', outcome: 'agree', resolved: 'yes' },
+  { form: 'cysa_coverage_validation', group: 'sources', outcome: 'present', resolved: 'yes' },
+  { form: 'secai_control_set', group: 'controls', outcome: 'result', resolved: 'pass|ok|blocked|contained|closed|held|green' },
+  { form: 'secai_governance_pack', group: 'weaknesses', outcome: 'status', resolved: 'handled|accepted' },
+  { form: 'cissp_d4', group: 'flows', outcome: 'review', resolved: 'approved|accepted|ok|pass|allow|closed|kept' },
+  { form: 'cissp_d7', group: 'drills', outcome: 'result', resolved: 'met' },
   { form: 'mssp_retest', group: 'findings', outcome: 'retest', resolved: 'pass|fixed|closed|resolved|remediated' },
   { form: 'cysa_alert_triage', group: 'alerts', outcome: 'verdict', resolved: '.' },
   { form: 'cysa_soc_findings', group: 'known', outcome: 'remediation', resolved: '.' },
@@ -168,11 +178,21 @@ export interface ChangeGroup {
 }
 
 export const CHANGE_GROUPS: ChangeGroup[] = [
+  // R138: a change table with a rollback column in every course, on a shared form so every role reads it.
+  { form: 'change_log', group: 'changes', rollback: 'rollback' },
+  { form: 'mssp_control_matrix', group: 'changes', rollback: 'rollback' },
+  { form: 'cysa_soc_monitoring', group: 'changes', rollback: 'rollback' },
   { form: 'srv_operations', group: 'changes', rollback: 'rollback' },
   { form: 'srv_operations', group: 'sops', rollback: 'rollback' },
   { form: 'ccna_ops', group: 'changes', rollback: 'rollback' },
+  { form: 'ap_os', group: 'fw_changes', rollback: 'rollback' },
   { form: 'np_handover', group: 'risks', rollback: 'rollback' },
-  { form: 'azd_change', group: 'runs', rollback: 'result' },
+  { form: 'secai_control_set', group: 'changes', rollback: 'rollback' },
+  { form: 'cissp_d8', group: 'changes', rollback: 'rollback' },
+  // The cloud courses by base id: the incident report (Fundamentals), the runbook (Administrator), the pipeline runs (DevOps).
+  { form: 'incident', group: 'changes', rollback: 'rollback' },
+  { form: 'server', group: 'changes', rollback: 'rollback' },
+  { form: 'change', group: 'runs', rollback: 'rollback' },
 ];
 
 /** A column or field whose words are a reason: the unstructured decisions the Thought Process domain counts. */

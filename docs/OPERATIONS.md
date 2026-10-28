@@ -147,6 +147,10 @@ has failed silently in some deployment of some product; none takes more than a m
   has no issues section). The account page's **Export my data (JSON)** and the Deliverables page's
   **Export my work (.json)** (a handoff file with **Restore from file**) are still JSON on purpose.
   `docs/FIX_LIST.md` item F6.
+- [ ] **Every course feeds every KPI (R138):** on `/courses/ccna/skills` as any role, no tile reads "Not measured in this
+  course for this role" except the three decision tiles for a non-drafting role; a CCNA task shows show-command steps with
+  a verify box; a cloud Infrastructure member sees the Network Design Document as a form they draft; every form ends with a
+  Document control block.
 - [ ] **Not measured is a state (R137):** on `/courses/ccna/skills` as any role, the own-output tiles read "Not
   measured in this course for this role" with a dash, never "0 of 0"; a fresh member on `/courses/server-plus/skills`
   reads "Nothing to count yet" on First-try; the cohort report shows a fifth band, Not measured.

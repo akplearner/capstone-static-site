@@ -140,28 +140,28 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | blue: 83 percent of the exam over 3 domains; grc: 100 percent of the exam over 4 domains; red: 100 percent of the exam over 4 domains |
 | Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | blue: 4 verifiable steps that run a command; grc: 7 verifiable steps that run a command; red: 4 verifiable steps that run a command |
 | Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | blue: 9 procedures; grc: 11 procedures; red: 11 procedures |
-| Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | blue: 2 fault, incident or triage tables; grc: 0 fault, incident or triage tables; red: 2 fault, incident or triage tables |
+| Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | blue: 2 fault, incident or triage tables; grc: 2 fault, incident or triage tables; red: 2 fault, incident or triage tables |
 | Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | blue: 6 verifiable steps; grc: 8 verifiable steps; red: 4 verifiable steps |
 | Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
 | Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | blue: 6 verifiable steps that can carry two stamps; grc: 8 verifiable steps that can carry two stamps; red: 4 verifiable steps that can carry two stamps |
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | blue: 1 task with two or more verifiable steps; grc: 3 tasks with two or more verifiable steps; red: 2 tasks with two or more verifiable steps |
 | First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | blue: 6 verifiable steps; grc: 8 verifiable steps; red: 4 verifiable steps |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
-| Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | blue: 10 checks on 4 forms; grc: 12 checks on 4 forms; red: 11 checks on 4 forms |
+| Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | blue: 10 checks on 4 forms; grc: 14 checks on 5 forms; red: 13 checks on 5 forms |
 | Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | blue: 0 decision blocks; grc: 0 decision blocks; red: 1 decision block |
 | Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | blue: 0 decision blocks; grc: 0 decision blocks; red: 1 decision block |
 | Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | blue: 0 decision blocks; grc: 0 decision blocks; red: 1 decision block |
-| Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | blue: 0 change tables with a rollback column; grc: 0 change tables with a rollback column; red: 0 change tables with a rollback column |
-| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | blue: 0 hand-offs; grc: 0 hand-offs; red: 0 hand-offs |
+| Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | blue: 1 change table with a rollback column; grc: 1 change table with a rollback column; red: 1 change table with a rollback column |
+| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | blue: 4 hand-offs; grc: 5 hand-offs; red: 4 hand-offs |
 | RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | blue: 12 forms with a RACI; grc: 12 forms with a RACI; red: 12 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
 | On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | blue: 4 tasks of the role; grc: 5 tasks of the role; red: 4 tasks of the role |
-| Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | blue: 4 forms; grc: 4 forms; red: 4 forms |
+| Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | blue: 4 forms; grc: 5 forms; red: 5 forms |
 | Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | blue: 4 control codes on 4 forms; grc: 5 control codes on 4 forms; red: 5 control codes on 4 forms |
-| Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | blue: 4 forms; grc: 4 forms; red: 4 forms |
+| Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | blue: 4 forms; grc: 5 forms; red: 5 forms |
 | Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | blue: 0 skills on two or more tasks; grc: 0 skills on two or more tasks; red: 0 skills on two or more tasks |
 | Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | blue: 4 skills with a verifiable step; grc: 9 skills with a verifiable step; red: 4 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
-| Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | blue: Cyber Defense Analyst: 29 required, 26 not taught here; grc: Threat and Warning Analyst: 24 required, 17 not taught here; red: Vulnerability Assessment Analyst: 22 required, 19 not taught here |
+| Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | blue: Cyber Defense Analyst: 78 required, 75 not taught here; grc: Threat and Warning Analyst: 24 required, 17 not taught here; red: Vulnerability Assessment Analyst: 22 required, 19 not taught here |
 

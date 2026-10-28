@@ -1,7 +1,7 @@
 import type { Course, Task } from '../types';
 import type { DeliverableDef } from './types';
 import { isSetupWeek } from '../course-helpers';
-import { parseStandard, CONTROL_EXCEPTIONS } from './standards';
+import { parseStandard, CONTROL_EXCEPTIONS, practiceKeyOf } from './standards';
 import type { SkillNode } from './skills';
 import type { ToolDef } from './tools';
 import type { StandardDef, ControlRef } from './standards';
@@ -121,7 +121,7 @@ export function courseCoverage(course: Pick<Course, 'tasks' | 'weeks'>, reg: Ski
 
 /** The practices a form's `standard` stands for when it cites no control. */
 export function practicesOfForm(form: Pick<DeliverableDef, 'standard'>): string[] {
-  return CONTROL_EXCEPTIONS[form.standard] ?? [];
+  return CONTROL_EXCEPTIONS[practiceKeyOf(form.standard)] ?? [];
 }
 
 /** The counts `index.json` carries: distinct ids the tasks (and the forms, for SOPs and controls) use. */

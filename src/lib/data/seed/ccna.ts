@@ -465,6 +465,56 @@ const TASKS: Task[] = [
             'The building decides half the design: cable distance, where power is, and where a switch can actually live.',
         }
       ),
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w1-discover-s3',
+        title: 'Count what is already there',
+        description: 'The existing kit, from CDP rather than the spreadsheet.',
+        where: 'Each switch — console or SSH',
+        instruction: 'On the existing switch, list the neighbours and the MAC table size. The requirements register gets the real numbers.',
+        commands: [
+          {
+            cmd: 'show cdp neighbors',
+            explain: 'Every directly connected Cisco device, its port and its platform. What the old network really is.',
+            sample: 'Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID\nSW-OLD-02        Gig 1/0/24        151            S I    WS-C2960  Gig 1/0/24\nR-OLD            Gig 1/0/1         132            R      ISR4221   Gig 0/0/0',
+          },
+          {
+            cmd: 'show mac address-table count',
+            explain: 'How many hosts the switch has learnt. The user count for the requirements, not a guess.',
+            sample: 'Mac Entries for Vlan 1:\n---------------------------\nDynamic Address Count  : 47\nStatic  Address Count  : 0\nTotal Mac Addresses    : 47',
+          },
+        ],
+        expectedOutput: 'SW-OLD-01# show cdp neighbors\nDevice ID        Local Intrfce     Holdtme    Capability  Platform  Port ID\nSW-OLD-02        Gig 1/0/24        151            S I    WS-C2960  Gig 1/0/24\nR-OLD            Gig 1/0/1         132            R      ISR4221   Gig 0/0/0\n\nSW-OLD-01# show mac address-table count\nDynamic Address Count  : 47\nTotal Mac Addresses    : 47',
+        outputKind: 'console',
+        verify: ['Device ID', 'Total Mac Addresses'],
+        whatItMeans: 'A requirements register built from the device beats one built from memory: the host count and the neighbour list are what the new design has to carry.',
+        frameworks: ['CCNA'],
+      },
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w1-discover-s4',
+        title: 'Read the addressing in use',
+        description: 'The old subnet and gateway, from the device.',
+        where: 'Each switch — console or SSH',
+        instruction: 'Read the management address and the default gateway of the existing switch, then record the subnet the users sit in today.',
+        commands: [
+          {
+            cmd: 'show ip interface brief',
+            explain: 'Every interface with its address and state. The management VLAN interface is the one with an address.',
+            sample: 'Interface              IP-Address      OK? Method Status                Protocol\nVlan1                  192.168.1.2     YES NVRAM  up                    up\nGigabitEthernet1/0/1   unassigned      YES unset  up                    up',
+          },
+          {
+            cmd: 'show ip default-gateway',
+            explain: 'Where the switch sends traffic it cannot route itself: the old gateway the users share.',
+            sample: '192.168.1.1',
+          },
+        ],
+        expectedOutput: 'SW-OLD-01# show ip interface brief\nInterface              IP-Address      OK? Method Status                Protocol\nVlan1                  192.168.1.2     YES NVRAM  up                    up\n\nSW-OLD-01# show ip default-gateway\n192.168.1.1',
+        outputKind: 'console',
+        verify: ['IP-Address', 'Vlan1'],
+        whatItMeans: 'One flat 192.168.1.0/24 with everything in VLAN 1 is the usual finding, and it is the reason the design has departments.',
+        frameworks: ['CCNA'],
+      },
     ],
   },
   {
@@ -511,6 +561,46 @@ const TASKS: Task[] = [
             'A boundary stated in business words survives a change of staff. One stated as an ACL number does not.',
         }
       ),
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w1-design-s3',
+        title: 'Reserve the VLAN ids on the core',
+        description: 'The VLAN table before any port moves.',
+        where: 'SW-CORE-01 — console or SSH',
+        instruction: 'Create the VLANs from the high-level design on the core switch, names included, then show the table. The plan and the device must agree.',
+        commands: [
+          {
+            cmd: 'show vlan brief',
+            explain: 'Every VLAN with its name and the ports in it. Empty port lists are expected: nothing has moved yet.',
+            sample: 'VLAN Name                             Status    Ports\n---- -------------------------------- --------- -------------------------------\n1    default                          active    Gi1/0/1, Gi1/0/2\n10   CORP-USERS                       active\n20   SERVERS                          active\n99   MGMT                             active',
+          },
+        ],
+        expectedOutput: 'SW-CORE-01# show vlan brief\nVLAN Name                             Status    Ports\n---- -------------------------------- --------- -------------------------------\n1    default                          active    Gi1/0/1, Gi1/0/2\n10   CORP-USERS                       active\n20   SERVERS                          active\n99   MGMT                             active',
+        outputKind: 'console',
+        verify: ['CORP-USERS', 'MGMT'],
+        whatItMeans: 'A VLAN that exists with its name on the device is a design decision made real; a VLAN that exists only in the document is still an idea.',
+        frameworks: ['CCNA'],
+      },
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w1-design-s4',
+        title: 'Prove the core can route',
+        description: 'The routing table, before the design relies on it.',
+        where: 'SW-CORE-01 — console or SSH',
+        instruction: 'Enable routing on the core and show the table. The design puts every gateway here, so this must say yes.',
+        commands: [
+          {
+            cmd: 'show ip route',
+            explain: 'A routing table means the switch routes. “Invalid input” means the design needs a router-on-a-stick instead.',
+            sample: 'Codes: L - local, C - connected, S - static\n\nGateway of last resort is not set\n\n      10.0.0.0/8 is variably subnetted, 2 subnets, 2 masks\nC        10.50.99.0/24 is directly connected, Vlan99\nL        10.50.99.2/32 is directly connected, Vlan99',
+          },
+        ],
+        expectedOutput: 'SW-CORE-01# show ip route\nCodes: L - local, C - connected, S - static\n\nGateway of last resort is not set\n\n      10.0.0.0/8 is variably subnetted, 2 subnets, 2 masks\nC        10.50.99.0/24 is directly connected, Vlan99',
+        outputKind: 'console',
+        verify: ['Codes:', 'directly connected'],
+        whatItMeans: 'The high-level design chose a Layer 3 core. This output is the proof the kit can be that core; without it the design changes before Week 2.',
+        frameworks: ['CCNA'],
+      },
     ],
   },
   {
@@ -556,6 +646,56 @@ const TASKS: Task[] = [
             'Interface counters are the only place a bad cable admits what it is doing. Read them before you trust the link.',
         }
       ),
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w1-bringup-s3',
+        title: 'Name the switch and set the management address',
+        description: 'Hostname, VLAN 99 address, default gateway.',
+        where: 'Each switch — console or SSH',
+        instruction: 'Give the switch its name from the plan, put its address in the management VLAN, set the gateway, then read both back.',
+        commands: [
+          {
+            cmd: 'show running-config | include hostname|ip default-gateway',
+            explain: 'The two lines the plan fixed: who the switch is and where it sends management traffic.',
+            sample: 'hostname SW-ACC-01\nip default-gateway 10.50.99.1',
+          },
+          {
+            cmd: 'show ip interface brief | include Vlan',
+            explain: 'The management SVI with its address, up and up. Anything else and SSH will not reach it.',
+            sample: 'Vlan99                 10.50.99.11     YES manual up                    up',
+          },
+        ],
+        expectedOutput: 'SW-ACC-01# show running-config | include hostname|ip default-gateway\nhostname SW-ACC-01\nip default-gateway 10.50.99.1\n\nSW-ACC-01# show ip interface brief | include Vlan\nVlan99                 10.50.99.11     YES manual up                    up',
+        outputKind: 'console',
+        verify: ['hostname', 'Vlan99'],
+        whatItMeans: 'A switch you can name and reach is a switch you can manage from your desk. Everything after this week is typed over SSH, not a console cable.',
+        frameworks: ['CCNA'],
+      },
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w1-bringup-s4',
+        title: 'Save it and prove it survives a reload',
+        description: 'startup-config matches running-config.',
+        where: 'Each switch — console or SSH',
+        instruction: 'Write the configuration, then compare the saved copy with the running one. A build that lives only in RAM is lost at the first power cut.',
+        commands: [
+          {
+            cmd: 'write memory',
+            explain: 'Copies the running configuration to NVRAM. The one command students forget.',
+            sample: 'Building configuration...\n[OK]',
+          },
+          {
+            cmd: 'show startup-config | include hostname',
+            explain: 'Reads the SAVED copy. If the hostname is there, the save happened.',
+            sample: 'hostname SW-ACC-01',
+          },
+        ],
+        expectedOutput: 'SW-ACC-01# write memory\nBuilding configuration...\n[OK]\nSW-ACC-01# show startup-config | include hostname\nhostname SW-ACC-01',
+        outputKind: 'console',
+        verify: ['[OK]', 'hostname'],
+        whatItMeans: 'Half of the “it was working yesterday” tickets are a configuration that was never saved. The build log records the save as a step, not an assumption.',
+        frameworks: ['CCNA'],
+      },
     ],
   },
 
@@ -603,6 +743,46 @@ const TASKS: Task[] = [
             'A native VLAN that differs on the two ends of a trunk is the classic fault. Stating it explicitly is the fix.',
         }
       ),
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w2-vlans-s3',
+        title: 'Prove the VLANs and the access ports',
+        description: 'Every VLAN present, every port where the plan says.',
+        where: 'Each switch — console or SSH',
+        instruction: 'Show the VLAN table on each switch and compare it, line by line, with the LLD. A port in the wrong VLAN is found here, not by the user.',
+        commands: [
+          {
+            cmd: 'show vlan brief',
+            explain: 'Each VLAN with the access ports assigned to it. The port column is the plan made real.',
+            sample: 'VLAN Name                             Status    Ports\n---- -------------------------------- --------- -------------------------------\n10   CORP-USERS                       active    Gi1/0/1, Gi1/0/2, Gi1/0/3\n20   SERVERS                          active    Gi1/0/13, Gi1/0/14\n30   VOICE                            active    Gi1/0/5\n99   MGMT                             active',
+          },
+        ],
+        expectedOutput: 'SW-ACC-01# show vlan brief\nVLAN Name                             Status    Ports\n---- -------------------------------- --------- -------------------------------\n10   CORP-USERS                       active    Gi1/0/1, Gi1/0/2, Gi1/0/3\n20   SERVERS                          active    Gi1/0/13, Gi1/0/14\n30   VOICE                            active    Gi1/0/5\n99   MGMT                             active',
+        outputKind: 'console',
+        verify: ['CORP-USERS', 'SERVERS'],
+        whatItMeans: 'The LLD says which port is in which department; this table says which port really is. The two agreeing is the whole point of writing the plan first.',
+        frameworks: ['CCNA'],
+      },
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w2-vlans-s4',
+        title: 'Prove the trunk carries them',
+        description: 'Both ends: trunking, native VLAN stated, VLANs allowed.',
+        where: 'Each switch — console or SSH',
+        instruction: 'Show the trunk on both switches. The native VLAN and the allowed list must match on both ends, or the mismatch log line is your fault.',
+        commands: [
+          {
+            cmd: 'show interfaces trunk',
+            explain: 'Which ports trunk, with what encapsulation, which native VLAN, and which VLANs are allowed and active.',
+            sample: 'Port        Mode             Encapsulation  Status        Native vlan\nGi1/0/24    on               802.1q         trunking      99\n\nPort        Vlans allowed on trunk\nGi1/0/24    10,20,30,40,50,60,99\n\nPort        Vlans allowed and active in management domain\nGi1/0/24    10,20,30,40,50,60,99',
+          },
+        ],
+        expectedOutput: 'SW-ACC-01# show interfaces trunk\nPort        Mode             Encapsulation  Status        Native vlan\nGi1/0/24    on               802.1q         trunking      99\n\nPort        Vlans allowed on trunk\nGi1/0/24    10,20,30,40,50,60,99',
+        outputKind: 'console',
+        verify: ['trunking', 'Native vlan'],
+        whatItMeans: 'A native VLAN that differs on the two ends of a trunk is the classic fault. This output, taken on both switches, is how you know it is not yours.',
+        frameworks: ['CCNA'],
+      },
     ],
   },
   {
@@ -649,6 +829,51 @@ const TASKS: Task[] = [
             'DHCP is where a design meets a real client. A wrong gateway in the pool looks exactly like a routing fault.',
         }
       ),
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w2-route-s3',
+        title: 'Bring the gateways up',
+        description: 'One SVI per VLAN, each with the gateway address from the plan.',
+        where: 'SW-CORE-01 — console or SSH',
+        instruction: 'Create the SVIs from the LLD, then show the interfaces. Every department gateway must be up and up before a PC can leave its VLAN.',
+        commands: [
+          {
+            cmd: 'show ip interface brief | include Vlan',
+            explain: 'The gateways, one per VLAN, with their state. A down/down SVI has no active port in its VLAN yet.',
+            sample: 'Vlan10                 10.50.10.1      YES manual up                    up\nVlan20                 10.50.20.1      YES manual up                    up\nVlan30                 10.50.30.1      YES manual up                    up\nVlan99                 10.50.99.1      YES manual up                    up',
+          },
+        ],
+        expectedOutput: 'SW-CORE-01# show ip interface brief | include Vlan\nVlan10                 10.50.10.1      YES manual up                    up\nVlan20                 10.50.20.1      YES manual up                    up\nVlan30                 10.50.30.1      YES manual up                    up\nVlan99                 10.50.99.1      YES manual up                    up',
+        outputKind: 'console',
+        verify: ['Vlan10', 'Vlan20'],
+        whatItMeans: 'The gateway a PC gets from DHCP has to exist somewhere. This is where, and this output is the first time the departments can talk to each other.',
+        frameworks: ['CCNA'],
+      },
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w2-route-s4',
+        title: 'Prove inter-VLAN routing with the table',
+        description: 'Connected routes for every department, then a ping across.',
+        where: 'SW-CORE-01 — console or SSH',
+        instruction: 'Show the routing table, then ping from the core into a user PC and a server. Both replies prove the core routes between departments.',
+        commands: [
+          {
+            cmd: 'show ip route connected',
+            explain: 'One connected route per SVI. A department missing here cannot be reached from any other.',
+            sample: 'C        10.50.10.0/24 is directly connected, Vlan10\nC        10.50.20.0/24 is directly connected, Vlan20\nC        10.50.30.0/24 is directly connected, Vlan30\nC        10.50.99.0/24 is directly connected, Vlan99',
+          },
+          {
+            cmd: 'ping 10.50.20.10 source 10.50.10.1',
+            explain: 'A ping from the users’ gateway to the server. Five exclamation marks is routing working.',
+            sample: 'Sending 5, 100-byte ICMP Echos to 10.50.20.10, timeout is 2 seconds:\nPacket sent with a source address of 10.50.10.1\n!!!!!\nSuccess rate is 100 percent (5/5)',
+          },
+        ],
+        expectedOutput: 'SW-CORE-01# show ip route connected\nC        10.50.10.0/24 is directly connected, Vlan10\nC        10.50.20.0/24 is directly connected, Vlan20\n\nSW-CORE-01# ping 10.50.20.10 source 10.50.10.1\n!!!!!\nSuccess rate is 100 percent (5/5)',
+        outputKind: 'console',
+        verify: ['directly connected', 'Success rate'],
+        whatItMeans: 'Routing is proved by a packet that crossed a VLAN boundary and came back. The table says it can; the ping says it did.',
+        frameworks: ['CCNA'],
+      },
     ],
   },
   {
@@ -694,6 +919,51 @@ const TASKS: Task[] = [
             'Redundancy nobody has tested is a belief. The number of lost pings is the evidence.',
         }
       ),
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w2-resilience-s3',
+        title: 'Read the spanning-tree root and roles',
+        description: 'The core is root; the second uplink is blocking.',
+        where: 'Each switch — console or SSH',
+        instruction: 'Show spanning tree for the user VLAN on the access switch. The root must be the core and exactly one uplink must be forwarding.',
+        commands: [
+          {
+            cmd: 'show spanning-tree vlan 10',
+            explain: 'Root bridge identity, this switch’s role per port, and which port is blocking the loop.',
+            sample: 'VLAN0010\n  Spanning tree enabled protocol rstp\n  Root ID    Priority    24586\n             Address     0c11.6700.0a01\n             Cost        4\n             Port        24 (GigabitEthernet1/0/24)\n\nInterface           Role Sts Cost      Prio.Nbr Type\n------------------- ---- --- --------- -------- --------------------------------\nGi1/0/23            Altn BLK 4         128.23   P2p\nGi1/0/24            Root FWD 4         128.24   P2p',
+          },
+        ],
+        expectedOutput: 'SW-ACC-01# show spanning-tree vlan 10\nVLAN0010\n  Spanning tree enabled protocol rstp\n  Root ID    Priority    24586\n             Address     0c11.6700.0a01\n\nInterface           Role Sts Cost      Prio.Nbr Type\nGi1/0/23            Altn BLK 4         128.23   P2p\nGi1/0/24            Root FWD 4         128.24   P2p',
+        outputKind: 'console',
+        verify: ['Root ID', 'BLK'],
+        whatItMeans: 'A blocking port is not a broken port: it is the loop prevention working. Knowing which port blocks is how you predict what happens when the other cable is pulled.',
+        frameworks: ['CCNA'],
+      },
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w2-resilience-s4',
+        title: 'Pull the cable and watch it recover',
+        description: 'The blocked port forwards within seconds; the ping stream resumes.',
+        where: 'Each switch — console or SSH',
+        instruction: 'Start a continuous ping from a PC to its gateway, unplug the forwarding uplink, then show spanning tree again. Record how many pings were lost.',
+        commands: [
+          {
+            cmd: 'show spanning-tree vlan 10 | include FWD|BLK',
+            explain: 'After the pull, the former Altn port must read FWD. If it still blocks, the topology did not converge.',
+            sample: 'Gi1/0/23            Root FWD 4         128.23   P2p',
+          },
+          {
+            cmd: 'show logging | include LINEPROTO',
+            explain: 'The log line that timestamps the failure; the gap to the next line is your recovery time.',
+            sample: '%LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet1/0/24, changed state to down',
+          },
+        ],
+        expectedOutput: 'SW-ACC-01# show spanning-tree vlan 10 | include FWD|BLK\nGi1/0/23            Root FWD 4         128.23   P2p\nSW-ACC-01# show logging | include LINEPROTO\n%LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet1/0/24, changed state to down',
+        outputKind: 'console',
+        verify: ['FWD', 'LINEPROTO'],
+        whatItMeans: 'Resilience you have not tested is a hope. The validation record gets the number of pings lost, which is the recovery time the business actually feels.',
+        frameworks: ['CCNA'],
+      },
     ],
   },
 
@@ -752,6 +1022,51 @@ const TASKS: Task[] = [
             'A correct route table is not the same as a user who can work. Test from where the user sits.',
         }
       ),
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w3-wan-s4',
+        title: 'Prove the OSPF neighbour',
+        description: 'FULL adjacency between the two sites.',
+        where: 'R1-HQ — console or SSH',
+        instruction: 'Enable OSPF on both routers for the WAN link and the site networks, then show the neighbour. FULL is the only state that means the sites exchange routes.',
+        commands: [
+          {
+            cmd: 'show ip ospf neighbor',
+            explain: 'The neighbour router, its state and the interface it is learnt on. FULL/DR or FULL/BDR is a working adjacency.',
+            sample: 'Neighbor ID     Pri   State           Dead Time   Address         Interface\n10.255.255.2      1   FULL/BDR        00:00:36    10.255.255.2    GigabitEthernet0/0/1',
+          },
+        ],
+        expectedOutput: 'R1-HQ# show ip ospf neighbor\nNeighbor ID     Pri   State           Dead Time   Address         Interface\n10.255.255.2      1   FULL/BDR        00:00:36    10.255.255.2    GigabitEthernet0/0/1',
+        outputKind: 'console',
+        verify: ['FULL', 'Neighbor ID'],
+        whatItMeans: 'Two routers that agree they are neighbours is the moment the second building joins the network. Anything other than FULL is a mismatch to find, not a slow link.',
+        frameworks: ['CCNA'],
+      },
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w3-wan-s5',
+        title: 'Prove the routes crossed the WAN',
+        description: 'Branch networks in the HQ table, learnt by OSPF.',
+        where: 'R1-HQ — console or SSH',
+        instruction: 'Show the OSPF routes at HQ and ping a branch gateway. The O routes are the branch; the ping is the proof the path works both ways.',
+        commands: [
+          {
+            cmd: 'show ip route ospf',
+            explain: 'Routes learnt by OSPF, marked O, with the next hop across the WAN.',
+            sample: '      10.0.0.0/8 is variably subnetted, 8 subnets, 2 masks\nO        10.60.110.0/24 [110/2] via 10.255.255.2, 00:04:11, GigabitEthernet0/0/1\nO        10.60.130.0/24 [110/2] via 10.255.255.2, 00:04:11, GigabitEthernet0/0/1',
+          },
+          {
+            cmd: 'ping 10.60.110.1',
+            explain: 'The branch users’ gateway, reached across the WAN. Five replies, both buildings are one network.',
+            sample: '!!!!!\nSuccess rate is 100 percent (5/5), round-trip min/avg/max = 2/3/5 ms',
+          },
+        ],
+        expectedOutput: 'R1-HQ# show ip route ospf\nO        10.60.110.0/24 [110/2] via 10.255.255.2, 00:04:11, GigabitEthernet0/0/1\nO        10.60.130.0/24 [110/2] via 10.255.255.2, 00:04:11, GigabitEthernet0/0/1\nR1-HQ# ping 10.60.110.1\n!!!!!\nSuccess rate is 100 percent (5/5)',
+        outputKind: 'console',
+        verify: ['via 10.255.255.2', 'Success rate'],
+        whatItMeans: 'A routing protocol earns its place when a network you never typed into this router appears in its table. The LLD now describes two buildings that behave as one.',
+        frameworks: ['CCNA'],
+      },
     ],
   },
   {
@@ -797,6 +1112,51 @@ const TASKS: Task[] = [
             'The translation table is where NAT stops being theory: you can watch a session appear as somebody browses.',
         }
       ),
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w3-internet-s3',
+        title: 'Prove the default route and NAT',
+        description: 'A gateway of last resort, and translations building.',
+        where: 'R1-HQ — console or SSH',
+        instruction: 'Add the default route toward the ISP and the NAT overload, then show both. The route gets packets out; NAT gets the replies back.',
+        commands: [
+          {
+            cmd: 'show ip route | include Gateway|S\\*',
+            explain: 'The gateway of last resort and the static default that set it. Without it, nothing leaves the building.',
+            sample: 'Gateway of last resort is 198.51.100.1 to network 0.0.0.0\nS*    0.0.0.0/0 [1/0] via 198.51.100.1',
+          },
+          {
+            cmd: 'show ip nat translations',
+            explain: 'Inside addresses mapped to the public one. Rows here mean users are getting out and replies are finding their way back.',
+            sample: 'Pro Inside global      Inside local       Outside local      Outside global\ntcp 198.51.100.10:50012 10.50.10.51:50012 93.184.216.34:443  93.184.216.34:443',
+          },
+        ],
+        expectedOutput: 'R1-HQ# show ip route | include Gateway|S*\nGateway of last resort is 198.51.100.1 to network 0.0.0.0\nS*    0.0.0.0/0 [1/0] via 198.51.100.1\nR1-HQ# show ip nat translations\nPro Inside global      Inside local       Outside local      Outside global\ntcp 198.51.100.10:50012 10.50.10.51:50012 93.184.216.34:443  93.184.216.34:443',
+        outputKind: 'console',
+        verify: ['Gateway of last resort', 'Inside global'],
+        whatItMeans: 'One public address shared by a building is the single most common thing a network engineer configures. The translation table is the proof it is happening.',
+        frameworks: ['CCNA'],
+      },
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w3-internet-s4',
+        title: 'Prove the branch gets out through HQ',
+        description: 'A branch PC reaches the internet via the WAN and the one NAT.',
+        where: 'R1-HQ — console or SSH',
+        instruction: 'From the branch, trace a path to a public address. It must cross the WAN and leave through the one NAT at HQ. The hops draw the design.',
+        commands: [
+          {
+            cmd: 'show ip nat statistics',
+            explain: 'How many translations are active and which interfaces are inside and outside. The counters move when the branch browses.',
+            sample: 'Total active translations: 23 (0 static, 23 dynamic; 23 extended)\nOutside interfaces:\n  GigabitEthernet0/0/0\nInside interfaces:\n  GigabitEthernet0/0/1, GigabitEthernet0/0/2\nHits: 4120  Misses: 0',
+          },
+        ],
+        expectedOutput: 'R1-HQ# show ip nat statistics\nTotal active translations: 23 (0 static, 23 dynamic; 23 extended)\nOutside interfaces:\n  GigabitEthernet0/0/0\nInside interfaces:\n  GigabitEthernet0/0/1, GigabitEthernet0/0/2\nHits: 4120  Misses: 0',
+        outputKind: 'console',
+        verify: ['Total active translations', 'Inside interfaces'],
+        whatItMeans: 'One way out means one place to watch, filter and log. The counters say the branch is using it; the LLD says it was meant to.',
+        frameworks: ['CCNA'],
+      },
     ],
   },
 
@@ -844,6 +1204,56 @@ const TASKS: Task[] = [
             'The tests that must FAIL are the segmentation evidence. Everything else only proves the network works.',
         }
       ),
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w4-policy-s3',
+        title: 'Prove the ACL is applied where the policy says',
+        description: 'The list on the right SVI, in the right direction.',
+        where: 'SW-CORE-01 — console or SSH',
+        instruction: 'Show the access lists and where they are applied. A list that exists but sits on no interface filters nothing.',
+        commands: [
+          {
+            cmd: 'show ip access-lists',
+            explain: 'Every ACL with its lines and the match counters. Counters moving on a deny line is the policy doing its job.',
+            sample: 'Extended IP access list GUEST-OUT\n    10 permit udp 10.50.50.0 0.0.0.255 host 10.50.20.10 eq domain (218 matches)\n    20 deny ip 10.50.50.0 0.0.0.255 10.50.0.0 0.0.255.255 (41 matches)\n    30 permit ip 10.50.50.0 0.0.0.255 any (3127 matches)',
+          },
+          {
+            cmd: 'show ip interface vlan 50 | include access list',
+            explain: 'Which list is inbound on the guest gateway. The line that proves the policy is enforced, not just written.',
+            sample: '  Inbound  access list is GUEST-OUT',
+          },
+        ],
+        expectedOutput: 'SW-CORE-01# show ip access-lists\nExtended IP access list GUEST-OUT\n    10 permit udp 10.50.50.0 0.0.0.255 host 10.50.20.10 eq domain (218 matches)\n    20 deny ip 10.50.50.0 0.0.0.255 10.50.0.0 0.0.255.255 (41 matches)\n    30 permit ip 10.50.50.0 0.0.0.255 any (3127 matches)\nSW-CORE-01# show ip interface vlan 50 | include access list\n  Inbound  access list is GUEST-OUT',
+        outputKind: 'console',
+        verify: ['access list', 'matches'],
+        whatItMeans: 'The deny counter is the most honest line on the network: it counts the times a guest tried to reach the LAN and the policy said no.',
+        frameworks: ['CCNA'],
+      },
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w4-policy-s4',
+        title: 'Prove a blocked path fails and an allowed one works',
+        description: 'A guest cannot reach a server; a user can.',
+        where: 'SW-CORE-01 — console or SSH',
+        instruction: 'Ping a server sourced from the guest gateway, then from the user gateway. The first must fail and the second must succeed. Both results go in the validation record.',
+        commands: [
+          {
+            cmd: 'ping 10.50.20.10 source 10.50.50.1',
+            explain: 'Sourced from the guest VLAN. Full stops or U marks are the ACL refusing — the result you want.',
+            sample: 'Sending 5, 100-byte ICMP Echos to 10.50.20.10, timeout is 2 seconds:\nPacket sent with a source address of 10.50.50.1\nU.U.U\nSuccess rate is 0 percent (0/5)',
+          },
+          {
+            cmd: 'ping 10.50.20.10 source 10.50.10.1',
+            explain: 'Sourced from the user VLAN. Five replies: the policy blocks only who it should.',
+            sample: '!!!!!\nSuccess rate is 100 percent (5/5)',
+          },
+        ],
+        expectedOutput: 'SW-CORE-01# ping 10.50.20.10 source 10.50.50.1\nU.U.U\nSuccess rate is 0 percent (0/5)\nSW-CORE-01# ping 10.50.20.10 source 10.50.10.1\n!!!!!\nSuccess rate is 100 percent (5/5)',
+        outputKind: 'console',
+        verify: ['0 percent', '100 percent'],
+        whatItMeans: 'Segmentation is proved by the test that fails. A policy that only lets everything through has not been tested at all.',
+        frameworks: ['CCNA'],
+      },
     ],
   },
   {
@@ -889,6 +1299,56 @@ const TASKS: Task[] = [
             'Without synchronised clocks, correlating a switch log with a router log during an incident is guesswork.',
         }
       ),
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w4-harden-s3',
+        title: 'Prove SSH-only management',
+        description: 'SSH version 2 on; telnet refused.',
+        where: 'Each switch — console or SSH',
+        instruction: 'Show the SSH status and the VTY lines. Version 2 and transport input ssh are the two facts the hardening form records.',
+        commands: [
+          {
+            cmd: 'show ip ssh',
+            explain: 'Whether SSH is enabled and which version. Version 1.99 means both versions; the standard wants 2 only.',
+            sample: 'SSH Enabled - version 2.0\nAuthentication methods:publickey,keyboard-interactive,password\nAuthentication timeout: 60 secs; Authentication retries: 3',
+          },
+          {
+            cmd: 'show running-config | section line vty',
+            explain: 'The VTY lines with their transport. transport input ssh is the line that turns telnet off.',
+            sample: 'line vty 0 4\n login local\n transport input ssh\n access-class MGMT-ONLY in',
+          },
+        ],
+        expectedOutput: 'SW-ACC-01# show ip ssh\nSSH Enabled - version 2.0\nAuthentication timeout: 60 secs; Authentication retries: 3\nSW-ACC-01# show running-config | section line vty\nline vty 0 4\n login local\n transport input ssh\n access-class MGMT-ONLY in',
+        outputKind: 'console',
+        verify: ['SSH Enabled', 'transport input ssh'],
+        whatItMeans: 'Telnet puts the admin password on the wire in clear text. These two lines are how you prove, to an auditor, that it no longer can.',
+        frameworks: ['CCNA'],
+      },
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w4-harden-s4',
+        title: 'Prove the unused ports are shut and secured',
+        description: 'Unused ports down in a parking VLAN; port security on the live ones.',
+        where: 'Each switch — console or SSH',
+        instruction: 'Show the port status and port-security summary. Every unused port must be disabled; every user port must have a MAC limit.',
+        commands: [
+          {
+            cmd: 'show interfaces status | include disabled',
+            explain: 'The ports you shut, each sitting in the parking VLAN. An open unused port is a free seat on the network.',
+            sample: 'Gi1/0/19                     disabled     999        auto   auto 10/100/1000BaseTX\nGi1/0/20                     disabled     999        auto   auto 10/100/1000BaseTX',
+          },
+          {
+            cmd: 'show port-security',
+            explain: 'Per port: the MAC limit, how many are learnt, and the violation action. Protects the desk ports from a rogue switch.',
+            sample: 'Secure Port  MaxSecureAddr  CurrentAddr  SecurityViolation  Security Action\n                (Count)       (Count)          (Count)\n---------------------------------------------------------------------------\n    Gi1/0/1              2            1                  0         Restrict\n    Gi1/0/2              2            1                  0         Restrict',
+          },
+        ],
+        expectedOutput: 'SW-ACC-01# show interfaces status | include disabled\nGi1/0/19                     disabled     999        auto   auto 10/100/1000BaseTX\nSW-ACC-01# show port-security\nSecure Port  MaxSecureAddr  CurrentAddr  SecurityViolation  Security Action\n    Gi1/0/1              2            1                  0         Restrict',
+        outputKind: 'console',
+        verify: ['disabled', 'Secure Port'],
+        whatItMeans: 'Hardening is a list of things turned off. The hardening form cites the standard; these outputs are the evidence each line was done.',
+        frameworks: ['CCNA'],
+      },
     ],
   },
   {
@@ -935,6 +1395,51 @@ const TASKS: Task[] = [
             'A guest who is isolated on copper and free on wireless is not isolated. Test the air as well.',
         }
       ),
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w4-wireless-s3',
+        title: 'Prove the access point is on the trunk and powered',
+        description: 'PoE delivered; the AP port trunks the wireless VLANs.',
+        where: 'Each switch — console or SSH',
+        instruction: 'Show the power and the trunk on the access-point port. The AP must draw power and carry the user, guest and IoT VLANs.',
+        commands: [
+          {
+            cmd: 'show power inline',
+            explain: 'Which ports deliver PoE and how much. An AP with no power row is an AP that never booted.',
+            sample: 'Interface Admin  Oper       Power   Device              Class Max\n                            (Watts)\n--------- ------ ---------- ------- ------------------- ----- ----\nGi1/0/10  auto   on         15.4    AIR-AP2802I-E-K9    4     30.0',
+          },
+          {
+            cmd: 'show interfaces Gi1/0/10 trunk',
+            explain: 'The AP port as a trunk with the wireless VLANs allowed. One SSID per VLAN needs them all here.',
+            sample: 'Port        Mode             Encapsulation  Status        Native vlan\nGi1/0/10    on               802.1q         trunking      99\n\nPort        Vlans allowed on trunk\nGi1/0/10    10,50,60,99',
+          },
+        ],
+        expectedOutput: 'SW-ACC-01# show power inline\nInterface Admin  Oper       Power   Device              Class Max\nGi1/0/10  auto   on         15.4    AIR-AP2802I-E-K9    4     30.0\nSW-ACC-01# show interfaces Gi1/0/10 trunk\nGi1/0/10    on               802.1q         trunking      99\nGi1/0/10    10,50,60,99',
+        outputKind: 'console',
+        verify: ['Power', 'trunking'],
+        whatItMeans: 'Wireless is wired first: a powered AP on a trunk that carries the right VLANs. The SSIDs are the easy part once this output reads correctly.',
+        frameworks: ['CCNA'],
+      },
+      // R138: the proof step — the output the design produced, pasted and checked.
+      {
+        id: 'ccna-w4-wireless-s4',
+        title: 'Prove a wireless client lands in the right VLAN',
+        description: 'A guest device gets a guest address and nothing more.',
+        where: 'Each switch — console or SSH',
+        instruction: 'Join the guest SSID with a phone, then find its MAC on the switch and the VLAN it was learnt in. Guest must be VLAN 50; staff must be 10.',
+        commands: [
+          {
+            cmd: 'show mac address-table interface Gi1/0/10',
+            explain: 'Every client behind the AP with the VLAN its traffic arrived in. The SSID-to-VLAN map, as the switch sees it.',
+            sample: '          Mac Address Table\n-------------------------------------------\nVlan    Mac Address       Type        Ports\n----    -----------       --------    -----\n  50    a4c3.f0aa.1b22    DYNAMIC     Gi1/0/10\n  10    3c22.fb01.9d4e    DYNAMIC     Gi1/0/10',
+          },
+        ],
+        expectedOutput: 'SW-ACC-01# show mac address-table interface Gi1/0/10\nVlan    Mac Address       Type        Ports\n----    -----------       --------    -----\n  50    a4c3.f0aa.1b22    DYNAMIC     Gi1/0/10\n  10    3c22.fb01.9d4e    DYNAMIC     Gi1/0/10',
+        outputKind: 'console',
+        verify: ['Mac Address', 'DYNAMIC'],
+        whatItMeans: 'The guest SSID only keeps visitors off the LAN if their frames land in the guest VLAN. The MAC table is where that promise is checked.',
+        frameworks: ['CCNA'],
+      },
     ],
   },
 

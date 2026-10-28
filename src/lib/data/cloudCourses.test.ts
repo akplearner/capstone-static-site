@@ -254,7 +254,9 @@ describe.each(ALL.map((c) => [c.id, c] as const))('R90 cloud capstone — %s', (
     expect(docs.map((d) => d.num)).toEqual([1, 2, 3, 4]);
     expect(docs.flatMap(documentProblems)).toEqual([]);
     expect(docs.filter((d) => d.capstone).map((d) => d.num)).toEqual([4]);
-    for (const d of docs) expect(d.raci?.drafts, `${d.id} raci`).toBe('arch'); // R103
+    // R103, and R138: the four documents are drafted by the four roles, one each, so every role has a document to be measured on.
+    for (const d of docs) expect(d.owner, `${d.id} owner is the drafter`).toBe(d.raci?.drafts);
+    expect(new Set(docs.map((d) => d.raci?.drafts)).size, `${id}: four drafters`).toBe(4);
     for (const d of docs) for (const f of d.feeds ?? []) expect(docs.some((x) => x.id === f), `${d.id} feeds ${f}`).toBe(true);
   });
 });

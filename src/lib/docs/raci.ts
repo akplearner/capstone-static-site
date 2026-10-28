@@ -140,17 +140,19 @@ export const RACI: Record<string, Raci> = {
  * prefix): the Architect drafts every document, Security & Ops reviews, and
  * the role whose work the document records approves it.
  */
+// R138: the four roles each draft one document per course (the Architect drafted all twelve before, so
+// the other three roles had nothing to be measured on: controls cited, decisions, the drafted share).
 export const CLOUD_RACI: Record<string, Raci> = {
-  foundation: r('arch', 'secops', 'infra'),
+  foundation: r('infra', 'secops', 'arch'),
   sad: r('arch', 'secops', 'dev'),
-  api: r('arch', 'secops', 'dev'),
-  incident: r('arch', 'infra', 'secops'),
-  access: r('arch', 'dev', 'secops'),
-  network: r('arch', 'secops', 'infra'),
-  server: r('arch', 'secops', 'infra'),
+  api: r('dev', 'secops', 'arch'),
+  incident: r('secops', 'infra', 'arch'),
+  access: r('secops', 'dev', 'arch'),
+  network: r('infra', 'secops', 'arch'),
+  server: r('dev', 'secops', 'arch'),
   dr: r('arch', 'secops', 'infra'),
-  iac: r('arch', 'secops', 'infra'),
-  change: r('arch', 'secops', 'dev'),
-  governance: r('arch', 'infra', 'secops'),
+  iac: r('infra', 'secops', 'arch'),
+  change: r('dev', 'secops', 'arch'),
+  governance: r('secops', 'infra', 'arch'),
   handover: r('arch', 'secops', 'dev', ['infra']),
 };

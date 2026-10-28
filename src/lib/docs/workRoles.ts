@@ -47,7 +47,8 @@ const r = (slug: string, label: string, niceId: string, areas: string[]): WorkRo
 });
 
 export const WORK_ROLES: WorkRoleDef[] = [
-  r('cyber-defense-analyst', 'Cyber Defense Analyst', 'PR-CDA-001', ['detect', 'harden', 'ops']),
+  // R138: the cloud competencies belong to the defender and the administrator as much as to the architect; a cloud course can then measure its Security & Ops and Infrastructure roles against them.
+  r('cyber-defense-analyst', 'Cyber Defense Analyst', 'PR-CDA-001', ['detect', 'harden', 'ops', 'cloud']),
   r('incident-responder', 'Cyber Defense Incident Responder', 'PR-CIR-001', ['respond', 'forensics', 'detect']),
   r('vulnerability-assessment-analyst', 'Vulnerability Assessment Analyst', 'PR-VAM-001', ['vuln', 'recon', 'report']),
   r('exploitation-analyst', 'Exploitation Analyst', 'AN-EXP-001', ['recon', 'exploit', 'report', 'ai-attack']),
@@ -56,7 +57,7 @@ export const WORK_ROLES: WorkRoleDef[] = [
   r('security-control-assessor', 'Security Control Assessor', 'SP-RSK-002', ['audit', 'grc', 'risk', 'report']),
   r('cyber-policy-planner', 'Cyber Policy and Strategy Planner', 'OV-SPP-002', ['grc', 'risk', 'docs']),
   r('issm', 'Information Systems Security Manager', 'OV-MGT-001', ['grc', 'risk', 'audit', 'ops', 'report']),
-  r('system-administrator', 'System Administrator', 'OM-ADM-001', ['sysadmin', 'hardware', 'virt', 'continuity', 'observe', 'docs']),
+  r('system-administrator', 'System Administrator', 'OM-ADM-001', ['sysadmin', 'hardware', 'virt', 'continuity', 'observe', 'docs', 'cloud']),
   r('network-operations-specialist', 'Network Operations Specialist', 'OM-NET-001', ['network', 'arch', 'observe', 'docs']),
   r('security-architect', 'Security Architect', 'SP-ARC-002', ['arch', 'crypto', 'identity', 'cloud', 'data']),
   r('software-developer', 'Software Developer', 'SP-DEV-001', ['automation', 'cloud', 'docs']),

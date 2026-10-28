@@ -543,6 +543,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "secops",
+            "artifact": "IaC Design & Deployment Record",
+            "note": "Your section of the IaC Design & Deployment Record, for the review that approves it.",
+            "deliverable": "awsd_iac"
+          }
         ]
       },
       {
@@ -683,6 +691,14 @@
               "AWS_DOP",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "IaC Design & Deployment Record",
+            "note": "Your section of the IaC Design & Deployment Record, for the review that approves it.",
+            "deliverable": "awsd_iac"
           }
         ]
       },
@@ -832,6 +848,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "IaC Design & Deployment Record",
+            "note": "Your section of the IaC Design & Deployment Record, for the review that approves it.",
+            "deliverable": "awsd_iac"
+          }
         ]
       },
       {
@@ -974,6 +998,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "IaC Design & Deployment Record",
+            "note": "Your section of the IaC Design & Deployment Record, for the review that approves it.",
+            "deliverable": "awsd_iac"
+          }
         ]
       },
       {
@@ -1075,6 +1107,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "secops",
+            "artifact": "Change Request & Release Record",
+            "note": "Your section of the Change Request & Release Record, for the review that approves it.",
+            "deliverable": "awsd_change"
+          }
         ]
       },
       {
@@ -1174,6 +1214,14 @@
               "AWS_DOP",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Change Request & Release Record",
+            "note": "Your section of the Change Request & Release Record, for the review that approves it.",
+            "deliverable": "awsd_change"
           }
         ]
       },
@@ -1328,6 +1376,14 @@
               "AWS_DOP",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Change Request & Release Record",
+            "note": "Your section of the Change Request & Release Record, for the review that approves it.",
+            "deliverable": "awsd_change"
           }
         ]
       },
@@ -1484,6 +1540,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Change Request & Release Record",
+            "note": "Your section of the Change Request & Release Record, for the review that approves it.",
+            "deliverable": "awsd_change"
+          }
         ]
       },
       {
@@ -1577,6 +1641,56 @@
             ]
           },
           {
+            "id": "aws-w11-arch-s3",
+            "title": "Read cost by service from the shell",
+            "description": "Read cost by service from the shell",
+            "where": "AWS console · or CloudShell",
+            "instruction": "Match the month’s cost by service to the table.",
+            "instructionList": [
+              "Billing → Cost Explorer → group by Service, last 30 days.",
+              "Note the top three services and their spend.",
+              "The same three must head the cost table."
+            ],
+            "commands": [
+              {
+                "cmd": "aws ce get-cost-and-usage --time-period Start=$(date -d \"-30 days\" +%F),End=$(date +%F) --granularity MONTHLY --metrics UnblendedCost --group-by Type=DIMENSION,Key=SERVICE --query \"ResultsByTime[0].Groups[].{service:Keys[0],cost:Metrics.UnblendedCost.Amount}\" --output table",
+                "explain": "The month’s charges grouped by service, from Cost Explorer. The top lines are the services your cost table must name first.",
+                "sample": "-------------------------------------------------------\n|                   GetCostAndUsage                   |\n+--------------------------------------+--------------+\n|  Amazon Elastic Compute Cloud        |  0.1180      |\n|  Amazon Simple Storage Service       |  0.0021      |\n+--------------------------------------+--------------+",
+                "flags": [
+                  {
+                    "flag": "--time-period Start=…,End=…",
+                    "meaning": "The last thirty days, computed rather than typed."
+                  },
+                  {
+                    "flag": "--group-by Type=DIMENSION,Key=SERVICE",
+                    "meaning": "One group per service."
+                  },
+                  {
+                    "flag": "--metrics UnblendedCost",
+                    "meaning": "The cost before any discounts are spread."
+                  }
+                ]
+              }
+            ],
+            "verify": [
+              "Amazon Elastic Compute Cloud"
+            ],
+            "whatItMeans": "A cost report built from the export is a measurement; one typed from the console screen is a reading. The governance report wants the first.",
+            "frameworks": [
+              "AWS_DOP",
+              "WAF"
+            ],
+            "expectedOutput": "Cost Explorer grouped by service and the shell agree on the top three services; EC2 leads.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Exploring your data using Cost Explorer",
+                "url": "https://docs.aws.amazon.com/cost-management/latest/userguide/ce-exploring-data.html",
+                "lookFor": "the “Group by” choices, Service among them, and how the chart and the table follow it"
+              }
+            ]
+          },
+          {
             "id": "aws-w11-arch-s9",
             "title": "Record it in the Governance, Security & Cost Report",
             "description": "Your section: Cost by service and service levels.",
@@ -1593,6 +1707,14 @@
               "AWS_DOP",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "infra",
+            "artifact": "Governance, Security & Cost Report",
+            "note": "Your section of the Governance, Security & Cost Report, for the review that approves it.",
+            "deliverable": "awsd_governance"
           }
         ]
       },
@@ -1767,6 +1889,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Governance, Security & Cost Report",
+            "note": "Your section of the Governance, Security & Cost Report, for the review that approves it.",
+            "deliverable": "awsd_governance"
+          }
         ]
       },
       {
@@ -1935,6 +2065,14 @@
               "AWS_DOP",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Governance, Security & Cost Report",
+            "note": "Your section of the Governance, Security & Cost Report, for the review that approves it.",
+            "deliverable": "awsd_governance"
           }
         ]
       },
@@ -2105,6 +2243,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Governance, Security & Cost Report",
+            "note": "Your section of the Governance, Security & Cost Report, for the review that approves it.",
+            "deliverable": "awsd_governance"
+          }
         ]
       },
       {
@@ -2198,6 +2344,14 @@
               "AWS_DOP",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "dev",
+            "artifact": "Operational Handover Package",
+            "note": "Your section of the Operational Handover Package, for the review that approves it.",
+            "deliverable": "awsd_handover"
           }
         ]
       },
@@ -2341,6 +2495,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "dev",
+            "artifact": "Operational Handover Package",
+            "note": "Your section of the Operational Handover Package, for the review that approves it.",
+            "deliverable": "awsd_handover"
+          }
         ]
       },
       {
@@ -2447,6 +2609,14 @@
               "AWS_DOP",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "secops",
+            "artifact": "Operational Handover Package",
+            "note": "Your section of the Operational Handover Package, for the review that approves it.",
+            "deliverable": "awsd_handover"
           }
         ]
       },
@@ -2588,6 +2758,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "dev",
+            "artifact": "Operational Handover Package",
+            "note": "Your section of the Operational Handover Package, for the review that approves it.",
+            "deliverable": "awsd_handover"
+          }
         ]
       }
     ],
@@ -2629,10 +2807,10 @@
       "num": 1,
       "file": "09_IaC_Design_and_Deployment_Record.md",
       "title": "IaC Design & Deployment Record",
-      "owner": "arch",
+      "owner": "infra",
       "shared": true,
       "folder": "Week_01",
-      "standard": "Well-Architected — operational excellence",
+      "standard": "Well-Architected — operational excellence · NIST SP 800-53 CM-2",
       "weeks": [
         1
       ],
@@ -2643,12 +2821,12 @@
         "week": 9
       },
       "raci": {
-        "drafts": "arch",
+        "drafts": "infra",
         "reviews": "secops",
-        "approves": "infra"
+        "approves": "arch"
       },
       "handoff": {
-        "to": "infra",
+        "to": "arch",
         "when": "approved"
       },
       "feeds": [
@@ -3091,10 +3269,10 @@
       "num": 2,
       "file": "10_Change_Request_and_Release_Record.md",
       "title": "Change Request & Release Record",
-      "owner": "arch",
+      "owner": "dev",
       "shared": true,
       "folder": "Week_02",
-      "standard": "ITIL 4 change enablement",
+      "standard": "ITIL 4 change enablement · NIST SP 800-53 CM-3",
       "weeks": [
         2
       ],
@@ -3105,12 +3283,12 @@
         "week": 10
       },
       "raci": {
-        "drafts": "arch",
+        "drafts": "dev",
         "reviews": "secops",
-        "approves": "dev"
+        "approves": "arch"
       },
       "handoff": {
-        "to": "dev",
+        "to": "arch",
         "when": "approved"
       },
       "feeds": [
@@ -3265,6 +3443,12 @@
                   "Fail",
                   "Fixed and retested"
                 ]
+              },
+              {
+                "field": "rollback",
+                "label": "Rollback",
+                "type": "text",
+                "placeholder": "Revert #14; the pipeline redeploys #13"
               }
             ],
             "help": "One row per run; the artifact each run kept is the preview the reviewer approved on."
@@ -3406,10 +3590,10 @@
       "num": 3,
       "file": "11_Governance_Security_and_Cost_Report.md",
       "title": "Governance, Security & Cost Report",
-      "owner": "arch",
+      "owner": "secops",
       "shared": true,
       "folder": "Week_03",
-      "standard": "AWS Well-Architected — cost and security pillars",
+      "standard": "AWS Well-Architected — cost and security pillars · NIST SP 800-53 AU-6",
       "weeks": [
         3
       ],
@@ -3420,12 +3604,12 @@
         "week": 11
       },
       "raci": {
-        "drafts": "arch",
+        "drafts": "secops",
         "reviews": "infra",
-        "approves": "secops"
+        "approves": "arch"
       },
       "handoff": {
-        "to": "secops",
+        "to": "arch",
         "when": "approved"
       },
       "feeds": [
@@ -3814,7 +3998,7 @@
       "owner": "arch",
       "shared": true,
       "folder": "Week_04",
-      "standard": "ITIL 4 service transition",
+      "standard": "ITIL 4 service transition · NIST SP 800-53 PL-2",
       "weeks": [
         4
       ],
@@ -7152,7 +7336,13 @@
           ]
         }
       ],
-      "CHANGE_GROUPS": [],
+      "CHANGE_GROUPS": [
+        {
+          "form": "change",
+          "group": "runs",
+          "rollback": "rollback"
+        }
+      ],
       "CONTROLS": [
         {
           "code": "NIST.CSF",
@@ -7238,6 +7428,13 @@
           "cites": []
         },
         {
+          "code": "NIST.800-53.AU",
+          "standard": "NIST_800_53",
+          "label": "Audit and Accountability",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
           "code": "NIST.800-53.CM",
           "standard": "NIST_800_53",
           "label": "Configuration Management",
@@ -7259,6 +7456,13 @@
           "cites": []
         },
         {
+          "code": "NIST.800-53.PL",
+          "standard": "NIST_800_53",
+          "label": "Planning",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
           "code": "NIST.800-53.AC-5",
           "standard": "NIST_800_53",
           "label": "Separation of Duties",
@@ -7274,6 +7478,15 @@
           "parent": "NIST.800-53.AC",
           "cites": [
             "AC-6"
+          ]
+        },
+        {
+          "code": "NIST.800-53.AU-6",
+          "standard": "NIST_800_53",
+          "label": "Audit Record Review, Analysis, and Reporting",
+          "parent": "NIST.800-53.AU",
+          "cites": [
+            "AU-6"
           ]
         },
         {
@@ -7310,6 +7523,15 @@
           "parent": "NIST.800-53.IA",
           "cites": [
             "IA-5"
+          ]
+        },
+        {
+          "code": "NIST.800-53.PL-2",
+          "standard": "NIST_800_53",
+          "label": "System Security and Privacy Plans",
+          "parent": "NIST.800-53.PL",
+          "cites": [
+            "PL-2"
           ]
         },
         {
@@ -7661,16 +7883,20 @@
       ],
       "CONTROL_OF": {
         "awsd_iac": [
+          "NIST.800-53.CM-2",
           "WAF.operational-excellence"
         ],
         "awsd_change": [
+          "NIST.800-53.CM-3",
           "ITIL.change"
         ],
         "awsd_governance": [
+          "NIST.800-53.AU-6",
           "WAF.security",
           "WAF.cost"
         ],
         "awsd_handover": [
+          "NIST.800-53.PL-2",
           "ITIL.transition"
         ]
       },
@@ -11905,7 +12131,8 @@
           "areas": [
             "detect",
             "harden",
-            "ops"
+            "ops",
+            "cloud"
           ],
           "requiredCompetencies": [
             "comp.harden.linux-baseline",
@@ -11936,7 +12163,56 @@
             "comp.detect.shadow-ai",
             "comp.ops.logging-first-hour",
             "comp.ops.detection-fires",
-            "comp.ops.contingency-phases"
+            "comp.ops.contingency-phases",
+            "comp.cloud.budget-and-tags",
+            "comp.cloud.shared-responsibility",
+            "comp.cloud.network-foundation",
+            "comp.cloud.team-repo-and-board",
+            "comp.cloud.identity-and-groups",
+            "comp.cloud.cost-estimate",
+            "comp.cloud.launch-vm",
+            "comp.cloud.static-site-https",
+            "comp.cloud.ssh-from-one-ip",
+            "comp.cloud.request-flow",
+            "comp.cloud.managed-database",
+            "comp.cloud.serverless-api",
+            "comp.cloud.read-only-access",
+            "comp.cloud.cost-report",
+            "comp.cloud.error-alert",
+            "comp.cloud.read-logs",
+            "comp.cloud.audit-trail",
+            "comp.cloud.access-matrix",
+            "comp.cloud.secrets-in-vault",
+            "comp.cloud.managed-identity",
+            "comp.cloud.prove-denial",
+            "comp.cloud.two-zone-design",
+            "comp.cloud.scale-set",
+            "comp.cloud.load-balancer",
+            "comp.cloud.private-access-path",
+            "comp.cloud.data-store-choice",
+            "comp.cloud.ha-database",
+            "comp.cloud.queue-and-ledger",
+            "comp.cloud.data-lockdown",
+            "comp.cloud.autoscale-target",
+            "comp.cloud.autoscale-and-self-heal",
+            "comp.cloud.restore-file-and-database",
+            "comp.cloud.recovery-drill-and-teardown",
+            "comp.cloud.template-map",
+            "comp.cloud.inventory-and-drift",
+            "comp.cloud.deploy-from-template",
+            "comp.cloud.policy-as-code",
+            "comp.cloud.change-request-and-gates",
+            "comp.cloud.branch-protection",
+            "comp.cloud.staged-pipeline",
+            "comp.cloud.oidc-deploy-identity",
+            "comp.cloud.cost-by-service-and-slos",
+            "comp.cloud.blue-green",
+            "comp.cloud.canary",
+            "comp.cloud.dashboard-and-compliance",
+            "comp.cloud.handover-package",
+            "comp.cloud.rebuild-and-automate",
+            "comp.cloud.fix-through-ci",
+            "comp.cloud.contain-and-post-mortem"
           ]
         },
         {
@@ -12003,7 +12279,8 @@
             "virt",
             "continuity",
             "observe",
-            "docs"
+            "docs",
+            "cloud"
           ],
           "requiredCompetencies": [
             "comp.hardware.receive-and-inspect",
@@ -12073,7 +12350,56 @@
             "comp.continuity.restore-from-image",
             "comp.docs.equipment-research",
             "comp.docs.bill-of-materials",
-            "comp.docs.migration-plan"
+            "comp.docs.migration-plan",
+            "comp.cloud.budget-and-tags",
+            "comp.cloud.shared-responsibility",
+            "comp.cloud.network-foundation",
+            "comp.cloud.team-repo-and-board",
+            "comp.cloud.identity-and-groups",
+            "comp.cloud.cost-estimate",
+            "comp.cloud.launch-vm",
+            "comp.cloud.static-site-https",
+            "comp.cloud.ssh-from-one-ip",
+            "comp.cloud.request-flow",
+            "comp.cloud.managed-database",
+            "comp.cloud.serverless-api",
+            "comp.cloud.read-only-access",
+            "comp.cloud.cost-report",
+            "comp.cloud.error-alert",
+            "comp.cloud.read-logs",
+            "comp.cloud.audit-trail",
+            "comp.cloud.access-matrix",
+            "comp.cloud.secrets-in-vault",
+            "comp.cloud.managed-identity",
+            "comp.cloud.prove-denial",
+            "comp.cloud.two-zone-design",
+            "comp.cloud.scale-set",
+            "comp.cloud.load-balancer",
+            "comp.cloud.private-access-path",
+            "comp.cloud.data-store-choice",
+            "comp.cloud.ha-database",
+            "comp.cloud.queue-and-ledger",
+            "comp.cloud.data-lockdown",
+            "comp.cloud.autoscale-target",
+            "comp.cloud.autoscale-and-self-heal",
+            "comp.cloud.restore-file-and-database",
+            "comp.cloud.recovery-drill-and-teardown",
+            "comp.cloud.template-map",
+            "comp.cloud.inventory-and-drift",
+            "comp.cloud.deploy-from-template",
+            "comp.cloud.policy-as-code",
+            "comp.cloud.change-request-and-gates",
+            "comp.cloud.branch-protection",
+            "comp.cloud.staged-pipeline",
+            "comp.cloud.oidc-deploy-identity",
+            "comp.cloud.cost-by-service-and-slos",
+            "comp.cloud.blue-green",
+            "comp.cloud.canary",
+            "comp.cloud.dashboard-and-compliance",
+            "comp.cloud.handover-package",
+            "comp.cloud.rebuild-and-automate",
+            "comp.cloud.fix-through-ci",
+            "comp.cloud.contain-and-post-mortem"
           ]
         },
         {

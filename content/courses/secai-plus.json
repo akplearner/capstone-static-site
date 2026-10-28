@@ -305,7 +305,8 @@
           {
             "to": "redteam",
             "artifact": "Signed lab rule",
-            "note": "No attack runs before every member has signed."
+            "note": "No attack runs before every member has signed.",
+            "deliverable": "secai_lab_rule"
           }
         ],
         "steps": [
@@ -451,7 +452,8 @@
           {
             "to": "redteam",
             "artifact": "Running as-found assistant",
-            "note": "The baseline transcripts are taken from this copy."
+            "note": "The baseline transcripts are taken from this copy.",
+            "deliverable": "secai_system_map"
           }
         ],
         "steps": [
@@ -972,6 +974,14 @@
               "NIST_CSF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "defender",
+            "artifact": "P1 System Map",
+            "note": "Your section of the P1 System Map, for the review that approves it.",
+            "deliverable": "secai_system_map"
+          }
         ]
       },
       {
@@ -1017,7 +1027,8 @@
           {
             "to": "defender",
             "artifact": "Two proven cases",
-            "note": "The Defender blocks and logs exactly these."
+            "note": "The Defender blocks and logs exactly these.",
+            "deliverable": "secai_attack_casebook"
           }
         ],
         "steps": [
@@ -1230,7 +1241,8 @@
           {
             "to": "governance",
             "artifact": "Control set v1",
-            "note": "The release note lists these as what shipped."
+            "note": "The release note lists these as what shipped.",
+            "deliverable": "secai_control_set"
           }
         ],
         "steps": [
@@ -1502,7 +1514,8 @@
           {
             "to": "defender",
             "artifact": "Six-case suite",
-            "note": "Four or more must be blocked or contained by the release."
+            "note": "Four or more must be blocked or contained by the release.",
+            "deliverable": "secai_attack_casebook"
           }
         ],
         "steps": [
@@ -1678,7 +1691,8 @@
           {
             "to": "governance",
             "artifact": "Control set v2",
-            "note": "Governance enters each control against a risk."
+            "note": "Governance enters each control against a risk.",
+            "deliverable": "secai_control_set"
           }
         ],
         "steps": [
@@ -2075,6 +2089,14 @@
               "NIST_CSF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "defender",
+            "artifact": "P1 System Map",
+            "note": "Your section of the P1 System Map, for the review that approves it.",
+            "deliverable": "secai_system_map"
+          }
         ]
       },
       {
@@ -2367,6 +2389,14 @@
               "NIST_CSF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "governance",
+            "artifact": "P3 Control Set",
+            "note": "Your section of the P3 Control Set, for the review that approves it.",
+            "deliverable": "secai_control_set"
+          }
         ]
       },
       {
@@ -2411,7 +2441,8 @@
           {
             "to": "defender",
             "artifact": "Automated suite",
-            "note": "The Defender runs it as the pipeline’s regression stage."
+            "note": "The Defender runs it as the pipeline’s regression stage.",
+            "deliverable": "secai_attack_casebook"
           }
         ],
         "steps": [
@@ -2789,6 +2820,14 @@
               "NIST_AI_RMF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "defender",
+            "artifact": "P1 System Map",
+            "note": "Your section of the P1 System Map, for the review that approves it.",
+            "deliverable": "secai_system_map"
+          }
         ]
       },
       {
@@ -2836,12 +2875,14 @@
           {
             "to": "redteam",
             "artifact": "Rebuilt copy",
-            "note": "The suite re-runs against it."
+            "note": "The suite re-runs against it.",
+            "deliverable": "secai_control_set"
           },
           {
             "to": "governance",
             "artifact": "Handover sheet",
-            "note": "The assurance response cites it."
+            "note": "The assurance response cites it.",
+            "deliverable": "secai_release_package"
           }
         ],
         "steps": [
@@ -3063,7 +3104,8 @@
           {
             "to": "governance",
             "artifact": "Final threat table",
-            "note": "The residual risks come from it."
+            "note": "The residual risks come from it.",
+            "deliverable": "secai_governance_pack"
           }
         ],
         "steps": [
@@ -3348,6 +3390,14 @@
               "SECAI",
               "NIST_AI_RMF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "defender",
+            "artifact": "P1 System Map",
+            "note": "Your section of the P1 System Map, for the review that approves it.",
+            "deliverable": "secai_system_map"
           }
         ]
       }
@@ -3834,6 +3884,7 @@
       "file": "04_Control_Set.md",
       "title": "P3 Control Set",
       "owner": "defender",
+      "shared": true,
       "folder": "04_Control_Set",
       "standard": "NIST CSF (Protect)",
       "framework": "NIST_CSF",
@@ -4150,6 +4201,49 @@
                   "Read",
                   "Write",
                   "Read/Write"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "changes",
+            "label": "Changes to the assistant and its guardrails",
+            "help": "One row per release: what changed, which case it closes, and how it is undone if the suite regresses.",
+            "columns": [
+              {
+                "field": "date",
+                "label": "Date",
+                "type": "date"
+              },
+              {
+                "field": "change",
+                "label": "Change",
+                "type": "text",
+                "placeholder": "Added the output redaction filter"
+              },
+              {
+                "field": "why",
+                "label": "Why",
+                "type": "text",
+                "placeholder": "Closes case C-3 (sensitive disclosure)"
+              },
+              {
+                "field": "rollback",
+                "label": "Rollback",
+                "type": "text",
+                "placeholder": "Revert to control set v1; re-run the suite"
+              },
+              {
+                "field": "result",
+                "label": "Result",
+                "type": "select",
+                "options": [
+                  "Applied",
+                  "Rolled back",
+                  "Pending"
                 ]
               }
             ]
@@ -6625,7 +6719,13 @@
           ]
         }
       ],
-      "CHANGE_GROUPS": [],
+      "CHANGE_GROUPS": [
+        {
+          "form": "secai_control_set",
+          "group": "changes",
+          "rollback": "rollback"
+        }
+      ],
       "CONTROLS": [
         {
           "code": "NIST.CSF",
@@ -12111,6 +12211,18 @@
       },
       "TROUBLE_GROUPS": [
         {
+          "form": "secai_control_set",
+          "group": "controls",
+          "outcome": "result",
+          "resolved": "pass|ok|blocked|contained|closed|held|green"
+        },
+        {
+          "form": "secai_governance_pack",
+          "group": "weaknesses",
+          "outcome": "status",
+          "resolved": "handled|accepted"
+        },
+        {
           "form": "secai_attack_casebook",
           "group": "cases",
           "outcome": "status",
@@ -12128,7 +12240,8 @@
           "areas": [
             "detect",
             "harden",
-            "ops"
+            "ops",
+            "cloud"
           ],
           "requiredCompetencies": [
             "comp.harden.linux-baseline",
@@ -12159,7 +12272,56 @@
             "comp.detect.shadow-ai",
             "comp.ops.logging-first-hour",
             "comp.ops.detection-fires",
-            "comp.ops.contingency-phases"
+            "comp.ops.contingency-phases",
+            "comp.cloud.budget-and-tags",
+            "comp.cloud.shared-responsibility",
+            "comp.cloud.network-foundation",
+            "comp.cloud.team-repo-and-board",
+            "comp.cloud.identity-and-groups",
+            "comp.cloud.cost-estimate",
+            "comp.cloud.launch-vm",
+            "comp.cloud.static-site-https",
+            "comp.cloud.ssh-from-one-ip",
+            "comp.cloud.request-flow",
+            "comp.cloud.managed-database",
+            "comp.cloud.serverless-api",
+            "comp.cloud.read-only-access",
+            "comp.cloud.cost-report",
+            "comp.cloud.error-alert",
+            "comp.cloud.read-logs",
+            "comp.cloud.audit-trail",
+            "comp.cloud.access-matrix",
+            "comp.cloud.secrets-in-vault",
+            "comp.cloud.managed-identity",
+            "comp.cloud.prove-denial",
+            "comp.cloud.two-zone-design",
+            "comp.cloud.scale-set",
+            "comp.cloud.load-balancer",
+            "comp.cloud.private-access-path",
+            "comp.cloud.data-store-choice",
+            "comp.cloud.ha-database",
+            "comp.cloud.queue-and-ledger",
+            "comp.cloud.data-lockdown",
+            "comp.cloud.autoscale-target",
+            "comp.cloud.autoscale-and-self-heal",
+            "comp.cloud.restore-file-and-database",
+            "comp.cloud.recovery-drill-and-teardown",
+            "comp.cloud.template-map",
+            "comp.cloud.inventory-and-drift",
+            "comp.cloud.deploy-from-template",
+            "comp.cloud.policy-as-code",
+            "comp.cloud.change-request-and-gates",
+            "comp.cloud.branch-protection",
+            "comp.cloud.staged-pipeline",
+            "comp.cloud.oidc-deploy-identity",
+            "comp.cloud.cost-by-service-and-slos",
+            "comp.cloud.blue-green",
+            "comp.cloud.canary",
+            "comp.cloud.dashboard-and-compliance",
+            "comp.cloud.handover-package",
+            "comp.cloud.rebuild-and-automate",
+            "comp.cloud.fix-through-ci",
+            "comp.cloud.contain-and-post-mortem"
           ]
         },
         {

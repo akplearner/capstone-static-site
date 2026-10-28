@@ -1,6 +1,6 @@
 # CCNA Network Capstone — skills sheet
 
-11 graded tasks and 8 advanced · 26 skills · 7 tools · 13 procedures · 4 standards (2 controls cited) · 0 tactics · 23 practices
+11 graded tasks and 8 advanced · 26 skills · 7 tools · 13 procedures · 5 standards (10 controls cited) · 0 tactics · 23 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -9,14 +9,14 @@ Generated from the registries and the course document by `npm run content:export
 | Skill | Area | Anchored to | Practised by |
 | --- | --- | --- | --- |
 | Troubleshoot with the structured method `comp.sysadmin.troubleshooting-method` | System administration | SK0-005.d4, 200-301.d3, ITIL.problem | Work a ticket, not a hunch |
-| Design a hierarchical network with boundaries `comp.network.hierarchical-design` | Network engineering | 200-301.d1 | Design the shape |
-| Bring switches up with management addressing `comp.network.switch-bringup` | Network engineering | 200-301.d2 | Bring the first switches up |
-| Cut a network into VLANs with trunks `comp.network.vlans-and-trunks` | Network engineering | 200-301.d2 | Cut the network into departments |
-| Route between VLANs with SVIs or subinterfaces `comp.network.inter-vlan-routing` | Network engineering | 200-301.d3 | Route between the departments |
+| Design a hierarchical network with boundaries `comp.network.hierarchical-design` | Network engineering | 200-301.d1 | Design the shape; Join the second building |
+| Bring switches up with management addressing `comp.network.switch-bringup` | Network engineering | 200-301.d2 | Bring the first switches up; Survive a cable being pulled |
+| Cut a network into VLANs with trunks `comp.network.vlans-and-trunks` | Network engineering | 200-301.d2 | Cut the network into departments; Route between the departments |
+| Route between VLANs with SVIs or subinterfaces `comp.network.inter-vlan-routing` | Network engineering | 200-301.d3 | Route between the departments; One way out to the internet |
 | Survive a pulled cable with spanning tree `comp.network.spanning-tree` | Network engineering | 200-301.d2 | Survive a cable being pulled |
 | Join sites with OSPF adjacencies `comp.network.ospf` | Network engineering | 200-301.d3 | Join the second building |
 | Route out with a default route and PAT `comp.network.default-route-and-nat` | Network engineering | 200-301.d4 | One way out to the internet |
-| Turn a policy into placed access lists `comp.network.acls` | Network engineering | 200-301.d5, NIST.800-53.SC-7 | Turn the policy into access lists |
+| Turn a policy into placed access lists `comp.network.acls` | Network engineering | 200-301.d5, NIST.800-53.SC-7 | Turn the policy into access lists; Harden the management plane |
 | Harden the management plane: SSH, secrets, port security `comp.network.management-plane-hardening` | Network engineering | 200-301.d5, CIS.BENCHMARK | Harden the management plane |
 | Put WLANs on the air mapped to VLANs `comp.network.wlan` | Network engineering | 200-301.d2 | Put the WLANs on the air |
 | Back up configurations and prove a restore `comp.network.config-backup` | Network engineering | 200-301.d4, NIST.800-53.CP-9 | Back it up, then change it properly |
@@ -39,13 +39,13 @@ Generated from the registries and the course document by `npm run content:export
 
 | Tool | Kind | Used by |
 | --- | --- | --- |
-| Linux shell | cli | Back it up, then change it properly; Build a small NOC; The network as data; Configure from the source of truth |
-| ping / traceroute | cli | Join the second building |
+| Linux shell | cli | Bring the first switches up; Back it up, then change it properly; Build a small NOC; The network as data; Configure from the source of truth |
+| ping / traceroute | cli | Route between the departments; Join the second building; Turn the policy into access lists |
 | Capstone forms | document | Cut the network into departments; Turn the policy into access lists; Back it up, then change it properly; Work a ticket, not a hunch; Configure from the source of truth; Something breaks — work it properly; Hand the network over |
 | Notes | document | Discover before you design; Design the shape |
 | Wireshark | app | Work a ticket, not a hunch |
 | NetBox | service | A source of truth, not a spreadsheet |
-| Cisco IOS | appliance | Bring the first switches up; Cut the network into departments; Route between the departments; Survive a cable being pulled; Join the second building; One way out to the internet; Turn the policy into access lists; Harden the management plane; Put the WLANs on the air; Back it up, then change it properly; Build a small NOC; Work a ticket, not a hunch; Something breaks — work it properly |
+| Cisco IOS | appliance | Discover before you design; Design the shape; Bring the first switches up; Cut the network into departments; Route between the departments; Survive a cable being pulled; Join the second building; One way out to the internet; Turn the policy into access lists; Harden the management plane; Put the WLANs on the air; Back it up, then change it properly; Build a small NOC; Work a ticket, not a hunch; Something breaks — work it properly |
 
 ## Procedures
 
@@ -75,9 +75,18 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | CIS | Harden the management plane | — |
 | CCNA 200-301 | Discover before you design; Design the shape; Bring the first switches up; Cut the network into departments; Route between the departments; Survive a cable being pulled; Join the second building; One way out to the internet; Turn the policy into access lists; Harden the management plane; Put the WLANs on the air; A source of truth, not a spreadsheet; Back it up, then change it properly; Build a small NOC; Work a ticket, not a hunch; The network as data; Configure from the source of truth; Something breaks — work it properly; Hand the network over | — |
 | ITIL 4 | Discover before you design; A source of truth, not a spreadsheet; Back it up, then change it properly; Work a ticket, not a hunch; Something breaks — work it properly; Hand the network over | Operations & Change Records; Monitoring & Incident Log |
+| NIST SP 800-53 | — | Kit & Capability Register; Requirements & Site Survey; High-Level Design; Low-Level Design & IP Plan; Build & Configuration Log; Validation & Test Matrix; Security Baseline & ACL Policy; Operations & Change Records; Monitoring & Incident Log; As-Built & Operations Handover |
 
 | Control cited | Standard | By |
 | --- | --- | --- |
+| NIST.800-53.CA-2 Control Assessments | NIST_800_53 | Validation & Test Matrix |
+| NIST.800-53.CM-2 Baseline Configuration | NIST_800_53 | Build & Configuration Log |
+| NIST.800-53.CM-3 Configuration Change Control | NIST_800_53 | Operations & Change Records |
+| NIST.800-53.CM-6 Configuration Settings | NIST_800_53 | Security Baseline & ACL Policy |
+| NIST.800-53.CM-8 System Component Inventory | NIST_800_53 | Kit & Capability Register; Low-Level Design & IP Plan |
+| NIST.800-53.PL-2 System Security and Privacy Plans | NIST_800_53 | Requirements & Site Survey; As-Built & Operations Handover |
+| NIST.800-53.PL-8 Security and Privacy Architectures | NIST_800_53 | High-Level Design |
+| NIST.800-53.SI-4 System Monitoring | NIST_800_53 | Monitoring & Incident Log |
 | ITIL.change Change enablement | ITIL | Operations & Change Records |
 | ITIL.problem Problem management | ITIL | Monitoring & Incident Log |
 
@@ -128,32 +137,32 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 
 | KPI | Family | Reads | Denominator in this course |
 | --- | --- | --- | --- |
-| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | arch: 0 skills with a verifiable step; impl: 0 skills with a verifiable step; ops: 0 skills with a verifiable step; auto: 0 skills with a verifiable step |
+| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | arch: 14 skills with a verifiable step; impl: 14 skills with a verifiable step; ops: 14 skills with a verifiable step; auto: 14 skills with a verifiable step |
 | Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | arch: 100 percent of the exam over 6 domains; impl: 100 percent of the exam over 6 domains; ops: 100 percent of the exam over 6 domains; auto: 100 percent of the exam over 6 domains |
-| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | arch: 0 verifiable steps that run a command; impl: 0 verifiable steps that run a command; ops: 0 verifiable steps that run a command; auto: 0 verifiable steps that run a command |
+| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | arch: 22 verifiable steps that run a command; impl: 22 verifiable steps that run a command; ops: 22 verifiable steps that run a command; auto: 22 verifiable steps that run a command |
 | Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | arch: 13 procedures; impl: 13 procedures; ops: 13 procedures; auto: 13 procedures |
 | Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | arch: 2 fault, incident or triage tables; impl: 2 fault, incident or triage tables; ops: 2 fault, incident or triage tables; auto: 2 fault, incident or triage tables |
-| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | arch: 0 verifiable steps; impl: 0 verifiable steps; ops: 0 verifiable steps; auto: 0 verifiable steps |
+| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | arch: 22 verifiable steps; impl: 22 verifiable steps; ops: 22 verifiable steps; auto: 22 verifiable steps |
 | Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
-| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | arch: 0 verifiable steps that can carry two stamps; impl: 0 verifiable steps that can carry two stamps; ops: 0 verifiable steps that can carry two stamps; auto: 0 verifiable steps that can carry two stamps |
-| Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | arch: 0 tasks with two or more verifiable steps; impl: 0 tasks with two or more verifiable steps; ops: 0 tasks with two or more verifiable steps; auto: 0 tasks with two or more verifiable steps |
-| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | arch: 0 verifiable steps; impl: 0 verifiable steps; ops: 0 verifiable steps; auto: 0 verifiable steps |
+| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | arch: 22 verifiable steps that can carry two stamps; impl: 22 verifiable steps that can carry two stamps; ops: 22 verifiable steps that can carry two stamps; auto: 22 verifiable steps that can carry two stamps |
+| Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | arch: 11 tasks with two or more verifiable steps; impl: 11 tasks with two or more verifiable steps; ops: 11 tasks with two or more verifiable steps; auto: 11 tasks with two or more verifiable steps |
+| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | arch: 22 verifiable steps; impl: 22 verifiable steps; ops: 22 verifiable steps; auto: 22 verifiable steps |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
 | Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | arch: 38 checks on 10 forms; impl: 38 checks on 10 forms; ops: 38 checks on 10 forms; auto: 38 checks on 10 forms |
 | Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | arch: 1 decision block; impl: 1 decision block; ops: 1 decision block; auto: 1 decision block |
 | Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | arch: 1 decision block; impl: 1 decision block; ops: 1 decision block; auto: 1 decision block |
 | Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | arch: 1 decision block; impl: 1 decision block; ops: 1 decision block; auto: 1 decision block |
 | Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | arch: 1 change table with a rollback column; impl: 1 change table with a rollback column; ops: 1 change table with a rollback column; auto: 1 change table with a rollback column |
-| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | arch: 0 hand-offs; impl: 0 hand-offs; ops: 0 hand-offs; auto: 0 hand-offs |
+| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | arch: 12 hand-offs; impl: 12 hand-offs; ops: 12 hand-offs; auto: 12 hand-offs |
 | RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | arch: 10 forms with a RACI; impl: 10 forms with a RACI; ops: 10 forms with a RACI; auto: 10 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
 | On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | arch: 19 tasks of the role; impl: 19 tasks of the role; ops: 19 tasks of the role; auto: 19 tasks of the role |
 | Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | arch: 10 forms; impl: 10 forms; ops: 10 forms; auto: 10 forms |
-| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | arch: 0 control codes on 5 forms; impl: 0 control codes on 1 form; ops: 2 control codes on 3 forms; auto: 0 control codes on 1 form |
+| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | arch: 3 control codes on 5 forms; impl: 1 control code on 1 form; ops: 5 control codes on 3 forms; auto: 1 control code on 1 form |
 | Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | arch: 10 forms; impl: 10 forms; ops: 10 forms; auto: 10 forms |
-| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | arch: 1 skill on two or more tasks; impl: 1 skill on two or more tasks; ops: 1 skill on two or more tasks; auto: 1 skill on two or more tasks |
-| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | arch: 0 skills with a verifiable step; impl: 0 skills with a verifiable step; ops: 0 skills with a verifiable step; auto: 0 skills with a verifiable step |
+| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | arch: 6 skills on two or more tasks; impl: 6 skills on two or more tasks; ops: 6 skills on two or more tasks; auto: 6 skills on two or more tasks |
+| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | arch: 14 skills with a verifiable step; impl: 14 skills with a verifiable step; ops: 14 skills with a verifiable step; auto: 14 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
 | Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | arch: Network Operations Specialist: 62 required, 40 not taught here; impl: Network Operations Specialist: 62 required, 40 not taught here; ops: Network Operations Specialist: 62 required, 40 not taught here; auto: Software Developer: 84 required, 71 not taught here |
 

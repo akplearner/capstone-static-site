@@ -1,6 +1,6 @@
 # Network+ Capstone Branch — skills sheet
 
-13 graded tasks and 2 advanced · 25 skills · 13 tools · 11 procedures · 2 standards (0 controls cited) · 0 tactics · 17 practices
+13 graded tasks and 2 advanced · 25 skills · 13 tools · 11 procedures · 3 standards (6 controls cited) · 0 tactics · 17 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -76,6 +76,16 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | --- | --- | --- |
 | Network+ N10-009 | Discover before you design; Plan the addresses and the VLANs; Build the empty topology; Cut the switches into VLANs; Route between them and out; Hand out addresses and names; Watch it and back it up; Enforce the policy; Change it properly; Work three faults by layer; Research the equipment; Price the bill of materials; Plan the move and hand over; Build it on hardware; Write down what differed | — |
 | ITIL 4 | Watch it and back it up; Change it properly; Work three faults by layer; Plan the move and hand over | — |
+| NIST SP 800-53 | — | Lab & Path Register; Design Brief & IP Plan; VLAN & Port Map; Configuration Record; Services & Verification Log; Change & Fault Log; Equipment Research & BOM; Migration Plan & Handover |
+
+| Control cited | Standard | By |
+| --- | --- | --- |
+| NIST.800-53.CA-2 Control Assessments | NIST_800_53 | Services & Verification Log |
+| NIST.800-53.CM-2 Baseline Configuration | NIST_800_53 | Configuration Record |
+| NIST.800-53.CM-3 Configuration Change Control | NIST_800_53 | Change & Fault Log |
+| NIST.800-53.CM-8 System Component Inventory | NIST_800_53 | Lab & Path Register; VLAN & Port Map; Equipment Research & BOM |
+| NIST.800-53.PL-2 System Security and Privacy Plans | NIST_800_53 | Migration Plan & Handover |
+| NIST.800-53.SC-7 Boundary Protection | NIST_800_53 | Design Brief & IP Plan |
 
 Forms whose standard names a practice rather than a control:
 
@@ -134,13 +144,13 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | design: 1 decision block; sw: 1 decision block; rt: 1 decision block; ops: 1 decision block |
 | Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | design: 1 decision block; sw: 1 decision block; rt: 1 decision block; ops: 1 decision block |
 | Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | design: 1 change table with a rollback column; sw: 1 change table with a rollback column; rt: 1 change table with a rollback column; ops: 1 change table with a rollback column |
-| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | design: 0 hand-offs; sw: 0 hand-offs; rt: 0 hand-offs; ops: 0 hand-offs |
+| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | design: 13 hand-offs; sw: 13 hand-offs; rt: 13 hand-offs; ops: 13 hand-offs |
 | RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | design: 8 forms with a RACI; sw: 8 forms with a RACI; rt: 8 forms with a RACI; ops: 8 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
 | On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | design: 15 tasks of the role; sw: 15 tasks of the role; rt: 15 tasks of the role; ops: 15 tasks of the role |
 | Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | design: 8 forms; sw: 8 forms; rt: 8 forms; ops: 8 forms |
-| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | design: 0 control codes on 3 forms; sw: 0 control codes on 1 form; rt: 0 control codes on 2 forms; ops: 0 control codes on 2 forms |
+| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | design: 3 control codes on 3 forms; sw: 1 control code on 1 form; rt: 2 control codes on 2 forms; ops: 2 control codes on 2 forms |
 | Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | design: 8 forms; sw: 8 forms; rt: 8 forms; ops: 8 forms |
 | Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | design: 2 skills on two or more tasks; sw: 2 skills on two or more tasks; rt: 2 skills on two or more tasks; ops: 2 skills on two or more tasks |
 | Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | design: 18 skills with a verifiable step; sw: 18 skills with a verifiable step; rt: 18 skills with a verifiable step; ops: 18 skills with a verifiable step |

@@ -1,3 +1,5 @@
+import { withHandoffForms } from '../docs/handoffForms';
+import { seedDeliverablesForCourse } from '../docs/definitions';
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { localStorageCourseRepo, localDocumentSource } from './localStorageCourseRepo';
 import { supabaseCourseRepo } from './supabaseCourseRepo';
@@ -49,7 +51,8 @@ describe('the built-in courses load from content/courses', () => {
     expect(throughJson(localStorageCourseRepo.get('server-plus'))).toEqual(
       throughJson(courseFromDto(serverPlusDoc))
     );
-    expect(throughJson(localStorageCourseRepo.get('server-plus'))).toEqual(throughJson(SERVER_PLUS));
+    // R138: the document carries every hand-off's form (docs/handoffForms.ts), so the module is compared with it written in.
+    expect(throughJson(localStorageCourseRepo.get('server-plus'))).toEqual(throughJson(withHandoffForms(SERVER_PLUS, seedDeliverablesForCourse('server-plus'))));
   });
 });
 

@@ -473,6 +473,21 @@ export const CISSP_DELIVERABLES: DeliverableDef[] = [
           ],
         },
       },
+      // R138: the drills and restores that prove the targets (v3 and v4).
+      {
+        kind: 'group',
+        group: {
+          group: 'drills', label: 'Recovery drills and detections (v3 onwards)',
+          help: 'One row per restore, disablement or tabletop: which process, what was tested, when, and whether the target was met.',
+          columns: [
+            c('process', 'Process', 'text', { placeholder: 'Dispatch' }),
+            c('test', 'Test', 'text', { placeholder: 'Restore from last night’s backup' }),
+            c('date', 'Date', 'date'),
+            c('measured', 'Measured', 'text', { placeholder: 'RTO 3h 10m' }),
+            c('result', 'Result', 'select', { options: ['Met', 'Missed', 'Not run'] }),
+          ],
+        },
+      },
     ],
     dod: [
       { label: 'Logging and the incident first hour with the 72-hour notice', when: { fields: ['logging', 'incident'] } },
@@ -485,7 +500,7 @@ export const CISSP_DELIVERABLES: DeliverableDef[] = [
   // 8 — D8 Software & Change ─────────────────────────────────────────────────
   {
     id: 'cissp_d8', courseId: 'cissp', feeds: ['cissp_d6'],
-    num: 8, file: '08_Software_and_Change.md', title: 'D8 Software & Change', owner: 'archnet',
+    num: 8, file: '08_Software_and_Change.md', title: 'D8 Software & Change', owner: 'archnet', shared: true,
     folder: '08_Software', standard: 'NIST SP 800-218 (SSDF) · OWASP', framework: 'NIST_800_53', weeks: ALL,
     kind: 'form', exportFormat: 'md',
     purpose: 'The change standard, the pipeline, baselines, the component list, and the migration cutover plan.',
@@ -500,6 +515,22 @@ export const CISSP_DELIVERABLES: DeliverableDef[] = [
           { field: 'components', label: 'Component list (v3)', type: 'area', placeholder: 'CycloneDX; S-9 closed.' },
           { field: 'migration', label: 'Migration cutover and rollback (v3)', type: 'area', placeholder: 'Steps, rollback trigger, decommission record.' },
         ],
+      },
+      // R138: the change standard applied: every change with a way back.
+      {
+        kind: 'group',
+        group: {
+          group: 'changes', label: 'Changes under the rule (v2 onwards)',
+          help: 'One row per change the team made under the change rule: approver, risk, rollback, result.',
+          columns: [
+            c('date', 'Date', 'date'),
+            c('change', 'Change', 'text', { placeholder: 'Pipeline gate added before prod' }),
+            c('approver', 'Approver', 'text', { placeholder: 'Not the author' }),
+            c('risk', 'Risk', 'select', { options: ['High', 'Medium', 'Low'] }),
+            c('rollback', 'Rollback', 'text', { placeholder: 'Revert the commit; redeploy the previous build' }),
+            c('result', 'Result', 'select', { options: ['Applied', 'Rolled back', 'Pending'] }),
+          ],
+        },
       },
     ],
     dod: [

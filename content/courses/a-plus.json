@@ -649,6 +649,14 @@
               }
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "records",
+            "artifact": "Asset & Build Sheet",
+            "note": "Your section of the Asset & Build Sheet, for the review that approves it.",
+            "deliverable": "ap_asset"
+          }
         ]
       },
       {
@@ -789,6 +797,14 @@
               }
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "records",
+            "artifact": "Troubleshooting Log",
+            "note": "Your section of the Troubleshooting Log, for the review that approves it.",
+            "deliverable": "ap_fault"
+          }
         ]
       },
       {
@@ -884,6 +900,14 @@
               "If you update the firmware, record the version before and after."
             ],
             "whatItMeans": "The firmware baseline is the first security control on the machine, and the one most technicians never write down."
+          }
+        ],
+        "handoff": [
+          {
+            "to": "records",
+            "artifact": "OS Build & Baseline Record",
+            "note": "Your section of the OS Build & Baseline Record, for the review that approves it.",
+            "deliverable": "ap_os"
           }
         ]
       },
@@ -987,6 +1011,14 @@
               "ptcl-img",
               "as-received"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "hw",
+            "artifact": "Backup & Image Register",
+            "note": "Your section of the Backup & Image Register, for the review that approves it.",
+            "deliverable": "ap_backup"
           }
         ]
       },
@@ -1142,6 +1174,14 @@
               "SHA256"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "records",
+            "artifact": "OS Build & Baseline Record",
+            "note": "Your section of the OS Build & Baseline Record, for the review that approves it.",
+            "deliverable": "ap_os"
+          }
         ]
       },
       {
@@ -1260,6 +1300,14 @@
               "bench.user"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "hw",
+            "artifact": "Backup & Image Register",
+            "note": "Your section of the Backup & Image Register, for the review that approves it.",
+            "deliverable": "ap_backup"
+          }
         ]
       },
       {
@@ -1372,6 +1420,14 @@
               "Reply from",
               "Name:"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "records",
+            "artifact": "OS Build & Baseline Record",
+            "note": "Your section of the OS Build & Baseline Record, for the review that approves it.",
+            "deliverable": "ap_os"
           }
         ]
       },
@@ -1504,6 +1560,14 @@
                 "fix": "Install it from the Microsoft Store as the admin, or use Remote Desktop from the teammate's machine after enabling it in Settings, Remote Desktop."
               }
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "records",
+            "artifact": "Support Ticket Log",
+            "note": "Your section of the Support Ticket Log, for the review that approves it.",
+            "deliverable": "ap_tickets"
           }
         ]
       },
@@ -1657,6 +1721,14 @@
               "Running"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "records",
+            "artifact": "Support Ticket Log",
+            "note": "Your section of the Support Ticket Log, for the review that approves it.",
+            "deliverable": "ap_tickets"
+          }
         ]
       },
       {
@@ -1809,6 +1881,14 @@
               "Hash"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "records",
+            "artifact": "Security Checklist",
+            "note": "Your section of the Security Checklist, for the review that approves it.",
+            "deliverable": "ap_security"
+          }
         ]
       },
       {
@@ -1910,6 +1990,14 @@
               }
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "hw",
+            "artifact": "Backup & Image Register",
+            "note": "Your section of the Backup & Image Register, for the review that approves it.",
+            "deliverable": "ap_backup"
+          }
         ]
       },
       {
@@ -2001,6 +2089,14 @@
             ],
             "whatItMeans": "The as-built is the document the next technician reads before touching the machine. Written honestly, it saves them the week you just spent."
           }
+        ],
+        "handoff": [
+          {
+            "to": "support",
+            "artifact": "Handover & As-Built",
+            "note": "Your section of the Handover & As-Built, for the review that approves it.",
+            "deliverable": "ap_handover"
+          }
         ]
       }
     ],
@@ -2048,7 +2144,7 @@
       "owner": "records",
       "shared": true,
       "folder": "00_Intake",
-      "standard": "Physical installation & asset inventory",
+      "standard": "Physical installation & asset inventory · NIST SP 800-53 CM-8",
       "weeks": [
         0,
         1
@@ -2321,7 +2417,7 @@
       "owner": "hw",
       "shared": true,
       "folder": "01_Bench",
-      "standard": "Hardware audit & compatibility validation",
+      "standard": "Hardware audit & compatibility validation · NIST SP 800-53 CM-8",
       "weeks": [
         1,
         2,
@@ -2579,7 +2675,7 @@
       "owner": "hw",
       "shared": true,
       "folder": "01_Bench",
-      "standard": "Structured troubleshooting method",
+      "standard": "Structured troubleshooting method · NIST SP 800-53 IR-4",
       "weeks": [
         1,
         3
@@ -2778,7 +2874,7 @@
       "owner": "os",
       "shared": true,
       "folder": "02_Build",
-      "standard": "Configuration baseline, hardening benchmark & written policy",
+      "standard": "Configuration baseline, hardening benchmark & written policy · NIST SP 800-53 CM-6",
       "weeks": [
         1,
         2,
@@ -2905,6 +3001,12 @@
                 "label": "To",
                 "type": "text",
                 "placeholder": "AHCI"
+              },
+              {
+                "field": "rollback",
+                "label": "Rollback",
+                "type": "text",
+                "placeholder": "Set SATA Operation back to RAID On"
               }
             ]
           }
@@ -3080,7 +3182,7 @@
       "owner": "records",
       "shared": true,
       "folder": "02_Build",
-      "standard": "Backup & restore proof",
+      "standard": "Backup & restore proof · NIST SP 800-53 CP-9",
       "weeks": [
         2,
         4
@@ -3353,7 +3455,7 @@
       "owner": "support",
       "shared": true,
       "folder": "03_Support",
-      "standard": "Incident & request handling",
+      "standard": "Incident & request handling · NIST SP 800-53 IR-4",
       "weeks": [
         3
       ],
@@ -3575,7 +3677,7 @@
       "owner": "os",
       "shared": true,
       "folder": "04_Handover",
-      "standard": "Device hardening · policy",
+      "standard": "Device hardening · policy · NIST SP 800-53 CM-6",
       "weeks": [
         4
       ],
@@ -3827,7 +3929,7 @@
       "shared": true,
       "capstone": true,
       "folder": "04_Handover",
-      "standard": "As-built documentation · operational handover",
+      "standard": "As-built documentation · operational handover · NIST SP 800-53 PL-2",
       "weeks": [
         4
       ],
@@ -5639,7 +5741,13 @@
           ]
         }
       ],
-      "CHANGE_GROUPS": [],
+      "CHANGE_GROUPS": [
+        {
+          "form": "ap_os",
+          "group": "fw_changes",
+          "rollback": "rollback"
+        }
+      ],
       "CONTROLS": [
         {
           "code": "NIST.CSF",
@@ -5777,6 +5885,20 @@
           "cites": []
         },
         {
+          "code": "NIST.800-53.IR",
+          "standard": "NIST_800_53",
+          "label": "Incident Response",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.PL",
+          "standard": "NIST_800_53",
+          "label": "Planning",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
           "code": "NIST.800-53.AC-6",
           "standard": "NIST_800_53",
           "label": "Least Privilege",
@@ -5804,6 +5926,15 @@
           ]
         },
         {
+          "code": "NIST.800-53.CM-8",
+          "standard": "NIST_800_53",
+          "label": "System Component Inventory",
+          "parent": "NIST.800-53.CM",
+          "cites": [
+            "CM-8"
+          ]
+        },
+        {
           "code": "NIST.800-53.CP-4",
           "standard": "NIST_800_53",
           "label": "Contingency Plan Testing",
@@ -5819,6 +5950,24 @@
           "parent": "NIST.800-53.CP",
           "cites": [
             "CP-9"
+          ]
+        },
+        {
+          "code": "NIST.800-53.IR-4",
+          "standard": "NIST_800_53",
+          "label": "Incident Handling",
+          "parent": "NIST.800-53.IR",
+          "cites": [
+            "IR-4"
+          ]
+        },
+        {
+          "code": "NIST.800-53.PL-2",
+          "standard": "NIST_800_53",
+          "label": "System Security and Privacy Plans",
+          "parent": "NIST.800-53.PL",
+          "cites": [
+            "PL-2"
           ]
         },
         {
@@ -6077,7 +6226,32 @@
           ]
         }
       ],
-      "CONTROL_OF": {},
+      "CONTROL_OF": {
+        "ap_intake": [
+          "NIST.800-53.CM-8"
+        ],
+        "ap_asset": [
+          "NIST.800-53.CM-8"
+        ],
+        "ap_fault": [
+          "NIST.800-53.IR-4"
+        ],
+        "ap_os": [
+          "NIST.800-53.CM-6"
+        ],
+        "ap_backup": [
+          "NIST.800-53.CP-9"
+        ],
+        "ap_tickets": [
+          "NIST.800-53.IR-4"
+        ],
+        "ap_security": [
+          "NIST.800-53.CM-6"
+        ],
+        "ap_handover": [
+          "NIST.800-53.PL-2"
+        ]
+      },
       "COPY": {
         "cardTitle": "Skills",
         "cardIntro": "What this course has recorded for this member: exam domains, skills, tools, procedures and standards.",
@@ -10362,7 +10536,8 @@
             "virt",
             "continuity",
             "observe",
-            "docs"
+            "docs",
+            "cloud"
           ],
           "requiredCompetencies": [
             "comp.hardware.receive-and-inspect",
@@ -10432,7 +10607,56 @@
             "comp.continuity.restore-from-image",
             "comp.docs.equipment-research",
             "comp.docs.bill-of-materials",
-            "comp.docs.migration-plan"
+            "comp.docs.migration-plan",
+            "comp.cloud.budget-and-tags",
+            "comp.cloud.shared-responsibility",
+            "comp.cloud.network-foundation",
+            "comp.cloud.team-repo-and-board",
+            "comp.cloud.identity-and-groups",
+            "comp.cloud.cost-estimate",
+            "comp.cloud.launch-vm",
+            "comp.cloud.static-site-https",
+            "comp.cloud.ssh-from-one-ip",
+            "comp.cloud.request-flow",
+            "comp.cloud.managed-database",
+            "comp.cloud.serverless-api",
+            "comp.cloud.read-only-access",
+            "comp.cloud.cost-report",
+            "comp.cloud.error-alert",
+            "comp.cloud.read-logs",
+            "comp.cloud.audit-trail",
+            "comp.cloud.access-matrix",
+            "comp.cloud.secrets-in-vault",
+            "comp.cloud.managed-identity",
+            "comp.cloud.prove-denial",
+            "comp.cloud.two-zone-design",
+            "comp.cloud.scale-set",
+            "comp.cloud.load-balancer",
+            "comp.cloud.private-access-path",
+            "comp.cloud.data-store-choice",
+            "comp.cloud.ha-database",
+            "comp.cloud.queue-and-ledger",
+            "comp.cloud.data-lockdown",
+            "comp.cloud.autoscale-target",
+            "comp.cloud.autoscale-and-self-heal",
+            "comp.cloud.restore-file-and-database",
+            "comp.cloud.recovery-drill-and-teardown",
+            "comp.cloud.template-map",
+            "comp.cloud.inventory-and-drift",
+            "comp.cloud.deploy-from-template",
+            "comp.cloud.policy-as-code",
+            "comp.cloud.change-request-and-gates",
+            "comp.cloud.branch-protection",
+            "comp.cloud.staged-pipeline",
+            "comp.cloud.oidc-deploy-identity",
+            "comp.cloud.cost-by-service-and-slos",
+            "comp.cloud.blue-green",
+            "comp.cloud.canary",
+            "comp.cloud.dashboard-and-compliance",
+            "comp.cloud.handover-package",
+            "comp.cloud.rebuild-and-automate",
+            "comp.cloud.fix-through-ci",
+            "comp.cloud.contain-and-post-mortem"
           ]
         },
         {

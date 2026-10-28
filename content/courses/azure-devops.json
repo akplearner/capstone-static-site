@@ -553,6 +553,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "secops",
+            "artifact": "IaC Design & Deployment Record",
+            "note": "Your section of the IaC Design & Deployment Record, for the review that approves it.",
+            "deliverable": "azd_iac"
+          }
         ]
       },
       {
@@ -693,6 +701,14 @@
               "AZ_400",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "IaC Design & Deployment Record",
+            "note": "Your section of the IaC Design & Deployment Record, for the review that approves it.",
+            "deliverable": "azd_iac"
           }
         ]
       },
@@ -841,6 +857,14 @@
               "AZ_400",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "IaC Design & Deployment Record",
+            "note": "Your section of the IaC Design & Deployment Record, for the review that approves it.",
+            "deliverable": "azd_iac"
           }
         ]
       },
@@ -1017,6 +1041,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "IaC Design & Deployment Record",
+            "note": "Your section of the IaC Design & Deployment Record, for the review that approves it.",
+            "deliverable": "azd_iac"
+          }
         ]
       },
       {
@@ -1118,6 +1150,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "secops",
+            "artifact": "Change Request & Release Record",
+            "note": "Your section of the Change Request & Release Record, for the review that approves it.",
+            "deliverable": "azd_change"
+          }
         ]
       },
       {
@@ -1217,6 +1257,14 @@
               "AZ_400",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Change Request & Release Record",
+            "note": "Your section of the Change Request & Release Record, for the review that approves it.",
+            "deliverable": "azd_change"
           }
         ]
       },
@@ -1375,6 +1423,14 @@
               "AZ_400",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Change Request & Release Record",
+            "note": "Your section of the Change Request & Release Record, for the review that approves it.",
+            "deliverable": "azd_change"
           }
         ]
       },
@@ -1538,6 +1594,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Change Request & Release Record",
+            "note": "Your section of the Change Request & Release Record, for the review that approves it.",
+            "deliverable": "azd_change"
+          }
         ]
       },
       {
@@ -1631,6 +1695,52 @@
             ]
           },
           {
+            "id": "az-w11-arch-s3",
+            "title": "Read cost by service from the shell",
+            "description": "Read cost by service from the shell",
+            "where": "Azure portal · or Cloud Shell",
+            "instruction": "Match the month’s cost by service to the table.",
+            "instructionList": [
+              "Cost Management → Cost analysis → group by Service name.",
+              "Note the top three services and their spend.",
+              "The same three must head the cost table."
+            ],
+            "commands": [
+              {
+                "cmd": "az consumption usage list --query \"[].{service:meterCategory,cost:pretaxCost}\" -o table | sort | uniq -c | sort -rn | head",
+                "explain": "The month’s charges grouped by service. The top lines are the services your cost table must name first.",
+                "sample": "     14 Virtual Machines      0.1200\n      9 Storage               0.0020\n      4 Virtual Network       0.0036",
+                "flags": [
+                  {
+                    "flag": "--query \"[].{…}\"",
+                    "meaning": "Two fields per usage line: the service and its pre-tax cost."
+                  },
+                  {
+                    "flag": "sort | uniq -c | sort -rn",
+                    "meaning": "Count lines per service and put the busiest first."
+                  }
+                ]
+              }
+            ],
+            "verify": [
+              "Virtual Machines"
+            ],
+            "whatItMeans": "A cost report built from the export is a measurement; one typed from the portal screen is a reading. The governance report wants the first.",
+            "frameworks": [
+              "AZ_400",
+              "WAF"
+            ],
+            "expectedOutput": "Cost analysis grouped by service and the shell agree on the top three services; Virtual Machines leads.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Cost analysis",
+                "url": "https://learn.microsoft.com/azure/cost-management-billing/costs/quick-acm-cost-analysis",
+                "lookFor": "the “Group by” control: Service name, and how the donut and the table change with it"
+              }
+            ]
+          },
+          {
             "id": "az-w11-arch-s9",
             "title": "Record it in the Governance, Security & Cost Report",
             "description": "Your section: Cost by service and service levels.",
@@ -1647,6 +1757,14 @@
               "AZ_400",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "infra",
+            "artifact": "Governance, Security & Cost Report",
+            "note": "Your section of the Governance, Security & Cost Report, for the review that approves it.",
+            "deliverable": "azd_governance"
           }
         ]
       },
@@ -1818,6 +1936,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Governance, Security & Cost Report",
+            "note": "Your section of the Governance, Security & Cost Report, for the review that approves it.",
+            "deliverable": "azd_governance"
+          }
         ]
       },
       {
@@ -1985,6 +2111,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Governance, Security & Cost Report",
+            "note": "Your section of the Governance, Security & Cost Report, for the review that approves it.",
+            "deliverable": "azd_governance"
+          }
         ]
       },
       {
@@ -2140,6 +2274,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Governance, Security & Cost Report",
+            "note": "Your section of the Governance, Security & Cost Report, for the review that approves it.",
+            "deliverable": "azd_governance"
+          }
         ]
       },
       {
@@ -2234,6 +2376,14 @@
               "AZ_400",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "dev",
+            "artifact": "Operational Handover Package",
+            "note": "Your section of the Operational Handover Package, for the review that approves it.",
+            "deliverable": "azd_handover"
           }
         ]
       },
@@ -2385,6 +2535,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "dev",
+            "artifact": "Operational Handover Package",
+            "note": "Your section of the Operational Handover Package, for the review that approves it.",
+            "deliverable": "azd_handover"
+          }
         ]
       },
       {
@@ -2515,6 +2673,14 @@
               "AZ_400",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "secops",
+            "artifact": "Operational Handover Package",
+            "note": "Your section of the Operational Handover Package, for the review that approves it.",
+            "deliverable": "azd_handover"
           }
         ]
       },
@@ -2666,6 +2832,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "dev",
+            "artifact": "Operational Handover Package",
+            "note": "Your section of the Operational Handover Package, for the review that approves it.",
+            "deliverable": "azd_handover"
+          }
         ]
       }
     ],
@@ -2707,10 +2881,10 @@
       "num": 1,
       "file": "09_IaC_Design_and_Deployment_Record.md",
       "title": "IaC Design & Deployment Record",
-      "owner": "arch",
+      "owner": "infra",
       "shared": true,
       "folder": "Week_01",
-      "standard": "Well-Architected — operational excellence",
+      "standard": "Well-Architected — operational excellence · NIST SP 800-53 CM-2",
       "weeks": [
         1
       ],
@@ -2721,12 +2895,12 @@
         "week": 9
       },
       "raci": {
-        "drafts": "arch",
+        "drafts": "infra",
         "reviews": "secops",
-        "approves": "infra"
+        "approves": "arch"
       },
       "handoff": {
-        "to": "infra",
+        "to": "arch",
         "when": "approved"
       },
       "feeds": [
@@ -3169,10 +3343,10 @@
       "num": 2,
       "file": "10_Change_Request_and_Release_Record.md",
       "title": "Change Request & Release Record",
-      "owner": "arch",
+      "owner": "dev",
       "shared": true,
       "folder": "Week_02",
-      "standard": "ITIL 4 change enablement",
+      "standard": "ITIL 4 change enablement · NIST SP 800-53 CM-3",
       "weeks": [
         2
       ],
@@ -3183,12 +3357,12 @@
         "week": 10
       },
       "raci": {
-        "drafts": "arch",
+        "drafts": "dev",
         "reviews": "secops",
-        "approves": "dev"
+        "approves": "arch"
       },
       "handoff": {
-        "to": "dev",
+        "to": "arch",
         "when": "approved"
       },
       "feeds": [
@@ -3343,6 +3517,12 @@
                   "Fail",
                   "Fixed and retested"
                 ]
+              },
+              {
+                "field": "rollback",
+                "label": "Rollback",
+                "type": "text",
+                "placeholder": "Revert #14; the pipeline redeploys #13"
               }
             ],
             "help": "One row per run; the artifact each run kept is the preview the reviewer approved on."
@@ -3484,10 +3664,10 @@
       "num": 3,
       "file": "11_Governance_Security_and_Cost_Report.md",
       "title": "Governance, Security & Cost Report",
-      "owner": "arch",
+      "owner": "secops",
       "shared": true,
       "folder": "Week_03",
-      "standard": "Azure Well-Architected — cost and security pillars",
+      "standard": "Azure Well-Architected — cost and security pillars · NIST SP 800-53 AU-6",
       "weeks": [
         3
       ],
@@ -3498,12 +3678,12 @@
         "week": 11
       },
       "raci": {
-        "drafts": "arch",
+        "drafts": "secops",
         "reviews": "infra",
-        "approves": "secops"
+        "approves": "arch"
       },
       "handoff": {
-        "to": "secops",
+        "to": "arch",
         "when": "approved"
       },
       "feeds": [
@@ -3892,7 +4072,7 @@
       "owner": "arch",
       "shared": true,
       "folder": "Week_04",
-      "standard": "ITIL 4 service transition",
+      "standard": "ITIL 4 service transition · NIST SP 800-53 PL-2",
       "weeks": [
         4
       ],
@@ -6537,9 +6717,9 @@
       ],
       "CHANGE_GROUPS": [
         {
-          "form": "azd_change",
+          "form": "change",
           "group": "runs",
-          "rollback": "result"
+          "rollback": "rollback"
         }
       ],
       "CONTROLS": [
@@ -6627,6 +6807,13 @@
           "cites": []
         },
         {
+          "code": "NIST.800-53.AU",
+          "standard": "NIST_800_53",
+          "label": "Audit and Accountability",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
           "code": "NIST.800-53.CM",
           "standard": "NIST_800_53",
           "label": "Configuration Management",
@@ -6648,6 +6835,13 @@
           "cites": []
         },
         {
+          "code": "NIST.800-53.PL",
+          "standard": "NIST_800_53",
+          "label": "Planning",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
           "code": "NIST.800-53.AC-5",
           "standard": "NIST_800_53",
           "label": "Separation of Duties",
@@ -6663,6 +6857,15 @@
           "parent": "NIST.800-53.AC",
           "cites": [
             "AC-6"
+          ]
+        },
+        {
+          "code": "NIST.800-53.AU-6",
+          "standard": "NIST_800_53",
+          "label": "Audit Record Review, Analysis, and Reporting",
+          "parent": "NIST.800-53.AU",
+          "cites": [
+            "AU-6"
           ]
         },
         {
@@ -6699,6 +6902,15 @@
           "parent": "NIST.800-53.IA",
           "cites": [
             "IA-5"
+          ]
+        },
+        {
+          "code": "NIST.800-53.PL-2",
+          "standard": "NIST_800_53",
+          "label": "System Security and Privacy Plans",
+          "parent": "NIST.800-53.PL",
+          "cites": [
+            "PL-2"
           ]
         },
         {
@@ -7050,16 +7262,20 @@
       ],
       "CONTROL_OF": {
         "azd_iac": [
+          "NIST.800-53.CM-2",
           "WAF.operational-excellence"
         ],
         "azd_change": [
+          "NIST.800-53.CM-3",
           "ITIL.change"
         ],
         "azd_governance": [
+          "NIST.800-53.AU-6",
           "WAF.security",
           "WAF.cost"
         ],
         "azd_handover": [
+          "NIST.800-53.PL-2",
           "ITIL.transition"
         ]
       },
@@ -11302,7 +11518,8 @@
           "areas": [
             "detect",
             "harden",
-            "ops"
+            "ops",
+            "cloud"
           ],
           "requiredCompetencies": [
             "comp.harden.linux-baseline",
@@ -11333,7 +11550,56 @@
             "comp.detect.shadow-ai",
             "comp.ops.logging-first-hour",
             "comp.ops.detection-fires",
-            "comp.ops.contingency-phases"
+            "comp.ops.contingency-phases",
+            "comp.cloud.budget-and-tags",
+            "comp.cloud.shared-responsibility",
+            "comp.cloud.network-foundation",
+            "comp.cloud.team-repo-and-board",
+            "comp.cloud.identity-and-groups",
+            "comp.cloud.cost-estimate",
+            "comp.cloud.launch-vm",
+            "comp.cloud.static-site-https",
+            "comp.cloud.ssh-from-one-ip",
+            "comp.cloud.request-flow",
+            "comp.cloud.managed-database",
+            "comp.cloud.serverless-api",
+            "comp.cloud.read-only-access",
+            "comp.cloud.cost-report",
+            "comp.cloud.error-alert",
+            "comp.cloud.read-logs",
+            "comp.cloud.audit-trail",
+            "comp.cloud.access-matrix",
+            "comp.cloud.secrets-in-vault",
+            "comp.cloud.managed-identity",
+            "comp.cloud.prove-denial",
+            "comp.cloud.two-zone-design",
+            "comp.cloud.scale-set",
+            "comp.cloud.load-balancer",
+            "comp.cloud.private-access-path",
+            "comp.cloud.data-store-choice",
+            "comp.cloud.ha-database",
+            "comp.cloud.queue-and-ledger",
+            "comp.cloud.data-lockdown",
+            "comp.cloud.autoscale-target",
+            "comp.cloud.autoscale-and-self-heal",
+            "comp.cloud.restore-file-and-database",
+            "comp.cloud.recovery-drill-and-teardown",
+            "comp.cloud.template-map",
+            "comp.cloud.inventory-and-drift",
+            "comp.cloud.deploy-from-template",
+            "comp.cloud.policy-as-code",
+            "comp.cloud.change-request-and-gates",
+            "comp.cloud.branch-protection",
+            "comp.cloud.staged-pipeline",
+            "comp.cloud.oidc-deploy-identity",
+            "comp.cloud.cost-by-service-and-slos",
+            "comp.cloud.blue-green",
+            "comp.cloud.canary",
+            "comp.cloud.dashboard-and-compliance",
+            "comp.cloud.handover-package",
+            "comp.cloud.rebuild-and-automate",
+            "comp.cloud.fix-through-ci",
+            "comp.cloud.contain-and-post-mortem"
           ]
         },
         {
@@ -11400,7 +11666,8 @@
             "virt",
             "continuity",
             "observe",
-            "docs"
+            "docs",
+            "cloud"
           ],
           "requiredCompetencies": [
             "comp.hardware.receive-and-inspect",
@@ -11470,7 +11737,56 @@
             "comp.continuity.restore-from-image",
             "comp.docs.equipment-research",
             "comp.docs.bill-of-materials",
-            "comp.docs.migration-plan"
+            "comp.docs.migration-plan",
+            "comp.cloud.budget-and-tags",
+            "comp.cloud.shared-responsibility",
+            "comp.cloud.network-foundation",
+            "comp.cloud.team-repo-and-board",
+            "comp.cloud.identity-and-groups",
+            "comp.cloud.cost-estimate",
+            "comp.cloud.launch-vm",
+            "comp.cloud.static-site-https",
+            "comp.cloud.ssh-from-one-ip",
+            "comp.cloud.request-flow",
+            "comp.cloud.managed-database",
+            "comp.cloud.serverless-api",
+            "comp.cloud.read-only-access",
+            "comp.cloud.cost-report",
+            "comp.cloud.error-alert",
+            "comp.cloud.read-logs",
+            "comp.cloud.audit-trail",
+            "comp.cloud.access-matrix",
+            "comp.cloud.secrets-in-vault",
+            "comp.cloud.managed-identity",
+            "comp.cloud.prove-denial",
+            "comp.cloud.two-zone-design",
+            "comp.cloud.scale-set",
+            "comp.cloud.load-balancer",
+            "comp.cloud.private-access-path",
+            "comp.cloud.data-store-choice",
+            "comp.cloud.ha-database",
+            "comp.cloud.queue-and-ledger",
+            "comp.cloud.data-lockdown",
+            "comp.cloud.autoscale-target",
+            "comp.cloud.autoscale-and-self-heal",
+            "comp.cloud.restore-file-and-database",
+            "comp.cloud.recovery-drill-and-teardown",
+            "comp.cloud.template-map",
+            "comp.cloud.inventory-and-drift",
+            "comp.cloud.deploy-from-template",
+            "comp.cloud.policy-as-code",
+            "comp.cloud.change-request-and-gates",
+            "comp.cloud.branch-protection",
+            "comp.cloud.staged-pipeline",
+            "comp.cloud.oidc-deploy-identity",
+            "comp.cloud.cost-by-service-and-slos",
+            "comp.cloud.blue-green",
+            "comp.cloud.canary",
+            "comp.cloud.dashboard-and-compliance",
+            "comp.cloud.handover-package",
+            "comp.cloud.rebuild-and-automate",
+            "comp.cloud.fix-through-ci",
+            "comp.cloud.contain-and-post-mortem"
           ]
         },
         {

@@ -443,6 +443,11 @@ export const CONTROLS: ControlRef[] = [
  * engineering practices (`tactics.ts` PRACTICES) they stand for. Every form's
  * `standard` either parses to at least one control or is listed here.
  */
+/** R138: a standard that cites a control beside its practice text (`Test & acceptance · NIST SP 800-53 CA-2`) keeps the practices of the text. */
+export function practiceKeyOf(standard: string): string {
+  return standard.replace(/\s·\sNIST SP 800-53 [A-Z]{2}-\d+$/, '');
+}
+
 export const CONTROL_EXCEPTIONS: Record<string, string[]> = {
   'AWS tagging best practices — naming and tagging': ['practice.naming-and-tagging'],
   'Microsoft Cloud Adoption Framework — naming and tagging': ['practice.naming-and-tagging'],

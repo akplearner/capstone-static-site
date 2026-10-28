@@ -262,6 +262,36 @@ type=USER_LOGIN msg=audit(1754384: pid=1442 uid=0 auid=1000
         whatItMeans: 'The SoA is the ISO 27001 centrepiece — the auditor reads it first to see what you claim and why. It also feeds the SOC 2 control set.',
         frameworks: ['ISO_27001'],
       },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'mg-w1-s2',
+        title: 'Export the SoA and hash it',
+        description: 'The export, fingerprinted before anyone edits it.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'sha256sum 02_Statement_of_Applicability.csv | tee -a Evidence_Hashes.txt', explain: 'Fingerprints the exported SoA and appends the line to the evidence hash list the packet will cite.', sample: '3f1c…9a2e  02_Statement_of_Applicability.csv' },
+        ],
+        expectedOutput: '3f1c0d8e4b7a2c9e5d1f6a3b8c4e7d2f9a1b6c3e8d5f2a7b4c1e9d6f3a8b5c2e  02_Statement_of_Applicability.csv',
+        outputKind: 'console',
+        verify: ['02_Statement_of_Applicability.csv'],
+        whatItMeans: 'An auditor samples the SoA as it stood when the controls were chosen. The hash is how you prove this is that version.',
+        frameworks: ['ISO_27001'],
+      },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'mg-w1-s3',
+        title: 'Count the applicable controls',
+        description: 'How many controls apply, from the file, not from memory.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'grep -ci ",yes," 02_Statement_of_Applicability.csv && echo "APPLICABLE counted"', explain: 'Counts the rows marked applicable. The number goes in the SoA summary and must match the matrix next week.', sample: '12\nAPPLICABLE counted' },
+        ],
+        expectedOutput: '12\nAPPLICABLE counted',
+        outputKind: 'console',
+        verify: ['APPLICABLE counted'],
+        whatItMeans: 'The SoA says how big the control set is. Counting it from the export catches the row someone marked twice.',
+        frameworks: ['ISO_27001'],
+      },
     ],
   },
   {
@@ -381,6 +411,36 @@ Service detection performed. Nmap done: 1 IP address (1 host up)`,
         whatItMeans: 'Build the control once and satisfy both frameworks — the matrix is how a multi-framework MSSP avoids doing the work twice.',
         frameworks: ['SOC_2', 'ISO_27001'],
       },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'mg-w2-s2',
+        title: 'Export the matrix and hash it',
+        description: 'The crosswalk, fingerprinted.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'sha256sum 03_Control_Matrix.csv | tee -a Evidence_Hashes.txt', explain: 'Fingerprints the control matrix and records it for the evidence packet.', sample: '7b2e…c41d  03_Control_Matrix.csv' },
+        ],
+        expectedOutput: '7b2e4f9a1c6d8e3b5a7f2c9d4e1b6a8f3c5d7e2a9b4f1c6d8e3a5b7c2f9d4e1b  03_Control_Matrix.csv',
+        outputKind: 'console',
+        verify: ['03_Control_Matrix.csv'],
+        whatItMeans: 'The matrix is the artefact both frameworks are audited against; a dated hash is what makes a later change visible.',
+        frameworks: ['SOC_2'],
+      },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'mg-w2-s3',
+        title: 'Check every control has an owner',
+        description: 'No row without an owner survives the export.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'awk -F, \'NR>1 && $4==""\' 03_Control_Matrix.csv | wc -l && echo "OWNERLESS rows"', explain: 'Counts matrix rows whose owner column is empty. Zero is the only acceptable answer before the hand-off.', sample: '0\nOWNERLESS rows' },
+        ],
+        expectedOutput: '0\nOWNERLESS rows',
+        outputKind: 'console',
+        verify: ['OWNERLESS rows'],
+        whatItMeans: 'A control nobody owns is a control nobody operates. The count is the check the auditor would otherwise make for you.',
+        frameworks: ['SOC_2'],
+      },
     ],
   },
   {
@@ -471,6 +531,36 @@ To         Action      From
           'An auditor asks whether a control addresses the risk it claims to. Checking that while the controls are still being built beats finding out in Week 4 that one closes nothing.',
         frameworks: ['SOC_2', 'ISO_27001'],
       },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'mr-w2-s2',
+        title: 'Export the threat model rows and hash them',
+        description: 'The finding-to-control map, fingerprinted.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'sha256sum 09_Gap_Assessment.md | tee -a Evidence_Hashes.txt', explain: 'Fingerprints the gap assessment that now carries the control mapping, so the Week 4 retest compares against this version.', sample: '8e3b…52ad  09_Gap_Assessment.md' },
+        ],
+        expectedOutput: '8e3b6f1a9c4d7e2b5f8a3c6d9e1b4f7a2c5d8e3b6f1a9c4d7e2b5f8a3c6d9e1b  09_Gap_Assessment.md',
+        outputKind: 'console',
+        verify: ['09_Gap_Assessment.md'],
+        whatItMeans: 'The retest is judged against the findings as they stood here. The hash fixes what “here” means.',
+        frameworks: ['SOC_2'],
+      },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'mr-w2-s3',
+        title: 'Check every finding names a control',
+        description: 'No finding without the control that closes it.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'grep -c "^| F-" 09_Gap_Assessment.md && grep -c "CC[0-9]\\|A\\.[0-9]" 09_Gap_Assessment.md && echo "MAPPED findings"', explain: 'Counts findings, then counts control references. The second number must be at least the first.', sample: '4\n5\nMAPPED findings' },
+        ],
+        expectedOutput: '4\n5\nMAPPED findings',
+        outputKind: 'console',
+        verify: ['MAPPED findings'],
+        whatItMeans: 'A finding mapped to no control is risk nobody has decided to own. The two counts make that visible in one line.',
+        frameworks: ['SOC_2'],
+      },
     ],
   },
 
@@ -498,6 +588,36 @@ To         Action      From
         usesForm: 'Retest & Remediation-Validation Report',
         whatItMeans: 'A finding that is fixed and retested Closed is the strongest operating-effectiveness evidence for CC4.1 / A.8.8 — “we test, and the fixes hold”.',
         frameworks: ['NIST_800_115'],
+      },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'mr-w3-s2',
+        title: 'Re-run the scan against the hardened host',
+        description: 'The retest scan, same flags, saved to a file.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'nmap -sV -p- --open <target_ip> -oN retest-scan.txt && grep -c "open" retest-scan.txt', explain: 'The same scan as Week 1, saved. The count of open ports is the before/after number the retest report leads with.', sample: 'Nmap scan report for <target_ip>\n22/tcp  open  ssh     OpenSSH 9.6p1\n443/tcp open  ssl/http nginx 1.24.0\nNmap done: 1 IP address (1 host up)\n2' },
+        ],
+        expectedOutput: 'Nmap scan report for <target_ip>\n22/tcp  open  ssh     OpenSSH 9.6p1\n443/tcp open  ssl/http nginx 1.24.0\nNmap done: 1 IP address (1 host up)\n2',
+        outputKind: 'console',
+        verify: ['Nmap done'],
+        whatItMeans: 'A retest that re-runs the original scan is the only honest comparison. Fewer open ports is the finding closing in front of you.',
+        frameworks: ['SOC_2'],
+      },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'mr-w3-s3',
+        title: 'Hash the retest evidence',
+        description: 'The scan and the proof files, fingerprinted.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'sha256sum retest-scan.txt 04_Retest_and_Validation.md | tee -a Evidence_Hashes.txt', explain: 'Fingerprints the retest scan and the report, so the attestation in Week 4 cites files that cannot change.', sample: '1b9e…7c3f  retest-scan.txt\n6d2a…e85b  04_Retest_and_Validation.md' },
+        ],
+        expectedOutput: '1b9e7c3f5a2d8e4b6f1c9a3e7d5b2f8a4c6e1d9b3f7a5c2e8d4b6f1a9c3e7d5b  retest-scan.txt\n6d2ae85b3f9c1a7e4d2b8f6c5a3e9d1b7f4c2a8e6d5b3f9c1a7e4d2b8f6c5a3e  04_Retest_and_Validation.md',
+        outputKind: 'console',
+        verify: ['retest-scan.txt'],
+        whatItMeans: 'The tester’s attestation is worth what its evidence is worth. Hashed scan output is evidence; a screenshot is a claim.',
+        frameworks: ['SOC_2'],
       },
     ],
   },
@@ -566,6 +686,36 @@ To         Action      From
         whatItMeans: 'Auditors sample evidence, not intentions — collecting it as you go turns Week 4 from a scramble into an assembly job.',
         frameworks: ['SOC_2', 'ISO_27001'],
       },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'mg-w3-s2',
+        title: 'Hash the evidence collected this week',
+        description: 'Every file in the packet folder, fingerprinted.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'sha256sum evidence/* | tee Evidence_Hashes.txt', explain: 'One hash per collected file. The packet cites these lines, so collect first, hash second, never edit after.', sample: 'a91f…3c0b  evidence/firewall-ruleset.txt\n5e2d…8b74  evidence/detection-rule-pack.yml' },
+        ],
+        expectedOutput: 'a91f2c7e4b1d6f3a8c5e9b2d7f4a1c6e3b8d5f2a9c4e7b1d6f3a8c5e2b9d4f7a  evidence/firewall-ruleset.txt\n5e2d8b741c3f6a9e2b5d8c1f4a7e3b6d9c2f5a8e1b4d7c3f6a9e2b5d8c1f4a7e  evidence/detection-rule-pack.yml',
+        outputKind: 'console',
+        verify: ['evidence/'],
+        whatItMeans: 'Chain of custody for an audit is a list of hashes with dates. This file is that list.',
+        frameworks: ['ISO_27001'],
+      },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'mg-w3-s3',
+        title: 'Verify the hashes still match',
+        description: 'The check an auditor runs on day one.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'sha256sum -c Evidence_Hashes.txt', explain: 'Re-hashes every file and compares. OK on every line, or the evidence has changed since collection.', sample: 'evidence/firewall-ruleset.txt: OK\nevidence/detection-rule-pack.yml: OK' },
+        ],
+        expectedOutput: 'evidence/firewall-ruleset.txt: OK\nevidence/detection-rule-pack.yml: OK',
+        outputKind: 'console',
+        verify: ['OK'],
+        whatItMeans: 'Collecting evidence is half the job; proving it is unchanged is the other half. This line is the proof.',
+        frameworks: ['ISO_27001'],
+      },
     ],
   },
 
@@ -611,6 +761,36 @@ To         Action      From
           'The auditor’s question is not “did you test?” but “what happened to what you found?”. A blank retest column is an open finding by default, and a risk accepted without a named owner is an omission, not an acceptance.',
         frameworks: ['NIST_800_115', 'SOC_2'],
       },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'mr-w4-s2',
+        title: 'Verify the retest evidence hashes',
+        description: 'Every line OK before the attestation is signed.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'sha256sum -c Evidence_Hashes.txt', explain: 'Re-hashes every file the report cites and compares. The attestation is signed only when every line reads OK.', sample: 'retest-scan.txt: OK\n04_Retest_and_Validation.md: OK\n09_Gap_Assessment.md: OK' },
+        ],
+        expectedOutput: 'retest-scan.txt: OK\n04_Retest_and_Validation.md: OK\n09_Gap_Assessment.md: OK',
+        outputKind: 'console',
+        verify: ['OK'],
+        whatItMeans: 'Signing an attestation over evidence you have not re-verified is how testers lose their names. One command removes the risk.',
+        frameworks: ['SOC_2'],
+      },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'mr-w4-s3',
+        title: 'Record the accepted risks',
+        description: 'The findings the client chose not to fix, counted and dated.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'grep -ci "accepted" 04_Retest_and_Validation.md && echo "ACCEPTED risks" && date -u +%F', explain: 'Counts the accepted-risk rows and stamps today. Both go into the attestation as written.', sample: '1\nACCEPTED risks\n2026-10-28' },
+        ],
+        expectedOutput: '1\nACCEPTED risks\n2026-10-28',
+        outputKind: 'console',
+        verify: ['ACCEPTED risks'],
+        whatItMeans: 'A risk the client accepts is still a risk; the retest records who accepted it and when, so nobody later calls it an oversight.',
+        frameworks: ['SOC_2'],
+      },
     ],
   },
   {
@@ -634,6 +814,36 @@ To         Action      From
         instruction: 'Fill the Detection & Response Metrics form from your SIEM/IR tickets: incidents, MTTD, MTTR, coverage, false-positive rate.',
         usesForm: 'Detection & Response Metrics',
         whatItMeans: 'Numbers over an observation window are what turns a Type I “designed” control into Type II “operating effectively”.',
+        frameworks: ['SOC_2'],
+      },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'mb-w4-s2',
+        title: 'Count the detections and the responses in the log',
+        description: 'Fired, triaged, closed: three numbers from the SIEM export.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'grep -c "alert" siem-export.json && grep -c "\\"status\\": \\"closed\\"" siem-export.json && echo "METRICS counted"', explain: 'Alerts raised, then alerts closed, from the exported month. The ratio is the detection-and-response metric the report leads with.', sample: '38\n35\nMETRICS counted' },
+        ],
+        expectedOutput: '38\n35\nMETRICS counted',
+        outputKind: 'console',
+        verify: ['METRICS counted'],
+        whatItMeans: 'A metric typed from memory is an opinion; one counted from the export is a measurement. The report wants the second kind.',
+        frameworks: ['SOC_2'],
+      },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'mb-w4-s3',
+        title: 'Hash the metrics export',
+        description: 'The month’s export, fingerprinted for the packet.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'sha256sum siem-export.json 06_Detection_and_Response_Metrics.md | tee -a Evidence_Hashes.txt', explain: 'Fingerprints the export and the report so CC7 evidence in the packet is the file the numbers came from.', sample: 'f2c7…9d1e  siem-export.json\n4a8b…c63f  06_Detection_and_Response_Metrics.md' },
+        ],
+        expectedOutput: 'f2c79d1e3b6a8c5e2d7f4a1b9c6e3d8f5a2c7e4b1d9f6a3c8e5b2d7f4a1c9e6d  siem-export.json\n4a8bc63f1e7d2a9c5b8e4f1d7a3c6e9b2f5d8a1c4e7b3f6d9a2c5e8b1f4d7a3c  06_Detection_and_Response_Metrics.md',
+        outputKind: 'console',
+        verify: ['siem-export.json'],
+        whatItMeans: 'CC7.2 asks whether you monitor and respond. The hashed export is the answer an auditor can re-derive.',
         frameworks: ['SOC_2'],
       },
     ],
@@ -660,6 +870,36 @@ To         Action      From
         instruction: 'Fill the Internal Audit Report form: for each control, record conformity / minor NC / major NC and a corrective action with an owner.',
         usesForm: 'Internal Audit Report',
         whatItMeans: 'Finding and fixing your own nonconformities first is the whole point of the internal audit — it is far cheaper than the external auditor finding them.',
+        frameworks: ['ISO_27001'],
+      },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'mg-w4a-s2',
+        title: 'Export the audit report and hash it',
+        description: 'The report, fingerprinted at sign-off.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'sha256sum 07_Internal_Audit_Report.md | tee -a Evidence_Hashes.txt', explain: 'Fingerprints the signed audit report for the packet.', sample: 'c4d8…71fa  07_Internal_Audit_Report.md' },
+        ],
+        expectedOutput: 'c4d8e2b6f9a3c7e1d5b8f2a6c9e3d7b1f5a8c2e6d9b3f7a1c5e8d2b6f9a3c7e1  07_Internal_Audit_Report.md',
+        outputKind: 'console',
+        verify: ['07_Internal_Audit_Report.md'],
+        whatItMeans: 'Clause 9.2 wants the audit result as a record. A hashed export is a record that cannot be quietly improved later.',
+        frameworks: ['ISO_27001'],
+      },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'mg-w4a-s3',
+        title: 'Count the nonconformities',
+        description: 'Minor and major, from the export.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'grep -ci "nonconform\\|Minor NC\\|Major NC" 07_Internal_Audit_Report.md && echo "NONCONFORMITIES counted"', explain: 'Counts the findings the corrective-action plan has to carry. Each one needs an owner and a date.', sample: '2\nNONCONFORMITIES counted' },
+        ],
+        expectedOutput: '2\nNONCONFORMITIES counted',
+        outputKind: 'console',
+        verify: ['NONCONFORMITIES counted'],
+        whatItMeans: 'Clause 10.2 turns each nonconformity into a corrective action. Counting them is how you know the plan is complete.',
         frameworks: ['ISO_27001'],
       },
     ],
@@ -694,6 +934,36 @@ To         Action      From
         instruction: 'On the Deliverables page, click Download team package to produce the zip of all eight engagement deliverables.',
         whatItMeans: 'One clean package — agreement, SoA, control matrix, validation, detections, metrics, internal audit, evidence — is what you hand the auditor.',
         frameworks: ['SOC_2', 'ISO_27001'],
+      },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'mg-w4b-s3',
+        title: 'Hash the finished packet',
+        description: 'The index and every file it names.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'sha256sum 08_Audit_Evidence_Packet.csv evidence/* | tee Packet_Hashes.txt', explain: 'The packet index and every cited file, fingerprinted together. This is the list the auditor receives.', sample: 'd7a1…4e9c  08_Audit_Evidence_Packet.csv\na91f…3c0b  evidence/firewall-ruleset.txt' },
+        ],
+        expectedOutput: 'd7a1c5e9b3f7a2d6c8e4b1f5a9d3c7e2b6f8a4d1c5e9b3f7a2d6c8e4b1f5a9d3  08_Audit_Evidence_Packet.csv\na91f2c7e4b1d6f3a8c5e9b2d7f4a1c6e3b8d5f2a9c4e7b1d6f3a8c5e2b9d4f7a  evidence/firewall-ruleset.txt',
+        outputKind: 'console',
+        verify: ['08_Audit_Evidence_Packet.csv'],
+        whatItMeans: 'The packet is only as good as the proof that nothing in it moved. One hash list, handed over with it.',
+        frameworks: ['SOC_2'],
+      },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'mg-w4b-s4',
+        title: 'Confirm every index row points at a real file',
+        description: 'No citation to a file that does not exist.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'awk -F, \'NR>1 {print $3}\' 08_Audit_Evidence_Packet.csv | while read f; do [ -f "$f" ] && echo "FOUND $f" || echo "MISSING $f"; done', explain: 'Walks the packet’s file column and says FOUND or MISSING per row. A MISSING line is a citation the auditor cannot follow.', sample: 'FOUND evidence/firewall-ruleset.txt\nFOUND evidence/detection-rule-pack.yml' },
+        ],
+        expectedOutput: 'FOUND evidence/firewall-ruleset.txt\nFOUND evidence/detection-rule-pack.yml',
+        outputKind: 'console',
+        verify: ['FOUND'],
+        whatItMeans: 'An evidence packet with a broken reference fails the audit on a technicality. The loop finds it before the auditor does.',
+        frameworks: ['SOC_2'],
       },
     ],
   },

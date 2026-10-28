@@ -1649,7 +1649,37 @@ const GRC_TASKS: Task[] = [
         whatItMeans: 'GRC sets the standard; Blue implements it.',
         frameworks: ['CIS', 'NIST_CSF'],
         usesForm: 'Hardening Standard',
-      }
+      },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'grc-w1-s6',
+        title: 'Hash the standard and the mapping',
+        description: 'The two documents Blue builds from, fingerprinted.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'cd ~/team-artifacts/week-1 && sha256sum 09_Framework_Mapping.md 11_Hardening_Standard.md | tee -a Evidence_Hashes.txt', explain: 'Fingerprints the mapping and the standard as handed to Blue, so Week 4 can show which version the hardening followed.', sample: '2d6f…81ac  09_Framework_Mapping.md\n9b3e…47d0  11_Hardening_Standard.md' },
+        ],
+        expectedOutput: '2d6f81ac3b7e5c9a1d4f6b8e2c5a7d9f3b1e6c8a4d2f7b5e9c3a1d6f8b4e2c7a  09_Framework_Mapping.md\n9b3e47d02a6c8e1b5d7f3a9c4e6b2d8f1a5c7e3b9d4f6a2c8e1b5d7f3a9c4e6b  11_Hardening_Standard.md',
+        outputKind: 'console',
+        verify: ['11_Hardening_Standard.md'],
+        whatItMeans: 'Blue hardens to the standard as it stood today. The hash is what lets the final report say which version that was.',
+        frameworks: ['NIST_CSF'],
+      },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'grc-w1-s7',
+        title: 'Count the mapped controls',
+        description: 'Every CSF function has at least one control mapped.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'cd ~/team-artifacts/week-1 && grep -c "PR\\.\\|DE\\.\\|RS\\.\\|ID\\.\\|GV\\." 09_Framework_Mapping.md && echo "CSF references counted"', explain: 'Counts the CSF category references in the mapping. Fewer than five means a function is unmapped.', sample: '11\nCSF references counted' },
+        ],
+        expectedOutput: '11\nCSF references counted',
+        outputKind: 'console',
+        verify: ['CSF references counted'],
+        whatItMeans: 'A framework mapping with a function missing is a plan with a hole in it. The count is the quickest way to see the hole.',
+        frameworks: ['NIST_CSF'],
+      },
     ]
   },
   {
@@ -1783,7 +1813,22 @@ const GRC_TASKS: Task[] = [
         instruction: 'Summarize what the breach proved, ranked by severity — this feeds the Final Report.',
         whatItMeans: 'Gives the Final Report an evidence-backed, ranked findings list.',
         frameworks: ['NIST_800_61', 'ISO_27001'],
-      }
+      },
+      // R138: the proof step — the record hashed or counted from the terminal, pasted and checked.
+      {
+        id: 'grc-w3-s7',
+        title: 'Verify the evidence hashes',
+        description: 'Every artifact still matches the hash you took.',
+        instruction: 'Run it in the team evidence folder and paste the output.',
+        commands: [
+          { cmd: 'cd ~/team-artifacts/week-3 && sha256sum -c Evidence_Hashes.txt', explain: 'Re-hashes every attack artifact and compares with the hash file. OK on every line is the chain of custody holding.', sample: 'Attack_Pcap.pcap: OK\nAttack_Logs.txt: OK\nEvidence_Photos.zip: OK' },
+        ],
+        expectedOutput: 'Attack_Pcap.pcap: OK\nAttack_Logs.txt: OK\nEvidence_Photos.zip: OK',
+        outputKind: 'console',
+        verify: ['OK'],
+        whatItMeans: 'Chain of custody is proved by re-checking, not by having checked once. FAILED on any line means the evidence can no longer be relied on.',
+        frameworks: ['NIST_800_61'],
+      },
     ]
   },
   {

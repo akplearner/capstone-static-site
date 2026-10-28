@@ -134,6 +134,13 @@ const TASKS: Task[] = [
       docs: [doc('Tagging best practices', 'whitepapers/latest/tagging-best-practices/tagging-best-practices.html', 'the “Tagging categories” list — technical, business, security, automation — and pick one key from each')],
       fixes: [{ symptom: 'Bucket name refused', fix: 'Bucket names are lowercase letters, digits and hyphens, 3–63 characters, unique across all of AWS. capstone-team01-site plus four digits fits.' }],
     }),
+    // R138: a second proof, portal first and the shell beside it, so the Architect's tasks carry an order to verify in.
+    both(s(1, 'arch', 4), 'Read the budget back', 'Confirm the budget exists at $5, monthly.', CONSOLE, [
+      'Billing → Budgets: the list shows budget-capstone-team01, $5.00, Monthly.',
+      'Open it: one alert, Actual, 80%, the team email.',
+    ], [
+      { cmd: 'aws budgets describe-budgets --account-id $(aws sts get-caller-identity --query Account --output text) --query "Budgets[].{name:BudgetName,limit:BudgetLimit.Amount,unit:TimeUnit}" --output table', explain: 'Reads every budget on the account. Yours, at 5, monthly, is the line that says the guardrail exists.', sample: '------------------------------------------------\n|               DescribeBudgets                |\n+------------------------+--------+------------+\n|  budget-capstone-team01|  5.0   |  MONTHLY   |\n+------------------------+--------+------------+', flags: [{ flag: '--account-id $(aws sts …)', meaning: 'Budgets need the account number; this reads it rather than typing it.' }, { flag: '--query "Budgets[].{…}"', meaning: 'Three fields per budget: name, limit, time unit.' }, { flag: '--output table', meaning: 'Rows and columns instead of JSON.' }] },
+    ], ['budget-capstone-team01'], 'What you created in the console is what the shell reads back. A guardrail that exists in only one view is not yet a fact.', out('Budgets lists budget-capstone-team01 at $5.00, monthly, in the console and in CloudShell.', doc('Viewing your budgets', 'cost-management/latest/userguide/budgets-view.html', 'the budgets list and the details page: amount, period, and the alert thresholds each one carries'))),
     rec(1, 'arch', 'Account and guardrails, Service model, Naming, Tags, RACI', [
       'Account alias, region and zone, and the budget.',
       'One service-model row per service; one naming row per resource type.',
@@ -692,6 +699,14 @@ def lambda_handler(event, context):
       'Edge (CloudFront, ALB group), network (subnets, security groups), identity (roles, policies), application (CORS), data (encryption, one-table policies).',
       'For each layer write what it refuses and which role owns the rule.',
     ], 'Five layers, each with a refusal and an owner.', 'The exam asks which layer stops a given request; the matrix is where the team agrees on it before anything is built.'),
+    // R138: a second proof, portal first and the shell beside it, so the Architect's tasks carry an order to verify in.
+    both(s(5, 'arch', 3), 'Read the group policies back', 'Compare the readers group’s policies with the matrix.', CONSOLE, [
+      'IAM → User groups → capstone-readers → Permissions.',
+      'ReadOnlyAccess and nothing broader; each policy must be a matrix row.',
+      'Mark any grant broader than the matrix allows.',
+    ], [
+      { cmd: 'aws iam list-attached-group-policies --group-name capstone-readers --query "AttachedPolicies[].PolicyName" --output table', explain: 'Every managed policy on the readers group. ReadOnlyAccess and nothing broader is what the matrix promised.', sample: '----------------------------------\n|   ListAttachedGroupPolicies    |\n+--------------------------------+\n|  ReadOnlyAccess                |\n+--------------------------------+', flags: [{ flag: '--group-name capstone-readers', meaning: 'The group the matrix calls readers.' }, { flag: '--query "AttachedPolicies[].PolicyName"', meaning: 'Only the policy names.' }] },
+    ], ['ReadOnlyAccess'], 'The access matrix is a claim; the attached-policy list is the state. Least privilege is proved when the two agree and nothing broader appears.', out('The group’s Permissions tab and the shell list the same policy: ReadOnlyAccess, and nothing else.', doc('Managing IAM user groups', 'IAM/latest/UserGuide/id_groups_manage.html', 'the “Attaching a policy to a user group” and “Listing” steps, and where the attached policies appear'))),
     rec(5, 'arch', 'Access matrix', ['One row per grant: principal, policy, scope, why.', 'Mark any grant broader than it needs to be.', 'The layers, each with what it refuses.'], 'Week 11’s posture review reads this matrix.'),
   ]),
   T(5, 'infra', 'Put the table name in Parameter Store and a secret under a customer key', 'Store the table name as a parameter, create a customer-managed KMS key, store one SecureString under it, and let the counter role read exactly those.', 45,
@@ -1306,6 +1321,14 @@ def lambda_handler(event, context):
       'Latency: TargetResponseTime p95 under 500 ms. Errors: 5XX under 1% of requests.',
       'The error budget: how many bad minutes a month the targets allow, and who decides to spend it.',
     ], 'Three SLIs with targets and the monthly error budget.', 'An SLO turns “is it up?” into a number a dashboard can show and a release can be judged against — the canary in App’s task is rolled back when it eats the budget.'),
+    // R138: a second proof, portal first and the shell beside it, so the Architect's tasks carry an order to verify in.
+    both(s(11, 'arch', 3), 'Read cost by service from the shell', 'Match the month’s cost by service to the table.', CONSOLE, [
+      'Billing → Cost Explorer → group by Service, last 30 days.',
+      'Note the top three services and their spend.',
+      'The same three must head the cost table.',
+    ], [
+      { cmd: 'aws ce get-cost-and-usage --time-period Start=$(date -d "-30 days" +%F),End=$(date +%F) --granularity MONTHLY --metrics UnblendedCost --group-by Type=DIMENSION,Key=SERVICE --query "ResultsByTime[0].Groups[].{service:Keys[0],cost:Metrics.UnblendedCost.Amount}" --output table', explain: 'The month’s charges grouped by service, from Cost Explorer. The top lines are the services your cost table must name first.', sample: '-------------------------------------------------------\n|                   GetCostAndUsage                   |\n+--------------------------------------+--------------+\n|  Amazon Elastic Compute Cloud        |  0.1180      |\n|  Amazon Simple Storage Service       |  0.0021      |\n+--------------------------------------+--------------+', flags: [{ flag: '--time-period Start=…,End=…', meaning: 'The last thirty days, computed rather than typed.' }, { flag: '--group-by Type=DIMENSION,Key=SERVICE', meaning: 'One group per service.' }, { flag: '--metrics UnblendedCost', meaning: 'The cost before any discounts are spread.' }] },
+    ], ['Amazon Elastic Compute Cloud'], 'A cost report built from the export is a measurement; one typed from the console screen is a reading. The governance report wants the first.', out('Cost Explorer grouped by service and the shell agree on the top three services; EC2 leads.', doc('Exploring your data using Cost Explorer', 'cost-management/latest/userguide/ce-exploring-data.html', 'the “Group by” choices, Service among them, and how the chart and the table follow it'))),
     rec(11, 'arch', 'Cost by service and service levels', ['Three or more services, spend, action.', 'Three SLIs, targets, the error budget.'], 'The cost section of the governance report, and the levels the dashboard watches.'),
   ]),
   T(11, 'infra', 'Blue/green the fleet with weighted target groups', 'Publish a new template version, launch a green fleet into a second target group, shift the listener 90/10 to 0/100, retire blue, park.', 60,

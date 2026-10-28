@@ -513,6 +513,52 @@
             ]
           },
           {
+            "id": "aws-w5-arch-s3",
+            "title": "Read the group policies back",
+            "description": "Read the group policies back",
+            "where": "AWS console · or CloudShell",
+            "instruction": "Compare the readers group’s policies with the matrix.",
+            "instructionList": [
+              "IAM → User groups → capstone-readers → Permissions.",
+              "ReadOnlyAccess and nothing broader; each policy must be a matrix row.",
+              "Mark any grant broader than the matrix allows."
+            ],
+            "commands": [
+              {
+                "cmd": "aws iam list-attached-group-policies --group-name capstone-readers --query \"AttachedPolicies[].PolicyName\" --output table",
+                "explain": "Every managed policy on the readers group. ReadOnlyAccess and nothing broader is what the matrix promised.",
+                "sample": "----------------------------------\n|   ListAttachedGroupPolicies    |\n+--------------------------------+\n|  ReadOnlyAccess                |\n+--------------------------------+",
+                "flags": [
+                  {
+                    "flag": "--group-name capstone-readers",
+                    "meaning": "The group the matrix calls readers."
+                  },
+                  {
+                    "flag": "--query \"AttachedPolicies[].PolicyName\"",
+                    "meaning": "Only the policy names."
+                  }
+                ]
+              }
+            ],
+            "verify": [
+              "ReadOnlyAccess"
+            ],
+            "whatItMeans": "The access matrix is a claim; the attached-policy list is the state. Least privilege is proved when the two agree and nothing broader appears.",
+            "frameworks": [
+              "AWS_SAA",
+              "WAF"
+            ],
+            "expectedOutput": "The group’s Permissions tab and the shell list the same policy: ReadOnlyAccess, and nothing else.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Managing IAM user groups",
+                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups_manage.html",
+                "lookFor": "the “Attaching a policy to a user group” and “Listing” steps, and where the attached policies appear"
+              }
+            ]
+          },
+          {
             "id": "aws-w5-arch-s9",
             "title": "Record it in the Access Control Matrix & Secrets Register",
             "description": "Your section: Access matrix.",
@@ -530,6 +576,14 @@
               "AWS_SAA",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "dev",
+            "artifact": "Access Control Matrix & Secrets Register",
+            "note": "Your section of the Access Control Matrix & Secrets Register, for the review that approves it.",
+            "deliverable": "awsa_access"
           }
         ]
       },
@@ -676,6 +730,14 @@
               "AWS_SAA",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Access Control Matrix & Secrets Register",
+            "note": "Your section of the Access Control Matrix & Secrets Register, for the review that approves it.",
+            "deliverable": "awsa_access"
           }
         ]
       },
@@ -848,6 +910,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Access Control Matrix & Secrets Register",
+            "note": "Your section of the Access Control Matrix & Secrets Register, for the review that approves it.",
+            "deliverable": "awsa_access"
+          }
         ]
       },
       {
@@ -966,6 +1036,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Access Control Matrix & Secrets Register",
+            "note": "Your section of the Access Control Matrix & Secrets Register, for the review that approves it.",
+            "deliverable": "awsa_access"
+          }
         ]
       },
       {
@@ -1075,6 +1153,14 @@
               "AWS_SAA",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "secops",
+            "artifact": "Network Design Document",
+            "note": "Your section of the Network Design Document, for the review that approves it.",
+            "deliverable": "awsa_network"
           }
         ]
       },
@@ -1248,6 +1334,14 @@
               "AWS_SAA",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Network Design Document",
+            "note": "Your section of the Network Design Document, for the review that approves it.",
+            "deliverable": "awsa_network"
           }
         ]
       },
@@ -1433,6 +1527,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Network Design Document",
+            "note": "Your section of the Network Design Document, for the review that approves it.",
+            "deliverable": "awsa_network"
+          }
         ]
       },
       {
@@ -1611,6 +1713,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Network Design Document",
+            "note": "Your section of the Network Design Document, for the review that approves it.",
+            "deliverable": "awsa_network"
+          }
         ]
       },
       {
@@ -1719,6 +1829,14 @@
               "AWS_SAA",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "secops",
+            "artifact": "Data Store & Runbook",
+            "note": "Your section of the Data Store & Runbook, for the review that approves it.",
+            "deliverable": "awsa_server"
           }
         ]
       },
@@ -1889,6 +2007,14 @@
               "AWS_SAA",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Data Store & Runbook",
+            "note": "Your section of the Data Store & Runbook, for the review that approves it.",
+            "deliverable": "awsa_server"
           }
         ]
       },
@@ -2066,6 +2192,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Data Store & Runbook",
+            "note": "Your section of the Data Store & Runbook, for the review that approves it.",
+            "deliverable": "awsa_server"
+          }
         ]
       },
       {
@@ -2208,6 +2342,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Data Store & Runbook",
+            "note": "Your section of the Data Store & Runbook, for the review that approves it.",
+            "deliverable": "awsa_server"
+          }
         ]
       },
       {
@@ -2317,6 +2459,14 @@
               "AWS_SAA",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "infra",
+            "artifact": "Backup & Disaster Recovery Plan",
+            "note": "Your section of the Backup & Disaster Recovery Plan, for the review that approves it.",
+            "deliverable": "awsa_dr"
           }
         ]
       },
@@ -2487,6 +2637,14 @@
               "AWS_SAA",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "secops",
+            "artifact": "Backup & Disaster Recovery Plan",
+            "note": "Your section of the Backup & Disaster Recovery Plan, for the review that approves it.",
+            "deliverable": "awsa_dr"
           }
         ]
       },
@@ -2660,6 +2818,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "infra",
+            "artifact": "Backup & Disaster Recovery Plan",
+            "note": "Your section of the Backup & Disaster Recovery Plan, for the review that approves it.",
+            "deliverable": "awsa_dr"
+          }
         ]
       },
       {
@@ -2803,6 +2969,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "infra",
+            "artifact": "Backup & Disaster Recovery Plan",
+            "note": "Your section of the Backup & Disaster Recovery Plan, for the review that approves it.",
+            "deliverable": "awsa_dr"
+          }
         ]
       }
     ],
@@ -2844,7 +3018,7 @@
       "num": 1,
       "file": "05_Access_Control_Matrix_and_Secrets_Register.md",
       "title": "Access Control Matrix & Secrets Register",
-      "owner": "arch",
+      "owner": "secops",
       "shared": true,
       "folder": "Week_01",
       "standard": "NIST SP 800-53 AC-6 (least privilege)",
@@ -2858,12 +3032,12 @@
         "week": 5
       },
       "raci": {
-        "drafts": "arch",
+        "drafts": "secops",
         "reviews": "dev",
-        "approves": "secops"
+        "approves": "arch"
       },
       "handoff": {
-        "to": "secops",
+        "to": "arch",
         "when": "approved"
       },
       "feeds": [
@@ -3124,10 +3298,10 @@
       "num": 2,
       "file": "06_Network_Design_Document.md",
       "title": "Network Design Document",
-      "owner": "arch",
+      "owner": "infra",
       "shared": true,
       "folder": "Week_02",
-      "standard": "RFC 1918 addressing · segmentation",
+      "standard": "RFC 1918 addressing · segmentation · NIST SP 800-53 SC-7",
       "weeks": [
         2
       ],
@@ -3138,12 +3312,12 @@
         "week": 6
       },
       "raci": {
-        "drafts": "arch",
+        "drafts": "infra",
         "reviews": "secops",
-        "approves": "infra"
+        "approves": "arch"
       },
       "handoff": {
-        "to": "infra",
+        "to": "arch",
         "when": "approved"
       },
       "feeds": [
@@ -3622,10 +3796,10 @@
       "num": 3,
       "file": "07_Data_Store_and_Runbook.md",
       "title": "Data Store & Runbook",
-      "owner": "arch",
+      "owner": "dev",
       "shared": true,
       "folder": "Week_03",
-      "standard": "Well-Architected — reliability and cost pillars",
+      "standard": "Well-Architected — reliability and cost pillars · NIST SP 800-53 CP-9",
       "weeks": [
         3
       ],
@@ -3636,12 +3810,12 @@
         "week": 7
       },
       "raci": {
-        "drafts": "arch",
+        "drafts": "dev",
         "reviews": "secops",
-        "approves": "infra"
+        "approves": "arch"
       },
       "handoff": {
-        "to": "infra",
+        "to": "arch",
         "when": "approved"
       },
       "feeds": [
@@ -3937,6 +4111,44 @@
           }
         },
         {
+          "kind": "group",
+          "group": {
+            "group": "changes",
+            "label": "Changes to the data tier · Infrastructure",
+            "columns": [
+              {
+                "field": "change",
+                "label": "Change",
+                "type": "text",
+                "placeholder": "Enabled zone-redundant HA on the database"
+              },
+              {
+                "field": "why",
+                "label": "Why",
+                "type": "text",
+                "placeholder": "The RTO needs a standby in the second zone"
+              },
+              {
+                "field": "rollback",
+                "label": "Rollback",
+                "type": "text",
+                "placeholder": "Disable HA; the primary keeps serving"
+              },
+              {
+                "field": "result",
+                "label": "Result",
+                "type": "select",
+                "options": [
+                  "Applied",
+                  "Rolled back",
+                  "Pending"
+                ]
+              }
+            ],
+            "help": "One row per change to the database, the queue or the storage account."
+          }
+        },
+        {
           "kind": "fields",
           "title": "Evidence · everyone",
           "fields": [
@@ -4078,7 +4290,7 @@
       "owner": "arch",
       "shared": true,
       "folder": "Week_04",
-      "standard": "NIST SP 800-34 (BIA, RPO/RTO)",
+      "standard": "NIST SP 800-34 (BIA, RPO/RTO) · NIST SP 800-53 CP-2",
       "weeks": [
         4
       ],
@@ -7442,7 +7654,13 @@
           ]
         }
       ],
-      "CHANGE_GROUPS": [],
+      "CHANGE_GROUPS": [
+        {
+          "form": "server",
+          "group": "changes",
+          "rollback": "rollback"
+        }
+      ],
       "CONTROLS": [
         {
           "code": "NIST.CSF",
@@ -7588,6 +7806,15 @@
           "parent": "NIST.800-53.AC",
           "cites": [
             "AC-6"
+          ]
+        },
+        {
+          "code": "NIST.800-53.CP-2",
+          "standard": "NIST_800_53",
+          "label": "Contingency Plan",
+          "parent": "NIST.800-53.CP",
+          "cites": [
+            "CP-2"
           ]
         },
         {
@@ -7856,11 +8083,16 @@
         "awsa_access": [
           "NIST.800-53.AC-6"
         ],
+        "awsa_network": [
+          "NIST.800-53.SC-7"
+        ],
         "awsa_server": [
+          "NIST.800-53.CP-9",
           "WAF.reliability",
           "WAF.cost"
         ],
         "awsa_dr": [
+          "NIST.800-53.CP-2",
           "NIST.800-34"
         ]
       },
@@ -11943,7 +12175,8 @@
           "areas": [
             "detect",
             "harden",
-            "ops"
+            "ops",
+            "cloud"
           ],
           "requiredCompetencies": [
             "comp.harden.linux-baseline",
@@ -11974,7 +12207,56 @@
             "comp.detect.shadow-ai",
             "comp.ops.logging-first-hour",
             "comp.ops.detection-fires",
-            "comp.ops.contingency-phases"
+            "comp.ops.contingency-phases",
+            "comp.cloud.budget-and-tags",
+            "comp.cloud.shared-responsibility",
+            "comp.cloud.network-foundation",
+            "comp.cloud.team-repo-and-board",
+            "comp.cloud.identity-and-groups",
+            "comp.cloud.cost-estimate",
+            "comp.cloud.launch-vm",
+            "comp.cloud.static-site-https",
+            "comp.cloud.ssh-from-one-ip",
+            "comp.cloud.request-flow",
+            "comp.cloud.managed-database",
+            "comp.cloud.serverless-api",
+            "comp.cloud.read-only-access",
+            "comp.cloud.cost-report",
+            "comp.cloud.error-alert",
+            "comp.cloud.read-logs",
+            "comp.cloud.audit-trail",
+            "comp.cloud.access-matrix",
+            "comp.cloud.secrets-in-vault",
+            "comp.cloud.managed-identity",
+            "comp.cloud.prove-denial",
+            "comp.cloud.two-zone-design",
+            "comp.cloud.scale-set",
+            "comp.cloud.load-balancer",
+            "comp.cloud.private-access-path",
+            "comp.cloud.data-store-choice",
+            "comp.cloud.ha-database",
+            "comp.cloud.queue-and-ledger",
+            "comp.cloud.data-lockdown",
+            "comp.cloud.autoscale-target",
+            "comp.cloud.autoscale-and-self-heal",
+            "comp.cloud.restore-file-and-database",
+            "comp.cloud.recovery-drill-and-teardown",
+            "comp.cloud.template-map",
+            "comp.cloud.inventory-and-drift",
+            "comp.cloud.deploy-from-template",
+            "comp.cloud.policy-as-code",
+            "comp.cloud.change-request-and-gates",
+            "comp.cloud.branch-protection",
+            "comp.cloud.staged-pipeline",
+            "comp.cloud.oidc-deploy-identity",
+            "comp.cloud.cost-by-service-and-slos",
+            "comp.cloud.blue-green",
+            "comp.cloud.canary",
+            "comp.cloud.dashboard-and-compliance",
+            "comp.cloud.handover-package",
+            "comp.cloud.rebuild-and-automate",
+            "comp.cloud.fix-through-ci",
+            "comp.cloud.contain-and-post-mortem"
           ]
         },
         {
@@ -12041,7 +12323,8 @@
             "virt",
             "continuity",
             "observe",
-            "docs"
+            "docs",
+            "cloud"
           ],
           "requiredCompetencies": [
             "comp.hardware.receive-and-inspect",
@@ -12111,7 +12394,56 @@
             "comp.continuity.restore-from-image",
             "comp.docs.equipment-research",
             "comp.docs.bill-of-materials",
-            "comp.docs.migration-plan"
+            "comp.docs.migration-plan",
+            "comp.cloud.budget-and-tags",
+            "comp.cloud.shared-responsibility",
+            "comp.cloud.network-foundation",
+            "comp.cloud.team-repo-and-board",
+            "comp.cloud.identity-and-groups",
+            "comp.cloud.cost-estimate",
+            "comp.cloud.launch-vm",
+            "comp.cloud.static-site-https",
+            "comp.cloud.ssh-from-one-ip",
+            "comp.cloud.request-flow",
+            "comp.cloud.managed-database",
+            "comp.cloud.serverless-api",
+            "comp.cloud.read-only-access",
+            "comp.cloud.cost-report",
+            "comp.cloud.error-alert",
+            "comp.cloud.read-logs",
+            "comp.cloud.audit-trail",
+            "comp.cloud.access-matrix",
+            "comp.cloud.secrets-in-vault",
+            "comp.cloud.managed-identity",
+            "comp.cloud.prove-denial",
+            "comp.cloud.two-zone-design",
+            "comp.cloud.scale-set",
+            "comp.cloud.load-balancer",
+            "comp.cloud.private-access-path",
+            "comp.cloud.data-store-choice",
+            "comp.cloud.ha-database",
+            "comp.cloud.queue-and-ledger",
+            "comp.cloud.data-lockdown",
+            "comp.cloud.autoscale-target",
+            "comp.cloud.autoscale-and-self-heal",
+            "comp.cloud.restore-file-and-database",
+            "comp.cloud.recovery-drill-and-teardown",
+            "comp.cloud.template-map",
+            "comp.cloud.inventory-and-drift",
+            "comp.cloud.deploy-from-template",
+            "comp.cloud.policy-as-code",
+            "comp.cloud.change-request-and-gates",
+            "comp.cloud.branch-protection",
+            "comp.cloud.staged-pipeline",
+            "comp.cloud.oidc-deploy-identity",
+            "comp.cloud.cost-by-service-and-slos",
+            "comp.cloud.blue-green",
+            "comp.cloud.canary",
+            "comp.cloud.dashboard-and-compliance",
+            "comp.cloud.handover-package",
+            "comp.cloud.rebuild-and-automate",
+            "comp.cloud.fix-through-ci",
+            "comp.cloud.contain-and-post-mortem"
           ]
         },
         {

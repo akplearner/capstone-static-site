@@ -18,7 +18,8 @@ for (const c of SEED_COURSES) {
   for (const r of c.roles) {
     const input = fullMemberInput(c.id, r.id);
     const board = kpiBoard({ profile: skillProfile(input), registry: input.registry, cert: input.cert, measure: defaultMeasure(input.registry, r.id), outcome: { capstoneFiled: true, weeksCleared: 4, weeksTotal: 4 }, ontologyVersion: ONTOLOGY_VERSION });
-    const debt = board.kpis.filter((k) => k.loaded && !k.applies && !DECISIONS.has(k.id)).map((k) => k.id).sort();
+    // Only what the course structurally cannot measure for the role; 'yet' is the fixture's limit, not content debt.
+    const debt = board.kpis.filter((k) => k.loaded && k.notMeasured === 'role' && !DECISIONS.has(k.id)).map((k) => k.id).sort();
     if (debt.length) {
       (out[c.id] ??= {})[r.id] = debt;
       total += debt.length;

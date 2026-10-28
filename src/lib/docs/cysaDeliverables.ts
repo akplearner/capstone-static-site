@@ -47,7 +47,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
     num: 1,
     file: '01_SOC_Monitoring_Report.md',
     title: 'SOC Monitoring Report',
-    owner: 'blue',
+    owner: 'blue', shared: true,
     folder: '01_Monitoring',
     standard: 'NIST CSF (DE.CM)',
     framework: 'NIST_CSF',
@@ -101,6 +101,22 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
             { alert_type: 'sshd authentication success', level: '3', per_hour: '~20/hr', screenshot: '20260724_Team07_ssh_auth.png', notes: 'expected — the student login' },
             { alert_type: 'Apache 200/304 web access', level: '3', per_hour: '~150/hr', screenshot: '20260724_Team07_apache.png', notes: 'normal DVWA browsing' },
             { alert_type: 'sudo command executed', level: '3', per_hour: '~10/hr', screenshot: '', notes: 'expected — your own admin commands' },
+          ],
+        },
+      },
+      // R138: a change to the SOC baseline is a change with a way back.
+      {
+        kind: 'group',
+        group: {
+          group: 'changes',
+          label: 'Changes to the monitoring baseline',
+          help: 'One row per change to an agent, a rule or a sensor: what, why, and how to undo it.',
+          columns: [
+            c('date', 'Date', 'date'),
+            c('change', 'Change', 'text', { placeholder: 'Enabled Sysmon on the Windows template' }),
+            c('why', 'Why', 'text', { placeholder: 'Process creation events were missing' }),
+            c('rollback', 'Rollback', 'text', { placeholder: 'sysmon -u; re-clone from the template' }),
+            c('result', 'Result', 'select', { options: ['Applied', 'Rolled back', 'Pending'] }),
           ],
         },
       },

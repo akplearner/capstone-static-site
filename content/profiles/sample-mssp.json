@@ -75,6 +75,7 @@
     "tool.linux-shell",
     "tool.lynis",
     "tool.nmap",
+    "tool.sha256sum",
     "tool.sigma",
     "tool.sqlmap",
     "tool.testssl",

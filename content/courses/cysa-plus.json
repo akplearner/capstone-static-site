@@ -1078,7 +1078,8 @@
           {
             "to": "grc",
             "artifact": "Windows agent name",
-            "note": "Optional: share your Windows agent name so a teammate can cross-check coverage — each role verifies its own lane independently."
+            "note": "Optional: share your Windows agent name so a teammate can cross-check coverage — each role verifies its own lane independently.",
+            "deliverable": "cysa_coverage_validation"
           }
         ],
         "steps": [
@@ -1387,7 +1388,8 @@
           {
             "to": "grc",
             "artifact": "Baseline",
-            "note": "Optional: share your baseline so a teammate can compare — they can build their own too; it is not a prerequisite."
+            "note": "Optional: share your baseline so a teammate can compare — they can build their own too; it is not a prerequisite.",
+            "deliverable": "cysa_soc_monitoring"
           }
         ],
         "steps": [
@@ -2033,6 +2035,14 @@
               "NIST_CSF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "red",
+            "artifact": "Coverage Validation Report",
+            "note": "Your section of the Coverage Validation Report, for the review that approves it.",
+            "deliverable": "cysa_coverage_validation"
+          }
         ]
       },
       {
@@ -2065,7 +2075,8 @@
           {
             "to": "grc",
             "artifact": "Escalated alerts",
-            "note": "Optional: share your escalations so a teammate can compare — they can also work from their own alerts."
+            "note": "Optional: share your escalations so a teammate can compare — they can also work from their own alerts.",
+            "deliverable": "cysa_alert_triage"
           }
         ],
         "definitionOfDone": [
@@ -2259,7 +2270,8 @@
           {
             "to": "red",
             "artifact": "Findings",
-            "note": "Optional: share your findings — a teammate can index them as IOCs; they can also gather their own."
+            "note": "Optional: share your findings — a teammate can index them as IOCs; they can also gather their own.",
+            "deliverable": "cysa_ioc_database"
           }
         ],
         "steps": [
@@ -2690,6 +2702,14 @@
               "NIST_CSF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "grc",
+            "artifact": "IOC Database",
+            "note": "Your section of the IOC Database, for the review that approves it.",
+            "deliverable": "cysa_ioc_database"
+          }
         ]
       },
       {
@@ -2729,7 +2749,8 @@
           {
             "to": "red",
             "artifact": "SOC Findings Record",
-            "note": "Optional: your SOC findings give the ranked assessment more to work with — but it stands on its own without them."
+            "note": "Optional: your SOC findings give the ranked assessment more to work with — but it stands on its own without them.",
+            "deliverable": "cysa_soc_findings"
           }
         ],
         "steps": [
@@ -2915,7 +2936,8 @@
           {
             "to": "red",
             "artifact": "Scan Validation Report",
-            "note": "Optional: a finding you confirmed from outside ranks higher than one only inferred — but the ranking works without it."
+            "note": "Optional: a finding you confirmed from outside ranks higher than one only inferred — but the ranking works without it.",
+            "deliverable": "cysa_scan_validation"
           }
         ],
         "steps": [
@@ -3219,6 +3241,14 @@
               "NIST_800_115"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "grc",
+            "artifact": "Vulnerability Assessment",
+            "note": "Your section of the Vulnerability Assessment, for the review that approves it.",
+            "deliverable": "cysa_vulnerability_assessment"
+          }
         ]
       },
       {
@@ -3250,7 +3280,8 @@
           {
             "to": "grc",
             "artifact": "Detection record",
-            "note": "Optional: share your detection record — it gives a teammate the first alert and attacker IP to start from."
+            "note": "Optional: share your detection record — it gives a teammate the first alert and attacker IP to start from.",
+            "deliverable": "cysa_detection_record"
           }
         ],
         "definitionOfDone": [
@@ -3386,7 +3417,8 @@
           {
             "to": "red",
             "artifact": "Timeline",
-            "note": "Optional: share your timeline — a teammate can contain and report from it; they can also rebuild their own."
+            "note": "Optional: share your timeline — a teammate can contain and report from it; they can also rebuild their own.",
+            "deliverable": "cysa_incident_response"
           }
         ],
         "steps": [
@@ -3598,6 +3630,14 @@
               "NIST_CSF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "blue",
+            "artifact": "Executive Debrief & Lessons Learned",
+            "note": "Your section of the Executive Debrief & Lessons Learned, for the review that approves it.",
+            "deliverable": "cysa_exec_debrief"
+          }
         ]
       },
       {
@@ -3636,7 +3676,8 @@
           {
             "to": "blue",
             "artifact": "Incident report",
-            "note": "File the report; leadership reads the summary. Optional: share it for the team debrief."
+            "note": "File the report; leadership reads the summary. Optional: share it for the team debrief.",
+            "deliverable": "cysa_incident_response"
           }
         ],
         "steps": [
@@ -3819,6 +3860,7 @@
       "file": "01_SOC_Monitoring_Report.md",
       "title": "SOC Monitoring Report",
       "owner": "blue",
+      "shared": true,
       "folder": "01_Monitoring",
       "standard": "NIST CSF (DE.CM)",
       "framework": "NIST_CSF",
@@ -3936,6 +3978,49 @@
                 "per_hour": "~10/hr",
                 "screenshot": "",
                 "notes": "expected — your own admin commands"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "changes",
+            "label": "Changes to the monitoring baseline",
+            "help": "One row per change to an agent, a rule or a sensor: what, why, and how to undo it.",
+            "columns": [
+              {
+                "field": "date",
+                "label": "Date",
+                "type": "date"
+              },
+              {
+                "field": "change",
+                "label": "Change",
+                "type": "text",
+                "placeholder": "Enabled Sysmon on the Windows template"
+              },
+              {
+                "field": "why",
+                "label": "Why",
+                "type": "text",
+                "placeholder": "Process creation events were missing"
+              },
+              {
+                "field": "rollback",
+                "label": "Rollback",
+                "type": "text",
+                "placeholder": "sysmon -u; re-clone from the template"
+              },
+              {
+                "field": "result",
+                "label": "Result",
+                "type": "select",
+                "options": [
+                  "Applied",
+                  "Rolled back",
+                  "Pending"
+                ]
               }
             ]
           }
@@ -9073,7 +9158,13 @@
           ]
         }
       ],
-      "CHANGE_GROUPS": [],
+      "CHANGE_GROUPS": [
+        {
+          "form": "cysa_soc_monitoring",
+          "group": "changes",
+          "rollback": "rollback"
+        }
+      ],
       "CONTROLS": [
         {
           "code": "NIST.CSF",
@@ -14077,6 +14168,18 @@
       },
       "TROUBLE_GROUPS": [
         {
+          "form": "cysa_scan_validation",
+          "group": "comparison",
+          "outcome": "agree",
+          "resolved": "yes"
+        },
+        {
+          "form": "cysa_coverage_validation",
+          "group": "sources",
+          "outcome": "present",
+          "resolved": "yes"
+        },
+        {
           "form": "cysa_alert_triage",
           "group": "alerts",
           "outcome": "verdict",
@@ -14112,7 +14215,8 @@
           "areas": [
             "detect",
             "harden",
-            "ops"
+            "ops",
+            "cloud"
           ],
           "requiredCompetencies": [
             "comp.harden.linux-baseline",
@@ -14143,7 +14247,56 @@
             "comp.detect.shadow-ai",
             "comp.ops.logging-first-hour",
             "comp.ops.detection-fires",
-            "comp.ops.contingency-phases"
+            "comp.ops.contingency-phases",
+            "comp.cloud.budget-and-tags",
+            "comp.cloud.shared-responsibility",
+            "comp.cloud.network-foundation",
+            "comp.cloud.team-repo-and-board",
+            "comp.cloud.identity-and-groups",
+            "comp.cloud.cost-estimate",
+            "comp.cloud.launch-vm",
+            "comp.cloud.static-site-https",
+            "comp.cloud.ssh-from-one-ip",
+            "comp.cloud.request-flow",
+            "comp.cloud.managed-database",
+            "comp.cloud.serverless-api",
+            "comp.cloud.read-only-access",
+            "comp.cloud.cost-report",
+            "comp.cloud.error-alert",
+            "comp.cloud.read-logs",
+            "comp.cloud.audit-trail",
+            "comp.cloud.access-matrix",
+            "comp.cloud.secrets-in-vault",
+            "comp.cloud.managed-identity",
+            "comp.cloud.prove-denial",
+            "comp.cloud.two-zone-design",
+            "comp.cloud.scale-set",
+            "comp.cloud.load-balancer",
+            "comp.cloud.private-access-path",
+            "comp.cloud.data-store-choice",
+            "comp.cloud.ha-database",
+            "comp.cloud.queue-and-ledger",
+            "comp.cloud.data-lockdown",
+            "comp.cloud.autoscale-target",
+            "comp.cloud.autoscale-and-self-heal",
+            "comp.cloud.restore-file-and-database",
+            "comp.cloud.recovery-drill-and-teardown",
+            "comp.cloud.template-map",
+            "comp.cloud.inventory-and-drift",
+            "comp.cloud.deploy-from-template",
+            "comp.cloud.policy-as-code",
+            "comp.cloud.change-request-and-gates",
+            "comp.cloud.branch-protection",
+            "comp.cloud.staged-pipeline",
+            "comp.cloud.oidc-deploy-identity",
+            "comp.cloud.cost-by-service-and-slos",
+            "comp.cloud.blue-green",
+            "comp.cloud.canary",
+            "comp.cloud.dashboard-and-compliance",
+            "comp.cloud.handover-package",
+            "comp.cloud.rebuild-and-automate",
+            "comp.cloud.fix-through-ci",
+            "comp.cloud.contain-and-post-mortem"
           ]
         },
         {

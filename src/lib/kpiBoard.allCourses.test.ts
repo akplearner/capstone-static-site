@@ -28,6 +28,10 @@ const DECISIONS = ['kpi.decision-making.decisions-recorded', 'kpi.decision-makin
 const ALLOW: Record<string, Record<string, string[]>> = JSON.parse(readFileSync(resolve(process.cwd(), 'src', 'lib', 'kpiBoard.allCourses.allow.json'), 'utf8'));
 
 describe('R137 — every course, every role, through skillProfile → kpiBoard → scores', () => {
+  it('R138: the content debt is paid — no course leaves any role a KPI it cannot measure, decisions apart', () => {
+    expect(ALLOW).toEqual({});
+  });
+
   const cases = SEED_COURSES.flatMap((c) => c.roles.map((r) => [c.id, r.id] as const));
   it.each(cases)('%s / %s: every KPI bounded and either measured or named as not measured for the role', (courseId, role) => {
     const input = inputFor(courseId, role);
@@ -50,7 +54,8 @@ describe('R137 — every course, every role, through skillProfile → kpiBoard �
     // A decision belongs to the drafter of the decision form; everyone else reads not measured, by design.
     const drafts = input.deliverables.some((d) => decisionBlocksOf(d).length > 0 && (d.raci?.drafts === role || d.owner === role));
     for (const id of DECISIONS) expect(notMeasured.includes(id), `${id} for ${role}`).toBe(!drafts);
-    const debt = notMeasured.filter((id) => !DECISIONS.includes(id)).sort();
+    // Only the structural gaps are debt; a 'yet' row is something the fixture could not satisfy (a Definition-of-Done predicate), not missing content.
+    const debt = board.kpis.filter((k) => k.notMeasured === 'role' && !DECISIONS.includes(k.id)).map((k) => k.id).sort();
     expect(debt, `content debt for ${courseId}/${role} (update kpiBoard.allCourses.allow.json only when R138 pays it off)`).toEqual([...(ALLOW[courseId]?.[role] ?? [])].sort());
     // Every score stands on something, except Judgment for a role with nothing to decide and no change table.
     for (const s of board.scores) {

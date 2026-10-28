@@ -1,6 +1,6 @@
 # A+ Capstone Bench — skills sheet
 
-12 graded tasks · 22 skills · 19 tools · 9 procedures · 2 standards (0 controls cited) · 0 tactics · 14 practices
+12 graded tasks · 22 skills · 19 tools · 9 procedures · 3 standards (5 controls cited) · 0 tactics · 14 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -77,6 +77,15 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | --- | --- | --- |
 | NIST CSF | Read what is really inside; Work the fault with the six-step method; Set the firmware baseline; Image the disk before anything changes; Install Windows and set the baseline; Prove the image restores; Connect it and prove the link; Set up the user and the peripherals; Work three tickets with the method; Secure the machine; Take the final image and time the restore; Hand it over | — |
 | CIS | Read what is really inside; Set the firmware baseline; Image the disk before anything changes; Install Windows and set the baseline; Prove the image restores; Set up the user and the peripherals; Secure the machine | — |
+| NIST SP 800-53 | — | Intake & Bench Checklist; Asset & Build Sheet; Troubleshooting Log; OS Build & Baseline Record; Backup & Image Register; Support Ticket Log; Security Checklist; Handover & As-Built |
+
+| Control cited | Standard | By |
+| --- | --- | --- |
+| NIST.800-53.CM-6 Configuration Settings | NIST_800_53 | OS Build & Baseline Record; Security Checklist |
+| NIST.800-53.CM-8 System Component Inventory | NIST_800_53 | Intake & Bench Checklist; Asset & Build Sheet |
+| NIST.800-53.CP-9 System Backup | NIST_800_53 | Backup & Image Register |
+| NIST.800-53.IR-4 Incident Handling | NIST_800_53 | Troubleshooting Log; Support Ticket Log |
+| NIST.800-53.PL-2 System Security and Privacy Plans | NIST_800_53 | Handover & As-Built |
 
 Forms whose standard names a practice rather than a control:
 
@@ -131,17 +140,17 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | hw: 1 decision block; os: 1 decision block; support: 1 decision block; records: 1 decision block |
 | Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | hw: 1 decision block; os: 1 decision block; support: 1 decision block; records: 1 decision block |
 | Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | hw: 1 decision block; os: 1 decision block; support: 1 decision block; records: 1 decision block |
-| Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | hw: 0 change tables with a rollback column; os: 0 change tables with a rollback column; support: 0 change tables with a rollback column; records: 0 change tables with a rollback column |
-| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | hw: 0 hand-offs; os: 0 hand-offs; support: 0 hand-offs; records: 0 hand-offs |
+| Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | hw: 1 change table with a rollback column; os: 1 change table with a rollback column; support: 1 change table with a rollback column; records: 1 change table with a rollback column |
+| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | hw: 12 hand-offs; os: 12 hand-offs; support: 12 hand-offs; records: 12 hand-offs |
 | RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | hw: 8 forms with a RACI; os: 8 forms with a RACI; support: 8 forms with a RACI; records: 8 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
 | On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | hw: 12 tasks of the role; os: 12 tasks of the role; support: 12 tasks of the role; records: 12 tasks of the role |
 | Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | hw: 8 forms; os: 8 forms; support: 8 forms; records: 8 forms |
-| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | hw: 0 control codes on 2 forms; os: 0 control codes on 2 forms; support: 0 control codes on 1 form; records: 0 control codes on 3 forms |
+| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | hw: 2 control codes on 2 forms; os: 1 control code on 2 forms; support: 1 control code on 1 form; records: 3 control codes on 3 forms |
 | Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | hw: 8 forms; os: 8 forms; support: 8 forms; records: 8 forms |
 | Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | hw: 2 skills on two or more tasks; os: 2 skills on two or more tasks; support: 2 skills on two or more tasks; records: 2 skills on two or more tasks |
 | Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | hw: 22 skills with a verifiable step; os: 22 skills with a verifiable step; support: 22 skills with a verifiable step; records: 22 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
-| Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | hw: System Administrator: 68 required, 51 not taught here; os: System Administrator: 68 required, 51 not taught here; support: System Administrator: 68 required, 51 not taught here; records: System Administrator: 68 required, 51 not taught here |
+| Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | hw: System Administrator: 117 required, 100 not taught here; os: System Administrator: 117 required, 100 not taught here; support: System Administrator: 117 required, 100 not taught here; records: System Administrator: 117 required, 100 not taught here |
 

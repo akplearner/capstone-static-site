@@ -528,6 +528,53 @@
             ]
           },
           {
+            "id": "az-w5-arch-s3",
+            "title": "Read the role assignments back",
+            "description": "Read the role assignments back",
+            "where": "Azure portal · or Cloud Shell",
+            "instruction": "Compare the group’s role assignments with the matrix.",
+            "instructionList": [
+              "rg-capstone-team01 → Access control (IAM) → Role assignments.",
+              "Each row (who, role, scope) must be a row of the access matrix.",
+              "Mark any grant broader than the matrix allows."
+            ],
+            "commands": [
+              {
+                "cmd": "az role assignment list -g rg-capstone-team01 --query \"[].{who:principalName,role:roleDefinitionName}\" -o table",
+                "explain": "Every grant on the group as the platform holds it. Each row must be a row of the access matrix, or the matrix is wrong.",
+                "sample": "Who                 Role\n------------------  -----------\nteam01-readers      Reader\nteam01-infra        Contributor",
+                "flags": [
+                  {
+                    "flag": "-g rg-capstone-team01",
+                    "meaning": "Only the assignments scoped to this group."
+                  },
+                  {
+                    "flag": "--query \"[].{…}\"",
+                    "meaning": "Two fields per grant: who, and which role."
+                  }
+                ]
+              }
+            ],
+            "verify": [
+              "Reader",
+              "Contributor"
+            ],
+            "whatItMeans": "The access matrix is a claim; the assignment list is the state. Least privilege is proved when the two agree and nothing broader appears.",
+            "frameworks": [
+              "AZ_104",
+              "WAF"
+            ],
+            "expectedOutput": "The IAM blade and the shell list the same grants: readers hold Reader, infrastructure holds Contributor, nothing at subscription scope.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "List Azure role assignments",
+                "url": "https://learn.microsoft.com/azure/role-based-access-control/role-assignments-list-portal",
+                "lookFor": "the “List role assignments for a resource group” steps and the columns: principal, role, scope"
+              }
+            ]
+          },
+          {
             "id": "az-w5-arch-s9",
             "title": "Record it in the Access Control Matrix & Secrets Register",
             "description": "Your section: Access matrix.",
@@ -545,6 +592,14 @@
               "AZ_104",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "dev",
+            "artifact": "Access Control Matrix & Secrets Register",
+            "note": "Your section of the Access Control Matrix & Secrets Register, for the review that approves it.",
+            "deliverable": "aza_access"
           }
         ]
       },
@@ -734,6 +789,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Access Control Matrix & Secrets Register",
+            "note": "Your section of the Access Control Matrix & Secrets Register, for the review that approves it.",
+            "deliverable": "aza_access"
+          }
         ]
       },
       {
@@ -908,6 +971,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Access Control Matrix & Secrets Register",
+            "note": "Your section of the Access Control Matrix & Secrets Register, for the review that approves it.",
+            "deliverable": "aza_access"
+          }
         ]
       },
       {
@@ -1053,6 +1124,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Access Control Matrix & Secrets Register",
+            "note": "Your section of the Access Control Matrix & Secrets Register, for the review that approves it.",
+            "deliverable": "aza_access"
+          }
         ]
       },
       {
@@ -1162,6 +1241,14 @@
               "AZ_104",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "secops",
+            "artifact": "Network Design Document",
+            "note": "Your section of the Network Design Document, for the review that approves it.",
+            "deliverable": "aza_network"
           }
         ]
       },
@@ -1333,6 +1420,14 @@
               "AZ_104",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Network Design Document",
+            "note": "Your section of the Network Design Document, for the review that approves it.",
+            "deliverable": "aza_network"
           }
         ]
       },
@@ -1507,6 +1602,14 @@
               "AZ_104",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Network Design Document",
+            "note": "Your section of the Network Design Document, for the review that approves it.",
+            "deliverable": "aza_network"
           }
         ]
       },
@@ -1726,6 +1829,14 @@
               }
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Network Design Document",
+            "note": "Your section of the Network Design Document, for the review that approves it.",
+            "deliverable": "aza_network"
+          }
         ]
       },
       {
@@ -1834,6 +1945,14 @@
               "AZ_104",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "secops",
+            "artifact": "Data Store & Runbook",
+            "note": "Your section of the Data Store & Runbook, for the review that approves it.",
+            "deliverable": "aza_server"
           }
         ]
       },
@@ -2006,6 +2125,14 @@
               "AZ_104",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Data Store & Runbook",
+            "note": "Your section of the Data Store & Runbook, for the review that approves it.",
+            "deliverable": "aza_server"
           }
         ]
       },
@@ -2186,6 +2313,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Data Store & Runbook",
+            "note": "Your section of the Data Store & Runbook, for the review that approves it.",
+            "deliverable": "aza_server"
+          }
         ]
       },
       {
@@ -2332,6 +2467,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "artifact": "Data Store & Runbook",
+            "note": "Your section of the Data Store & Runbook, for the review that approves it.",
+            "deliverable": "aza_server"
+          }
         ]
       },
       {
@@ -2441,6 +2584,14 @@
               "AZ_104",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "infra",
+            "artifact": "Backup & Disaster Recovery Plan",
+            "note": "Your section of the Backup & Disaster Recovery Plan, for the review that approves it.",
+            "deliverable": "aza_dr"
           }
         ]
       },
@@ -2610,6 +2761,14 @@
               "AZ_104",
               "WAF"
             ]
+          }
+        ],
+        "handoff": [
+          {
+            "to": "secops",
+            "artifact": "Backup & Disaster Recovery Plan",
+            "note": "Your section of the Backup & Disaster Recovery Plan, for the review that approves it.",
+            "deliverable": "aza_dr"
           }
         ]
       },
@@ -2785,6 +2944,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "infra",
+            "artifact": "Backup & Disaster Recovery Plan",
+            "note": "Your section of the Backup & Disaster Recovery Plan, for the review that approves it.",
+            "deliverable": "aza_dr"
+          }
         ]
       },
       {
@@ -2929,6 +3096,14 @@
               "WAF"
             ]
           }
+        ],
+        "handoff": [
+          {
+            "to": "infra",
+            "artifact": "Backup & Disaster Recovery Plan",
+            "note": "Your section of the Backup & Disaster Recovery Plan, for the review that approves it.",
+            "deliverable": "aza_dr"
+          }
         ]
       }
     ],
@@ -2970,7 +3145,7 @@
       "num": 1,
       "file": "05_Access_Control_Matrix_and_Secrets_Register.md",
       "title": "Access Control Matrix & Secrets Register",
-      "owner": "arch",
+      "owner": "secops",
       "shared": true,
       "folder": "Week_01",
       "standard": "NIST SP 800-53 AC-6 (least privilege)",
@@ -2984,12 +3159,12 @@
         "week": 5
       },
       "raci": {
-        "drafts": "arch",
+        "drafts": "secops",
         "reviews": "dev",
-        "approves": "secops"
+        "approves": "arch"
       },
       "handoff": {
-        "to": "secops",
+        "to": "arch",
         "when": "approved"
       },
       "feeds": [
@@ -3250,10 +3425,10 @@
       "num": 2,
       "file": "06_Network_Design_Document.md",
       "title": "Network Design Document",
-      "owner": "arch",
+      "owner": "infra",
       "shared": true,
       "folder": "Week_02",
-      "standard": "RFC 1918 addressing · segmentation",
+      "standard": "RFC 1918 addressing · segmentation · NIST SP 800-53 SC-7",
       "weeks": [
         2
       ],
@@ -3264,12 +3439,12 @@
         "week": 6
       },
       "raci": {
-        "drafts": "arch",
+        "drafts": "infra",
         "reviews": "secops",
-        "approves": "infra"
+        "approves": "arch"
       },
       "handoff": {
-        "to": "infra",
+        "to": "arch",
         "when": "approved"
       },
       "feeds": [
@@ -3748,10 +3923,10 @@
       "num": 3,
       "file": "07_Data_Store_and_Runbook.md",
       "title": "Data Store & Runbook",
-      "owner": "arch",
+      "owner": "dev",
       "shared": true,
       "folder": "Week_03",
-      "standard": "Well-Architected — reliability and cost pillars",
+      "standard": "Well-Architected — reliability and cost pillars · NIST SP 800-53 CP-9",
       "weeks": [
         3
       ],
@@ -3762,12 +3937,12 @@
         "week": 7
       },
       "raci": {
-        "drafts": "arch",
+        "drafts": "dev",
         "reviews": "secops",
-        "approves": "infra"
+        "approves": "arch"
       },
       "handoff": {
-        "to": "infra",
+        "to": "arch",
         "when": "approved"
       },
       "feeds": [
@@ -4063,6 +4238,44 @@
           }
         },
         {
+          "kind": "group",
+          "group": {
+            "group": "changes",
+            "label": "Changes to the data tier · Infrastructure",
+            "columns": [
+              {
+                "field": "change",
+                "label": "Change",
+                "type": "text",
+                "placeholder": "Enabled zone-redundant HA on the database"
+              },
+              {
+                "field": "why",
+                "label": "Why",
+                "type": "text",
+                "placeholder": "The RTO needs a standby in the second zone"
+              },
+              {
+                "field": "rollback",
+                "label": "Rollback",
+                "type": "text",
+                "placeholder": "Disable HA; the primary keeps serving"
+              },
+              {
+                "field": "result",
+                "label": "Result",
+                "type": "select",
+                "options": [
+                  "Applied",
+                  "Rolled back",
+                  "Pending"
+                ]
+              }
+            ],
+            "help": "One row per change to the database, the queue or the storage account."
+          }
+        },
+        {
           "kind": "fields",
           "title": "Evidence · everyone",
           "fields": [
@@ -4204,7 +4417,7 @@
       "owner": "arch",
       "shared": true,
       "folder": "Week_04",
-      "standard": "NIST SP 800-34 (BIA, RPO/RTO)",
+      "standard": "NIST SP 800-34 (BIA, RPO/RTO) · NIST SP 800-53 CP-2",
       "weeks": [
         4
       ],
@@ -6879,7 +7092,13 @@
           ]
         }
       ],
-      "CHANGE_GROUPS": [],
+      "CHANGE_GROUPS": [
+        {
+          "form": "server",
+          "group": "changes",
+          "rollback": "rollback"
+        }
+      ],
       "CONTROLS": [
         {
           "code": "NIST.CSF",
@@ -7025,6 +7244,15 @@
           "parent": "NIST.800-53.AC",
           "cites": [
             "AC-6"
+          ]
+        },
+        {
+          "code": "NIST.800-53.CP-2",
+          "standard": "NIST_800_53",
+          "label": "Contingency Plan",
+          "parent": "NIST.800-53.CP",
+          "cites": [
+            "CP-2"
           ]
         },
         {
@@ -7293,11 +7521,16 @@
         "aza_access": [
           "NIST.800-53.AC-6"
         ],
+        "aza_network": [
+          "NIST.800-53.SC-7"
+        ],
         "aza_server": [
+          "NIST.800-53.CP-9",
           "WAF.reliability",
           "WAF.cost"
         ],
         "aza_dr": [
+          "NIST.800-53.CP-2",
           "NIST.800-34"
         ]
       },
@@ -11400,7 +11633,8 @@
           "areas": [
             "detect",
             "harden",
-            "ops"
+            "ops",
+            "cloud"
           ],
           "requiredCompetencies": [
             "comp.harden.linux-baseline",
@@ -11431,7 +11665,56 @@
             "comp.detect.shadow-ai",
             "comp.ops.logging-first-hour",
             "comp.ops.detection-fires",
-            "comp.ops.contingency-phases"
+            "comp.ops.contingency-phases",
+            "comp.cloud.budget-and-tags",
+            "comp.cloud.shared-responsibility",
+            "comp.cloud.network-foundation",
+            "comp.cloud.team-repo-and-board",
+            "comp.cloud.identity-and-groups",
+            "comp.cloud.cost-estimate",
+            "comp.cloud.launch-vm",
+            "comp.cloud.static-site-https",
+            "comp.cloud.ssh-from-one-ip",
+            "comp.cloud.request-flow",
+            "comp.cloud.managed-database",
+            "comp.cloud.serverless-api",
+            "comp.cloud.read-only-access",
+            "comp.cloud.cost-report",
+            "comp.cloud.error-alert",
+            "comp.cloud.read-logs",
+            "comp.cloud.audit-trail",
+            "comp.cloud.access-matrix",
+            "comp.cloud.secrets-in-vault",
+            "comp.cloud.managed-identity",
+            "comp.cloud.prove-denial",
+            "comp.cloud.two-zone-design",
+            "comp.cloud.scale-set",
+            "comp.cloud.load-balancer",
+            "comp.cloud.private-access-path",
+            "comp.cloud.data-store-choice",
+            "comp.cloud.ha-database",
+            "comp.cloud.queue-and-ledger",
+            "comp.cloud.data-lockdown",
+            "comp.cloud.autoscale-target",
+            "comp.cloud.autoscale-and-self-heal",
+            "comp.cloud.restore-file-and-database",
+            "comp.cloud.recovery-drill-and-teardown",
+            "comp.cloud.template-map",
+            "comp.cloud.inventory-and-drift",
+            "comp.cloud.deploy-from-template",
+            "comp.cloud.policy-as-code",
+            "comp.cloud.change-request-and-gates",
+            "comp.cloud.branch-protection",
+            "comp.cloud.staged-pipeline",
+            "comp.cloud.oidc-deploy-identity",
+            "comp.cloud.cost-by-service-and-slos",
+            "comp.cloud.blue-green",
+            "comp.cloud.canary",
+            "comp.cloud.dashboard-and-compliance",
+            "comp.cloud.handover-package",
+            "comp.cloud.rebuild-and-automate",
+            "comp.cloud.fix-through-ci",
+            "comp.cloud.contain-and-post-mortem"
           ]
         },
         {
@@ -11498,7 +11781,8 @@
             "virt",
             "continuity",
             "observe",
-            "docs"
+            "docs",
+            "cloud"
           ],
           "requiredCompetencies": [
             "comp.hardware.receive-and-inspect",
@@ -11568,7 +11852,56 @@
             "comp.continuity.restore-from-image",
             "comp.docs.equipment-research",
             "comp.docs.bill-of-materials",
-            "comp.docs.migration-plan"
+            "comp.docs.migration-plan",
+            "comp.cloud.budget-and-tags",
+            "comp.cloud.shared-responsibility",
+            "comp.cloud.network-foundation",
+            "comp.cloud.team-repo-and-board",
+            "comp.cloud.identity-and-groups",
+            "comp.cloud.cost-estimate",
+            "comp.cloud.launch-vm",
+            "comp.cloud.static-site-https",
+            "comp.cloud.ssh-from-one-ip",
+            "comp.cloud.request-flow",
+            "comp.cloud.managed-database",
+            "comp.cloud.serverless-api",
+            "comp.cloud.read-only-access",
+            "comp.cloud.cost-report",
+            "comp.cloud.error-alert",
+            "comp.cloud.read-logs",
+            "comp.cloud.audit-trail",
+            "comp.cloud.access-matrix",
+            "comp.cloud.secrets-in-vault",
+            "comp.cloud.managed-identity",
+            "comp.cloud.prove-denial",
+            "comp.cloud.two-zone-design",
+            "comp.cloud.scale-set",
+            "comp.cloud.load-balancer",
+            "comp.cloud.private-access-path",
+            "comp.cloud.data-store-choice",
+            "comp.cloud.ha-database",
+            "comp.cloud.queue-and-ledger",
+            "comp.cloud.data-lockdown",
+            "comp.cloud.autoscale-target",
+            "comp.cloud.autoscale-and-self-heal",
+            "comp.cloud.restore-file-and-database",
+            "comp.cloud.recovery-drill-and-teardown",
+            "comp.cloud.template-map",
+            "comp.cloud.inventory-and-drift",
+            "comp.cloud.deploy-from-template",
+            "comp.cloud.policy-as-code",
+            "comp.cloud.change-request-and-gates",
+            "comp.cloud.branch-protection",
+            "comp.cloud.staged-pipeline",
+            "comp.cloud.oidc-deploy-identity",
+            "comp.cloud.cost-by-service-and-slos",
+            "comp.cloud.blue-green",
+            "comp.cloud.canary",
+            "comp.cloud.dashboard-and-compliance",
+            "comp.cloud.handover-package",
+            "comp.cloud.rebuild-and-automate",
+            "comp.cloud.fix-through-ci",
+            "comp.cloud.contain-and-post-mortem"
           ]
         },
         {

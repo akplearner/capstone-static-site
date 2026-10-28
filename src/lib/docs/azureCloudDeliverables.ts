@@ -38,8 +38,8 @@ export const AZURE_CLOUD_VOCAB: CloudVocab = {
   oidc: 'Federated credential on a user-assigned managed identity (azure/login, no secret)',
   region: 'eastus',
   calculator: 'Azure pricing calculator',
-  standardW1: 'Microsoft Cloud Adoption Framework — naming and tagging',
-  standardW11: 'Azure Well-Architected — cost and security pillars',
+  standardW1: 'Microsoft Cloud Adoption Framework — naming and tagging · NIST SP 800-53 CM-8',
+  standardW11: 'Azure Well-Architected — cost and security pillars · NIST SP 800-53 AU-6',
   naming: [
     { resource: 'Resource group', pattern: 'rg-{workload}-{team}', example: 'rg-capstone-team01' },
     { resource: 'Virtual network', pattern: 'vnet-{workload}-{team}', example: 'vnet-capstone-team01' },

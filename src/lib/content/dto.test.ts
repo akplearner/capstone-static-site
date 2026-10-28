@@ -1,3 +1,5 @@
+import { withHandoffForms } from '../docs/handoffForms';
+import { seedDeliverablesForCourse } from '../docs/definitions';
 import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -179,13 +181,14 @@ describe('a course loads from its own document', () => {
   const read = (id: string) => readFileSync(resolve(DIR, `${id}.json`), 'utf8');
 
   it.each(SEED_COURSES.map((c) => c.id))('%s round-trips through JSON', (id) => {
-    const seed = SEED_COURSES.find((c) => c.id === id)!;
+    // R138: the export writes each hand-off's form in (docs/handoffForms.ts); the seed plus that map is what travels.
+    const seed = withHandoffForms(SEED_COURSES.find((c) => c.id === id)!, seedDeliverablesForCourse(id));
     const loaded = courseFromJson(read(id));
     expect(serialisable(loaded)).toEqual(serialisable(seed));
   });
 
   it.each(SEED_COURSES.map((c) => c.id))('%s renders the same through the UI helpers', (id) => {
-    const seed = SEED_COURSES.find((c) => c.id === id)!;
+    const seed = withHandoffForms(SEED_COURSES.find((c) => c.id === id)!, seedDeliverablesForCourse(id));
     const loaded = courseFromJson(read(id));
 
     // The derivations every course page runs, over both courses.

@@ -937,6 +937,37 @@ const tasks: Task[] = [
         whatItMeans: 'An operating system past end of support cannot be patched. Sanitizing the disk after migration closes S-10 and leaves a record for the audit.',
         frameworks: ['CISSP'],
       },
+      // R138: the proof beside the migration — the migrated database re-hashed against the ledger line written for it.
+      {
+        id: 'ci-w3-gov-s3', title: 'Verify the migrated data against the ledger', description: 'S-10: the hash still matches.',
+        where: 'The cloud database host · terminal',
+        instruction: 'Re-hash the migrated database and check it against the ledger.',
+        instructionList: [
+          'Append the migrated file to the ledger first: `sha256sum migrated/scheduling.db >> ledger.sha256`.',
+          'Run the check; every line must read OK.',
+          'Paste the OK lines into D2 beside the decommission record.',
+        ],
+        commands: [{
+          cmd: 'sha256sum -c ledger.sha256 | grep -c ": OK$" && echo "LEDGER lines verified"',
+          explain: 'Re-hashes every file the ledger names and counts the lines that still match, then says so.',
+          flags: [
+            { flag: '-c ledger.sha256', meaning: 'check each file against the hash recorded for it' },
+            { flag: 'grep -c ": OK$"', meaning: 'count the lines that passed' },
+          ],
+          sample: '9\nLEDGER lines verified',
+        }],
+        expectedOutput: '9\nLEDGER lines verified',
+        outputHighlights: [{ text: 'LEDGER lines verified', label: 'every ledger line, the migrated database included, still matches' }],
+        verify: ['LEDGER lines verified'],
+        usesForm: 'D2 Assets & Data',
+        docs: [D.sha256],
+        fixes: [
+          fix('A line reads FAILED', 'The file changed after it was hashed: find out why before anything else, then re-hash and record the reason in D2.'),
+          fix('No such file', 'The ledger names a path that moved: fix the path in the ledger, never the hash.'),
+        ],
+        whatItMeans: 'A migration is proved by the same hash on both sides; the ledger check is the proof an assessor can rerun.',
+        frameworks: ['NIST_800_53'],
+      },
     ],
   },
 
@@ -1103,6 +1134,38 @@ const tasks: Task[] = [
         ],
         whatItMeans: 'High-water mark means the whole system inherits the impact of its most sensitive data. It sets the control baseline for everything.',
         frameworks: ['CISSP', 'NIST_AI_RMF'],
+      },
+      // R138: the proof step beside the sanitizer — the after-state hashed, so the ledger points at a dataset that cannot be quietly re-identified.
+      {
+        id: 'ci-w4-gov-s3', title: 'Hash the sanitized dataset', description: 'The after-state, in the ledger.',
+        where: 'The dataset folder · terminal',
+        instruction: 'Hash every sanitized file and count the lines.',
+        instructionList: [
+          'Run the command in the folder the sanitizer wrote to.',
+          'Paste the count and the DATASET line into D2 beside S-11.',
+          'Add dataset.sha256 to the ledger with `sha256sum dataset.sha256 >> ledger.sha256`.',
+        ],
+        commands: [{
+          cmd: 'find dataset/ -type f -exec sha256sum {} + | sort > dataset.sha256 && echo "DATASET $(wc -l < dataset.sha256) files hashed"',
+          explain: 'One hash per sanitized file, sorted so two runs compare line for line, then the count as a sentence.',
+          flags: [
+            { flag: 'find dataset/ -type f', meaning: 'every file under the folder, however deep' },
+            { flag: '-exec sha256sum {} +', meaning: 'hash them all in one call' },
+            { flag: 'sort > dataset.sha256', meaning: 'a stable, comparable list' },
+          ],
+          sample: 'DATASET 14 files hashed',
+        }],
+        expectedOutput: 'DATASET 14 files hashed',
+        outputHighlights: [{ text: 'DATASET 14 files hashed', label: 'fourteen files, each with a hash in dataset.sha256 — the after-state the ledger will cite' }],
+        verify: ['files hashed'],
+        usesForm: 'D2 Assets & Data',
+        docs: [D.sha256],
+        fixes: [
+          fix('The count is 0', 'The sanitizer wrote elsewhere, or the folder is empty: run `ls dataset/` and point the command at the right path.'),
+          fix('Two runs give different hashes', 'A file is still being written, or the sanitizer is not deterministic: run it once more and hash again.'),
+        ],
+        whatItMeans: 'Categorization is a claim about data; the hash list is what an assessor can check the claim against.',
+        frameworks: ['NIST_800_53'],
       },
     ],
   },

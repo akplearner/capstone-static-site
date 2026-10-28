@@ -2,7 +2,7 @@ import type { Course } from '../types';
 import type { DeliverableDef } from './types';
 import { AREA_LABEL, SKILLS, TASK_SKILLS, skillOf } from './skills';
 import { TOOLS, toolsByTask } from './tools';
-import { CONTROLS, CONTROL_EXCEPTIONS, STANDARDS, controlOf, parseStandard, standardOf } from './standards';
+import { CONTROLS, CONTROL_EXCEPTIONS, STANDARDS, controlOf, parseStandard, practiceKeyOf, standardOf } from './standards';
 import { DELIVERABLE_SOPS, SOPS, TASK_SOPS } from './sops';
 import { PRACTICES, TACTICS, TASK_PRACTICES, TASK_TACTICS } from './tactics';
 import { METRICS } from './metricCatalogue';
@@ -43,7 +43,7 @@ export function skillsSectionFor(course: Pick<Course, 'id' | 'tasks'>, forms: Pi
   // R108: the work roles this course's roles prepare for, and the course's own map into them.
   const WORK_ROLE_OF_COURSE = WORK_ROLE_OF[id] ?? {};
   const workRoleIds = values(WORK_ROLE_OF_COURSE);
-  for (const f of forms) for (const p of CONTROL_EXCEPTIONS[f.standard] ?? []) practiceIds.add(p);
+  for (const f of forms) for (const p of CONTROL_EXCEPTIONS[practiceKeyOf(f.standard)] ?? []) practiceIds.add(p);
 
   // What each form cites, parsed once here so no reader needs the parser.
   const CONTROL_OF: Record<string, string[]> = {};

@@ -189,7 +189,8 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
     num,
     file,
     title,
-    owner: 'arch',
+    // R138: the role the RACI says drafts it owns it; the twelve documents are split across the four roles.
+    owner: CLOUD_RACI[slug].drafts,
     shared: true,
     folder: `Week_${String(week).padStart(2, '0')}`,
     standard,
@@ -338,7 +339,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
 
     // 3 ─ Application & API Design Specification ───────────────────────────
     {
-      ...base(3, 'api', '03_Application_and_API_Design_Spec.md', 'Application & API Design Specification', 3, 'OpenAPI-style interface specification'),
+      ...base(3, 'api', '03_Application_and_API_Design_Spec.md', 'Application & API Design Specification', 3, 'OpenAPI-style interface specification · NIST SP 800-53 SC-8'),
       feeds: [id('incident')],
       purpose: 'The visitor-counter API: its endpoint, its data, who may call it, and where its secrets are not.',
       howTo: 'Each role documents the part they built. The Architect draws the request flow with real URLs.',
@@ -384,7 +385,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
 
     // 4 ─ Monitoring & Incident Report ─────────────────────────────────────
     {
-      ...base(4, 'incident', '04_Monitoring_and_Incident_Report.md', 'Monitoring & Incident Report', 4, 'ITIL 4 incident management'),
+      ...base(4, 'incident', '04_Monitoring_and_Incident_Report.md', 'Monitoring & Incident Report', 4, 'ITIL 4 incident management · NIST SP 800-53 IR-4'),
       feeds: [id('access')],
       purpose: 'What the team watches, what wakes someone up, and one incident worked from symptom to prevention.',
       howTo: 'Infrastructure and App fill the signals; Security & Ops writes the incident; the Architect reports cost.',
@@ -411,6 +412,13 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
           { field: 'guardrail', label: v.key === 'az' ? 'Resource lock in place' : 'Who made the change (CloudTrail)', type: 'text', required: true, placeholder: v.key === 'az' ? 'CanNotDelete on rg-capstone-team01 — delete refused' : 'team01-dev, UpdateFunctionConfiguration, 14:02 UTC' },
           { field: 'inc_prevent', label: 'Prevention', type: 'text', required: true, placeholder: 'An alert on this signal.' },
         ]),
+        // R138: what was changed to resolve it, with the way back.
+        group('changes', 'Changes made to resolve · Infrastructure', [
+          c('change', 'Change', 'text', { placeholder: 'Raised the alert threshold to 5 errors in 5 minutes' }),
+          c('why', 'Why', 'text', { placeholder: 'The first threshold paged on one retry' }),
+          c('rollback', 'Rollback', 'text', { placeholder: 'Set the threshold back to 1; redeploy the alert rule' }),
+          c('result', 'Result', 'select', { options: ['Applied', 'Rolled back', 'Pending'] }),
+        ], { help: 'One row per change made during or after the incident.' }),
         evidence(v, 4, 'alert'),
       ],
       dod: [
@@ -465,7 +473,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
     // 6 ─ Network Design Document ──────────────────────────────────────────
     withChecks(
       {
-        ...base(6, 'network', '06_Network_Design_Document.md', 'Network Design Document', 6, 'RFC 1918 addressing · segmentation'),
+        ...base(6, 'network', '06_Network_Design_Document.md', 'Network Design Document', 6, 'RFC 1918 addressing · segmentation · NIST SP 800-53 SC-7'),
         feeds: [id('server')],
         purpose: `The address plan across two zones, the ${v.firewall} rules, the fleet behind its ${v.lb}, the tested paths — and proof that no management port faces the internet.`,
         howTo: 'Infrastructure owns the address plan; Security & Ops the rules and tests; App traces the request paths.',
@@ -524,7 +532,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
 
     // 7 ─ Data Store & Runbook ─────────────────────────────────────────────
     {
-      ...base(7, 'server', '07_Data_Store_and_Runbook.md', 'Data Store & Runbook', 7, 'Well-Architected — reliability and cost pillars'),
+      ...base(7, 'server', '07_Data_Store_and_Runbook.md', 'Data Store & Runbook', 7, 'Well-Architected — reliability and cost pillars · NIST SP 800-53 CP-9'),
       feeds: [id('dr')],
       purpose: 'Which store each workload uses and what it costs, the database as it really runs, the queue that decouples the counter, the controls on the data at rest, and the runbook for the fleet.',
       howTo: 'The Architect decides the stores; Infrastructure records the database; App the queue and the ledger; Security & Ops the data controls and the runbook.',
@@ -563,6 +571,13 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
           c('do', 'Do', 'text', { placeholder: 'Check the fleet has two healthy targets' }),
           c('expect', 'Expect', 'text', { placeholder: 'healthy · healthy' }),
         ], { help: 'Four steps to check the fleet and the database are healthy, then one for when the site is slow: work down the layers — network, identity, application, data, configuration — and stop at the first that fails.' }),
+        // R138: a runbook step that changes the data tier is a change with a way back.
+        group('changes', 'Changes to the data tier · Infrastructure', [
+          c('change', 'Change', 'text', { placeholder: 'Enabled zone-redundant HA on the database' }),
+          c('why', 'Why', 'text', { placeholder: 'The RTO needs a standby in the second zone' }),
+          c('rollback', 'Rollback', 'text', { placeholder: 'Disable HA; the primary keeps serving' }),
+          c('result', 'Result', 'select', { options: ['Applied', 'Rolled back', 'Pending'] }),
+        ], { help: 'One row per change to the database, the queue or the storage account.' }),
         evidence(v, 7, 'data'),
       ],
       dod: [
@@ -581,7 +596,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
 
     // 8 ─ Backup & Disaster Recovery Plan ──────────────────────────────────
     {
-      ...base(8, 'dr', '08_Backup_and_Disaster_Recovery_Plan.md', 'Backup & Disaster Recovery Plan', 8, 'NIST SP 800-34 (BIA, RPO/RTO)'),
+      ...base(8, 'dr', '08_Backup_and_Disaster_Recovery_Plan.md', 'Backup & Disaster Recovery Plan', 8, 'NIST SP 800-34 (BIA, RPO/RTO) · NIST SP 800-53 CP-2'),
       feeds: [id('iac')],
       purpose: 'What matters most, how much of it the company can lose, how fast it must come back — the scaling that keeps it up, and the timed restores that prove it.',
       howTo: 'The Architect sets the targets; Infrastructure scales and replaces; App restores a file and the database; Security & Ops times the drill and tears down.',
@@ -631,7 +646,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
 
     // 9 ─ IaC Design & Deployment Record ───────────────────────────────────
     {
-      ...base(9, 'iac', '09_IaC_Design_and_Deployment_Record.md', 'IaC Design & Deployment Record', 9, 'Well-Architected — operational excellence'),
+      ...base(9, 'iac', '09_IaC_Design_and_Deployment_Record.md', 'IaC Design & Deployment Record', 9, 'Well-Architected — operational excellence · NIST SP 800-53 CM-2'),
       feeds: [id('change')],
       purpose: `How ${v.template} maps to the diagram, which values change between dev and prod, and the record of a validated, previewed deployment.`,
       howTo: 'The Architect maps template to diagram; Infrastructure inventories with the CLI; App deploys; Security & Ops validates parameters.',
@@ -692,7 +707,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
 
     // 10 ─ Change Request (RFC) & Release Record ───────────────────────────
     {
-      ...base(10, 'change', '10_Change_Request_and_Release_Record.md', 'Change Request & Release Record', 10, 'ITIL 4 change enablement'),
+      ...base(10, 'change', '10_Change_Request_and_Release_Record.md', 'Change Request & Release Record', 10, 'ITIL 4 change enablement · NIST SP 800-53 CM-3'),
       feeds: [id('governance')],
       purpose: 'One change, requested, approved, released by a pipeline with no stored keys, and rolled back once on purpose.',
       howTo: 'Architect writes the RFC; Infrastructure protects the branch; App builds the pipeline; Security & Ops sets OIDC and tests rollback.',
@@ -716,6 +731,8 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
           c('run', 'Run', 'text', { placeholder: '#14' }),
           c('stage', 'Stages', 'text', { placeholder: `check → ${v.preview} → dev → approval → prod` }),
           c('result', 'Result', 'select', { options: RESULT }),
+          // R138: the way back for the run, written before it ran.
+          c('rollback', 'Rollback', 'text', { placeholder: 'Revert #14; the pipeline redeploys #13' }),
         ], { help: 'One row per run; the artifact each run kept is the preview the reviewer approved on.' }),
         fields('Keyless access and rollback · Security & Ops', [
           { field: 'oidc', label: 'How the pipeline signs in', type: 'text', required: true, placeholder: v.oidc },
@@ -794,7 +811,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
 
     // 12 ─ Operational Handover Package (capstone) ─────────────────────────
     {
-      ...base(12, 'handover', '12_Operational_Handover_Package.md', 'Operational Handover Package', 12, 'ITIL 4 service transition'),
+      ...base(12, 'handover', '12_Operational_Handover_Package.md', 'Operational Handover Package', 12, 'ITIL 4 service transition · NIST SP 800-53 PL-2'),
       capstone: true,
       purpose: 'Everything a new team needs to run the company’s cloud on Monday: the services, the runbooks, the risks, and proof it survives failure.',
       howTo: 'Each role runs one scenario and records it; the Architect assembles the package and signs it off.',

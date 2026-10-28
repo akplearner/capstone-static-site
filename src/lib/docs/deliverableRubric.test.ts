@@ -54,7 +54,10 @@ describe('the derived bundle covers every deliverable in every course', () => {
       ],
     } as never);
     const rules = (def.checks ?? []).map((c) => c.rule).sort();
-    expect(rules).toEqual(['minLength', 'oneOf', 'pattern']);
+    // R138: the derived document-control block adds a status select, and so one more oneOf.
+    expect(rules).toEqual(['minLength', 'oneOf', 'oneOf', 'pattern']);
+    const last = def.sections[def.sections.length - 1];
+    expect(last.kind === 'fields' && last.title).toBe('Document control');
   });
 });
 
