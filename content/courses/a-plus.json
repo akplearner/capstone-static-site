@@ -3,6 +3,7 @@
   "generatedFrom": [
     "src/lib/data/seed/aPlus.ts",
     "src/lib/docs/aPlusDeliverables.ts",
+    "src/lib/docs/portfolioForm.ts",
     "src/lib/docs/manual.ts",
     "src/lib/docs/aPlusContent.ts",
     "src/lib/docs/weekVisuals.ts",
@@ -2088,6 +2089,44 @@
               "The first-day check: boot, sign in as the user, print, reach a website, confirm Protection On. Ten minutes, in order."
             ],
             "whatItMeans": "The as-built is the document the next technician reads before touching the machine. Written honestly, it saves them the week you just spent."
+          },
+          {
+            "id": "portfolio",
+            "title": "Write the Portfolio",
+            "description": "The repository, the case study, three resume bullets, the diagram and the skills shown, on the shared Portfolio form.",
+            "where": "Deliverables tab",
+            "instruction": "Fill the Portfolio with the whole team.",
+            "instructionList": [
+              "Paste the link to the team repository, e.g. https://github.com/org/capstone-team01, that holds the configuration and documents.",
+              "Write the case study in two hundred words or more: the problem, what was built, the decisions, the result.",
+              "Write three resume bullets, each an action, a tool and a measurable result, e.g. \"closed 14 of 15 findings\".",
+              "Name the diagram the case study refers to, then list the skills demonstrated with the evidence for each."
+            ],
+            "usesForm": "Portfolio",
+            "expectedOutput": "The Portfolio is filled: a repository link, a case study of two hundred words or more, three bullets, the diagram named, three or more skills with evidence.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "ISO/IEC/IEEE 42010: architecture description",
+                "url": "https://www.iso.org/standard/74393.html",
+                "lookFor": "What an architecture description must identify: stakeholders, concerns, viewpoints and the rationale for decisions."
+              }
+            ],
+            "whatItMeans": "The certification proves what was learned; the Portfolio proves what was built. An employer reads this form, not the pass mark.",
+            "fixes": [
+              {
+                "symptom": "The case-study check stays red at two hundred words",
+                "fix": "Words are counted on whitespace; a line of bullet dashes or a table is one word each. Write sentences."
+              },
+              {
+                "symptom": "The repository link is refused",
+                "fix": "It has to start with https:// and hold no spaces; paste the address bar, not the repository name."
+              }
+            ],
+            "frameworks": [
+              "NIST_CSF"
+            ],
+            "producesDeliverable": "09_Portfolio.md"
           }
         ],
         "handoff": [
@@ -4243,6 +4282,259 @@
         "to": "support",
         "when": "approved"
       }
+    },
+    {
+      "id": "ap_portfolio",
+      "courseId": "a-plus",
+      "num": 9,
+      "file": "09_Portfolio.md",
+      "title": "Portfolio",
+      "owner": "records",
+      "shared": true,
+      "portfolio": true,
+      "folder": "Portfolio",
+      "standard": "Architecture description · ISO/IEC/IEEE 42010 · NIST SP 800-53 PL-2",
+      "weeks": [
+        4
+      ],
+      "kind": "template",
+      "exportFormat": "md",
+      "feeds": [
+        "ap_handover"
+      ],
+      "raci": {
+        "drafts": "records",
+        "reviews": "os",
+        "approves": "support",
+        "informed": [
+          "hw"
+        ]
+      },
+      "handoff": {
+        "to": "support",
+        "when": "approved"
+      },
+      "purpose": "What the team can show for a working endpoint built from bare hardware: the repository, a case study, three resume bullets, the architecture diagram and the skills demonstrated.",
+      "howTo": "Every member fills it. Paste the repository link, write the case study in two hundred words or more, write three resume bullets, name the diagram and list the skills with their evidence.",
+      "buildSteps": [
+        "Repository: the team repository that holds the configuration, the scripts and the documents, with a README that opens on the diagram.",
+        "Case study: the problem the client had, what was built, the decisions taken and why, the result and what is still open.",
+        "Resume bullets: an action verb, the tool, the scale and a measurable result, one line each.",
+        "Diagram: the course picture or a file the team drew, hashed in the evidence log, that the case study refers to.",
+        "Skills: one row per skill demonstrated, with the step, form or file that is the evidence."
+      ],
+      "meaning": "A stranger reads the case study, opens the repository, checks a bullet against the evidence and finds them consistent.",
+      "useIt": "The capstone is defended with the Portfolio beside it; the member export and a candidate link carry the repository and the bullets.",
+      "pitfalls": [
+        "A case study under two hundred words: the check fails until it is a story, not a caption.",
+        "A bullet with no number in it.",
+        "A repository link nobody outside the team can open."
+      ],
+      "sections": [
+        {
+          "kind": "fields",
+          "title": "Document control",
+          "fields": [
+            {
+              "field": "doc_id",
+              "label": "Document ID",
+              "type": "text",
+              "required": true,
+              "placeholder": "CAP-PF-001"
+            },
+            {
+              "field": "version",
+              "label": "Version",
+              "type": "text",
+              "required": true,
+              "placeholder": "1.0"
+            },
+            {
+              "field": "doc_owner",
+              "label": "Owner",
+              "type": "text",
+              "required": true,
+              "placeholder": "The role that drafts it, and a name"
+            },
+            {
+              "field": "doc_date",
+              "label": "Date",
+              "type": "date",
+              "required": true
+            },
+            {
+              "field": "doc_status",
+              "label": "Status",
+              "type": "select",
+              "options": [
+                "Draft",
+                "In review",
+                "Approved",
+                "Issued"
+              ],
+              "required": true
+            }
+          ]
+        },
+        {
+          "kind": "fields",
+          "title": "The project",
+          "fields": [
+            {
+              "field": "repo_url",
+              "label": "Repository",
+              "type": "text",
+              "required": true,
+              "placeholder": "https://github.com/org/capstone-team01",
+              "help": "The link a reader opens first. Public, or shared with the instructor."
+            },
+            {
+              "field": "case_study",
+              "label": "Case study",
+              "type": "area",
+              "required": true,
+              "placeholder": "The client needed a working endpoint built from bare hardware. The team …",
+              "help": "Two hundred words or more: the problem, what was built, the decisions and why, the result, what is still open."
+            },
+            {
+              "field": "diagram_ref",
+              "label": "Architecture diagram",
+              "type": "text",
+              "required": true,
+              "placeholder": "The course picture, or 20261030_Team01_architecture.png",
+              "help": "What the case study refers to when it says \"the diagram\"."
+            }
+          ]
+        },
+        {
+          "kind": "fields",
+          "title": "Resume bullets",
+          "fields": [
+            {
+              "field": "resume_1",
+              "label": "Bullet one",
+              "type": "text",
+              "required": true,
+              "placeholder": "Built and hardened two servers to a CIS baseline; closed 14 of 15 findings in four weeks."
+            },
+            {
+              "field": "resume_2",
+              "label": "Bullet two",
+              "type": "text",
+              "required": true,
+              "placeholder": "Wrote the incident runbook and ran a live containment in under eleven minutes."
+            },
+            {
+              "field": "resume_3",
+              "label": "Bullet three",
+              "type": "text",
+              "required": true,
+              "placeholder": "Documented the architecture and the risk register a receiving team ran from on day one."
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "skills_demonstrated",
+            "label": "Skills demonstrated",
+            "help": "One row per skill, with the evidence that proves it and where that evidence sits.",
+            "columns": [
+              {
+                "field": "skill",
+                "label": "Skill",
+                "type": "text",
+                "placeholder": "Host hardening to a benchmark"
+              },
+              {
+                "field": "evidence",
+                "label": "Evidence",
+                "type": "text",
+                "placeholder": "Hardening Baseline, 12 controls done; ufw status output"
+              },
+              {
+                "field": "where",
+                "label": "Where",
+                "type": "text",
+                "placeholder": "Week 2 · Deliverables · Hardening Baseline"
+              }
+            ],
+            "seed": [
+              {
+                "skill": "Host hardening to a benchmark",
+                "evidence": "Hardening Baseline, 12 controls done; ufw status output",
+                "where": "Week 2 · Deliverables · Hardening Baseline"
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "Document control is complete",
+          "when": {
+            "fields": [
+              "doc_id",
+              "version",
+              "doc_owner",
+              "doc_date",
+              "doc_status"
+            ]
+          }
+        },
+        {
+          "label": "The repository is a link",
+          "when": {
+            "field": "repo_url",
+            "matches": "^https?://\\S+$"
+          }
+        },
+        {
+          "label": "The case study runs two hundred words or more",
+          "when": {
+            "field": "case_study",
+            "matches": "^\\s*(\\S+\\s+){199,}\\S+"
+          }
+        },
+        {
+          "label": "Three resume bullets and the diagram are written",
+          "when": {
+            "fields": [
+              "resume_1",
+              "resume_2",
+              "resume_3",
+              "diagram_ref"
+            ]
+          }
+        },
+        {
+          "label": "At least three skills with their evidence",
+          "when": {
+            "group": "skills_demonstrated",
+            "where": {
+              "filled": [
+                "skill",
+                "evidence"
+              ]
+            },
+            "atLeast": 3
+          }
+        }
+      ],
+      "checks": [
+        {
+          "field": "repo_url",
+          "rule": "pattern",
+          "value": "^https?://\\S+$",
+          "hint": "A link that starts with https://"
+        },
+        {
+          "field": "case_study",
+          "rule": "pattern",
+          "value": "^\\s*(\\S+\\s+){199,}\\S+",
+          "hint": "Two hundred words or more"
+        }
+      ]
     }
   ],
   "content": {
@@ -4856,6 +5148,19 @@
             "records": "ap_handover",
             "role": "records",
             "purpose": "The capstone: the machine as it is, with custody for every artifact"
+          },
+          {
+            "id": "r_portfolio",
+            "label": "9 Portfolio",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 580,
+            "y": 572,
+            "arrives": 4,
+            "records": "ap_portfolio",
+            "role": "records",
+            "purpose": "The repository, case study, resume bullets and diagram"
           }
         ],
         "edges": [
@@ -4938,7 +5243,8 @@
           "r_backup": 2,
           "r_tickets": 3,
           "r_security": 4,
-          "r_handover": 4
+          "r_handover": 4,
+          "r_portfolio": 4
         },
         "processes": {
           "0": {
@@ -5214,7 +5520,8 @@
           "diff",
           "image_handover",
           "r_security",
-          "r_handover"
+          "r_handover",
+          "r_portfolio"
         ],
         "process": {
           "title": "Week 4: secure, time the restore, hand over",
@@ -6217,6 +6524,16 @@
           ]
         },
         {
+          "code": "ISO42010",
+          "standard": "ISO_42010",
+          "label": "Architecture description",
+          "cites": [
+            "ISO/IEC/IEEE 42010",
+            "ISO 42010",
+            "42010"
+          ]
+        },
+        {
           "code": "ISO27037",
           "standard": "ISO_27037",
           "label": "Digital evidence handling",
@@ -6250,6 +6567,10 @@
         ],
         "ap_handover": [
           "NIST.800-53.PL-2"
+        ],
+        "ap_portfolio": [
+          "NIST.800-53.PL-2",
+          "ISO42010"
         ]
       },
       "COPY": {
@@ -9968,6 +10289,17 @@
             "NIST.800-53.CM-2",
             "ISO27001.A.8.9"
           ]
+        },
+        {
+          "id": "sop.portfolio",
+          "label": "Portfolio record",
+          "kind": "handover",
+          "definition": "The repository, a case study, three resume bullets, the architecture diagram and the skills demonstrated, for one project.",
+          "standardRefs": [
+            "ISO42010",
+            "NIST.800-53.PL-2",
+            "ITIL.knowledge"
+          ]
         }
       ],
       "SOP_OF": {
@@ -9999,6 +10331,9 @@
         "ap_handover": [
           "sop.handover",
           "sop.chain-of-custody"
+        ],
+        "ap_portfolio": [
+          "sop.portfolio"
         ]
       },
       "SOP_OF_TASK": {
@@ -10122,6 +10457,16 @@
           "tone": "warn",
           "publisher": "ISO/IEC",
           "url": "https://www.iso.org/standard/44381.html"
+        },
+        {
+          "id": "ISO_42010",
+          "label": "ISO/IEC/IEEE 42010",
+          "description": "ISO/IEC/IEEE 42010 architecture description",
+          "why": "What an architecture description must contain: stakeholders, concerns, viewpoints and the decisions behind them. A solution architecture document that cites it is complete rather than a diagram.",
+          "kind": "publication",
+          "tone": "info",
+          "publisher": "ISO/IEC/IEEE",
+          "url": "https://www.iso.org/standard/74393.html"
         }
       ],
       "TACTICS": [],

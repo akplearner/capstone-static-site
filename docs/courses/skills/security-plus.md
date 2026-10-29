@@ -1,6 +1,6 @@
 # Security+ Capstone Lab — skills sheet
 
-12 graded tasks · 28 skills · 29 tools · 15 procedures · 14 standards (14 controls cited) · 5 tactics · 18 practices
+12 graded tasks · 28 skills · 29 tools · 16 procedures · 16 standards (16 controls cited) · 5 tactics · 18 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -92,6 +92,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | Control mapping | governance | ISO27001.6.1.3, SOC2, NIST.CSF | Framework Mapping | — |
 | Governance report | governance | NIST.CSF.GV, ISO27001.9.3 | Final Report & Briefing | — |
 | Assessment report | assessment | NIST.800-115, PTES, CVSS | Penetration Test Report | — |
+| Portfolio record | handover | ISO42010, NIST.800-53.PL-2, ITIL.knowledge | Portfolio | — |
 
 ## Standards
 
@@ -106,16 +107,19 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | ISO 27001 | Technical Findings Briefing; Framework Mapping & Hardening Standard; Risk Assessment & Vulnerability-Management SOP; Incident-Response Runbook & Chain of Custody; Final Report & Presentation | Final Report & Briefing; Lab Security Policy |
 | STRIDE | Framework Mapping & Hardening Standard | — |
 | ITIL 4 | — | Change Log |
+| NIST SP 800-53 | — | Portfolio |
 | NIST SP 800-30 | — | Risk Register |
 | NIST SP 800-40 | — | Vulnerability-Management SOP |
 | ISO/IEC 27005 | — | Risk Register |
 | ISO/IEC 27037 | — | Evidence Log |
+| ISO/IEC/IEEE 42010 | — | Portfolio |
 | PTES | — | Penetration Test Report |
 
 | Control cited | Standard | By |
 | --- | --- | --- |
 | NIST.CSF Cybersecurity Framework 2.0 | NIST_CSF | Framework Mapping |
 | NIST.CSF.ID.AM Asset Management | NIST_CSF | Asset Inventory |
+| NIST.800-53.PL-2 System Security and Privacy Plans | NIST_800_53 | Portfolio |
 | NIST.800-61 Computer Security Incident Handling Guide | NIST_800_61 | Incident Report; Incident-Response Runbook; Evidence Log |
 | NIST.800-115 Technical Guide to Information Security Testing | NIST_800_115 | Penetration Test Report |
 | NIST.800-30 Guide for Conducting Risk Assessments | NIST_800_30 | Risk Register |
@@ -125,6 +129,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | ITIL.change Change enablement | ITIL | Change Log |
 | CIS.BENCHMARK CIS Benchmarks | CIS | Hardening Baseline; Hardening Standard |
 | CIS.CONTROLS CIS Critical Security Controls v8 | CIS | Framework Mapping |
+| ISO42010 Architecture description | ISO_42010 | Portfolio |
 | ISO27005 Information security risk management | ISO_27005 | Risk Register |
 | ISO27037 Digital evidence handling | ISO_27037 | Evidence Log |
 | PTES Penetration Testing Execution Standard | PTES | Penetration Test Report |
@@ -173,7 +178,7 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | red: 9 skills with a verifiable step; blue: 7 skills with a verifiable step; grc: 5 skills with a verifiable step |
 | Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | red: 42 percent of the exam over 2 domains; blue: 46 percent of the exam over 2 domains; grc: 48 percent of the exam over 2 domains |
 | Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | red: 11 verifiable steps that run a command; blue: 9 verifiable steps that run a command; grc: 4 verifiable steps that run a command |
-| Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | red: 8 procedures; blue: 12 procedures; grc: 15 procedures |
+| Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | red: 9 procedures; blue: 13 procedures; grc: 16 procedures |
 | Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | red: 1 fault, incident or triage table; blue: 1 fault, incident or triage table; grc: 1 fault, incident or triage table |
 | Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | red: 11 verifiable steps; blue: 9 verifiable steps; grc: 4 verifiable steps |
 | Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
@@ -181,19 +186,19 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | red: 3 tasks with two or more verifiable steps; blue: 3 tasks with two or more verifiable steps; grc: 2 tasks with two or more verifiable steps |
 | First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | red: 11 verifiable steps; blue: 9 verifiable steps; grc: 4 verifiable steps |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
-| Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | red: 3 checks on 2 forms; blue: 6 checks on 3 forms; grc: 14 checks on 11 forms |
+| Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | red: 8 checks on 3 forms; blue: 11 checks on 4 forms; grc: 19 checks on 12 forms |
 | Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | red: 0 decision blocks; blue: 1 decision block; grc: 0 decision blocks |
 | Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | red: 0 decision blocks; blue: 1 decision block; grc: 0 decision blocks |
 | Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | red: 0 decision blocks; blue: 1 decision block; grc: 0 decision blocks |
 | Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | red: 1 change table with a rollback column; blue: 1 change table with a rollback column; grc: 1 change table with a rollback column |
 | Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | red: 4 hand-offs; blue: 4 hand-offs; grc: 6 hand-offs |
-| RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | red: 7 forms with a RACI; blue: 11 forms with a RACI; grc: 14 forms with a RACI |
+| RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | red: 8 forms with a RACI; blue: 12 forms with a RACI; grc: 15 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
 | On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | red: 4 tasks of the role; blue: 4 tasks of the role; grc: 4 tasks of the role |
-| Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | red: 2 forms; blue: 3 forms; grc: 11 forms |
-| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | red: 2 control codes on 1 form; blue: 3 control codes on 3 forms; grc: 11 control codes on 10 forms |
-| Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | red: 2 forms; blue: 3 forms; grc: 11 forms |
+| Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | red: 3 forms; blue: 4 forms; grc: 12 forms |
+| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | red: 2 control codes on 1 form; blue: 3 control codes on 3 forms; grc: 13 control codes on 11 forms |
+| Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | red: 3 forms; blue: 4 forms; grc: 12 forms |
 | Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | red: 0 skills on two or more tasks; blue: 1 skill on two or more tasks; grc: 1 skill on two or more tasks |
 | Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | red: 9 skills with a verifiable step; blue: 7 skills with a verifiable step; grc: 5 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |

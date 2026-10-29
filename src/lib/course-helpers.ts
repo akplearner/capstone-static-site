@@ -1,4 +1,4 @@
-import { Course, Role, RoleDef, Step, Task, WeekDef } from './types';
+import { Course, Role, RoleDef, Step, Task, Track, WeekDef } from './types';
 
 // Pure helpers that operate on a resolved Course object. These replace the old
 // module-level helpers in content-data.ts so the app is no longer tied to a
@@ -64,6 +64,70 @@ export function isAdvancedWeek(course: Course, weekNumber: number): boolean {
   return !!getWeekDef(course, weekNumber)?.advanced;
 }
 
+/* ── R142: premium tracks ─────────────────────────────────────────────────── */
+
+/** The words a track wears on a chip and in the catalogue. */
+export const TRACK_LABEL: Record<Track, string> = { ai: 'AI track', cyber: 'Cyber track' };
+
+/** The premium track an advanced week deepens; a graded or setup week has none. */
+export function trackOfWeek(week: WeekDef | undefined): Track | undefined {
+  return week?.advanced ? week.track : undefined;
+}
+
+/**
+ * A task that counts toward finishing the course. The AI extension task of a
+ * graded week (`Task.track`) does not: it is premium, optional work that sits
+ * beside the certification. Everything that reads "did they finish the week"
+ * — week completion, the stone, gates, Continue, the rubric — filters with
+ * this; the skills profile does not, because what the task teaches is real.
+ */
+export function isRequiredTask(task: Pick<Task, 'track'>): boolean {
+  return !task.track;
+}
+
+/** Premium content: an AI extension task, or any task of an advanced week. */
+export function isPremiumTask(course: Course, task: Task): boolean {
+  return !!task.track || isAdvancedWeek(course, task.week);
+}
+
+export interface PremiumSummary {
+  /** Advanced weeks on the AI track. */
+  aiWeeks: number;
+  /** Advanced weeks on the Cyber track. */
+  cyberWeeks: number;
+  /** Advanced weeks on neither track: operations, hardware, the long tail of a build. Still beyond the certification. */
+  otherWeeks: number;
+  /** AI extension tasks across the graded weeks. */
+  aiTasks: number;
+  /** Modules attached to the course (R144). */
+  modules: string[];
+}
+
+/** What a course offers beyond the certification, as counts; all zero on a course with none. */
+export function premiumSummary(course: Pick<Course, 'weeks' | 'tasks' | 'modules'>): PremiumSummary {
+  const advanced = course.weeks.filter((w) => w.advanced);
+  return {
+    aiWeeks: advanced.filter((w) => w.track === 'ai').length,
+    cyberWeeks: advanced.filter((w) => w.track === 'cyber').length,
+    otherWeeks: advanced.filter((w) => !w.track).length,
+    aiTasks: course.tasks.filter((t) => t.track === 'ai').length,
+    modules: [...(course.modules ?? [])],
+  };
+}
+
+/** "+2 AI weeks · 1 Cyber week · 4 AI tasks", or an empty string when there is nothing beyond the certification. */
+export function premiumLine(p: PremiumSummary): string {
+  const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+  const weeks: string[] = [];
+  if (p.aiWeeks) weeks.push(plural(p.aiWeeks, 'AI week'));
+  if (p.cyberWeeks) weeks.push(plural(p.cyberWeeks, 'Cyber week'));
+  if (p.otherWeeks) weeks.push(plural(p.otherWeeks, 'advanced week'));
+  const parts = weeks.map((w, i) => (i === 0 ? `+${w}` : w));
+  if (p.aiTasks) parts.push(plural(p.aiTasks, 'AI task'));
+  if (p.modules.length) parts.push(plural(p.modules.length, 'module'));
+  return parts.join(' · ');
+}
+
 /**
  * The weeks that count. Not setup (done once, before the work) and not
  * advanced (done after it, by some) — everything that reads "did they finish
@@ -89,27 +153,34 @@ export function getTasksByRole(course: Course, role: string, week?: number): Tas
   return tasks;
 }
 
+/** R142: the role's tasks that count toward finishing — `getTasksByRole` without the AI extension tasks. */
+export function requiredTasksByRole(course: Course, role: string, week?: number): Task[] {
+  return getTasksByRole(course, role, week).filter(isRequiredTask);
+}
+
 /**
  * R98 — the week's tasks in the order one member reads them: the shared build
  * first, then the task that is theirs, then the other roles' in the course's
- * role order. Every task of the week is in it: on a role-split course a
+ * role order, and (R142) the week's AI extension last, after the work it
+ * extends. Every task of the week is in it: on a role-split course a
  * teammate's task is open to anyone (done for the team), so the list, the
  * numbering and "next task" all use this one order.
  */
 export function weekTasksOrdered(course: Course, role: string, week: number): Task[] {
   const tasks = getWeekTasks(course, week);
-  const rank = (t: Task) => (t.shared ? 0 : t.role === role ? 1 : 2 + Math.max(0, course.roles.findIndex((r) => r.id === t.role)));
+  const rank = (t: Task) => (t.track ? 10 : t.shared ? 0 : t.role === role ? 1 : 2 + Math.max(0, course.roles.findIndex((r) => r.id === t.role)));
   return [...tasks].sort((a, b) => rank(a) - rank(b) || tasks.indexOf(a) - tasks.indexOf(b));
 }
 
 /**
  * R112: the graded weeks that have tasks for a role, and how many of them a
- * member has cleared (every required step of every role task ticked). Shared
- * by the cohort KPI report and the platform funnel.
+ * member has cleared (every required step of every required task ticked;
+ * R142: the AI extension does not hold a week open). Shared by the cohort KPI
+ * report and the platform funnel.
  */
 export function gradedWeeksCleared(course: Course, role: string, isStepDone: (taskId: string, stepId: string) => boolean): { cleared: number; total: number } {
-  const graded = course.weeks.filter((w) => isGradedWeek(course, w.number) && getTasksByRole(course, role, w.number).length > 0);
-  const cleared = graded.filter((w) => getTasksByRole(course, role, w.number).every((t) => t.steps.filter((s) => !s.optional).every((s) => isStepDone(t.id, s.id))));
+  const graded = course.weeks.filter((w) => isGradedWeek(course, w.number) && requiredTasksByRole(course, role, w.number).length > 0);
+  const cleared = graded.filter((w) => requiredTasksByRole(course, role, w.number).every((t) => t.steps.filter((s) => !s.optional).every((s) => isStepDone(t.id, s.id))));
   return { cleared: cleared.length, total: graded.length };
 }
 
@@ -266,8 +337,10 @@ export interface TaskCard {
   /** 14 */ handoff: { to: Role; artifact?: string; note: string; deliverable?: string }[];
   /** 15 */ domains: string[];
   /** 16 */ status: 'not-started' | 'in-progress' | 'cleared';
-  /** Setup/home-lab-only work, which is opt-in rather than assigned. */
+  /** Setup/home-lab-only work, an advanced week or (R142) the AI extension: opt-in rather than assigned. */
   optional: boolean;
+  /** R142: the premium track the task belongs to — the AI extension's own, or its advanced week's. */
+  track?: Track;
 }
 
 export function taskCard(course: Course, task: Task, percent = 0): TaskCard {
@@ -308,7 +381,8 @@ export function taskCard(course: Course, task: Task, percent = 0): TaskCard {
     handoff: task.handoff ?? [],
     domains: task.frameworks ?? [],
     status: percent >= 100 ? 'cleared' : percent > 0 ? 'in-progress' : 'not-started',
-    optional: !!task.homeLabOnly || !isGradedWeek(course, task.week),
+    optional: !!task.homeLabOnly || !isGradedWeek(course, task.week) || !isRequiredTask(task),
+    track: task.track ?? trackOfWeek(week),
   };
 }
 

@@ -26,7 +26,7 @@ import { TaskPane } from './TaskPane';
 import { WeekGateNote } from './WeekGateNote';
 import { YourTasksStrip } from './YourTasksStrip';
 import { WeekMoreBody } from './WeekMoreBody';
-import { formatMinutes, getTasksByRole, isAdvancedWeek, isSetupWeek, phaseTag, weekSummary, weekTasksOrdered } from '@/lib/course-helpers';
+import { formatMinutes, getTasksByRole, isAdvancedWeek, isSetupWeek, phaseTag, trackOfWeek, weekSummary, weekTasksOrdered } from '@/lib/course-helpers';
 import { OWNER_COPY, ownerSentence, taskOwnership } from '@/lib/taskOwnership';
 import { doneByNames, taskState } from '@/lib/taskState';
 import { verifiableSteps } from '@/lib/evidenceLedger';
@@ -491,6 +491,7 @@ export function TasksTab({
             gatePending: !!gateNote(w.number),
             pulse: w.number === activeWeek && (teamWeekStats[w.number] ?? 0) < 100,
             advanced: isAdvancedWeek(course, w.number),
+            track: trackOfWeek(w),
             hint: cohortCal ? dueLabel(weekDue(cohortCal.startsOn, w.number), undefined, (teamWeekStats[w.number] ?? 0) >= 100).text : undefined,
             minutes: weekSummary(course, member.role, w.number).minutes,
           }))}

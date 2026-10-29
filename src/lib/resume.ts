@@ -1,6 +1,6 @@
 import { Course } from './types';
 import { userStateRepo } from './data';
-import { getTasksByRole, getTaskById, isGradedWeek } from './course-helpers';
+import { getTaskById, isGradedWeek, requiredTasksByRole } from './course-helpers';
 
 /**
  * "Pick up where you left off."
@@ -99,8 +99,8 @@ export function resolveActiveWeek(
   const graded = weeks.filter((w) => isGradedWeek(course, w.number));
 
   const firstIncomplete = graded.find((w) => {
-    // A week with no tasks for this role can't be "where you are".
-    if (getTasksByRole(course, role, w.number).length === 0) return false;
+    // A week with no tasks for this role can't be "where you are" (R142: the AI extension alone is not a week's work).
+    if (requiredTasksByRole(course, role, w.number).length === 0) return false;
     return (weekPercent[w.number] ?? 0) < 100;
   });
   if (firstIncomplete) return firstIncomplete.number;

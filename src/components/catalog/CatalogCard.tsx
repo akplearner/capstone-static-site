@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, Lock, Route } from 'lucide-react';
+import { ArrowRight, Lock, Route, Sparkles } from 'lucide-react';
 import { CapstoneStone } from '@/components/quarry/CapstoneStone';
 import { courseHref, type CatalogEntry } from '@/lib/catalog';
+import { premiumLine, type PremiumSummary } from '@/lib/course-helpers';
 import { levelDef } from '@/lib/catalog/levels';
 import { DUR, EASE } from '@/lib/motion';
 import { surfaceVariants } from '@/components/ui/Surface';
@@ -23,6 +24,7 @@ export function CatalogCard({
   onPath,
   enrolled,
   verificationRate,
+  premium,
 }: {
   entry: CatalogEntry;
   index?: number;
@@ -32,10 +34,13 @@ export function CatalogCard({
   enrolled?: boolean;
   /** Their verification rate for it, when started. */
   verificationRate?: number;
+  /** R142: what the course offers beyond the certification — the premium weeks, tasks and modules. */
+  premium?: PremiumSummary;
 }) {
   const available = entry.status === 'available';
   const href = courseHref(entry);
   const level = levelDef(entry.level);
+  const premiumText = premium ? premiumLine(premium) : '';
 
   const body = (
     <motion.div
@@ -79,6 +84,12 @@ export function CatalogCard({
       </div>
 
       <p className="mt-2.5 flex-1 text-sm text-muted">{entry.blurb}</p>
+      {/* R142: the premium line — the four graded weeks are the certification; this is what sits beyond them. */}
+      {premiumText && (
+        <p className="mt-1.5 inline-flex items-center gap-1 font-mono text-2xs text-info" data-premium title="Premium content beyond the certification">
+          <Sparkles className="h-3 w-3" aria-hidden /> {premiumText}
+        </p>
+      )}
 
       <div className="mt-3 flex items-center justify-between gap-2">
         {available ? (

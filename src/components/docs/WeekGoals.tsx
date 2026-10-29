@@ -1,5 +1,6 @@
 import type { Course, Gate } from '@/lib/types';
 import { phaseTag } from '@/lib/course-helpers';
+import { TrackChip } from '@/components/course/TrackChip';
 
 /**
  * The course arc as a scannable index — one tight row per week: a week chip, the
@@ -51,6 +52,8 @@ export function WeekGoals({ course, gates }: { course: Course; gates?: Gate[] })
                   Advanced · optional
                 </span>
               )}
+              {/* R142: an advanced week says which premium track it deepens. */}
+              {w.advanced && w.track && <TrackChip track={w.track} />}
               {gate && (
                 <span className="ml-auto rounded-full depth-edge px-2 py-0.5 font-mono text-3xs text-muted">
                   Gate {gate.id}

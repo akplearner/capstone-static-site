@@ -447,13 +447,13 @@ export const ARCH: ArchPicture = {
       'Left: the attacker and the lab management under it. Middle: your team pod, its three sensors and the rule that contains the attack. Right: the shared SOC and the tools analysts work in. Bottom: the twelve records, one per role per week.',
     footer: `One shared SOC, ${SOC.teamCount} team pods on ${SOC.subnet} — your team’s N makes an address yours.`,
   },
-  view: { w: 960, h: 440 },
+  view: { w: 960, h: 474 },
   zones: [
     { id: 'attacker', label: 'Attacker', note: SOC.attacker.ip, x: 20, y: 40, w: 160, h: 130, tone: 4 },
     { id: 'mgmt', label: 'Lab management', note: SOC.subnet, x: 20, y: 190, w: 160, h: 130, tone: 1 },
     { id: 'pod', label: 'Your team pod', note: `${SOC.pod.ubuntu.ip} · ${SOC.pod.windows.ip}`, x: 200, y: 40, w: 340, h: 270, tone: 2 },
     { id: 'soc', label: 'Shared SOC', note: SOC.soc.ip, x: 560, y: 40, w: 380, h: 270, tone: 3 },
-    { id: 'records', label: 'Records — the deliverables', note: 'one per role per week', x: 20, y: 350, w: 920, h: 70, tone: 6, lane: true },
+    { id: 'records', label: 'Records — the deliverables', note: 'one per role per week, and the Portfolio', x: 20, y: 350, w: 920, h: 104, tone: 6, lane: true },
   ],
   nodes: [
     { id: 'kali', label: SOC.attacker.name, sub: SOC.attacker.note, addr: SOC.attacker.ip, kind: 'endpoint', zone: 'attacker', x: 100, y: 100, arrives: 0, records: 'cysa_incident_response', role: 'red', purpose: 'The attacker you drive: recon, exploit, brute force' },
@@ -483,6 +483,8 @@ export const ARCH: ArchPicture = {
     { id: 'r_detection', label: 'Detection record', sub: '', kind: 'record', zone: 'records', x: 554, y: 402, arrives: 4, records: 'cysa_detection_record', role: 'blue', purpose: 'Records the detection that caught the attack' },
     { id: 'r_incident', label: 'Incident response', sub: '', kind: 'record', zone: 'records', x: 707, y: 402, arrives: 4, records: 'cysa_incident_response', role: 'red', purpose: 'Records containment, eradication and lessons learned' },
     { id: 'r_debrief', label: 'Executive debrief', sub: '', kind: 'record', zone: 'records', x: 860, y: 402, arrives: 4, records: 'cysa_exec_debrief', role: 'grc', purpose: 'The capstone: the week in one page for the executives' },
+    // R142: what the team can show for the SOC — the repository, the case study, the bullets and the diagram.
+    { id: 'r_portfolio', label: 'Portfolio', sub: '', kind: 'record', zone: 'records', x: 95, y: 436, arrives: 4, records: 'cysa_portfolio', role: 'grc', purpose: 'The repository, case study, resume bullets and diagram' },
   ],
   edges: [
     { from: 'kali', to: 'ubuntu', label: 'attacks' },

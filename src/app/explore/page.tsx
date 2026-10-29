@@ -7,7 +7,7 @@ import { ToolTierIcon } from '@/components/quarry/items';
 import { VENDORS, LEVELS, catalogByVendor, catalogSummary } from '@/lib/catalog/helpers';
 import { pathById } from '@/lib/catalog/paths';
 import { courseRepo, progressRepo, evidenceRepo, pathRepo } from '@/lib/data';
-import { getTasksByRole } from '@/lib/course-helpers';
+import { getTasksByRole, premiumSummary, type PremiumSummary } from '@/lib/course-helpers';
 import { courseMetrics } from '@/lib/metrics';
 import { useClientStore, EMPTY_OBJECT } from '@/lib/useClientStore';
 import { useUserSync } from '@/lib/useUserSync';
@@ -51,6 +51,12 @@ export default function ExplorePage() {
     }
     return out;
   }, EMPTY_OBJECT);
+
+  // R142: what each live course offers beyond its certification, for the card's premium line.
+  const premium = useClientStore<Record<string, PremiumSummary>>(
+    () => Object.fromEntries(courseRepo.list().map((c) => [c.id, premiumSummary(c)])),
+    EMPTY_OBJECT
+  );
 
   const memberId = useClientStore<string>(
     () => courseRepo.list().map((c) => progressRepo.getContext(c.id)?.memberId).find(Boolean) ?? 'local',
@@ -148,6 +154,7 @@ export default function ExplorePage() {
                         onPath={pathEntryIds.has(entry.id)}
                         enrolled={!!entry.courseId && enrolled[entry.courseId] !== undefined}
                         verificationRate={entry.courseId ? enrolled[entry.courseId] : undefined}
+                        premium={entry.courseId ? premium[entry.courseId] : undefined}
                       />
                     ))}
                   </div>

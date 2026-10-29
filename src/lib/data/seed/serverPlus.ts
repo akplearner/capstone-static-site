@@ -1,5 +1,6 @@
 import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
 import { withCommandDetail } from '@/lib/docs/serverCommands';
+import { withPortfolioStep } from '@/lib/docs/portfolioPlan';
 import { hostRulesCommand } from '../../serverTopology';
 import { NGINX_TLS_SITE_CMD, SITE_CSS_CMD, SITE_HTML_CMD, SITE_UPLOAD_CMD } from '../../docs/siteStarter';
 
@@ -3434,4 +3435,5 @@ const RAW_SERVER_PLUS: Course = {
  * covers the base build, and a command it does not know is left exactly as
  * authored here.
  */
-export const SERVER_PLUS: Course = withCommandDetail(RAW_SERVER_PLUS);
+// R142: the handover task closes by writing the Portfolio.
+export const SERVER_PLUS: Course = withPortfolioStep(withCommandDetail(RAW_SERVER_PLUS));

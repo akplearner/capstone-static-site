@@ -1,5 +1,5 @@
 import { Course } from './types';
-import { getTasksByRole, isGradedWeek } from './course-helpers';
+import { isGradedWeek, requiredTasksByRole } from './course-helpers';
 import { deriveStoneStage, stageForWeek, type Milestone, type StoneStage } from './quarry';
 
 /**
@@ -40,7 +40,8 @@ export function deriveCrewProgress(
    *  than awarding a stage nobody earned. */
   capstoneFiled = false
 ): CrewProgress {
-  const tasks = getTasksByRole(course, role);
+  // R142: the AI extension of a week is optional work; it cuts no stone.
+  const tasks = requiredTasksByRole(course, role);
 
   // Steps are reconstructed from the task percentages the page already computed,
   // rather than re-scanning storage — one source of truth, no drift.
@@ -56,7 +57,7 @@ export function deriveCrewProgress(
   // for students who finish early, and must never be the reason the stone
   // stays uncut or "Environment operational" stays unearned for everyone else.
   const gradedWeeks = course.weeks.filter(
-    (w) => isGradedWeek(course, w.number) && getTasksByRole(course, role, w.number).length > 0
+    (w) => isGradedWeek(course, w.number) && requiredTasksByRole(course, role, w.number).length > 0
   );
   const clearedWeeks = gradedWeeks
     .filter((w) => (weekPercent[w.number] ?? 0) >= 100)

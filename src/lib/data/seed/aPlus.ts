@@ -1,4 +1,5 @@
 import type { Course, RoleDef, Task, WeekDef } from '../../types';
+import { withPortfolioStep } from '../../docs/portfolioPlan';
 
 /**
  * CompTIA A+ — the Capstone Bench.
@@ -1220,7 +1221,8 @@ const TASKS: Task[] = [
   },
 ];
 
-export const A_PLUS: Course = {
+// R142: the handover task closes by writing the Portfolio.
+export const A_PLUS: Course = withPortfolioStep({
   id: 'a-plus',
   title: 'A+ Capstone Bench',
   slug: 'a-plus',
@@ -1255,4 +1257,4 @@ export const A_PLUS: Course = {
   ],
   isSeed: true,
   version: 1,
-};
+});

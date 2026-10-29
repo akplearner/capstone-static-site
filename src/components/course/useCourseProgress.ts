@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { progressRepo, stepNotesRepo, cohortRepo, taskReportsRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT } from '@/lib/useClientStore';
-import { isGradedWeek, weekTasksOrdered } from '@/lib/course-helpers';
+import { isGradedWeek, isRequiredTask, weekTasksOrdered } from '@/lib/course-helpers';
 import { openGateSteps, stepKey, teamGateStatus, teamStepCompletions, teamTaskPercent, teamWeekCompletion, type OpenGateStep } from '@/lib/teamProgress';
 import { readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
 import { parseTeamId } from '@/lib/team';
@@ -119,8 +119,9 @@ export function useCourseProgress(course: Course, member: Member | null) {
   if (member) {
     for (const w of sortedWeeks) {
       if (!isGradedWeek(course, w.number)) continue;
+      // R142: the AI extension is never "next" — it is offered after the week's work, not instead of it.
       const t = weekTasksOrdered(course, member.role, w.number).find(
-        (tk) => !tk.homeLabOnly && (teamTaskStats[tk.id] ?? 0) < 100
+        (tk) => !tk.homeLabOnly && isRequiredTask(tk) && (teamTaskStats[tk.id] ?? 0) < 100
       );
       if (t) {
         nextTask = t;

@@ -14,7 +14,7 @@ import { AWS_COURSES } from './seed/awsCloud';
 import { Course, Step, Task } from '../types';
 import { deliverableIdByTitle, deliverableIdByFile, seedDeliverablesForCourse as deliverablesForCourse } from '../docs/definitions';
 import { looksLikeConsoleOutput } from '../stepOutcome';
-import { isGradedWeek, isSetupWeek } from '../course-helpers';
+import { isGradedWeek, isSetupWeek, requiredTasksByRole } from '../course-helpers';
 import { LAB_FIELDS } from '../labAccess';
 import { profileOf, roleContentFor } from '../docs/roles';
 import { CERTS, TASK_DOMAINS, certFor, coverageOf, domainOf } from '../docs/certs';
@@ -420,6 +420,38 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('content integrity — %s'
     }
   });
 
+  // ── R142: the premium tracks and the AI extension ─────────────────────────
+  it('R142: only an advanced week carries a track; an AI extension task is shared, sits in a graded week, at most one per week', () => {
+    for (const w of course.weeks) {
+      if (w.track) expect(w.advanced, `${courseId} week ${w.number}: a graded week carries no track`).toBe(true);
+      if (w.track) expect(['ai', 'cyber'], `${courseId} week ${w.number} track`).toContain(w.track);
+    }
+    const byWeek = new Map<number, number>();
+    for (const t of course.tasks) {
+      if (!t.track) continue;
+      expect(t.track, `${t.id}: a task's track is the AI track`).toBe('ai');
+      expect(t.shared, `${t.id}: the AI extension is for every role`).toBe(true);
+      expect(isGradedWeek(course, t.week), `${t.id}: the AI extension sits in a graded week`).toBe(true);
+      byWeek.set(t.week, (byWeek.get(t.week) ?? 0) + 1);
+    }
+    for (const [week, n] of byWeek) expect(n, `${courseId} week ${week}: one AI extension`).toBe(1);
+    // The extension never holds a week: every graded week has required work for every role without it.
+    for (const w of course.weeks) {
+      if (!isGradedWeek(course, w.number)) continue;
+      for (const role of course.roles) expect(requiredTasksByRole(course, role.id, w.number).length, `${courseId} week ${w.number}: ${role.id} has required work`).toBeGreaterThan(0);
+    }
+  });
+
+  it('R142: exactly one Portfolio — shared, in the last graded week, feeding the capstone', () => {
+    const defs = deliverablesForCourse(courseId);
+    const mine = defs.filter((d) => d.portfolio);
+    expect(mine.map((d) => d.id)).toHaveLength(1);
+    const last = Math.max(...course.weeks.filter((w) => isGradedWeek(course, w.number)).map((w) => w.number));
+    expect(mine[0].weeks).toEqual([last]);
+    expect(mine[0].shared).toBe(true);
+    expect(mine[0].feeds).toEqual([defs.find((d) => d.capstone)!.id]);
+  });
+
   // ── The deliverable chain ─────────────────────────────────────────────────
 
   it('exactly one deliverable is the capstone', () => {
@@ -651,7 +683,8 @@ describe('role-week ownership — cysa-plus', () => {
     const holes: string[] = [];
     for (const week of graded) {
       for (const role of CYSA_PLUS.roles) {
-        const owned = defs.filter((d) => d.owner === role.id && d.weeks.includes(week));
+        // R142: the Portfolio is the team's, not one role's deliverable for the week.
+        const owned = defs.filter((d) => d.owner === role.id && d.weeks.includes(week) && !d.portfolio);
         if (owned.length !== 1) {
           holes.push(`W${week} ${role.name}: ${owned.length === 0 ? 'owns nothing' : `owns ${owned.length}`}`);
         }
@@ -776,6 +809,11 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('R84 — the standard — 
     const minWeek = (d: (typeof defs)[number]) => Math.min(...d.weeks);
     for (const d of defs) {
       for (const f of d.feeds ?? []) expect(minWeek(byId.get(f)!), `${d.id} → ${f} points back in time`).toBeGreaterThanOrEqual(minWeek(d));
+      // R142/R144: a module's appendix form may end its module; it never has to reach a capstone filed before the module began.
+      if (d.appendix) {
+        for (const f of d.feeds ?? []) expect(byId.get(f)?.appendix, `${d.id} → ${f}: an appendix feeds its own module`).toBe(true);
+        continue;
+      }
       if (!d.capstone) expect(d.feeds?.length ?? 0, `${d.id} is a dead end`).toBeGreaterThan(0);
       const seen = new Set<string>();
       const stack = [d.id];

@@ -57,6 +57,8 @@ export const ARCH: ArchPicture = {
     { id: 'r_tickets', label: '6 Support tickets', sub: '', kind: 'record', zone: 'records', x: 85, y: 572, arrives: 3, records: 'ap_tickets', role: 'support', purpose: 'Records the setup and the three faults as tickets' },
     { id: 'r_security', label: '7 Security checklist', sub: '', kind: 'record', zone: 'records', x: 250, y: 572, arrives: 4, records: 'ap_security', role: 'os', purpose: 'Records encryption, Defender, firewall, scan and the diff' },
     { id: 'r_handover', label: '8 Handover & as-built', sub: '', kind: 'record', zone: 'records', x: 415, y: 572, arrives: 4, records: 'ap_handover', role: 'records', purpose: 'The capstone: the machine as it is, with custody for every artifact' },
+    // R142: what the team can show for the bench — the repository, the case study, the bullets and the diagram.
+    { id: 'r_portfolio', label: '9 Portfolio', sub: '', kind: 'record', zone: 'records', x: 580, y: 572, arrives: 4, records: 'ap_portfolio', role: 'records', purpose: 'The repository, case study, resume bullets and diagram' },
   ] satisfies ArchNode[],
   edges: [
     { from: 'live', to: 'board', label: 'reads the parts' },

@@ -93,6 +93,7 @@
     "sop.hardening-baseline",
     "sop.internal-audit",
     "sop.monitoring-plan",
+    "sop.portfolio",
     "sop.retest-record",
     "sop.risk-register",
     "sop.scope-and-roe"
@@ -104,8 +105,10 @@
     "ISO27001.9.1",
     "ISO27001.9.2",
     "ISO27001.9.3",
+    "ISO42010",
     "MITRE.ATTACK",
     "NIST.800-115",
+    "NIST.800-53.PL-2",
     "PTES",
     "SOC2",
     "SOC2.CC7"
@@ -196,6 +199,7 @@
     "baseline",
     "change",
     "governance",
+    "handover",
     "monitoring",
     "risk",
     "scope"

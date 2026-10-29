@@ -1,6 +1,6 @@
 import type { Course, Step, Task } from './types';
 import type { EvidenceArtifact, RehashCheck, StepEvidence, VerificationReceipt } from './data/types';
-import { getTasksByRole, isGradedWeek } from './course-helpers';
+import { isGradedWeek, requiredTasksByRole } from './course-helpers';
 import { latestRehashes, verifiableSteps } from './evidenceLedger';
 import { localDay } from './localDate';
 
@@ -101,7 +101,8 @@ export function courseMetrics({
 }: MetricsInput): CourseMetrics {
   // Setup weeks are opt-in and don't count, exactly as deriveCrewProgress treats
   // them — otherwise a student who skipped the home build looks incomplete.
-  const tasks = getTasksByRole(course, role).filter((t) => isGradedWeek(course, t.week));
+  // R142: the AI extension tasks are optional, so completion is measured without them.
+  const tasks = requiredTasksByRole(course, role).filter((t) => isGradedWeek(course, t.week));
 
   let stepsDone = 0;
   let stepsTotal = 0;

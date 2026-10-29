@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://capstone.example/schemas/course-index-entry.schema.json",
   "title": "Course index entry",
-  "description": "One row of content/courses/index.json: the counts of a course document and, since R106 and R107, the ladder, the cost and the registry coverage.",
+  "description": "One row of content/courses/index.json: the counts of a course document and, since R106 and R107, the ladder, the cost and the registry coverage; since R142, what the course offers beyond the certification (premium).",
   "type": "object",
   "required": [
     "id",
@@ -12,7 +12,8 @@
     "tasks",
     "steps",
     "deliverables",
-    "procedures"
+    "procedures",
+    "premium"
   ],
   "additionalProperties": false,
   "properties": {
@@ -117,6 +118,19 @@
     "costTasksUsd": {
       "type": "number",
       "minimum": 0
+    },
+    "premium": {
+      "type": "object",
+      "description": "R142: the content priced beyond the four graded weeks. The graded weeks are the certification and are never counted here.",
+      "required": ["aiWeeks", "cyberWeeks", "otherWeeks", "aiTasks", "modules"],
+      "additionalProperties": false,
+      "properties": {
+        "aiWeeks": { "type": "integer", "minimum": 0, "description": "Advanced weeks on the AI track." },
+        "cyberWeeks": { "type": "integer", "minimum": 0, "description": "Advanced weeks on the Cyber track." },
+        "otherWeeks": { "type": "integer", "minimum": 0, "description": "Advanced weeks on neither track." },
+        "aiTasks": { "type": "integer", "minimum": 0, "description": "AI extension tasks across the graded weeks, one per week at most." },
+        "modules": { "type": "array", "items": { "type": "string" }, "description": "Ids of the modules attached to the course." }
+      }
     }
   }
 }

@@ -9,6 +9,7 @@ import type { Ownership } from '@/lib/taskOwnership';
 import type { TaskState } from '@/lib/taskState';
 import { OwnerChip, type OwnerRole } from './OwnerChip';
 import { TaskStateChip } from './TaskStateChip';
+import { TrackChip } from './TrackChip';
 import type { TeammateTaskProgress } from './useCourseProgress';
 
 /**
@@ -123,6 +124,8 @@ export function TaskRow({
               </Chip>
             )}
             {owner && <OwnerChip kind={owner.kind} role={owner.role} />}
+            {/* R142: the week's AI extension says so, and that it is optional, on every row. */}
+            {task.track && <TrackChip track={task.track} optional />}
             {showProgress && <TaskStateChip state={state} />}
             {isNext && state.kind !== 'done' && <Chip tone="accent">Next</Chip>}
           </span>

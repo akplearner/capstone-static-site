@@ -74,6 +74,7 @@ import { TASK_DOMAINS, certFor, coverageOf, ladderRows } from '@/lib/docs/certs'
 import { costSummary, costsFor } from '@/lib/docs/costs';
 import { skillsSectionFor } from '@/lib/docs/skillsSection';
 import { courseCoverage, coverageCounts } from '@/lib/docs/skillCoverage';
+import { premiumSummary, type PremiumSummary } from '@/lib/course-helpers';
 
 export { DTO_SCHEMA } from './schema';
 import { DTO_SCHEMA } from './schema';
@@ -262,7 +263,8 @@ export function courseDto(courseId: string): CourseDto {
   const course = SEED_COURSES.find((c) => c.id === courseId);
   if (!course) throw new Error(`no seed course '${courseId}'`);
 
-  const generatedFrom = [SEED_FILE[courseId], FORM_FILE[courseId]].filter(Boolean);
+  // R142: every course's Portfolio comes from one builder beside its own forms.
+  const generatedFrom = [SEED_FILE[courseId], FORM_FILE[courseId], 'src/lib/docs/portfolioForm.ts'].filter(Boolean);
   const dto: CourseDto = {
     schema: DTO_SCHEMA,
     generatedFrom,
@@ -430,6 +432,8 @@ export interface CourseIndexEntry {
   sops?: number;
   tactics?: number;
   practices?: number;
+  /** R142: what the course offers beyond the certification — the premium weeks by track, the AI extension tasks and the attached modules. */
+  premium: PremiumSummary;
 }
 
 export function courseIndex(): { schema: typeof DTO_SCHEMA; courses: CourseIndexEntry[] } {
@@ -449,6 +453,7 @@ export function courseIndex(): { schema: typeof DTO_SCHEMA; courses: CourseIndex
         procedures: dto.procedures?.length ?? 0,
         ...certIndex(c),
         ...skillsIndex(c, dto),
+        premium: premiumSummary(c),
       };
     }),
   };

@@ -8,8 +8,8 @@
       "file": "security-plus.json",
       "weeks": 5,
       "tasks": 15,
-      "steps": 69,
-      "deliverables": 14,
+      "steps": 70,
+      "deliverables": 15,
       "procedures": 0,
       "vendor": "CompTIA",
       "certification": "Security+ (SY0-701)",
@@ -23,11 +23,18 @@
       "costTasksUsd": 0,
       "skills": 28,
       "tools": 29,
-      "standards": 14,
-      "controls": 14,
-      "sops": 15,
+      "standards": 16,
+      "controls": 16,
+      "sops": 16,
       "tactics": 5,
-      "practices": 18
+      "practices": 18,
+      "premium": {
+        "aiWeeks": 0,
+        "cyberWeeks": 0,
+        "otherWeeks": 0,
+        "aiTasks": 0,
+        "modules": []
+      }
     },
     {
       "id": "mssp",
@@ -36,8 +43,8 @@
       "file": "mssp.json",
       "weeks": 5,
       "tasks": 16,
-      "steps": 37,
-      "deliverables": 9,
+      "steps": 38,
+      "deliverables": 10,
       "procedures": 0,
       "vendor": "Engagement",
       "certification": "SOC 2 + ISO 27001 readiness (SOC 2 · ISO 27001)",
@@ -50,11 +57,18 @@
       "costTasksUsd": 0,
       "skills": 21,
       "tools": 13,
-      "standards": 8,
-      "controls": 11,
-      "sops": 12,
+      "standards": 10,
+      "controls": 13,
+      "sops": 13,
       "tactics": 4,
-      "practices": 17
+      "practices": 17,
+      "premium": {
+        "aiWeeks": 0,
+        "cyberWeeks": 0,
+        "otherWeeks": 0,
+        "aiTasks": 0,
+        "modules": []
+      }
     },
     {
       "id": "cysa-plus",
@@ -63,8 +77,8 @@
       "file": "cysa-plus.json",
       "weeks": 5,
       "tasks": 16,
-      "steps": 62,
-      "deliverables": 12,
+      "steps": 63,
+      "deliverables": 13,
       "procedures": 0,
       "vendor": "CompTIA",
       "certification": "CySA+ (CS0-003)",
@@ -78,11 +92,18 @@
       "costTasksUsd": 0,
       "skills": 21,
       "tools": 21,
-      "standards": 6,
-      "controls": 11,
-      "sops": 12,
+      "standards": 8,
+      "controls": 13,
+      "sops": 13,
       "tactics": 5,
-      "practices": 17
+      "practices": 17,
+      "premium": {
+        "aiWeeks": 0,
+        "cyberWeeks": 0,
+        "otherWeeks": 0,
+        "aiTasks": 0,
+        "modules": []
+      }
     },
     {
       "id": "server-plus",
@@ -91,8 +112,8 @@
       "file": "server-plus.json",
       "weeks": 9,
       "tasks": 59,
-      "steps": 114,
-      "deliverables": 8,
+      "steps": 115,
+      "deliverables": 9,
       "procedures": 51,
       "vendor": "CompTIA",
       "certification": "Server+ (SK0-005)",
@@ -104,11 +125,18 @@
       "costTasksUsd": 0,
       "skills": 63,
       "tools": 46,
-      "standards": 3,
-      "controls": 7,
-      "sops": 14,
+      "standards": 4,
+      "controls": 9,
+      "sops": 15,
       "tactics": 0,
-      "practices": 33
+      "practices": 33,
+      "premium": {
+        "aiWeeks": 0,
+        "cyberWeeks": 0,
+        "otherWeeks": 4,
+        "aiTasks": 0,
+        "modules": []
+      }
     },
     {
       "id": "ccna",
@@ -117,8 +145,8 @@
       "file": "ccna.json",
       "weeks": 9,
       "tasks": 21,
-      "steps": 64,
-      "deliverables": 10,
+      "steps": 65,
+      "deliverables": 11,
       "procedures": 0,
       "vendor": "Cisco",
       "certification": "CCNA (200-301)",
@@ -130,11 +158,18 @@
       "costTasksUsd": 0,
       "skills": 26,
       "tools": 7,
-      "standards": 5,
-      "controls": 10,
-      "sops": 13,
+      "standards": 6,
+      "controls": 11,
+      "sops": 14,
       "tactics": 0,
-      "practices": 23
+      "practices": 23,
+      "premium": {
+        "aiWeeks": 0,
+        "cyberWeeks": 0,
+        "otherWeeks": 4,
+        "aiTasks": 0,
+        "modules": []
+      }
     },
     {
       "id": "a-plus",
@@ -143,8 +178,8 @@
       "file": "a-plus.json",
       "weeks": 5,
       "tasks": 15,
-      "steps": 38,
-      "deliverables": 8,
+      "steps": 39,
+      "deliverables": 9,
       "procedures": 0,
       "vendor": "CompTIA",
       "certification": "A+ (220-1201)",
@@ -157,11 +192,18 @@
       "costTasksUsd": 0,
       "skills": 22,
       "tools": 19,
-      "standards": 3,
-      "controls": 5,
-      "sops": 9,
+      "standards": 4,
+      "controls": 6,
+      "sops": 10,
       "tactics": 0,
-      "practices": 14
+      "practices": 14,
+      "premium": {
+        "aiWeeks": 0,
+        "cyberWeeks": 0,
+        "otherWeeks": 0,
+        "aiTasks": 0,
+        "modules": []
+      }
     },
     {
       "id": "network-plus",
@@ -170,8 +212,8 @@
       "file": "network-plus.json",
       "weeks": 6,
       "tasks": 17,
-      "steps": 30,
-      "deliverables": 8,
+      "steps": 31,
+      "deliverables": 9,
       "procedures": 0,
       "vendor": "CompTIA",
       "certification": "Network+ (N10-009)",
@@ -185,11 +227,18 @@
       "costTasksUsd": 0,
       "skills": 25,
       "tools": 13,
-      "standards": 3,
-      "controls": 6,
-      "sops": 11,
+      "standards": 4,
+      "controls": 7,
+      "sops": 12,
       "tactics": 0,
-      "practices": 17
+      "practices": 17,
+      "premium": {
+        "aiWeeks": 0,
+        "cyberWeeks": 0,
+        "otherWeeks": 1,
+        "aiTasks": 0,
+        "modules": []
+      }
     },
     {
       "id": "secai-plus",
@@ -198,8 +247,8 @@
       "file": "secai-plus.json",
       "weeks": 5,
       "tasks": 15,
-      "steps": 37,
-      "deliverables": 8,
+      "steps": 38,
+      "deliverables": 9,
       "procedures": 0,
       "vendor": "CompTIA",
       "certification": "SecAI+ (CY0-001)",
@@ -212,11 +261,18 @@
       "costTasksUsd": 0,
       "skills": 29,
       "tools": 26,
-      "standards": 8,
-      "controls": 9,
-      "sops": 17,
+      "standards": 10,
+      "controls": 11,
+      "sops": 18,
       "tactics": 7,
-      "practices": 27
+      "practices": 27,
+      "premium": {
+        "aiWeeks": 0,
+        "cyberWeeks": 0,
+        "otherWeeks": 0,
+        "aiTasks": 0,
+        "modules": []
+      }
     },
     {
       "id": "cissp",
@@ -225,8 +281,8 @@
       "file": "cissp.json",
       "weeks": 7,
       "tasks": 21,
-      "steps": 43,
-      "deliverables": 12,
+      "steps": 44,
+      "deliverables": 13,
       "procedures": 0,
       "vendor": "ISC2",
       "certification": "CISSP (CISSP)",
@@ -239,11 +295,18 @@
       "costTasksUsd": 0,
       "skills": 48,
       "tools": 27,
-      "standards": 16,
-      "controls": 20,
-      "sops": 20,
+      "standards": 17,
+      "controls": 22,
+      "sops": 21,
       "tactics": 4,
-      "practices": 38
+      "practices": 38,
+      "premium": {
+        "aiWeeks": 0,
+        "cyberWeeks": 0,
+        "otherWeeks": 0,
+        "aiTasks": 0,
+        "modules": []
+      }
     },
     {
       "id": "azure-fundamentals",
@@ -252,8 +315,8 @@
       "file": "azure-fundamentals.json",
       "weeks": 4,
       "tasks": 16,
-      "steps": 59,
-      "deliverables": 4,
+      "steps": 60,
+      "deliverables": 5,
       "procedures": 0,
       "vendor": "Microsoft",
       "certification": "Azure Fundamentals (AZ-900)",
@@ -267,10 +330,17 @@
       "skills": 18,
       "tools": 12,
       "standards": 5,
-      "controls": 5,
-      "sops": 6,
+      "controls": 6,
+      "sops": 7,
       "tactics": 0,
-      "practices": 18
+      "practices": 18,
+      "premium": {
+        "aiWeeks": 0,
+        "cyberWeeks": 0,
+        "otherWeeks": 0,
+        "aiTasks": 0,
+        "modules": []
+      }
     },
     {
       "id": "azure-administrator",
@@ -279,8 +349,8 @@
       "file": "azure-administrator.json",
       "weeks": 5,
       "tasks": 17,
-      "steps": 74,
-      "deliverables": 4,
+      "steps": 75,
+      "deliverables": 5,
       "procedures": 0,
       "vendor": "Microsoft",
       "certification": "Azure Administrator (AZ-104)",
@@ -294,11 +364,18 @@
       "costTasksUsd": 0.85,
       "skills": 17,
       "tools": 8,
-      "standards": 4,
-      "controls": 7,
-      "sops": 7,
+      "standards": 5,
+      "controls": 9,
+      "sops": 8,
       "tactics": 0,
-      "practices": 17
+      "practices": 17,
+      "premium": {
+        "aiWeeks": 0,
+        "cyberWeeks": 0,
+        "otherWeeks": 0,
+        "aiTasks": 0,
+        "modules": []
+      }
     },
     {
       "id": "azure-devops",
@@ -307,8 +384,8 @@
       "file": "azure-devops.json",
       "weeks": 5,
       "tasks": 17,
-      "steps": 71,
-      "deliverables": 4,
+      "steps": 72,
+      "deliverables": 5,
       "procedures": 0,
       "vendor": "Microsoft",
       "certification": "DevOps Engineer (AZ-400)",
@@ -321,11 +398,18 @@
       "costTasksUsd": 0.18,
       "skills": 16,
       "tools": 11,
-      "standards": 4,
-      "controls": 9,
-      "sops": 10,
+      "standards": 5,
+      "controls": 10,
+      "sops": 11,
       "tactics": 0,
-      "practices": 26
+      "practices": 26,
+      "premium": {
+        "aiWeeks": 0,
+        "cyberWeeks": 0,
+        "otherWeeks": 0,
+        "aiTasks": 0,
+        "modules": []
+      }
     },
     {
       "id": "aws-cloud-practitioner",
@@ -334,8 +418,8 @@
       "file": "aws-cloud-practitioner.json",
       "weeks": 4,
       "tasks": 16,
-      "steps": 58,
-      "deliverables": 4,
+      "steps": 59,
+      "deliverables": 5,
       "procedures": 0,
       "vendor": "AWS",
       "certification": "Cloud Practitioner (CLF-C02)",
@@ -349,10 +433,17 @@
       "skills": 18,
       "tools": 12,
       "standards": 5,
-      "controls": 5,
-      "sops": 6,
+      "controls": 6,
+      "sops": 7,
       "tactics": 0,
-      "practices": 18
+      "practices": 18,
+      "premium": {
+        "aiWeeks": 0,
+        "cyberWeeks": 0,
+        "otherWeeks": 0,
+        "aiTasks": 0,
+        "modules": []
+      }
     },
     {
       "id": "aws-solutions-architect",
@@ -361,8 +452,8 @@
       "file": "aws-solutions-architect.json",
       "weeks": 5,
       "tasks": 17,
-      "steps": 73,
-      "deliverables": 4,
+      "steps": 74,
+      "deliverables": 5,
       "procedures": 0,
       "vendor": "AWS",
       "certification": "Solutions Architect – Associate (SAA-C03)",
@@ -376,11 +467,18 @@
       "costTasksUsd": 0.19,
       "skills": 17,
       "tools": 7,
-      "standards": 4,
-      "controls": 7,
-      "sops": 7,
+      "standards": 5,
+      "controls": 9,
+      "sops": 8,
       "tactics": 0,
-      "practices": 17
+      "practices": 17,
+      "premium": {
+        "aiWeeks": 0,
+        "cyberWeeks": 0,
+        "otherWeeks": 0,
+        "aiTasks": 0,
+        "modules": []
+      }
     },
     {
       "id": "aws-devops",
@@ -389,8 +487,8 @@
       "file": "aws-devops.json",
       "weeks": 5,
       "tasks": 17,
-      "steps": 70,
-      "deliverables": 4,
+      "steps": 71,
+      "deliverables": 5,
       "procedures": 0,
       "vendor": "AWS",
       "certification": "DevOps Engineer – Professional (DOP-C02)",
@@ -403,11 +501,18 @@
       "costTasksUsd": 0.12,
       "skills": 16,
       "tools": 12,
-      "standards": 4,
-      "controls": 9,
-      "sops": 10,
+      "standards": 5,
+      "controls": 10,
+      "sops": 11,
       "tactics": 0,
-      "practices": 26
+      "practices": 26,
+      "premium": {
+        "aiWeeks": 0,
+        "cyberWeeks": 0,
+        "otherWeeks": 0,
+        "aiTasks": 0,
+        "modules": []
+      }
     }
   ]
 }

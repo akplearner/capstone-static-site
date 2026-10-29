@@ -1,6 +1,6 @@
 # CISSP Capstone: Six Releases — skills sheet
 
-18 graded tasks · 48 skills · 27 tools · 20 procedures · 16 standards (20 controls cited) · 4 tactics · 38 practices
+18 graded tasks · 48 skills · 27 tools · 21 procedures · 17 standards (22 controls cited) · 4 tactics · 38 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -115,6 +115,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | Architecture record | design | ISO42010, WAF, NIST.800-53.PL-8 | D3 Architecture | — |
 | Network design | design | NIST.800-53.SC-7, ISO27001.A.8.22, NIST.CSF.PR.IR | D4 Network | — |
 | Pipeline record | build | NIST.800-218, WAF.operational-excellence, ITIL.deployment | D8 Software & Change | Prove the pipeline and list the components |
+| Portfolio record | handover | ISO42010, NIST.800-53.PL-2, ITIL.knowledge | Portfolio | — |
 
 ## Standards
 
@@ -130,12 +131,13 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | ITIL 4 | — | Release Note |
 | CISSP | Write governance, assets and the first score; Write architecture and network; Write identity and operations; Specify risk, assets and the metrics; Specify cryptography and the rule base; Specify access, recovery and incident response; Prove the pipeline and list the components; Prove MFA, accounts and federation; Prove suppliers and the server migration; Prove detection, restore and contingency; Prove data discovery and categorization; Prove AI controls and the config scan; Assess all sixteen controls and close findings; Re-test architecture, network and change; Re-test access and run the tabletop; Self-assess the basics and assemble the SSP; Map architecture and network to federal rules; Map identity and federal incident reporting | — |
 | NIST AI RMF | Prove data discovery and categorization | — |
-| NIST SP 800-53 | Specify risk, assets and the metrics; Specify cryptography and the rule base; Specify access, recovery and incident response; Prove the pipeline and list the components; Prove MFA, accounts and federation; Prove suppliers and the server migration; Prove detection, restore and contingency; Prove data discovery and categorization; Prove AI controls and the config scan; Re-test architecture, network and change; Re-test access and run the tabletop | D3 Architecture; Control Statements |
+| NIST SP 800-53 | Specify risk, assets and the metrics; Specify cryptography and the rule base; Specify access, recovery and incident response; Prove the pipeline and list the components; Prove MFA, accounts and federation; Prove suppliers and the server migration; Prove detection, restore and contingency; Prove data discovery and categorization; Prove AI controls and the config scan; Re-test architecture, network and change; Re-test access and run the tabletop | D3 Architecture; Control Statements; Portfolio |
 | NIST SP 800-171 | Self-assess the basics and assemble the SSP; Map architecture and network to federal rules; Map identity and federal incident reporting | System Security Plan & Traceability |
 | NIST SP 800-88 | — | D2 Assets & Data |
 | NIST SP 800-207 | — | D4 Network |
 | NIST SP 800-63 | — | D5 Identity |
 | NIST SP 800-218 | — | D8 Software & Change |
+| ISO/IEC/IEEE 42010 | — | Portfolio |
 
 | Control cited | Standard | By |
 | --- | --- | --- |
@@ -147,6 +149,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | NIST.CSF.RC Recover | NIST_CSF | D7 Operations |
 | NIST.CSF.PROFILE Organizational Profiles | NIST_CSF | D6 Assessment |
 | NIST.800-53 Security and Privacy Controls Rev. 5 | NIST_800_53 | D3 Architecture; Control Statements |
+| NIST.800-53.PL-2 System Security and Privacy Plans | NIST_800_53 | Portfolio |
 | NIST.800-171 Protecting Controlled Unclassified Information | NIST_800_171 | System Security Plan & Traceability |
 | FAR.52.204-21 FAR 52.204-21 basic safeguarding | NIST_800_171 | System Security Plan & Traceability |
 | NIST.800-61 Computer Security Incident Handling Guide | NIST_800_61 | D7 Operations |
@@ -159,6 +162,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | SOC2 Trust Services Criteria | SOC_2 | Customer Questionnaire Response |
 | ITIL.release Release management | ITIL | Release Note |
 | OWASP OWASP Top 10 and Web Security Testing Guide | OWASP | D8 Software & Change |
+| ISO42010 Architecture description | ISO_42010 | Portfolio |
 
 ## Tactics and practices
 
@@ -219,7 +223,7 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | govrisk: 11 skills with a verifiable step; archnet: 9 skills with a verifiable step; idops: 8 skills with a verifiable step |
 | Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | govrisk: 38 percent of the exam over 3 domains; archnet: 48 percent of the exam over 4 domains; idops: 38 percent of the exam over 3 domains |
 | Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | govrisk: 6 verifiable steps that run a command; archnet: 5 verifiable steps that run a command; idops: 5 verifiable steps that run a command |
-| Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | govrisk: 20 procedures; archnet: 20 procedures; idops: 9 procedures |
+| Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | govrisk: 21 procedures; archnet: 21 procedures; idops: 10 procedures |
 | Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | govrisk: 1 fault, incident or triage table; archnet: 1 fault, incident or triage table; idops: 1 fault, incident or triage table |
 | Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | govrisk: 6 verifiable steps; archnet: 5 verifiable steps; idops: 5 verifiable steps |
 | Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
@@ -227,19 +231,19 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | govrisk: 2 tasks with two or more verifiable steps; archnet: 1 task with two or more verifiable steps; idops: 2 tasks with two or more verifiable steps |
 | First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | govrisk: 6 verifiable steps; archnet: 5 verifiable steps; idops: 5 verifiable steps |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
-| Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | govrisk: 28 checks on 8 forms; archnet: 11 checks on 3 forms; idops: 11 checks on 3 forms |
+| Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | govrisk: 33 checks on 9 forms; archnet: 16 checks on 4 forms; idops: 16 checks on 4 forms |
 | Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | govrisk: 1 decision block; archnet: 0 decision blocks; idops: 0 decision blocks |
 | Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | govrisk: 1 decision block; archnet: 0 decision blocks; idops: 0 decision blocks |
 | Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | govrisk: 1 decision block; archnet: 0 decision blocks; idops: 0 decision blocks |
 | Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | govrisk: 1 change table with a rollback column; archnet: 1 change table with a rollback column; idops: 1 change table with a rollback column |
 | Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | govrisk: 6 hand-offs; archnet: 6 hand-offs; idops: 6 hand-offs |
-| RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | govrisk: 12 forms with a RACI; archnet: 12 forms with a RACI; idops: 5 forms with a RACI |
+| RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | govrisk: 13 forms with a RACI; archnet: 13 forms with a RACI; idops: 6 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
 | On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | govrisk: 6 tasks of the role; archnet: 6 tasks of the role; idops: 6 tasks of the role |
-| Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | govrisk: 8 forms; archnet: 3 forms; idops: 3 forms |
-| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | govrisk: 11 control codes on 7 forms; archnet: 5 control codes on 3 forms; idops: 6 control codes on 2 forms |
-| Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | govrisk: 8 forms; archnet: 3 forms; idops: 3 forms |
+| Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | govrisk: 9 forms; archnet: 4 forms; idops: 4 forms |
+| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | govrisk: 13 control codes on 8 forms; archnet: 5 control codes on 3 forms; idops: 6 control codes on 2 forms |
+| Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | govrisk: 9 forms; archnet: 4 forms; idops: 4 forms |
 | Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | govrisk: 0 skills on two or more tasks; archnet: 0 skills on two or more tasks; idops: 0 skills on two or more tasks |
 | Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | govrisk: 11 skills with a verifiable step; archnet: 9 skills with a verifiable step; idops: 8 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |

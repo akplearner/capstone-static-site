@@ -1,6 +1,6 @@
 # SecAI+ Capstone: Four Releases — skills sheet
 
-12 graded tasks · 29 skills · 26 tools · 17 procedures · 8 standards (9 controls cited) · 7 tactics · 27 practices
+12 graded tasks · 29 skills · 26 tools · 18 procedures · 10 standards (11 controls cited) · 7 tactics · 27 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -92,6 +92,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | Assessment report | assessment | NIST.800-115, PTES, CVSS | P2 Attack Casebook | — |
 | Threat model | assessment | STRIDE, OWASP, NIST.CSF.ID.RA | P2 Attack Casebook | — |
 | Pipeline record | build | NIST.800-218, WAF.operational-excellence, ITIL.deployment | — | Gate the pipeline and alert on every case |
+| Portfolio record | handover | ISO42010, NIST.800-53.PL-2, ITIL.knowledge | Portfolio | — |
 
 ## Standards
 
@@ -105,18 +106,22 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | OWASP LLM Top 10 | Prove two attack cases with evidence; Close SA-1 and log every attempt; Six cases and a mapped threat model; Guard the inputs, scope the agent, redact the logs; Gate the pipeline and alert on every case; Automate the suite and check AI-assisted work; Reproduce the suite and add four paper cases | P2 Attack Casebook |
 | MITRE ATLAS | Six cases and a mapped threat model; Reproduce the suite and add four paper cases | P2 Attack Casebook |
 | ISO/IEC 42001 | Map the data and every rule that applies; Accept the risks and answer the customers | P5 Governance Pack |
+| NIST SP 800-53 | — | Portfolio |
+| ISO/IEC/IEEE 42010 | — | Portfolio |
 
 | Control cited | Standard | By |
 | --- | --- | --- |
 | NIST.CSF.PR Protect | NIST_CSF | P3 Control Set |
 | NIST.CSF.DE Detect | NIST_CSF | P4 Watch Plan |
 | NIST.CSF.RS Respond | NIST_CSF | P4 Watch Plan |
+| NIST.800-53.PL-2 System Security and Privacy Plans | NIST_800_53 | Portfolio |
 | NIST.AI-RMF AI Risk Management Framework 1.0 | NIST_AI_RMF | P5 Governance Pack |
 | NIST.AI-RMF.MAP Map | NIST_AI_RMF | P1 System Map |
 | ITIL.release Release management | ITIL | Release Note |
 | OWASP.LLM OWASP Top 10 for LLM Applications | OWASP_LLM | P2 Attack Casebook |
 | MITRE.ATLAS ATLAS | MITRE_ATLAS | P2 Attack Casebook |
 | ISO42001 AI management system | ISO_42001 | P5 Governance Pack |
+| ISO42010 Architecture description | ISO_42010 | Portfolio |
 
 Forms whose standard names a practice rather than a control:
 
@@ -174,7 +179,7 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | redteam: 10 skills with a verifiable step; defender: 9 skills with a verifiable step; governance: 10 skills with a verifiable step |
 | Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | redteam: 50 percent of the exam over 2 domains; defender: 50 percent of the exam over 2 domains; governance: 50 percent of the exam over 2 domains |
 | Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | redteam: 6 verifiable steps that run a command; defender: 10 verifiable steps that run a command; governance: 5 verifiable steps that run a command |
-| Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | redteam: 10 procedures; defender: 16 procedures; governance: 15 procedures |
+| Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | redteam: 11 procedures; defender: 17 procedures; governance: 16 procedures |
 | Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | redteam: 2 fault, incident or triage tables; defender: 1 fault, incident or triage table; governance: 2 fault, incident or triage tables |
 | Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | redteam: 6 verifiable steps; defender: 10 verifiable steps; governance: 5 verifiable steps |
 | Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
@@ -182,19 +187,19 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | redteam: 2 tasks with two or more verifiable steps; defender: 4 tasks with two or more verifiable steps; governance: 1 task with two or more verifiable steps |
 | First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | redteam: 6 verifiable steps; defender: 10 verifiable steps; governance: 5 verifiable steps |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
-| Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | redteam: 11 checks on 2 forms; defender: 9 checks on 2 forms; governance: 21 checks on 6 forms |
+| Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | redteam: 16 checks on 3 forms; defender: 14 checks on 3 forms; governance: 26 checks on 7 forms |
 | Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | redteam: 1 decision block; defender: 1 decision block; governance: 1 decision block |
 | Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | redteam: 1 decision block; defender: 1 decision block; governance: 1 decision block |
 | Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | redteam: 1 decision block; defender: 1 decision block; governance: 1 decision block |
 | Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | redteam: 1 change table with a rollback column; defender: 1 change table with a rollback column; governance: 1 change table with a rollback column |
 | Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | redteam: 4 hand-offs; defender: 5 hand-offs; governance: 4 hand-offs |
-| RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | redteam: 4 forms with a RACI; defender: 7 forms with a RACI; governance: 8 forms with a RACI |
+| RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | redteam: 5 forms with a RACI; defender: 8 forms with a RACI; governance: 9 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
 | On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | redteam: 4 tasks of the role; defender: 4 tasks of the role; governance: 4 tasks of the role |
-| Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | redteam: 2 forms; defender: 2 forms; governance: 6 forms |
-| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | redteam: 2 control codes on 1 form; defender: 3 control codes on 2 forms; governance: 4 control codes on 5 forms |
-| Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | redteam: 2 forms; defender: 2 forms; governance: 6 forms |
+| Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | redteam: 3 forms; defender: 3 forms; governance: 7 forms |
+| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | redteam: 2 control codes on 1 form; defender: 3 control codes on 2 forms; governance: 6 control codes on 6 forms |
+| Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | redteam: 3 forms; defender: 3 forms; governance: 7 forms |
 | Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | redteam: 0 skills on two or more tasks; defender: 0 skills on two or more tasks; governance: 0 skills on two or more tasks |
 | Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | redteam: 10 skills with a verifiable step; defender: 9 skills with a verifiable step; governance: 10 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |

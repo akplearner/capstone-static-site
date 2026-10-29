@@ -36,6 +36,7 @@ import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { courseMetrics, portfolioSummary } from '@/lib/metrics';
 import { skillPortfolio } from '@/lib/skillProfile';
 import { buildCredential, buildMemberProfile, profileJson, type MemberCourseRow } from '@/lib/memberExport';
+import { portfolioOf } from '@/lib/docs/portfolioForm';
 import { shareProfileCopy } from '@/lib/shareCopy';
 import { withEarned } from '@/lib/earnedBank';
 import { BankEarned } from '@/components/skills/BankEarned';
@@ -166,6 +167,8 @@ export default function SkillBoardPage() {
     examCode: cert.CERT?.code ?? null,
     // R141: the member's answers, so the export carries the skill validation.
     validation: validationRepo.list(course.id, member.memberId),
+    // R142: the team's Portfolio, so the export carries the repository and the bullets.
+    portfolio: portfolioOf(facts.team.docs, deliverables),
   };
   const shareProfile = () =>
     buildMemberProfile({

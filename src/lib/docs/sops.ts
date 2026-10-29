@@ -80,9 +80,12 @@ export const SOPS: SopDef[] = [
   s('build-record', 'Build record', 'build', 'The build as it was made: firmware, versions, settings and the problems met, in order.', ['ITIL.configuration', 'NIST.800-53.CM-2', 'ISO27001.A.8.9']),
   s('pipeline-record', 'Pipeline record', 'build', 'The stages, the gates, what each blocks on, and the deployment that went through.', ['NIST.800-218', 'WAF.operational-excellence', 'ITIL.deployment']),
   s('test-and-acceptance', 'Test and acceptance record', 'build', 'The tests a build must pass, who ran them, and the recorded results.', ['ITIL.transition', 'NIST.800-53.CA-2', 'ISO27001.A.8.29']),
+  // R142: the Portfolio — what the team can show for the project, handed to the member's own record.
+  s('portfolio', 'Portfolio record', 'handover', 'The repository, a case study, three resume bullets, the architecture diagram and the skills demonstrated, for one project.', ['ISO42010', 'NIST.800-53.PL-2', 'ITIL.knowledge']),
 ];
 
 import { CLOUD_COURSES, cloudMap } from './skills';
+import { PORTFOLIO_PLAN, portfolioId } from './portfolioPlan';
 
 /** The cloud forms, one table for both platforms: `{ foundation: ids }` → `azf_foundation`, `awsf_foundation`, … */
 function cloudForms(table: Record<string, Record<string, string[]>>): Record<string, Record<string, string[]>> {
@@ -227,6 +230,9 @@ export const DELIVERABLE_SOPS: Record<string, Record<string, string[]>> = {
   },
   ...cloudForms(CLOUD_FORM_SOPS),
 };
+
+// R142: every course's Portfolio is an instance of the portfolio record.
+for (const p of PORTFOLIO_PLAN) (DELIVERABLE_SOPS[p.courseId] ??= {})[portfolioId(p)] = ['sop.portfolio'];
 
 /** Tasks that execute a procedure → the SOP kinds they execute. */
 export const TASK_SOPS: Record<string, Record<string, string[]>> = {

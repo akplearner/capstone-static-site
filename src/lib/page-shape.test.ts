@@ -4305,7 +4305,7 @@ describe('R140 — longitudinal validation, the task timer, the validation famil
   it('thirty-two KPIs in eight families, seven scores, the schemas at /3 and the copy moved', () => {
     expect(code('src/lib/kpiBoard.ts')).toContain("KPI_BOARD_SCHEMA = 'capstone-kpi-board/3'");
     expect(code('src/lib/docs/ontology.ts')).toContain("MEMBER_PROFILE_SCHEMA = 'capstone-member-profile/3'");
-    expect(code('src/lib/docs/ontology.ts')).toContain("export const ONTOLOGY_VERSION = '2.2.0';");
+    expect(code('src/lib/docs/ontology.ts')).toContain("export const ONTOLOGY_VERSION = '2.3.0';");
     const kpis = code('src/lib/docs/kpis.ts');
     for (const n of ["'validation'", "k('validation', 'recall-accuracy'", "k('validation', 'applied-scenarios'", "k('validation', 'conflicts-resolved'", "k('validation', 'time-on-task'"]) expect(kpis, n).toContain(n);
     expect(code('src/lib/docs/scoring.ts')).toContain("id: 'score.understanding'");

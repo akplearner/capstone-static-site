@@ -1,6 +1,6 @@
 import type { Course, Gate, GateStatus, Task } from './types';
 import { calculateProgress } from './utils';
-import { getProgressSteps, getRequiredSteps, getWeekTasks } from './course-helpers';
+import { getProgressSteps, getRequiredSteps, getWeekTasks, isRequiredTask } from './course-helpers';
 import { KEYS } from './data/keys';
 import type { ProgressRepository } from './data/types';
 
@@ -61,9 +61,9 @@ export function teamTaskPercent(task: Task, done: Set<string>): number {
   return calculateProgress(steps.filter((s) => done.has(stepKey(task.id, s.id))).length, steps.length);
 }
 
-/** The week's percent for the team, over EVERY role's tasks — the same arithmetic as `getWeekCompletion`. */
+/** The week's percent for the team, over EVERY role's tasks — the same arithmetic as `getWeekCompletion`. R142: the AI extension is not in it. */
 export function teamWeekCompletion(course: Course, week: number, done: Set<string>): number {
-  const tasks = getWeekTasks(course, week);
+  const tasks = getWeekTasks(course, week).filter(isRequiredTask);
   let total = 0;
   let completed = 0;
   for (const t of tasks) {

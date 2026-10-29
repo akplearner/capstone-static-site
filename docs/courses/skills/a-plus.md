@@ -1,6 +1,6 @@
 # A+ Capstone Bench — skills sheet
 
-12 graded tasks · 22 skills · 19 tools · 9 procedures · 3 standards (5 controls cited) · 0 tactics · 14 practices
+12 graded tasks · 22 skills · 19 tools · 10 procedures · 4 standards (6 controls cited) · 0 tactics · 14 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -70,6 +70,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | Operational handover | handover | ITIL.transition, ISO27001.A.5.37, ITIL.knowledge | Handover & As-Built | Hand it over |
 | Asset inventory | inventory | NIST.CSF.ID.AM, CIS.1, ISO27001.A.5.9, ITIL.asset | Intake & Bench Checklist; Asset & Build Sheet | — |
 | Build record | build | ITIL.configuration, NIST.800-53.CM-2, ISO27001.A.8.9 | Asset & Build Sheet; OS Build & Baseline Record | — |
+| Portfolio record | handover | ISO42010, NIST.800-53.PL-2, ITIL.knowledge | Portfolio | — |
 
 ## Standards
 
@@ -77,7 +78,8 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | --- | --- | --- |
 | NIST CSF | Read what is really inside; Work the fault with the six-step method; Set the firmware baseline; Image the disk before anything changes; Install Windows and set the baseline; Prove the image restores; Connect it and prove the link; Set up the user and the peripherals; Work three tickets with the method; Secure the machine; Take the final image and time the restore; Hand it over | — |
 | CIS | Read what is really inside; Set the firmware baseline; Image the disk before anything changes; Install Windows and set the baseline; Prove the image restores; Set up the user and the peripherals; Secure the machine | — |
-| NIST SP 800-53 | — | Intake & Bench Checklist; Asset & Build Sheet; Troubleshooting Log; OS Build & Baseline Record; Backup & Image Register; Support Ticket Log; Security Checklist; Handover & As-Built |
+| NIST SP 800-53 | — | Intake & Bench Checklist; Asset & Build Sheet; Troubleshooting Log; OS Build & Baseline Record; Backup & Image Register; Support Ticket Log; Security Checklist; Handover & As-Built; Portfolio |
+| ISO/IEC/IEEE 42010 | — | Portfolio |
 
 | Control cited | Standard | By |
 | --- | --- | --- |
@@ -85,7 +87,8 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | NIST.800-53.CM-8 System Component Inventory | NIST_800_53 | Intake & Bench Checklist; Asset & Build Sheet |
 | NIST.800-53.CP-9 System Backup | NIST_800_53 | Backup & Image Register |
 | NIST.800-53.IR-4 Incident Handling | NIST_800_53 | Troubleshooting Log; Support Ticket Log |
-| NIST.800-53.PL-2 System Security and Privacy Plans | NIST_800_53 | Handover & As-Built |
+| NIST.800-53.PL-2 System Security and Privacy Plans | NIST_800_53 | Handover & As-Built; Portfolio |
+| ISO42010 Architecture description | ISO_42010 | Portfolio |
 
 Forms whose standard names a practice rather than a control:
 
@@ -128,7 +131,7 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | hw: 22 skills with a verifiable step; os: 22 skills with a verifiable step; support: 22 skills with a verifiable step; records: 22 skills with a verifiable step |
 | Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | hw: 88 percent of the exam over 7 domains; os: 88 percent of the exam over 7 domains; support: 88 percent of the exam over 7 domains; records: 88 percent of the exam over 7 domains |
 | Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | hw: 19 verifiable steps that run a command; os: 19 verifiable steps that run a command; support: 19 verifiable steps that run a command; records: 19 verifiable steps that run a command |
-| Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | hw: 9 procedures; os: 9 procedures; support: 9 procedures; records: 9 procedures |
+| Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | hw: 10 procedures; os: 10 procedures; support: 10 procedures; records: 10 procedures |
 | Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | hw: 2 fault, incident or triage tables; os: 2 fault, incident or triage tables; support: 2 fault, incident or triage tables; records: 2 fault, incident or triage tables |
 | Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | hw: 19 verifiable steps; os: 19 verifiable steps; support: 19 verifiable steps; records: 19 verifiable steps |
 | Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
@@ -136,19 +139,19 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | hw: 6 tasks with two or more verifiable steps; os: 6 tasks with two or more verifiable steps; support: 6 tasks with two or more verifiable steps; records: 6 tasks with two or more verifiable steps |
 | First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | hw: 19 verifiable steps; os: 19 verifiable steps; support: 19 verifiable steps; records: 19 verifiable steps |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
-| Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | hw: 39 checks on 8 forms; os: 39 checks on 8 forms; support: 39 checks on 8 forms; records: 39 checks on 8 forms |
+| Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | hw: 44 checks on 9 forms; os: 44 checks on 9 forms; support: 44 checks on 9 forms; records: 44 checks on 9 forms |
 | Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | hw: 1 decision block; os: 1 decision block; support: 1 decision block; records: 1 decision block |
 | Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | hw: 1 decision block; os: 1 decision block; support: 1 decision block; records: 1 decision block |
 | Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | hw: 1 decision block; os: 1 decision block; support: 1 decision block; records: 1 decision block |
 | Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | hw: 1 change table with a rollback column; os: 1 change table with a rollback column; support: 1 change table with a rollback column; records: 1 change table with a rollback column |
 | Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | hw: 12 hand-offs; os: 12 hand-offs; support: 12 hand-offs; records: 12 hand-offs |
-| RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | hw: 8 forms with a RACI; os: 8 forms with a RACI; support: 8 forms with a RACI; records: 8 forms with a RACI |
+| RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | hw: 9 forms with a RACI; os: 9 forms with a RACI; support: 9 forms with a RACI; records: 9 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
 | On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | hw: 12 tasks of the role; os: 12 tasks of the role; support: 12 tasks of the role; records: 12 tasks of the role |
-| Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | hw: 8 forms; os: 8 forms; support: 8 forms; records: 8 forms |
-| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | hw: 2 control codes on 2 forms; os: 1 control code on 2 forms; support: 1 control code on 1 form; records: 3 control codes on 3 forms |
-| Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | hw: 8 forms; os: 8 forms; support: 8 forms; records: 8 forms |
+| Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | hw: 9 forms; os: 9 forms; support: 9 forms; records: 9 forms |
+| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | hw: 2 control codes on 2 forms; os: 1 control code on 2 forms; support: 1 control code on 1 form; records: 4 control codes on 4 forms |
+| Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | hw: 9 forms; os: 9 forms; support: 9 forms; records: 9 forms |
 | Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | hw: 2 skills on two or more tasks; os: 2 skills on two or more tasks; support: 2 skills on two or more tasks; records: 2 skills on two or more tasks |
 | Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | hw: 22 skills with a verifiable step; os: 22 skills with a verifiable step; support: 22 skills with a verifiable step; records: 22 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |

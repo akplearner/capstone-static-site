@@ -78,6 +78,7 @@ This week adds:
 | D&R metrics | Records MTTD, MTTR and the SLA results | Detection & Response Metrics |
 | Internal audit | Records the audit findings before the auditor arrives | Internal Audit Report |
 | Evidence packet | The capstone: everything the auditor will ask for | Audit Evidence Packet |
+| Portfolio | The repository, case study, resume bullets and diagram | Portfolio |
 
 **Process — Audit readiness:** tickets → analysts (MTTD · MTTR); analysts → evidence (the evidence packet); evidence → auditor (Type I · Stage 1).
 
@@ -86,6 +87,6 @@ This week adds:
 | Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |
 | --- | --- | --- | --- | --- | --- | --- |
 | Offensive Security (Penetration Tester) | Penetration testing and control validation for the client. | Retest & Remediation-Validation Report, Gap Assessment | Detection Rules, Detection & Response Metrics, Internal Audit Report | — | Detection & Response (MDR Analyst), Governance & Audit (vCISO) | Detection & Response (MDR Analyst), Governance & Audit (vCISO) |
-| Detection & Response (MDR Analyst) | Hardening, detection engineering and incident response for the client. | Detection Rules, Detection & Response Metrics | Engagement Agreement & Scope, Statement of Applicability (SoA), Control Matrix, Retest & Remediation-Validation Report, Gap Assessment, Audit Evidence Packet | — | Offensive Security (Penetration Tester), Governance & Audit (vCISO) | Offensive Security (Penetration Tester), Governance & Audit (vCISO) |
-| Governance & Audit (vCISO) | Scope, risk, controls and the audit evidence spine. | Engagement Agreement & Scope, Statement of Applicability (SoA), Control Matrix, Internal Audit Report, Audit Evidence Packet | — | Engagement Agreement & Scope, Statement of Applicability (SoA), Control Matrix, Retest & Remediation-Validation Report, Gap Assessment, Detection Rules, Detection & Response Metrics, Internal Audit Report, Audit Evidence Packet | Offensive Security (Penetration Tester), Detection & Response (MDR Analyst) | Offensive Security (Penetration Tester), Detection & Response (MDR Analyst) |
+| Detection & Response (MDR Analyst) | Hardening, detection engineering and incident response for the client. | Detection Rules, Detection & Response Metrics | Engagement Agreement & Scope, Statement of Applicability (SoA), Control Matrix, Retest & Remediation-Validation Report, Gap Assessment, Audit Evidence Packet, Portfolio | — | Offensive Security (Penetration Tester), Governance & Audit (vCISO) | Offensive Security (Penetration Tester), Governance & Audit (vCISO) |
+| Governance & Audit (vCISO) | Scope, risk, controls and the audit evidence spine. | Engagement Agreement & Scope, Statement of Applicability (SoA), Control Matrix, Internal Audit Report, Audit Evidence Packet, Portfolio | — | Engagement Agreement & Scope, Statement of Applicability (SoA), Control Matrix, Retest & Remediation-Validation Report, Gap Assessment, Detection Rules, Detection & Response Metrics, Internal Audit Report, Audit Evidence Packet, Portfolio | Offensive Security (Penetration Tester), Detection & Response (MDR Analyst) | Offensive Security (Penetration Tester), Detection & Response (MDR Analyst) |
 

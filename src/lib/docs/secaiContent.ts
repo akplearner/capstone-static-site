@@ -54,10 +54,12 @@ export const ARCH: ArchPicture = {
     { id: 'r_map', label: 'P1 System map', sub: '', kind: 'record', zone: 'records', x: 365, y: 538, arrives: 1, records: 'secai_system_map', role: 'governance', purpose: 'Records every model, prompt structure and data writer' },
     { id: 'r_cases', label: 'P2 Attack casebook', sub: '', kind: 'record', zone: 'records', x: 595, y: 538, arrives: 1, records: 'secai_attack_casebook', role: 'redteam', purpose: 'Records each proved attack case with its evidence' },
     { id: 'r_controls', label: 'P3 Control set', sub: '', kind: 'record', zone: 'records', x: 825, y: 538, arrives: 1, records: 'secai_control_set', role: 'defender', purpose: 'Records every control: who, how often, with what, the record' },
-    { id: 'r_watch', label: 'P4 Watch plan', sub: '', kind: 'record', zone: 'records', x: 135, y: 572, arrives: 1, records: 'secai_watch_plan', role: 'defender', purpose: 'Records logging, thresholds, detections and the handover' },
-    { id: 'governance', label: 'P5 Governance pack', sub: '', kind: 'record', zone: 'records', x: 365, y: 572, arrives: 1, records: 'secai_governance_pack', role: 'governance', purpose: 'Records the policy, risks, rules, procedures and sign-offs' },
-    { id: 'r_note', label: 'Release note', sub: '', kind: 'record', zone: 'records', x: 595, y: 572, arrives: 1, records: 'secai_release_note', role: 'governance', purpose: 'Records what each release shipped and what stays open' },
-    { id: 'r_package', label: 'v4 Release package', sub: '', kind: 'record', zone: 'records', x: 825, y: 572, arrives: 4, records: 'secai_release_package', role: 'governance', purpose: 'The capstone: the proven product and the assurance answers' },
+    // R142: five pills on the second row, so the Portfolio has a place beside the release package.
+    { id: 'r_watch', label: 'P4 Watch plan', sub: '', kind: 'record', zone: 'records', x: 110, y: 572, arrives: 1, records: 'secai_watch_plan', role: 'defender', purpose: 'Records logging, thresholds, detections and the handover' },
+    { id: 'governance', label: 'P5 Governance pack', sub: '', kind: 'record', zone: 'records', x: 290, y: 572, arrives: 1, records: 'secai_governance_pack', role: 'governance', purpose: 'Records the policy, risks, rules, procedures and sign-offs' },
+    { id: 'r_note', label: 'Release note', sub: '', kind: 'record', zone: 'records', x: 470, y: 572, arrives: 1, records: 'secai_release_note', role: 'governance', purpose: 'Records what each release shipped and what stays open' },
+    { id: 'r_package', label: 'v4 Release package', sub: '', kind: 'record', zone: 'records', x: 650, y: 572, arrives: 4, records: 'secai_release_package', role: 'governance', purpose: 'The capstone: the proven product and the assurance answers' },
+    { id: 'r_portfolio', label: 'Portfolio', sub: '', kind: 'record', zone: 'records', x: 830, y: 572, arrives: 4, records: 'secai_portfolio', role: 'governance', purpose: 'The repository, case study, resume bullets and diagram' },
   ] satisfies ArchNode[],
   edges: [
     { from: 'customer', to: 'portal', label: 'questions' },

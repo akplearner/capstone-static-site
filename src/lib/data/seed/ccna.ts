@@ -1,4 +1,5 @@
 import type { Course, RoleDef, Task, WeekDef } from '../../types';
+import { withPortfolioStep } from '../../docs/portfolioPlan';
 import { COMPANY, SITES, WAN, vlan } from '../../ccnaTopology';
 import { CAPABILITIES, PATHS } from '../../docs/ccnaKit';
 
@@ -1790,7 +1791,8 @@ const TASKS: Task[] = [
   },
 ];
 
-export const CCNA: Course = {
+// R142: the week-4 hardening task closes by writing the Portfolio (the handover itself is in week 8).
+export const CCNA: Course = withPortfolioStep({
   id: 'ccna',
   title: 'CCNA Network Capstone',
   slug: 'ccna',
@@ -1827,4 +1829,4 @@ export const CCNA: Course = {
   ],
   isSeed: true,
   version: 1,
-};
+});

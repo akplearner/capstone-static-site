@@ -61,6 +61,8 @@ export const ARCH: ArchPicture = {
     { id: 'r_verify', label: '5 Services & verification', sub: '', kind: 'record', zone: 'records', x: 745, y: 538, arrives: 2, records: 'np_verify', role: 'rt', purpose: 'Records the pools and the test matrix' },
     { id: 'r_changes', label: '6 Change & fault log', sub: '', kind: 'record', zone: 'records', x: 250, y: 572, arrives: 3, records: 'np_changes', role: 'ops', purpose: 'Records logs, backups, the change and the faults' },
     { id: 'r_handover', label: '8 Migration plan & handover', sub: '', kind: 'record', zone: 'records', x: 415, y: 572, arrives: 4, records: 'np_handover', role: 'design', purpose: 'The capstone: the move, the as-built and custody' },
+    // R142: what the team can show for the branch — the repository, the case study, the bullets and the diagram.
+    { id: 'r_portfolio', label: '9 Portfolio', sub: '', kind: 'record', zone: 'records', x: 580, y: 572, arrives: 4, records: 'np_portfolio', role: 'design', purpose: 'The repository, case study, resume bullets and diagram' },
   ] satisfies ArchNode[],
   edges: [
     { from: 'sw1', to: 'router', label: 'trunk' },

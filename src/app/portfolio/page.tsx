@@ -21,6 +21,7 @@ import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { KpiTable } from '@/components/skills/KpiTable';
 import { kpiBoard, defaultMeasure } from '@/lib/kpiBoard';
 import { buildMemberProfile, buildCredential, profileJson, type MemberCourseRow } from '@/lib/memberExport';
+import { portfolioOf } from '@/lib/docs/portfolioForm';
 import { buildRecordPdf, recordPdfName } from '@/lib/recordPdf';
 import { ownIssues } from '@/lib/recordFacts';
 import { shareProfileCopy } from '@/lib/shareCopy';
@@ -135,6 +136,8 @@ function buildRow(courseId: string): Row | null {
     examCode: certOf(doc).CERT?.code ?? null,
     // R141: the member's answers, so the export carries the skill validation.
     validation: validationRepo.list(course.id, member.memberId),
+    // R142: the team's Portfolio, so the export carries the repository and the bullets.
+    portfolio: portfolioOf(savedDocs ?? {}, deliverablesOf(doc)),
     title: course.title,
     courseId: course.id,
     role: roleName,

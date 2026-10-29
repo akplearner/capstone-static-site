@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "sops": [
     {
       "id": "sop.runbook",
@@ -475,6 +475,17 @@
         "NIST.800-53.CA-2",
         "ISO27001.A.8.29"
       ]
+    },
+    {
+      "id": "sop.portfolio",
+      "label": "Portfolio record",
+      "kind": "handover",
+      "definition": "The repository, a case study, three resume bullets, the architecture diagram and the skills demonstrated, for one project.",
+      "standardRefs": [
+        "ISO42010",
+        "NIST.800-53.PL-2",
+        "ITIL.knowledge"
+      ]
     }
   ],
   "formsByCourse": {
@@ -506,6 +517,9 @@
       "np_handover": [
         "sop.handover",
         "sop.chain-of-custody"
+      ],
+      "np_portfolio": [
+        "sop.portfolio"
       ]
     },
     "a-plus": {
@@ -537,6 +551,9 @@
       "ap_handover": [
         "sop.handover",
         "sop.chain-of-custody"
+      ],
+      "ap_portfolio": [
+        "sop.portfolio"
       ]
     },
     "security-plus": {
@@ -585,6 +602,9 @@
       ],
       "evidence_log": [
         "sop.chain-of-custody"
+      ],
+      "sec_portfolio": [
+        "sop.portfolio"
       ]
     },
     "cysa-plus": {
@@ -628,6 +648,9 @@
       ],
       "cysa_scan_validation": [
         "sop.assessment-report"
+      ],
+      "cysa_portfolio": [
+        "sop.portfolio"
       ]
     },
     "mssp": {
@@ -660,6 +683,9 @@
       ],
       "mssp_evidence_packet": [
         "sop.evidence-packet"
+      ],
+      "mssp_portfolio": [
+        "sop.portfolio"
       ]
     },
     "secai-plus": {
@@ -694,6 +720,9 @@
       "secai_release_package": [
         "sop.customer-assurance",
         "sop.release-record"
+      ],
+      "secai_portfolio": [
+        "sop.portfolio"
       ]
     },
     "cissp": {
@@ -740,6 +769,9 @@
       ],
       "cissp_ssp": [
         "sop.system-security-plan"
+      ],
+      "cissp_portfolio": [
+        "sop.portfolio"
       ]
     },
     "server-plus": {
@@ -774,6 +806,9 @@
         "sop.recovery-drill",
         "sop.backup-plan",
         "sop.handover"
+      ],
+      "srv_portfolio": [
+        "sop.portfolio"
       ]
     },
     "ccna": {
@@ -809,6 +844,9 @@
       ],
       "ccna_handover": [
         "sop.handover"
+      ],
+      "ccna_portfolio": [
+        "sop.portfolio"
       ]
     },
     "azure-fundamentals": {
@@ -825,6 +863,9 @@
       "azf_incident": [
         "sop.monitoring-plan",
         "sop.incident-record"
+      ],
+      "azf_portfolio": [
+        "sop.portfolio"
       ]
     },
     "azure-administrator": {
@@ -842,6 +883,9 @@
       "aza_dr": [
         "sop.backup-plan",
         "sop.recovery-drill"
+      ],
+      "aza_portfolio": [
+        "sop.portfolio"
       ]
     },
     "azure-devops": {
@@ -860,6 +904,9 @@
       "azd_handover": [
         "sop.handover",
         "sop.risk-register"
+      ],
+      "azd_portfolio": [
+        "sop.portfolio"
       ]
     },
     "aws-cloud-practitioner": {
@@ -876,6 +923,9 @@
       "awsf_incident": [
         "sop.monitoring-plan",
         "sop.incident-record"
+      ],
+      "awsf_portfolio": [
+        "sop.portfolio"
       ]
     },
     "aws-solutions-architect": {
@@ -893,6 +943,9 @@
       "awsa_dr": [
         "sop.backup-plan",
         "sop.recovery-drill"
+      ],
+      "awsa_portfolio": [
+        "sop.portfolio"
       ]
     },
     "aws-devops": {
@@ -911,6 +964,9 @@
       "awsd_handover": [
         "sop.handover",
         "sop.risk-register"
+      ],
+      "awsd_portfolio": [
+        "sop.portfolio"
       ]
     }
   },

@@ -1,4 +1,5 @@
 import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
+import { withPortfolioStep } from '../../docs/portfolioPlan';
 
 // SecAI+ capstone (CompTIA CY0-001): "Four Releases" (R101, rewritten R102).
 //
@@ -1428,7 +1429,8 @@ const tasks: Task[] = [
   },
 ];
 
-export const SECAI_PLUS: Course = {
+// R142: the governance release task closes by writing the Portfolio.
+export const SECAI_PLUS: Course = withPortfolioStep({
   id: 'secai-plus',
   title: 'SecAI+ Capstone: Four Releases',
   slug: 'secai-plus',
@@ -1449,4 +1451,4 @@ export const SECAI_PLUS: Course = {
   topologyPicture: 'arch',
   teamCount: 12,
   teamCapacity: 6,
-};
+});

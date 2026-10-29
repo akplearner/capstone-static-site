@@ -53,6 +53,8 @@ export const ARCH: ArchPicture = {
     { id: 'r_metrics', label: 'D&R metrics', sub: '', kind: 'record', zone: 'records', x: 296, y: 512, arrives: 4, records: 'mssp_metrics', role: 'blue', purpose: 'Records MTTD, MTTR and the SLA results' },
     { id: 'r_audit', label: 'Internal audit', sub: '', kind: 'record', zone: 'records', x: 480, y: 512, arrives: 4, records: 'mssp_internal_audit', role: 'grc', purpose: 'Records the audit findings before the auditor arrives' },
     { id: 'r_packet', label: 'Evidence packet', sub: '', kind: 'record', zone: 'records', x: 664, y: 512, arrives: 4, records: 'mssp_evidence_packet', role: 'grc', purpose: 'The capstone: everything the auditor will ask for' },
+    // R142: what the team can show for the engagement — the repository, the case study, the bullets and the diagram.
+    { id: 'r_portfolio', label: 'Portfolio', sub: '', kind: 'record', zone: 'records', x: 848, y: 512, arrives: 4, records: 'mssp_portfolio', role: 'grc', purpose: 'The repository, case study, resume bullets and diagram' },
   ],
   /** The standing data paths, drawn every week once both ends exist. */
   edges: [

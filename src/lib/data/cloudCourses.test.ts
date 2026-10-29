@@ -249,7 +249,8 @@ describe.each(ALL.map((c) => [c.id, c] as const))('R90 cloud capstone — %s', (
   });
 
   it('four documents, one per graded week, each opening with Document control and closing with Evidence; the last is the capstone', () => {
-    const docs = seedDeliverablesForCourse(id);
+    // R142: the Portfolio sits beside the four, in the last week, and is tested with every course's in content-integrity.
+    const docs = seedDeliverablesForCourse(id).filter((d) => !d.portfolio);
     expect(docs.map((d) => d.weeks)).toEqual([[1], [2], [3], [4]]);
     expect(docs.map((d) => d.num)).toEqual([1, 2, 3, 4]);
     expect(docs.flatMap(documentProblems)).toEqual([]);

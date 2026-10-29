@@ -6,6 +6,8 @@ import { useId, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Flag, Sparkles } from 'lucide-react';
 import { SPRING } from '@/lib/motion';
+import type { Track } from '@/lib/types';
+import { TrackChip } from '@/components/course/TrackChip';
 
 /**
  * The week selector, once.
@@ -51,6 +53,8 @@ export interface WeekRailItem {
   /** An advanced week: on the rail like any other, marked so nobody reads it
    *  as required. Never counted toward completion (see `isGradedWeek`). */
   advanced?: boolean;
+  /** R142: the premium track an advanced week deepens; drawn as the track's chip in place of the plain sparkle. */
+  track?: Track;
   /** A tooltip — the cohort calendar's "due Fri 20 Sep · in 3 days" (R68). */
   hint?: string;
   /** How long the week is, from its tasks' estimates (R79). */
@@ -143,7 +147,8 @@ export function WeekRail({
             {it.minutes != null && it.minutes > 0 && (
               <span className={`hidden text-2xs sm:inline ${on ? 'opacity-80' : 'text-muted'}`}>~{formatMinutes(it.minutes)}</span>
             )}
-            {it.advanced && <Sparkles className="h-3.5 w-3.5" aria-label="advanced, optional" />}
+            {it.advanced && it.track && <TrackChip track={it.track} className={on ? 'bg-accent-contrast/20 text-accent-contrast' : ''} />}
+            {it.advanced && !it.track && <Sparkles className="h-3.5 w-3.5" aria-label="advanced, optional" />}
             {it.done && <CheckCircle2 className="h-3.5 w-3.5" aria-label={it.doneLabel ?? 'done'} />}
             {it.gatePending && <Flag className="h-3.5 w-3.5" aria-label="gate not cleared yet" />}
           </button>

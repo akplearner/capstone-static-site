@@ -1,6 +1,6 @@
 # Network+ Capstone Branch — skills sheet
 
-13 graded tasks and 2 advanced · 25 skills · 13 tools · 11 procedures · 3 standards (6 controls cited) · 0 tactics · 17 practices
+13 graded tasks and 2 advanced · 25 skills · 13 tools · 12 procedures · 4 standards (7 controls cited) · 0 tactics · 17 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -69,6 +69,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | Requirements record | design | ISO42010, WAF | Design Brief & IP Plan | — |
 | Build record | build | ITIL.configuration, NIST.800-53.CM-2, ISO27001.A.8.9 | Configuration Record | — |
 | Test and acceptance record | build | ITIL.transition, NIST.800-53.CA-2, ISO27001.A.8.29 | Services & Verification Log | Hand out addresses and names |
+| Portfolio record | handover | ISO42010, NIST.800-53.PL-2, ITIL.knowledge | Portfolio | — |
 
 ## Standards
 
@@ -76,7 +77,8 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | --- | --- | --- |
 | Network+ N10-009 | Discover before you design; Plan the addresses and the VLANs; Build the empty topology; Cut the switches into VLANs; Route between them and out; Hand out addresses and names; Watch it and back it up; Enforce the policy; Change it properly; Work three faults by layer; Research the equipment; Price the bill of materials; Plan the move and hand over; Build it on hardware; Write down what differed | — |
 | ITIL 4 | Watch it and back it up; Change it properly; Work three faults by layer; Plan the move and hand over | — |
-| NIST SP 800-53 | — | Lab & Path Register; Design Brief & IP Plan; VLAN & Port Map; Configuration Record; Services & Verification Log; Change & Fault Log; Equipment Research & BOM; Migration Plan & Handover |
+| NIST SP 800-53 | — | Lab & Path Register; Design Brief & IP Plan; VLAN & Port Map; Configuration Record; Services & Verification Log; Change & Fault Log; Equipment Research & BOM; Migration Plan & Handover; Portfolio |
+| ISO/IEC/IEEE 42010 | — | Portfolio |
 
 | Control cited | Standard | By |
 | --- | --- | --- |
@@ -84,8 +86,9 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | NIST.800-53.CM-2 Baseline Configuration | NIST_800_53 | Configuration Record |
 | NIST.800-53.CM-3 Configuration Change Control | NIST_800_53 | Change & Fault Log |
 | NIST.800-53.CM-8 System Component Inventory | NIST_800_53 | Lab & Path Register; VLAN & Port Map; Equipment Research & BOM |
-| NIST.800-53.PL-2 System Security and Privacy Plans | NIST_800_53 | Migration Plan & Handover |
+| NIST.800-53.PL-2 System Security and Privacy Plans | NIST_800_53 | Migration Plan & Handover; Portfolio |
 | NIST.800-53.SC-7 Boundary Protection | NIST_800_53 | Design Brief & IP Plan |
+| ISO42010 Architecture description | ISO_42010 | Portfolio |
 
 Forms whose standard names a practice rather than a control:
 
@@ -131,7 +134,7 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | design: 18 skills with a verifiable step; sw: 18 skills with a verifiable step; rt: 18 skills with a verifiable step; ops: 18 skills with a verifiable step |
 | Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | design: 100 percent of the exam over 5 domains; sw: 100 percent of the exam over 5 domains; rt: 100 percent of the exam over 5 domains; ops: 100 percent of the exam over 5 domains |
 | Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | design: 15 verifiable steps that run a command; sw: 15 verifiable steps that run a command; rt: 15 verifiable steps that run a command; ops: 15 verifiable steps that run a command |
-| Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | design: 11 procedures; sw: 11 procedures; rt: 11 procedures; ops: 11 procedures |
+| Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | design: 12 procedures; sw: 12 procedures; rt: 12 procedures; ops: 12 procedures |
 | Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | design: 2 fault, incident or triage tables; sw: 2 fault, incident or triage tables; rt: 2 fault, incident or triage tables; ops: 2 fault, incident or triage tables |
 | Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | design: 15 verifiable steps; sw: 15 verifiable steps; rt: 15 verifiable steps; ops: 15 verifiable steps |
 | Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
@@ -139,19 +142,19 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | design: 5 tasks with two or more verifiable steps; sw: 5 tasks with two or more verifiable steps; rt: 5 tasks with two or more verifiable steps; ops: 5 tasks with two or more verifiable steps |
 | First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | design: 15 verifiable steps; sw: 15 verifiable steps; rt: 15 verifiable steps; ops: 15 verifiable steps |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
-| Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | design: 32 checks on 8 forms; sw: 32 checks on 8 forms; rt: 32 checks on 8 forms; ops: 32 checks on 8 forms |
+| Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | design: 37 checks on 9 forms; sw: 37 checks on 9 forms; rt: 37 checks on 9 forms; ops: 37 checks on 9 forms |
 | Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | design: 1 decision block; sw: 1 decision block; rt: 1 decision block; ops: 1 decision block |
 | Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | design: 1 decision block; sw: 1 decision block; rt: 1 decision block; ops: 1 decision block |
 | Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | design: 1 decision block; sw: 1 decision block; rt: 1 decision block; ops: 1 decision block |
 | Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | design: 1 change table with a rollback column; sw: 1 change table with a rollback column; rt: 1 change table with a rollback column; ops: 1 change table with a rollback column |
 | Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | design: 13 hand-offs; sw: 13 hand-offs; rt: 13 hand-offs; ops: 13 hand-offs |
-| RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | design: 8 forms with a RACI; sw: 8 forms with a RACI; rt: 8 forms with a RACI; ops: 8 forms with a RACI |
+| RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | design: 9 forms with a RACI; sw: 9 forms with a RACI; rt: 9 forms with a RACI; ops: 9 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
 | On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | design: 15 tasks of the role; sw: 15 tasks of the role; rt: 15 tasks of the role; ops: 15 tasks of the role |
-| Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | design: 8 forms; sw: 8 forms; rt: 8 forms; ops: 8 forms |
-| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | design: 3 control codes on 3 forms; sw: 1 control code on 1 form; rt: 2 control codes on 2 forms; ops: 2 control codes on 2 forms |
-| Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | design: 8 forms; sw: 8 forms; rt: 8 forms; ops: 8 forms |
+| Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | design: 9 forms; sw: 9 forms; rt: 9 forms; ops: 9 forms |
+| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | design: 4 control codes on 4 forms; sw: 1 control code on 1 form; rt: 2 control codes on 2 forms; ops: 2 control codes on 2 forms |
+| Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | design: 9 forms; sw: 9 forms; rt: 9 forms; ops: 9 forms |
 | Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | design: 2 skills on two or more tasks; sw: 2 skills on two or more tasks; rt: 2 skills on two or more tasks; ops: 2 skills on two or more tasks |
 | Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | design: 18 skills with a verifiable step; sw: 18 skills with a verifiable step; rt: 18 skills with a verifiable step; ops: 18 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |

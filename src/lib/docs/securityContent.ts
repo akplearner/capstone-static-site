@@ -179,13 +179,13 @@ export const ARCH: ArchPicture = {
       'Left: the attacker’s side. Then the edge every packet crosses, the LAN with the two targets and the controls on them, and the SOC that watches. Along the bottom: the fourteen records. Solid lines carry traffic; dashed lines carry logs, backups or trust.',
     footer: 'The addresses are the worked example; your Lab access panel substitutes your own into every command.',
   },
-  view: { w: 960, h: 440 },
+  view: { w: 960, h: 474 },
   zones: [
     { id: 'outside', label: 'Outside', note: 'the attacker’s side', x: 20, y: 40, w: 160, h: 270, tone: 4 },
     { id: 'perimeter', label: 'Perimeter', note: 'what the LAN shows', x: 200, y: 40, w: 170, h: 270, tone: 8 },
     { id: 'lan', label: 'Lab LAN', note: LAB_SUBNET, x: 390, y: 40, w: 340, h: 270, tone: 2 },
     { id: 'soc', label: 'SOC and management', note: 'Blue · GRC', x: 750, y: 40, w: 190, h: 270, tone: 3 },
-    { id: 'records', label: 'Records — the deliverables', note: '14 forms', x: 20, y: 350, w: 920, h: 70, tone: 6, lane: true },
+    { id: 'records', label: 'Records — the deliverables', note: '14 forms and the Portfolio', x: 20, y: 350, w: 920, h: 104, tone: 6, lane: true },
   ],
   nodes: [
     { id: 'internet', label: 'Internet', sub: 'OSINT sources · DNS', kind: 'outside', zone: 'outside', x: 100, y: 100, external: true, arrives: 0, records: 'scope_roe', role: 'red', purpose: 'Where passive recon starts and the scope is checked first' },
@@ -215,6 +215,8 @@ export const ARCH: ArchPicture = {
     { id: 'r_incident', label: 'Incident report', sub: '', kind: 'record', zone: 'records', x: 609, y: 402, arrives: 3, records: 'incident_report', role: 'blue', purpose: 'Records what happened, when it was seen, and the containment' },
     { id: 'r_evidence', label: 'Evidence log', sub: '', kind: 'record', zone: 'records', x: 740, y: 402, arrives: 3, records: 'evidence_log', role: 'grc', purpose: 'Records every file, its hash and its custody' },
     { id: 'r_final', label: 'Final report', sub: '', kind: 'record', zone: 'records', x: 871, y: 402, arrives: 4, records: 'final_report', role: 'grc', purpose: 'The capstone: findings, risks and recommendations' },
+    // R142: what the team can show for the range — the repository, the case study, the bullets and the diagram.
+    { id: 'r_portfolio', label: 'Portfolio', sub: '', kind: 'record', zone: 'records', x: 85, y: 436, arrives: 4, records: 'sec_portfolio', role: 'grc', purpose: 'The repository, case study, resume bullets and diagram' },
   ],
   edges: [
     { from: 'kali', to: 'edge', label: 'recon · scans · exploits' },

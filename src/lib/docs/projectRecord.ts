@@ -3,6 +3,7 @@ import { decisionBlocksOf, decisionKey } from './types';
 import { withoutSeedRows } from './definitions';
 import { formBase } from './recordCategories';
 import { HOST_FIELDS, addressPart, cidrsOverlap, inSubnet, isCidr, isIpv4, parsePort } from './formContext';
+import { PORTFOLIO_PLAN, portfolioId } from './portfolioPlan';
 
 /**
  * R139 — the project record: what this team actually built, read out of the
@@ -251,6 +252,8 @@ export const RECORD_FIELDS: RecordField[] = [
   inf('handover', 'catalogue', 'service', 'resource', 'Service', { unique: true, labelFrom: 'url' }),
   inf('handover', 'risks', 'risk', 'risk', 'Risk'),
   inf('handover', 'scenarios', 'scenario', 'incident', 'Scenario', { labelFrom: 'result' }),
+  // R142: every course's Portfolio — the repository is the one resource a later week asks after.
+  ...PORTFOLIO_PLAN.map((p) => fld(portfolioId(p), 'repo_url', 'resource', 'Repository')),
 ];
 
 /** The registry entries that read a form, by its id or its cloud base. */

@@ -14,6 +14,15 @@ export type Framework = string;
  *  `difficulty` (pacing stars) — an expert cert can still open with an easy week. */
 export type Level = 'entry' | 'associate' | 'professional' | 'expert';
 
+/**
+ * R142 — a premium track. An advanced week is tagged with the track it deepens
+ * (`ai` for the AI-only weeks, `cyber` for the security-only ones) so the
+ * catalogue, the week rail and the course index can say which weeks are the
+ * premium part of a course. A graded week never carries one: the four graded
+ * weeks are the certification, and they are never priced apart.
+ */
+export type Track = 'ai' | 'cyber';
+
 /** R106 — what one task spends while it runs; `usd: 0` is free. */
 export interface TaskCost {
   usd: number;
@@ -53,6 +62,11 @@ export interface WeekDef {
    *  Continue — a student who never opens it still finishes the course. Needs
    *  no `stage`: the stone's cuts belong to the graded arc. */
   advanced?: boolean;
+  /** R142: which premium track an advanced week deepens — `ai` for an
+   *  AI-only week, `cyber` for a security-only one. Only an advanced week
+   *  carries one; a graded week never does (`content-integrity.test.ts`). An
+   *  advanced week on neither (operations, hardware) carries none. */
+  track?: Track;
   /** How hard this week is, 1 (gentlest) to 4 (hardest). Rendered as stars in
    *  the week milestone header so students can pace themselves. */
   difficulty?: 1 | 2 | 3 | 4;
@@ -317,6 +331,14 @@ export interface Task {
    *  shared lane and the role only decides what you document deeper, so the
    *  build tasks are authored once rather than copied per role. */
   shared?: boolean;
+  /**
+   * R142: the week's AI extension. One task per graded week carries it: the
+   * same build, taken one step further with an AI tool, written for every role
+   * (`shared` is always set beside it). It is premium content and it is
+   * optional — it never counts toward completion, the stone, a gate or
+   * Continue (`isRequiredTask`), but the skills it teaches count in the profile.
+   */
+  track?: 'ai';
 }
 
 /** The legacy shape used by `content-data.ts` (Security+). It was a hand-copied
@@ -380,6 +402,15 @@ export interface Course {
    * week, apply in the last, extend in every advanced week.
    */
   validation?: { recall?: number; apply?: number; extend?: number[] };
+  /**
+   * R142: the ids of the modules attached to this course — self-contained
+   * advanced weeks (RAG engineering, AI agents, local LLM serving, AI security
+   * validation, enterprise AI architecture) that are listed on the course and
+   * priced as premium, but are not courses of their own. The weeks and forms
+   * they add are already in `weeks` and the form registry; this names where
+   * they came from.
+   */
+  modules?: string[];
   /** One shared build, four focus roles. Every member works the tasks flagged
    *  `Task.shared` plus their own role's smaller deep-dive task, and every
    *  deliverable flagged `shared` is filled by everyone — a role is a

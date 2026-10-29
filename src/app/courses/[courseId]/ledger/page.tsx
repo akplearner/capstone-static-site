@@ -19,7 +19,7 @@ import { useClientStore, EMPTY_OBJECT, EMPTY_ARRAY } from '@/lib/useClientStore'
 import { evidenceRepo, progressRepo } from '@/lib/data';
 import type { EvidenceArtifact, RehashCheck, StepEvidence, VerificationReceipt } from '@/lib/data/types';
 import { courseMetrics } from '@/lib/metrics';
-import { getTasksByRole, isAdvancedWeek } from '@/lib/course-helpers';
+import { getTasksByRole, isAdvancedWeek, trackOfWeek } from '@/lib/course-helpers';
 import { artifactRows, filterWeek, ledgerCsv, ledgerRows, type WeekFilter } from '@/lib/ledgerView';
 import { downloadText } from '@/lib/download';
 import { localDay, localStamp } from '@/lib/localDate';
@@ -145,7 +145,7 @@ export default function LedgerPage() {
       <WeekRail
         items={[
           { week: -1, label: 'All' },
-          ...weeks.map((w) => ({ week: w.number, label: w.number === 0 ? 'Setup' : `Week ${w.number}`, advanced: isAdvancedWeek(course, w.number) })),
+          ...weeks.map((w) => ({ week: w.number, label: w.number === 0 ? 'Setup' : `Week ${w.number}`, advanced: isAdvancedWeek(course, w.number), track: trackOfWeek(w) })),
         ]}
         selected={week === 'all' ? -1 : week}
         onSelect={(w) => setWeek(w === -1 ? 'all' : w)}

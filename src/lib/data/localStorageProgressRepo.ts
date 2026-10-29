@@ -6,6 +6,7 @@ import {
   getRequiredStepCount,
   getProgressSteps,
   getProgressStepCount,
+  requiredTasksByRole,
 } from '../course-helpers';
 import { JoinResult, ProgressRepository } from './types';
 import { KEYS, STORAGE_PREFIX } from './keys';
@@ -246,7 +247,8 @@ export const localStorageProgressRepo: ProgressRepository = {
 
   getWeekCompletion(course: Course, memberId, role, week, keySet): number {
     const set = keySet ?? this.getCompletionKeySet(course.id, memberId);
-    const tasks = getTasksByRole(course, role, week);
+    // R142: the week's AI extension is optional, so it is not in the week's percent.
+    const tasks = requiredTasksByRole(course, role, week);
     const total = tasks.reduce((sum, t) => sum + getProgressStepCount(t), 0);
     if (total === 0) return 0;
     const completed = tasks.reduce(

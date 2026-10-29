@@ -11,6 +11,7 @@ import type { RecordCategoryCard } from './recordCard';
 import type { WorkRoleDef } from './docs/workRoles';
 import type { SkillsCopy } from './docs/skillsCopy';
 import { MEMBER_PROFILE_SCHEMA, ONTOLOGY_VERSION } from './docs/ontology';
+import type { PortfolioRecord } from './docs/portfolioForm';
 
 /**
  * R109 — the member-profile export and the credential envelope, built in one
@@ -46,6 +47,8 @@ export interface MemberCourseRow {
   examCode: string | null;
   /** R141: the member's validation answers on the course, so the export carries the skill validation; absent where a page has not read them. */
   validation?: ValidationAnswer[];
+  /** R142: the team's Portfolio — the repository, the case study, the bullets, the diagram and the skills — or null where none was written. */
+  portfolio?: PortfolioRecord | null;
 }
 
 export type ExportCopy = Pick<SkillsCopy, 'exportClaim' | 'exportSchemaNote'> & { board: Pick<SkillsCopy['board'], 'issuer' | 'credentialName' | 'credentialClaim' | 'contribution'> };
@@ -80,6 +83,8 @@ export interface MemberProfileCourse {
   competency?: CompetencyDto;
   /** R141: per skill, first demonstrated, last validated, confidence, retained; absent where the page handed no answers in. */
   skillValidation?: SkillValidationDto;
+  /** R142: what the team can show for the project, from the Portfolio form; absent until something is written. */
+  portfolio?: PortfolioRecord;
   timing: TimingFacts;
 }
 
@@ -122,6 +127,8 @@ export function buildMemberProfile(input: MemberExportInput): MemberProfileExpor
       // R141: the facets always; the skill validation when the page handed the answers in.
       competency: competencyOf(r.board),
       ...(r.validation ? { skillValidation: skillValidationOf(r.skills, r.validation) } : {}),
+      // R142: the Portfolio, when the team wrote one.
+      ...(r.portfolio ? { portfolio: r.portfolio } : {}),
     })),
     ...(input.categories ? { categories: input.categories } : {}),
     signature: null,

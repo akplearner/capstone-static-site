@@ -30,6 +30,7 @@ import { CISSP_DELIVERABLES } from './cisspDeliverables';
 import { RACI } from './raci';
 import { AZURE_CLOUD_DELIVERABLES } from './azureCloudDeliverables';
 import { AWS_CLOUD_DELIVERABLES } from './awsCloudDeliverables';
+import { PORTFOLIO_FORMS } from './portfolioForm';
 import { EVIDENCE_NAMING, EVIDENCE_WORKING_DIR } from '../evidence';
 import { SEED_DOCUMENTS, courseDocument } from '../content/docs';
 import { deliverablesOf } from '../content/read';
@@ -790,6 +791,8 @@ export const DELIVERABLES: DeliverableDef[] = [
   ...CISSP_DELIVERABLES,
   ...AZURE_CLOUD_DELIVERABLES,
   ...AWS_CLOUD_DELIVERABLES,
+  // R142: every course's Portfolio, built once from the plan; it carries its own RACI.
+  ...PORTFOLIO_FORMS,
   // R103: every document carries who drafts, reviews and approves it, and —
   // once approved — who it is handed to. The cloud factory sets its own.
 ].map((d) => (d.raci ? d : RACI[d.id] ? { ...d, raci: RACI[d.id], handoff: d.handoff ?? (RACI[d.id].approves !== RACI[d.id].drafts ? { to: RACI[d.id].approves, when: 'approved' as const } : undefined) } : d));

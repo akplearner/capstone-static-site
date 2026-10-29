@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "areas": [
     {
       "id": "infrastructure",
@@ -1164,6 +1164,96 @@
       "kind": "incident",
       "label": "Scenario",
       "labelFrom": "result"
+    },
+    {
+      "form": "sec_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "mssp_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "cysa_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "srv_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "ccna_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "ap_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "np_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "secai_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "cissp_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "azf_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "aza_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "azd_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "awsf_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "awsa_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "awsd_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
     }
   ],
   "conflictRules": [

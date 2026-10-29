@@ -114,11 +114,15 @@ export const FORM_CATEGORY: Record<string, Cat[]> = {
   foundation: [A, C, D], sad: [A, D], api: [A, C], incident: [I, T, M, P], access: [C, I], network: [A, C, T], server: [C, T, D], dr: [T, D, P, A], iac: [C, A, D], change: [D, T], governance: [I, D, M], handover: [M, P, T],
 };
 
-/** Every category a form lands in: documentation always, the tagged ones, the project for the capstone. */
-export function formCategories(def: Pick<DeliverableDef, 'id' | 'capstone'>): Cat[] {
+/** Every category a form lands in: documentation always, the tagged ones, the project for the capstone, communication and the project for the Portfolio (R142). */
+export function formCategories(def: Pick<DeliverableDef, 'id' | 'capstone' | 'portfolio'>): Cat[] {
   const out = new Set<Cat>(['documentation']);
   for (const c of FORM_CATEGORY[def.id] ?? FORM_CATEGORY[formBase(def.id)] ?? []) out.add(c);
   if (def.capstone) out.add('projects');
+  if (def.portfolio) {
+    out.add('communication');
+    out.add('projects');
+  }
   return [...out];
 }
 
@@ -231,7 +235,7 @@ const WORDS: Partial<Record<Cat, RegExp>> = {
 export const TASK_CATEGORY: Record<string, Record<string, Cat[]>> = {};
 
 /** Every category a graded task lands in: its words, its registries (filled by the projection), its forms and its hand-offs. */
-export function taskCategories(course: Pick<Course, 'id'>, task: Pick<Task, 'id' | 'title' | 'objective' | 'deliverables' | 'handoff' | 'steps'>, formsByFile: Map<string, Pick<DeliverableDef, 'id' | 'capstone'>>): Cat[] {
+export function taskCategories(course: Pick<Course, 'id'>, task: Pick<Task, 'id' | 'title' | 'objective' | 'deliverables' | 'handoff' | 'steps'>, formsByFile: Map<string, Pick<DeliverableDef, 'id' | 'capstone' | 'portfolio'>>): Cat[] {
   const out = new Set<Cat>();
   const text = `${task.title} ${task.objective}`;
   for (const [cat, re] of Object.entries(WORDS) as [Cat, RegExp][]) if (re.test(text)) out.add(cat);

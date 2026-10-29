@@ -63,7 +63,10 @@ export type ShareScore = Pick<MemberProfileCourse['scores'][number], 'id' | 'val
 export type ShareFacet = Pick<NonNullable<MemberProfileCourse['competency']>['facets'][number], 'id' | 'value' | 'counted' | 'of' | 'loaded'>;
 export type ShareCompetency = Omit<NonNullable<MemberProfileCourse['competency']>, 'facets'> & { facets: ShareFacet[] };
 
-export type ShareCourse = Omit<MemberProfileCourse, 'skills' | 'kpis' | 'scores' | 'competency' | 'skillValidation'> & { skills: ShareSkillProfile; kpis: ShareKpi[]; scores: ShareScore[]; competency?: ShareCompetency };
+/** R142: the Portfolio as a link carries it: the repository, the bullets, the diagram and whether the case study is complete; the case study and the skills table stay with the member. */
+export type SharePortfolio = Pick<NonNullable<MemberProfileCourse['portfolio']>, 'formId' | 'repoUrl' | 'bullets' | 'diagramRef' | 'caseStudyWords' | 'complete'>;
+
+export type ShareCourse = Omit<MemberProfileCourse, 'skills' | 'kpis' | 'scores' | 'competency' | 'skillValidation' | 'portfolio'> & { skills: ShareSkillProfile; kpis: ShareKpi[]; scores: ShareScore[]; competency?: ShareCompetency; portfolio?: SharePortfolio };
 
 export interface ShareProfile extends Omit<MemberProfileExport, 'courses'> {
   courses: ShareCourse[];
@@ -94,11 +97,13 @@ export function shareCourse(c: MemberProfileCourse): ShareCourse {
   for (const [dimension, list] of Object.entries(c.skills.rows)) rows[dimension] = DERIVABLE_DIMENSIONS.has(dimension) ? [] : list.map(shareRow);
   // R141: a link's copy keeps the facets as eight small rows (the reader restores the words and the
   // components from the registry) and leaves the per-skill validation out.
-  const { skillValidation: _skillValidation, competency, ...rest } = c;
+  const { skillValidation: _skillValidation, competency, portfolio, ...rest } = c;
   void _skillValidation;
   return {
     ...rest,
     ...(competency ? { competency: { ...competency, facets: competency.facets.map((f) => ({ id: f.id, value: f.value, counted: f.counted, of: f.of, loaded: f.loaded })) } } : {}),
+    // R142: a reader of a link gets the repository and the bullets; the two-hundred-word case study is the member's to show.
+    ...(portfolio ? { portfolio: { formId: portfolio.formId, repoUrl: portfolio.repoUrl, bullets: portfolio.bullets, diagramRef: portfolio.diagramRef, caseStudyWords: portfolio.caseStudyWords, complete: portfolio.complete } } : {}),
     skills: { courseId: c.skills.courseId, role: c.skills.role, denominator: c.skills.denominator, rows, loaded: c.skills.loaded, draftedForms: c.skills.draftedForms },
     kpis: c.kpis.map((k) => ({ id: k.id, value: k.value, of: k.of, pct: k.pct, loaded: k.loaded, fact: k.fact, ...(k.beside ? { beside: k.beside } : {}), ...(k.contribution ? { contribution: k.contribution } : {}) })),
     scores: c.scores.map((sc) => ({ id: sc.id, value: sc.value, counted: sc.counted, of: sc.of, loaded: sc.loaded })),

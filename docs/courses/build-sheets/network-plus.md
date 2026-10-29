@@ -85,6 +85,7 @@ This week adds:
 | 7 Bill of materials | Records every line with a price, a date and a source | Equipment Research & BOM |
 | Migration plan | How the simulated build becomes the real branch, honestly | Migration Plan & Handover |
 | 8 Migration plan & handover | The capstone: the move, the as-built and custody | Migration Plan & Handover |
+| 9 Portfolio | The repository, case study, resume bullets and diagram | Portfolio |
 
 **Process — Week 4: research, price, plan the move:** router → research (capabilities, not models); research → bom (priced, dated, sourced); backups → plan (the files the install loads); plan → team (issued with custody).
 
@@ -104,8 +105,8 @@ This week adds:
 
 | Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |
 | --- | --- | --- | --- | --- | --- | --- |
-| Network Design (Design Lead) | Leads the design record: requirements, the addressing plan, the VLAN scheme and the map. | Design Brief & IP Plan, Equipment Research & BOM, Migration Plan & Handover | VLAN & Port Map | Lab & Path Register, Services & Verification Log, Change & Fault Log | Routing & Services (Router Lead), Operations (Ops Lead) | Switching (Switch Lead), Routing & Services (Router Lead), Operations (Ops Lead) |
+| Network Design (Design Lead) | Leads the design record: requirements, the addressing plan, the VLAN scheme and the map. | Design Brief & IP Plan, Equipment Research & BOM, Migration Plan & Handover, Portfolio | VLAN & Port Map | Lab & Path Register, Services & Verification Log, Change & Fault Log | Routing & Services (Router Lead), Operations (Ops Lead) | Switching (Switch Lead), Routing & Services (Router Lead), Operations (Ops Lead) |
 | Switching (Switch Lead) | Leads the switch record: VLANs, trunks, port security and every access port. | VLAN & Port Map | Lab & Path Register, Configuration Record | — | Network Design (Design Lead), Operations (Ops Lead) | Routing & Services (Router Lead), Operations (Ops Lead) |
-| Routing & Services (Router Lead) | Leads the router record: gateways, DHCP, DNS, NAT and the access list. | Configuration Record, Services & Verification Log | Design Brief & IP Plan, Change & Fault Log | Equipment Research & BOM, Migration Plan & Handover | Network Design (Design Lead), Switching (Switch Lead), Operations (Ops Lead) | Network Design (Design Lead), Operations (Ops Lead) |
-| Operations (Ops Lead) | Leads the operations record: logging, backups, changes, faults and the migration plan. | Lab & Path Register, Change & Fault Log | Services & Verification Log, Equipment Research & BOM, Migration Plan & Handover | Design Brief & IP Plan, VLAN & Port Map, Configuration Record | Network Design (Design Lead), Switching (Switch Lead), Routing & Services (Router Lead) | Network Design (Design Lead), Switching (Switch Lead), Routing & Services (Router Lead) |
+| Routing & Services (Router Lead) | Leads the router record: gateways, DHCP, DNS, NAT and the access list. | Configuration Record, Services & Verification Log | Design Brief & IP Plan, Change & Fault Log | Equipment Research & BOM, Migration Plan & Handover, Portfolio | Network Design (Design Lead), Switching (Switch Lead), Operations (Ops Lead) | Network Design (Design Lead), Operations (Ops Lead) |
+| Operations (Ops Lead) | Leads the operations record: logging, backups, changes, faults and the migration plan. | Lab & Path Register, Change & Fault Log | Services & Verification Log, Equipment Research & BOM, Migration Plan & Handover, Portfolio | Design Brief & IP Plan, VLAN & Port Map, Configuration Record | Network Design (Design Lead), Switching (Switch Lead), Routing & Services (Router Lead) | Network Design (Design Lead), Switching (Switch Lead), Routing & Services (Router Lead) |
 

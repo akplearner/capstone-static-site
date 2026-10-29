@@ -19,7 +19,7 @@ import type { Course } from './types';
 import type { DeliverableData } from './docs/types';
 import { deliverablesForCourse } from './docs/definitions';
 import { dodProgress } from './docs/dod';
-import { getRequiredSteps, getTasksByRole } from './course-helpers';
+import { getRequiredSteps, requiredTasksByRole } from './course-helpers';
 
 export const TEAM_WEIGHT = 70;
 export const FOCUS_WEIGHT = 30;
@@ -67,7 +67,8 @@ export function weeklyPoints({ course, role, week, teamDocs, isStepDone }: Weekl
     met += p.met;
     due += p.total;
   }
-  const weekTasks = getTasksByRole(course, role, week);
+  // R142: the AI extension is a bonus, never a mark; it is not in either share.
+  const weekTasks = requiredTasksByRole(course, role, week);
   let teamShare: number | null = due > 0 ? met / due : null;
   if (teamShare === null) teamShare = stepShare(weekTasks.filter((t) => t.shared), isStepDone);
 

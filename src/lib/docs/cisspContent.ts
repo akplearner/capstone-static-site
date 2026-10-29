@@ -19,12 +19,12 @@ export const ARCH: ArchPicture = {
       'Left: the office and field estate the company is leaving or connecting. Middle: the cloud account that becomes the Service Hub, tier by tier. Right: the suppliers and customers who rely on it. Bottom: the sheets and releases that record it. Every control statement names one of these boxes.',
     footer: 'Lab stand-in until the starter kit ships: containers on one Linux machine play the cloud account; OPNsense, Keycloak, Jenkins, Wazuh and restic play the services.',
   },
-  view: { w: 960, h: 570 },
+  view: { w: 960, h: 604 },
   zones: [
     { id: 'office', label: 'Office and field', note: 'being retired or connected', x: 20, y: 40, w: 210, h: 400, tone: 4 },
     { id: 'cloud', label: 'Cloud account — the Service Hub', note: 'what Ridgeline answers for', x: 250, y: 40, w: 500, h: 400, tone: 2 },
     { id: 'outside', label: 'Suppliers and customers', note: 'see D3', x: 770, y: 40, w: 170, h: 400, tone: 1 },
-    { id: 'records', label: 'Records — the eight sheets and the releases', note: 'D1–D8 · v1–v6', x: 20, y: 470, w: 920, h: 70, tone: 6, lane: true },
+    { id: 'records', label: 'Records — the eight sheets and the releases', note: 'D1–D8 · v1–v6 · the Portfolio', x: 20, y: 470, w: 920, h: 104, tone: 6, lane: true },
   ] satisfies ArchZone[],
   nodes: [
     { id: 'staff', label: 'Office staff', sub: '40 people · policy · training', kind: 'people', zone: 'office', x: 125, y: 100, arrives: 0, records: 'cissp_d1', purpose: 'Who the policy binds and who the training reaches' },
@@ -60,6 +60,8 @@ export const ARCH: ArchPicture = {
     { id: 'r_controls', label: 'Control statements', sub: '', kind: 'record', zone: 'records', x: 554, y: 526, arrives: 2, records: 'cissp_controls', role: 'govrisk', purpose: 'Records sixteen controls: who does what, how often' },
     { id: 'r_questionnaire', label: 'Questionnaire', sub: '', kind: 'record', zone: 'records', x: 707, y: 526, arrives: 5, records: 'cissp_questionnaire', role: 'govrisk', purpose: 'Records the sixteen answers, each with evidence' },
     { id: 'r_ssp', label: 'SSP (capstone)', sub: '', kind: 'record', zone: 'records', x: 860, y: 526, arrives: 6, records: 'cissp_ssp', role: 'govrisk', purpose: 'The system security plan and traceability matrix' },
+    // R142: what the team can show for the programme — the repository, the case study, the bullets and the diagram.
+    { id: 'r_portfolio', label: 'Portfolio', sub: '', kind: 'record', zone: 'records', x: 95, y: 560, arrives: 6, records: 'cissp_portfolio', role: 'govrisk', purpose: 'The repository, case study, resume bullets and diagram' },
   ] satisfies ArchNode[],
   edges: [
     { from: 'staff', to: 'oldserver', label: 'spreadsheets · scheduling' },

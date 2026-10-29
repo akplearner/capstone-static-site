@@ -254,6 +254,21 @@ export interface DeliverableDef {
    *  filed. Exactly one deliverable per course carries this, and filing it is
    *  what completes the Capstone Stone. */
   capstone?: boolean;
+  /**
+   * R142 — the Portfolio: the one form per course that turns the capstone into
+   * something a member can show — the repository, a case study of two hundred
+   * words or more, three resume bullets, the architecture diagram and the
+   * skills demonstrated. Shared, in the last graded week, feeding the capstone.
+   * Exactly one per course (`content-integrity.test.ts`).
+   */
+  portfolio?: boolean;
+  /**
+   * R142 — a form a module adds beside the course (R144). It still runs
+   * forward in time and feeds something or ends its module, but it is exempt
+   * from "every document reaches the capstone": the capstone was filed before
+   * the module began.
+   */
+  appendix?: boolean;
   /** R103 — who drafts, reviews and approves this document, as roles of the
    *  course. `owner` stays the lane it is drawn in and equals `raci.drafts`.
    *  The lifecycle (docs/lifecycle.ts) enforces it: only the drafting role

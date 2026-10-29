@@ -18,6 +18,7 @@ import { VerificationBar } from '@/components/catalog/VerificationBar';
 import { courseRepo, progressRepo, docsRepo, evidenceRepo, earnedRepo, pathRepo, validationRepo } from '@/lib/data';
 import { courseDocument, bareDocument } from '@/lib/content/docs';
 import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
+import { portfolioOf } from '@/lib/docs/portfolioForm';
 import { skillProfile, skillPortfolio } from '@/lib/skillProfile';
 import { defaultMeasure, kpiBoard, sumKpi } from '@/lib/kpiBoard';
 import { MEMBER_PROFILE_SCHEMA, ONTOLOGY_VERSION } from '@/lib/docs/ontology';
@@ -40,7 +41,7 @@ import { DtoChip } from '@/components/skills/DtoChip';
 import { ShareLinkDialog } from '@/components/share/ShareLinkDialog';
 import { deriveCrewProgress } from '@/lib/game';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
-import { getTasksByRole, isGradedWeek, phaseTag } from '@/lib/course-helpers';
+import { getTasksByRole, isGradedWeek, phaseTag, requiredTasksByRole } from '@/lib/course-helpers';
 import { regionFor, seamFor, phaseForWeek } from '@/lib/quarry';
 import { resolveActiveWeek } from '@/lib/resume';
 import { entryForCourse } from '@/lib/catalog';
@@ -131,6 +132,8 @@ function buildCard(course: Course): CourseCard | null {
   const doc = courseDocument(course.id) ?? bareDocument(course);
   const registry = skillsOf(doc);
   const cert = certOf(doc);
+  // R136: the one loader every profile caller uses; hydrateUser now fills the team's forms, the marks, the flag history and the calendars.
+  const team = teamFactsOf(course, member, activeWeek);
   // R125: the member's earned rows are laid over the live profile, so a retake reads at what was already earned.
   const live = skillProfile({
     course,
@@ -142,8 +145,7 @@ function buildCard(course: Course): CourseCard | null {
     registry,
     cert,
     deliverables: deliverablesOf(doc),
-    // R136: the one loader every profile caller uses; hydrateUser now fills the team's forms, the marks, the flag history and the calendars.
-    team: teamFactsOf(course, member, activeWeek),
+    team,
     own: ownFactsOf(course, member),
     weekDue: weekDueOf(course, member),
     // R111: the currency flag needs the page's clock; buildCard is a plain function, not a component body.
@@ -154,9 +156,9 @@ function buildCard(course: Course): CourseCard | null {
   const earned = earnedRepo.list(course.id);
   const profile = applyEarned(live, earned);
   // R126: what the record's lists need and the strip does not print.
-  const gradedTasks = getTasksByRole(course, member.role).filter((t) => isGradedWeek(course, t.week) && t.steps.some((x) => !x.optional));
+  const gradedTasks = requiredTasksByRole(course, member.role).filter((t) => isGradedWeek(course, t.week) && t.steps.some((x) => !x.optional));
   const clearedWeeks = course.weeks
-    .filter((w) => isGradedWeek(course, w.number) && getTasksByRole(course, member.role, w.number).length > 0 && (weekStats[w.number] ?? 0) >= 100)
+    .filter((w) => isGradedWeek(course, w.number) && requiredTasksByRole(course, member.role, w.number).length > 0 && (weekStats[w.number] ?? 0) >= 100)
     .map((w) => w.number);
   // R109: the sixteen KPIs against the role's default measure, and the work
   // roles as rows of this course's own document (the export writes their ids).
@@ -186,6 +188,8 @@ function buildCard(course: Course): CourseCard | null {
     examCode: cert.CERT?.code ?? null,
     // R141: the member's answers, so the export carries the skill validation.
     validation: validationRepo.list(course.id, member.memberId),
+    // R142: the team's Portfolio, so the export carries the repository and the bullets.
+    portfolio: portfolioOf(team.docs, deliverablesOf(doc)),
     activeWeek,
     level: entry ? levelDef(entry.level).name : undefined,
     capstoneFiled,

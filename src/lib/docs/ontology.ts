@@ -11,6 +11,9 @@ import { SKILL_DOMAINS } from './skillDomains';
 import { CATEGORY_DEFS, CHANGE_GROUPS, FORM_CATEGORY, PROFESSIONAL_THRESHOLD, RATIONALE_PATTERN, TROUBLE_GROUPS } from './recordCategories';
 import { AREA_LABEL as RECORD_AREA_LABEL, AREA_OF_KIND, RECORD_AREAS, RECORD_FIELDS } from './projectRecord';
 import { SCORES } from './scoring';
+import { TRACK_LABEL } from '../course-helpers';
+import { PORTFOLIO_PLAN, PORTFOLIO_TITLE, portfolioId } from './portfolioPlan';
+import { CASE_STUDY_WORDS } from './portfolioForm';
 
 /**
  * R107 — the published ontology: the registries under `src/lib/docs/` as
@@ -31,14 +34,17 @@ import { SCORES } from './scoring';
  * three files joined: the eight skill domains, the fourteen record categories
  * (with the form groups the projection reads and the professional threshold)
  * and the published scores.
+ *
+ * R142 — 2.3.0: the premium tracks (`ai`, `cyber`) and the Portfolio joined
+ * as the `tracks` file, with the portfolio SOP kind beside the others.
  */
 export const ONTOLOGY_SCHEMA = 'capstone-ontology/1';
-export const ONTOLOGY_VERSION = '2.2.0';
+export const ONTOLOGY_VERSION = '2.3.0';
 export const MEMBER_PROFILE_SCHEMA = 'capstone-member-profile/3';
 
-const GENERATED_FROM = ['src/lib/docs/skills.ts', 'src/lib/docs/tools.ts', 'src/lib/docs/standards.ts', 'src/lib/docs/sops.ts', 'src/lib/docs/tactics.ts', 'src/lib/docs/metricCatalogue.ts', 'src/lib/docs/certs.ts', 'src/lib/docs/kpis.ts', 'src/lib/docs/workRoles.ts', 'src/lib/docs/skillDomains.ts', 'src/lib/docs/recordCategories.ts', 'src/lib/docs/scoring.ts'];
+const GENERATED_FROM = ['src/lib/docs/skills.ts', 'src/lib/docs/tools.ts', 'src/lib/docs/standards.ts', 'src/lib/docs/sops.ts', 'src/lib/docs/tactics.ts', 'src/lib/docs/metricCatalogue.ts', 'src/lib/docs/certs.ts', 'src/lib/docs/kpis.ts', 'src/lib/docs/workRoles.ts', 'src/lib/docs/skillDomains.ts', 'src/lib/docs/recordCategories.ts', 'src/lib/docs/scoring.ts', 'src/lib/docs/projectRecord.ts', 'src/lib/course-helpers.ts', 'src/lib/docs/portfolioPlan.ts'];
 
-export const ONTOLOGY_FILES = ['index', 'competencies', 'tools', 'standards', 'sops', 'tactics', 'practices', 'metrics', 'domains', 'kpis', 'work-roles', 'skill-domains', 'record-categories', 'scoring', 'project-record'] as const;
+export const ONTOLOGY_FILES = ['index', 'competencies', 'tools', 'standards', 'sops', 'tactics', 'practices', 'metrics', 'domains', 'kpis', 'work-roles', 'skill-domains', 'record-categories', 'scoring', 'project-record', 'tracks'] as const;
 export type OntologyFile = (typeof ONTOLOGY_FILES)[number];
 
 const stamp = () => ({ schema: ONTOLOGY_SCHEMA, version: ONTOLOGY_VERSION });
@@ -72,6 +78,13 @@ export function ontologyFiles(): Record<OntologyFile, Record<string, unknown>> {
     scoring: { ...stamp(), scores: SCORES },
     // R139: the project record — the facts a form records, by kind and area, and the conflict rules read over them.
     'project-record': { ...stamp(), areas: RECORD_AREAS.map((a) => ({ id: a, label: RECORD_AREA_LABEL[a] })), areaOfKind: AREA_OF_KIND, fields: RECORD_FIELDS, conflictRules: ['duplicate-value', 'duplicate-address', 'address-outside-prefix', 'prefixes-overlap', 'port-reused', 'undeclared-host', 'ram-over-committed', 'cpu-over-committed', 'published-port-not-listening'] },
+    // R142: the premium tracks an advanced week or an extension task can carry, the rules they obey, and the Portfolio every course closes on.
+    tracks: {
+      ...stamp(),
+      tracks: (Object.keys(TRACK_LABEL) as (keyof typeof TRACK_LABEL)[]).map((id) => ({ id, label: TRACK_LABEL[id] })),
+      rules: ['an advanced week carries at most one track; one on neither is counted as an advanced week', 'a graded week carries none: the graded weeks are the certification', 'an extension task carries the ai track, sits in a graded week, is shared by every role and is optional', 'the course index counts the weeks and tasks beyond the certification per course'],
+      portfolio: { title: PORTFOLIO_TITLE, caseStudyWords: CASE_STUDY_WORDS, forms: PORTFOLIO_PLAN.map((p) => ({ courseId: p.courseId, id: portfolioId(p), week: p.week, feeds: p.capstone })) },
+    },
   };
   const index = {
     ...stamp(),
@@ -94,6 +107,7 @@ export function ontologyFiles(): Record<OntologyFile, Record<string, unknown>> {
       recordCategories: CATEGORY_DEFS.length,
       scores: SCORES.length,
       recordFields: RECORD_FIELDS.length,
+      tracks: Object.keys(TRACK_LABEL).length,
     },
     idStyle: {
       competency: 'comp.<area>.<slug>',
@@ -109,6 +123,7 @@ export function ontologyFiles(): Record<OntologyFile, Record<string, unknown>> {
       skillDomain: '<slug>',
       recordCategory: '<slug>',
       score: 'score.<slug>',
+      track: '<slug>',
     },
     rules: ['additive', 'deprecate never remove', 'semver: minor on add, major on a shape change'],
   };
@@ -134,6 +149,8 @@ export function ontologyIds(files: Record<OntologyFile, Record<string, unknown>>
     skillDomains: ids(files['skill-domains']?.domains, 'id'),
     recordCategories: ids(files['record-categories']?.categories, 'id'),
     scores: ids(files.scoring?.scores, 'id'),
+    // R142: the tracks; a committed file from before this round has none, which reads as an addition.
+    tracks: ids(files.tracks?.tracks, 'id'),
   };
 }
 

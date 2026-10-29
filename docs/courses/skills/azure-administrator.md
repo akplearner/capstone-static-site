@@ -1,6 +1,6 @@
 # Azure Administrator Capstone — skills sheet
 
-16 graded tasks · 17 skills · 8 tools · 7 procedures · 4 standards (7 controls cited) · 0 tactics · 17 practices
+16 graded tasks · 17 skills · 8 tools · 8 procedures · 5 standards (9 controls cited) · 0 tactics · 17 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -52,6 +52,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | Identity and access standard | access | NIST.800-63, NIST.800-53.IA-2, ISO27001.A.5.15, NIST.CSF.PR.AA | Access Control Matrix & Secrets Register | — |
 | Architecture record | design | ISO42010, WAF, NIST.800-53.PL-8 | Data Store & Runbook | — |
 | Network design | design | NIST.800-53.SC-7, ISO27001.A.8.22, NIST.CSF.PR.IR | Network Design Document | — |
+| Portfolio record | handover | ISO42010, NIST.800-53.PL-2, ITIL.knowledge | Portfolio | — |
 
 ## Standards
 
@@ -59,18 +60,21 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | --- | --- | --- |
 | AZ-104 | Write the access matrix and the security design; Move the key into Key Vault, protected and audited; Switch the Function to its identity and lock CORS; Prove an access is denied and find what is exposed; Design the two-zone fleet and record the decision; Build the fleet: a web subnet and a scale set across two zones; Put the fleet behind a Standard Load Balancer; Close port 22, add Bastion, and reach the vault privately; Choose the data store and the storage tiers; Create a zone-redundant PostgreSQL server in its own subnet, then stop it; Queue the visits and write a ledger; Lock the data down and age it out; Set RPO and RTO per asset and the autoscale target; Autoscale the fleet on CPU and prove a lost instance is replaced; Recover a deleted web file and restore the database to a point in time; Run a timed recovery drill and tear the fleet down | — |
 | Well-Architected | Write the access matrix and the security design; Move the key into Key Vault, protected and audited; Switch the Function to its identity and lock CORS; Prove an access is denied and find what is exposed; Design the two-zone fleet and record the decision; Build the fleet: a web subnet and a scale set across two zones; Put the fleet behind a Standard Load Balancer; Close port 22, add Bastion, and reach the vault privately; Choose the data store and the storage tiers; Create a zone-redundant PostgreSQL server in its own subnet, then stop it; Queue the visits and write a ledger; Lock the data down and age it out; Set RPO and RTO per asset and the autoscale target; Autoscale the fleet on CPU and prove a lost instance is replaced; Recover a deleted web file and restore the database to a point in time; Run a timed recovery drill and tear the fleet down | Data Store & Runbook |
-| NIST SP 800-53 | — | Access Control Matrix & Secrets Register; Network Design Document; Data Store & Runbook; Backup & Disaster Recovery Plan |
+| NIST SP 800-53 | — | Access Control Matrix & Secrets Register; Network Design Document; Data Store & Runbook; Backup & Disaster Recovery Plan; Portfolio |
 | NIST SP 800-34 | — | Backup & Disaster Recovery Plan |
+| ISO/IEC/IEEE 42010 | — | Portfolio |
 
 | Control cited | Standard | By |
 | --- | --- | --- |
 | NIST.800-53.AC-6 Least Privilege | NIST_800_53 | Access Control Matrix & Secrets Register |
 | NIST.800-53.CP-2 Contingency Plan | NIST_800_53 | Backup & Disaster Recovery Plan |
 | NIST.800-53.CP-9 System Backup | NIST_800_53 | Data Store & Runbook |
+| NIST.800-53.PL-2 System Security and Privacy Plans | NIST_800_53 | Portfolio |
 | NIST.800-53.SC-7 Boundary Protection | NIST_800_53 | Network Design Document |
 | NIST.800-34 Contingency Planning Guide | NIST_800_34 | Backup & Disaster Recovery Plan |
 | WAF.reliability Reliability pillar | WAF | Data Store & Runbook |
 | WAF.cost Cost optimisation pillar | WAF | Data Store & Runbook |
+| ISO42010 Architecture description | ISO_42010 | Portfolio |
 
 Forms whose standard names a practice rather than a control:
 
@@ -109,7 +113,7 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | arch: 5 skills with a verifiable step; infra: 4 skills with a verifiable step; dev: 4 skills with a verifiable step; secops: 4 skills with a verifiable step |
 | Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | arch: 77 percent of the exam over 4 domains; infra: 64 percent of the exam over 3 domains; dev: 72 percent of the exam over 4 domains; secops: 72 percent of the exam over 4 domains |
 | Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | arch: 5 verifiable steps that run a command; infra: 15 verifiable steps that run a command; dev: 16 verifiable steps that run a command; secops: 13 verifiable steps that run a command |
-| Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | arch: 7 procedures; infra: 7 procedures; dev: 7 procedures; secops: 7 procedures |
+| Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | arch: 8 procedures; infra: 8 procedures; dev: 8 procedures; secops: 8 procedures |
 | Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | arch: 2 fault, incident or triage tables; infra: 2 fault, incident or triage tables; dev: 2 fault, incident or triage tables; secops: 2 fault, incident or triage tables |
 | Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | arch: 5 verifiable steps; infra: 15 verifiable steps; dev: 16 verifiable steps; secops: 13 verifiable steps |
 | Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
@@ -117,19 +121,19 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | arch: 1 task with two or more verifiable steps; infra: 4 tasks with two or more verifiable steps; dev: 4 tasks with two or more verifiable steps; secops: 4 tasks with two or more verifiable steps |
 | First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | arch: 5 verifiable steps; infra: 15 verifiable steps; dev: 16 verifiable steps; secops: 13 verifiable steps |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
-| Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | arch: 29 checks on 4 forms; infra: 29 checks on 4 forms; dev: 29 checks on 4 forms; secops: 29 checks on 4 forms |
+| Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | arch: 34 checks on 5 forms; infra: 34 checks on 5 forms; dev: 34 checks on 5 forms; secops: 34 checks on 5 forms |
 | Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | arch: 1 decision block; infra: 1 decision block; dev: 1 decision block; secops: 1 decision block |
 | Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | arch: 1 decision block; infra: 1 decision block; dev: 1 decision block; secops: 1 decision block |
 | Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | arch: 1 decision block; infra: 1 decision block; dev: 1 decision block; secops: 1 decision block |
 | Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | arch: 1 change table with a rollback column; infra: 1 change table with a rollback column; dev: 1 change table with a rollback column; secops: 1 change table with a rollback column |
 | Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | arch: 4 hand-offs; infra: 4 hand-offs; dev: 4 hand-offs; secops: 4 hand-offs |
-| RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | arch: 4 forms with a RACI; infra: 4 forms with a RACI; dev: 4 forms with a RACI; secops: 4 forms with a RACI |
+| RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | arch: 5 forms with a RACI; infra: 5 forms with a RACI; dev: 5 forms with a RACI; secops: 5 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
 | On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | arch: 4 tasks of the role; infra: 4 tasks of the role; dev: 4 tasks of the role; secops: 4 tasks of the role |
-| Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | arch: 4 forms; infra: 4 forms; dev: 4 forms; secops: 4 forms |
-| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | arch: 2 control codes on 1 form; infra: 1 control code on 1 form; dev: 3 control codes on 1 form; secops: 1 control code on 1 form |
-| Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | arch: 4 forms; infra: 4 forms; dev: 4 forms; secops: 4 forms |
+| Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | arch: 5 forms; infra: 5 forms; dev: 5 forms; secops: 5 forms |
+| Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | arch: 4 control codes on 2 forms; infra: 1 control code on 1 form; dev: 3 control codes on 1 form; secops: 1 control code on 1 form |
+| Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | arch: 5 forms; infra: 5 forms; dev: 5 forms; secops: 5 forms |
 | Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | arch: 0 skills on two or more tasks; infra: 0 skills on two or more tasks; dev: 0 skills on two or more tasks; secops: 0 skills on two or more tasks |
 | Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | arch: 5 skills with a verifiable step; infra: 4 skills with a verifiable step; dev: 4 skills with a verifiable step; secops: 4 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |

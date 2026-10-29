@@ -1,4 +1,5 @@
 import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
+import { withPortfolioStep } from '../../docs/portfolioPlan';
 
 // MSSP / SOC 2 + ISO 27001 engagement course.
 //
@@ -969,7 +970,8 @@ To         Action      From
   },
 ];
 
-export const MSSP: Course = {
+// R142: the evidence-packet task closes by writing the Portfolio.
+export const MSSP: Course = withPortfolioStep({
   id: 'mssp',
   title: 'MSSP: SOC 2 + ISO 27001 Engagement',
   slug: 'mssp',
@@ -994,4 +996,4 @@ export const MSSP: Course = {
   topologyPicture: 'arch',
   teamCount: 16,
   teamCapacity: 6,
-};
+});

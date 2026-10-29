@@ -1,0 +1,116 @@
+{
+  "schema": "capstone-ontology/1",
+  "version": "2.3.0",
+  "tracks": [
+    {
+      "id": "ai",
+      "label": "AI track"
+    },
+    {
+      "id": "cyber",
+      "label": "Cyber track"
+    }
+  ],
+  "rules": [
+    "an advanced week carries at most one track; one on neither is counted as an advanced week",
+    "a graded week carries none: the graded weeks are the certification",
+    "an extension task carries the ai track, sits in a graded week, is shared by every role and is optional",
+    "the course index counts the weeks and tasks beyond the certification per course"
+  ],
+  "portfolio": {
+    "title": "Portfolio",
+    "caseStudyWords": 200,
+    "forms": [
+      {
+        "courseId": "security-plus",
+        "id": "sec_portfolio",
+        "week": 4,
+        "feeds": "final_report"
+      },
+      {
+        "courseId": "mssp",
+        "id": "mssp_portfolio",
+        "week": 4,
+        "feeds": "mssp_evidence_packet"
+      },
+      {
+        "courseId": "cysa-plus",
+        "id": "cysa_portfolio",
+        "week": 4,
+        "feeds": "cysa_exec_debrief"
+      },
+      {
+        "courseId": "server-plus",
+        "id": "srv_portfolio",
+        "week": 4,
+        "feeds": "srv_as_built"
+      },
+      {
+        "courseId": "ccna",
+        "id": "ccna_portfolio",
+        "week": 4,
+        "feeds": "ccna_handover"
+      },
+      {
+        "courseId": "a-plus",
+        "id": "ap_portfolio",
+        "week": 4,
+        "feeds": "ap_handover"
+      },
+      {
+        "courseId": "network-plus",
+        "id": "np_portfolio",
+        "week": 4,
+        "feeds": "np_handover"
+      },
+      {
+        "courseId": "secai-plus",
+        "id": "secai_portfolio",
+        "week": 4,
+        "feeds": "secai_release_package"
+      },
+      {
+        "courseId": "cissp",
+        "id": "cissp_portfolio",
+        "week": 6,
+        "feeds": "cissp_ssp"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "id": "azf_portfolio",
+        "week": 4,
+        "feeds": "azf_incident"
+      },
+      {
+        "courseId": "azure-administrator",
+        "id": "aza_portfolio",
+        "week": 4,
+        "feeds": "aza_dr"
+      },
+      {
+        "courseId": "azure-devops",
+        "id": "azd_portfolio",
+        "week": 4,
+        "feeds": "azd_handover"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "id": "awsf_portfolio",
+        "week": 4,
+        "feeds": "awsf_incident"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "id": "awsa_portfolio",
+        "week": 4,
+        "feeds": "awsa_dr"
+      },
+      {
+        "courseId": "aws-devops",
+        "id": "awsd_portfolio",
+        "week": 4,
+        "feeds": "awsd_handover"
+      }
+    ]
+  }
+}
