@@ -184,6 +184,8 @@ export const TOOLS: ToolDef[] = [
   t('tool.azure-portal', 'Azure portal', 'portal', ['Azure portal', 'Cost Management', 'Network Watcher', 'Application Insights', 'Run Command', 'Update Manager', 'Azure Policy', 'Defender for Cloud', 'Entra ID', 'Azure Monitor'], { vendor: 'Microsoft', url: 'https://portal.azure.com/' }),
   t('tool.azure-cloud-shell', 'Azure Cloud Shell', 'portal', ['Cloud Shell', 'Cloud Shell (az)', 'Azure Cloud Shell', 'Azure Cloud Shell (Bash)'], { vendor: 'Microsoft' }),
   t('tool.azure-cli', 'Azure CLI', 'cli', ['az', 'Azure CLI'], { vendor: 'Microsoft', commands: ['az'] }),
+  t('tool.azure-ai-foundry', 'Azure AI Foundry', 'portal', ['Azure AI Foundry', 'Azure AI Foundry portal', 'Foundry'], { vendor: 'Microsoft', url: 'https://ai.azure.com/' }),
+  t('tool.azure-ai-services', 'Azure AI Services', 'service', ['Azure AI Services', 'Azure AI Language', 'Azure AI Vision'], { vendor: 'Microsoft' }),
   t('tool.azure-pricing-calculator', 'Azure Pricing Calculator', 'portal', ['Pricing calculator', 'Azure Pricing Calculator', 'azure.microsoft.com/pricing/calculator'], { vendor: 'Microsoft', url: 'https://azure.microsoft.com/pricing/calculator/' }),
   t('tool.aws-console', 'AWS console', 'portal', ['AWS console', 'Budgets', 'Reachability Analyzer', 'CloudWatch', 'Session Manager', 'Patch Manager', 'AWS Config', 'Trusted Advisor', 'IAM Access Analyzer', 'IAM'], { vendor: 'Amazon Web Services', url: 'https://console.aws.amazon.com/' }),
   t('tool.aws-cloudshell', 'AWS CloudShell', 'portal', ['CloudShell', 'CloudShell (aws)', 'AWS CloudShell'], { vendor: 'Amazon Web Services' }),
@@ -343,6 +345,7 @@ export const WHERE_TOOLS: Record<string, string[]> = {
 export const COURSE_TOOL_DEFAULTS: Record<string, string[]> = {
   ccna: ['tool.cisco-ios'],
   'a-plus': ['tool.pc-hardware'],
+  'ai-foundations': ['tool.ollama', 'tool.azure-cli', 'tool.python'],
   'network-plus': ['tool.network-simulator'],
   'azure-fundamentals': ['tool.azure-portal', 'tool.azure-cloud-shell'],
   'azure-administrator': ['tool.azure-portal', 'tool.azure-cloud-shell'],

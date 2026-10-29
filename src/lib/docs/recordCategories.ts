@@ -104,6 +104,7 @@ export const FORM_CATEGORY: Record<string, Cat[]> = {
   ccna_kit: [A, D], ccna_requirements: [A], ccna_hld: [A, D], ccna_lld: [A, C], ccna_build_log: [C], ccna_validation: [T, I], ccna_security: [C], ccna_ops: [T, D, C], ccna_monitoring: [T, I], ccna_handover: [A, M, P],
   // a-plus
   ap_intake: [C], ap_asset: [A, D], ap_fault: [T], ap_os: [C, D], ap_backup: [C, T], ap_tickets: [T, M], ap_security: [C], ap_handover: [M, P],
+  aif_setup: [C], aif_capabilities: [A], aif_responsible: [D, I], aif_eval: [T, I], aif_build: [C], aif_services: [C], aif_governance: [I, M], aif_handover: [M, P],
   // network-plus
   np_lab: [C], np_design: [A, D], np_ports: [A, C], np_config: [C], np_verify: [T, I], np_changes: [T, D], np_bom: [A, D], np_handover: [A, M, P, D],
   // secai-plus
@@ -140,6 +141,7 @@ export interface TroubleGroup {
 
 export const TROUBLE_GROUPS: TroubleGroup[] = [
   // R138: a fault table on a form of EVERY role, with a column that says how the case ended.
+  { form: 'aif_eval', group: 'attempts', outcome: 'result', resolved: 'Grounded' },
   { form: 'incident_report', group: 'iocs', outcome: 'attack_type', resolved: '.' },
   { form: 'pentest_report', group: 'findings', outcome: 'remediation', resolved: '.' },
   { form: 'risk_register', group: 'risks', outcome: 'status', resolved: 'closed' },
@@ -183,6 +185,7 @@ export interface ChangeGroup {
 
 export const CHANGE_GROUPS: ChangeGroup[] = [
   // R138: a change table with a rollback column in every course, on a shared form so every role reads it.
+  { form: 'aif_build', group: 'changes', rollback: 'rollback' },
   { form: 'change_log', group: 'changes', rollback: 'rollback' },
   { form: 'mssp_control_matrix', group: 'changes', rollback: 'rollback' },
   { form: 'cysa_soc_monitoring', group: 'changes', rollback: 'rollback' },

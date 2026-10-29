@@ -86,6 +86,14 @@ export const CERTS: Record<string, CertDef> = {
       d('d9', 'Operational Procedures (Core 2)', 10, '21% of Core 2'),
     ],
   },
+  'ai-foundations': {
+    courseId: 'ai-foundations', vendorId: 'microsoft', vendor: 'Microsoft', code: 'AI-901', name: 'Azure AI Fundamentals', level: 'entry', vendorLevel: 'Fundamentals', exam: true, examFeeUsd: 99, feeCheckedYear: 2026,
+    // AI-900 retired 30 June 2026; AI-901 is its live replacement, built on Azure AI Foundry. Two skill areas.
+    domains: [
+      d('d1', 'Identify AI concepts and capabilities', 42, '40–45%'),
+      d('d2', 'Implement AI solutions by using Microsoft Foundry', 58, '55–60%'),
+    ],
+  },
   'network-plus': {
     courseId: 'network-plus', vendorId: 'comptia', vendor: 'CompTIA', code: 'N10-009', name: 'Network+', level: 'entry', exam: true, examFeeUsd: 369, feeCheckedYear: 2026,
     prerequisite: 'a-plus', next: 'security-plus',
@@ -218,6 +226,10 @@ export const TASK_DOMAINS: Record<string, Record<string, string>> = {
   'a-plus': {
     'ap-w1-inventory': 'd3', 'ap-w1-fault': 'd5', 'ap-w1-firmware': 'd3', 'ap-w2-image': 'd9', 'ap-w2-install': 'd6', 'ap-w2-restore': 'd9',
     'ap-w3-connect': 'd2', 'ap-w3-user': 'd6', 'ap-w3-tickets': 'd8', 'ap-w4-secure': 'd7', 'ap-w4-restore': 'd9', 'ap-w4-handover': 'd9',
+  },
+  'ai-foundations': {
+    'aif-w1-workloads': 'd1', 'aif-w1-components': 'd1', 'aif-w1-local': 'd1', 'aif-w2-responsible': 'd1', 'aif-w2-ml': 'd1', 'aif-w2-eval': 'd1',
+    'aif-w3-deploy': 'd2', 'aif-w3-app': 'd2', 'aif-w3-services': 'd2', 'aif-w4-agent': 'd2', 'aif-w4-govern': 'd2', 'aif-w4-handover': 'd2',
   },
   'network-plus': {
     'np-w1-requirements': 'd1', 'np-w1-plan': 'd1', 'np-w1-topology': 'd2', 'np-w2-switches': 'd2', 'np-w2-routing': 'd2', 'np-w2-services': 'd2',

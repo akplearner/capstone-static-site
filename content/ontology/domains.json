@@ -129,6 +129,20 @@
       "courseId": "a-plus"
     },
     {
+      "id": "AI-901.d1",
+      "code": "AI-901",
+      "name": "Identify AI concepts and capabilities",
+      "weight": 42,
+      "courseId": "ai-foundations"
+    },
+    {
+      "id": "AI-901.d2",
+      "code": "AI-901",
+      "name": "Implement AI solutions by using Microsoft Foundry",
+      "weight": 58,
+      "courseId": "ai-foundations"
+    },
+    {
       "id": "N10-009.d1",
       "code": "N10-009",
       "name": "Networking Concepts",

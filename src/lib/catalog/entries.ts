@@ -173,6 +173,15 @@ export const CATALOG: CatalogEntry[] = [
     blurb: 'Build a small company in Azure: network, VM, website, serverless counter. Start here.',
   },
   {
+    id: 'ms-ai-901',
+    vendorId: 'microsoft',
+    certName: 'AI-901',
+    level: 'entry',
+    status: 'available',
+    courseId: 'ai-foundations',
+    blurb: 'Stand up a small AI assistant on Azure AI Foundry and a free local model: workloads, responsible AI, grounding, agents.',
+  },
+  {
     id: 'ms-sc-900',
     vendorId: 'microsoft',
     certName: 'SC-900',

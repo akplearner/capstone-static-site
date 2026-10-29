@@ -460,6 +460,34 @@
       "communication",
       "projects"
     ],
+    "aif_setup": [
+      "configurations"
+    ],
+    "aif_capabilities": [
+      "architectures"
+    ],
+    "aif_responsible": [
+      "decisions",
+      "investigations"
+    ],
+    "aif_eval": [
+      "troubleshooting",
+      "investigations"
+    ],
+    "aif_build": [
+      "configurations"
+    ],
+    "aif_services": [
+      "configurations"
+    ],
+    "aif_governance": [
+      "investigations",
+      "communication"
+    ],
+    "aif_handover": [
+      "communication",
+      "projects"
+    ],
     "np_lab": [
       "configurations"
     ],
@@ -627,6 +655,12 @@
     ]
   },
   "troubleGroups": [
+    {
+      "form": "aif_eval",
+      "group": "attempts",
+      "outcome": "result",
+      "resolved": "Grounded"
+    },
     {
       "form": "incident_report",
       "group": "iocs",
@@ -821,6 +855,11 @@
     }
   ],
   "changeGroups": [
+    {
+      "form": "aif_build",
+      "group": "changes",
+      "rollback": "rollback"
+    },
     {
       "form": "change_log",
       "group": "changes",

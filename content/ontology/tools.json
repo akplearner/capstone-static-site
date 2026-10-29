@@ -1690,6 +1690,29 @@
       ]
     },
     {
+      "id": "tool.azure-ai-foundry",
+      "label": "Azure AI Foundry",
+      "kind": "portal",
+      "aliases": [
+        "Azure AI Foundry",
+        "Azure AI Foundry portal",
+        "Foundry"
+      ],
+      "vendor": "Microsoft",
+      "url": "https://ai.azure.com/"
+    },
+    {
+      "id": "tool.azure-ai-services",
+      "label": "Azure AI Services",
+      "kind": "service",
+      "aliases": [
+        "Azure AI Services",
+        "Azure AI Language",
+        "Azure AI Vision"
+      ],
+      "vendor": "Microsoft"
+    },
+    {
       "id": "tool.azure-pricing-calculator",
       "label": "Azure Pricing Calculator",
       "kind": "portal",
@@ -2165,6 +2188,11 @@
     ],
     "a-plus": [
       "tool.pc-hardware"
+    ],
+    "ai-foundations": [
+      "tool.ollama",
+      "tool.azure-cli",
+      "tool.python"
     ],
     "network-plus": [
       "tool.network-simulator"

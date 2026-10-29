@@ -18,6 +18,7 @@ import { CCNA } from './seed/ccna';
 import { SECAI_PLUS } from './seed/secaiPlus';
 import { CISSP } from './seed/cissp';
 import { A_PLUS } from './seed/aPlus';
+import { AI_FOUNDATIONS } from './seed/aiFoundations';
 import { NETWORK_PLUS } from './seed/networkPlus';
 import { AZURE_COURSES } from './seed/azureCloud';
 import { AWS_COURSES } from './seed/awsCloud';
@@ -38,7 +39,7 @@ import { AWS_COURSES } from './seed/awsCloud';
  * seed's forms and manual beside the edited tasks, and a duplicate carries its
  * parent's content into the cloud with it.
  */
-const SEED_MODULES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
+const SEED_MODULES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS];
 
 function report(what: string, message: string) {
   return ({ error }: { error: { message: string } | null }) => {

@@ -645,6 +645,54 @@
       "label": "Known issue"
     },
     {
+      "form": "aif_setup",
+      "field": "assistant",
+      "kind": "host",
+      "label": "Assistant",
+      "declares": true
+    },
+    {
+      "form": "aif_capabilities",
+      "group": "features",
+      "column": "feature",
+      "kind": "resource",
+      "label": "Feature",
+      "labelFrom": "workload"
+    },
+    {
+      "form": "aif_responsible",
+      "group": "principles",
+      "column": "finding",
+      "kind": "risk",
+      "label": "Responsible-AI finding"
+    },
+    {
+      "form": "aif_eval",
+      "group": "attempts",
+      "column": "theory",
+      "kind": "incident",
+      "label": "Grounding attempt"
+    },
+    {
+      "form": "aif_build",
+      "field": "answer",
+      "kind": "change",
+      "label": "Grounded answer"
+    },
+    {
+      "form": "aif_governance",
+      "group": "risks",
+      "column": "risk",
+      "kind": "risk",
+      "label": "AI risk"
+    },
+    {
+      "form": "aif_handover",
+      "field": "depends",
+      "kind": "resource",
+      "label": "Dependency"
+    },
+    {
       "form": "np_design",
       "group": "vlans",
       "column": "vlan",
@@ -1197,6 +1245,12 @@
     },
     {
       "form": "ap_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "aif_portfolio",
       "field": "repo_url",
       "kind": "resource",
       "label": "Repository"

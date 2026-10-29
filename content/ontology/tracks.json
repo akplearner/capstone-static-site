@@ -58,6 +58,12 @@
         "feeds": "ap_handover"
       },
       {
+        "courseId": "ai-foundations",
+        "id": "aif_portfolio",
+        "week": 4,
+        "feeds": "aif_handover"
+      },
+      {
         "courseId": "network-plus",
         "id": "np_portfolio",
         "week": 4,

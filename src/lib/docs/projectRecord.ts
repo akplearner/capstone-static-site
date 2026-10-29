@@ -178,6 +178,14 @@ export const RECORD_FIELDS: RecordField[] = [
   inf('ap_tickets', 'tickets', 'ref', 'incident', 'Ticket', { unique: true }),
   inf('ap_security', 'diff', 'service', 'rule', 'Service decision', { labelFrom: 'side' }),
   inf('ap_handover', 'known_issues', 'issue', 'risk', 'Known issue'),
+  // ai-foundations — at least half the forms feed the record.
+  fld('aif_setup', 'assistant', 'host', 'Assistant', { declares: true }),
+  inf('aif_capabilities', 'features', 'feature', 'resource', 'Feature', { labelFrom: 'workload' }),
+  inf('aif_responsible', 'principles', 'finding', 'risk', 'Responsible-AI finding'),
+  inf('aif_eval', 'attempts', 'theory', 'incident', 'Grounding attempt'),
+  fld('aif_build', 'answer', 'change', 'Grounded answer'),
+  inf('aif_governance', 'risks', 'risk', 'risk', 'AI risk'),
+  fld('aif_handover', 'depends', 'resource', 'Dependency'),
   // network-plus
   inf('np_design', 'vlans', 'vlan', 'vlan', 'VLAN', { unique: true }),
   inf('np_design', 'vlans', 'prefix', 'cidr', 'Prefix', { unique: true }),

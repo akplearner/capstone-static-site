@@ -24,6 +24,7 @@ import cysaDoc from '../../../content/courses/cysa-plus.json';
 import serverPlusDoc from '../../../content/courses/server-plus.json';
 import ccnaDoc from '../../../content/courses/ccna.json';
 import aPlusDoc from '../../../content/courses/a-plus.json';
+import aiFoundationsDoc from '../../../content/courses/ai-foundations.json';
 import networkPlusDoc from '../../../content/courses/network-plus.json';
 import secaiDoc from '../../../content/courses/secai-plus.json';
 import cisspDoc from '../../../content/courses/cissp.json';
@@ -42,6 +43,7 @@ export const SEED_DOCUMENTS: Record<string, CourseDto> = {
   'server-plus': serverPlusDoc as unknown as CourseDto,
   ccna: ccnaDoc as unknown as CourseDto,
   'a-plus': aPlusDoc as unknown as CourseDto,
+  'ai-foundations': aiFoundationsDoc as unknown as CourseDto,
   'network-plus': networkPlusDoc as unknown as CourseDto,
   'secai-plus': secaiDoc as unknown as CourseDto,
   cissp: cisspDoc as unknown as CourseDto,

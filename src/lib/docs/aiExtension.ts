@@ -43,6 +43,7 @@ export const AI_EXTENSION_PLAN: Record<string, AiExtensionSpec> = {
   'server-plus': { prefix: 'srv', role: 'mgmt', weeks: [1, 2, 3, 4], topics: { 1: 'explain the hardware plan', 2: 'draft an operations SOP', 3: 'check the IP plan', 4: 'summarise the as-built' } },
   ccna: { prefix: 'ccna', role: 'ops', weeks: [1, 2, 3, 4], topics: { 1: 'explain the high-level design', 2: 'check the IP plan', 3: 'read a validation result', 4: 'draft the ACL rationale' } },
   'a-plus': { prefix: 'ap', role: 'records', weeks: [1, 2, 3, 4], topics: { 1: 'explain the build sheet', 2: 'read a backup log', 3: 'draft a support ticket', 4: 'summarise the handover' } },
+  'ai-foundations': { prefix: 'aif', role: 'records', weeks: [1, 2, 3, 4], topics: { 1: 'explain the capabilities map', 2: 'check the responsible-AI findings', 3: 'draft the build record', 4: 'summarise the handover' } },
   'network-plus': { prefix: 'np', role: 'ops', weeks: [1, 2, 3, 4], topics: { 1: 'check the IP plan', 2: 'read a verification log', 3: 'explain a change', 4: 'draft the migration plan' } },
   'secai-plus': { prefix: 'secai', role: 'governance', weeks: [1, 2, 3, 4], topics: { 1: 'map the system model', 2: 'explain an attack case', 3: 'check a control', 4: 'draft the assurance answer' } },
   cissp: { prefix: 'cissp', role: 'govrisk', weeks: [1, 2, 3, 4, 5, 6], topics: { 1: 'explain a risk', 2: 'check an asset class', 3: 'read a network rule', 4: 'draft an access review', 5: 'summarise an assessment', 6: 'review the security plan' } },

@@ -95,6 +95,15 @@ export const RACI: Record<string, Raci> = {
   ap_tickets: r('support', 'hw', 'records'),
   ap_security: r('os', 'support', 'records'),
   ap_handover: r('records', 'os', 'support', ['hw']),
+  // ai-foundations — concepts · build · language · records.
+  aif_setup: r('records', 'build', 'concepts'),
+  aif_capabilities: r('concepts', 'language', 'records'),
+  aif_responsible: r('concepts', 'records', 'build'),
+  aif_eval: r('records', 'language', 'concepts'),
+  aif_build: r('build', 'language', 'records'),
+  aif_services: r('language', 'build', 'records'),
+  aif_governance: r('records', 'concepts', 'build'),
+  aif_handover: r('records', 'build', 'concepts', ['language']),
 
   // Network+ — design · sw · rt · ops. Designs are reviewed by the people who
   // build them and approved by the people who run them; the handover is

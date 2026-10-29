@@ -74,6 +74,11 @@ const SEED_THEMES: Record<string, CourseTheme> = {
     vendor: 'CompTIA',
     certification: 'A+ (220-1201 / 220-1202)',
   },
+  'ai-foundations': {
+    key: 'ai-foundations',
+    vendor: 'Microsoft',
+    certification: 'Azure AI Fundamentals (AI-901)',
+  },
   'network-plus': {
     key: 'network-plus',
     vendor: 'CompTIA',

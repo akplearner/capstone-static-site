@@ -277,6 +277,7 @@ const LAB_PROFILES: Record<string, LabProfile> = {
   // offering the Security+ target/attacker fields, which mean nothing here.
   'secai-plus': { fields: [], checks: [] },
   cissp: { fields: [], checks: [] },
+  'ai-foundations': { fields: [], checks: [] },
   // The bench: the machine's name and, from Week 3, its address.
   'a-plus': {
     fields: A_PLUS_FIELDS,

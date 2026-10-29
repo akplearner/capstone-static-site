@@ -117,6 +117,12 @@ export const WORK_ROLE_OF: Record<string, Record<string, string[]>> = {
     support: ['role.system-administrator', 'role.network-operations-specialist'],
     records: ['role.system-administrator'],
   },
+  'ai-foundations': {
+    concepts: ['role.cyber-policy-planner'],
+    build: ['role.software-developer'],
+    language: ['role.software-developer'],
+    records: ['role.cyber-policy-planner'],
+  },
   'network-plus': {
     design: ['role.network-operations-specialist', 'role.security-architect'],
     sw: ['role.network-operations-specialist'],

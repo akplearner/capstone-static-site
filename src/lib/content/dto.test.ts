@@ -245,6 +245,7 @@ describe('a course loads from its own document', () => {
       'server-plus': 0,
       ccna: 0,
       'a-plus': 0,
+      'ai-foundations': 0,
       'network-plus': 0,
       'secai-plus': 0,
       cissp: 0,

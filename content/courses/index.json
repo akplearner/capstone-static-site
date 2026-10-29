@@ -546,6 +546,42 @@
           "ai-agents-mcp"
         ]
       }
+    },
+    {
+      "id": "ai-foundations",
+      "title": "Azure AI Fundamentals — the Foundry Studio",
+      "version": 1,
+      "file": "ai-foundations.json",
+      "weeks": 9,
+      "tasks": 27,
+      "steps": 60,
+      "deliverables": 9,
+      "procedures": 0,
+      "vendor": "Microsoft",
+      "certification": "Azure AI Fundamentals (AI-901)",
+      "level": "entry",
+      "examFeeUsd": 99,
+      "coveredWeight": 100,
+      "costOnceUsd": 0,
+      "costMonthlyUsd": 0,
+      "costTasksUsd": 0,
+      "skills": 17,
+      "tools": 10,
+      "standards": 4,
+      "controls": 11,
+      "sops": 9,
+      "tactics": 0,
+      "practices": 18,
+      "premium": {
+        "aiWeeks": 4,
+        "cyberWeeks": 0,
+        "otherWeeks": 0,
+        "aiTasks": 4,
+        "modules": [
+          "rag-engineering",
+          "ai-agents-mcp"
+        ]
+      }
     }
   ]
 }

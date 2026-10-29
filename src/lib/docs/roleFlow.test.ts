@@ -7,6 +7,7 @@ import { MSSP } from '../data/seed/mssp';
 import { SERVER_PLUS } from '../data/seed/serverPlus';
 import { CCNA } from '../data/seed/ccna';
 import { A_PLUS } from '../data/seed/aPlus';
+import { AI_FOUNDATIONS } from '../data/seed/aiFoundations';
 import { NETWORK_PLUS } from '../data/seed/networkPlus';
 import { SECAI_PLUS } from '../data/seed/secaiPlus';
 import { CISSP } from '../data/seed/cissp';
@@ -20,7 +21,7 @@ import type { RoleDef } from '../types';
  * the chain, never typed. Every role in every course drafts something, hands
  * its drafts to another role, and the picture's arrows add up to the table.
  */
-const COURSES = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
+const COURSES = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS];
 
 const roles: RoleDef[] = [
   { id: 'a', name: 'A', mission: '', color: 'var(--x)', icon: 'Shield' },

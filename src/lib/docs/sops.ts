@@ -131,6 +131,16 @@ export const DELIVERABLE_SOPS: Record<string, Record<string, string[]>> = {
     np_bom: ['sop.asset-inventory'],
     np_handover: ['sop.handover', 'sop.chain-of-custody'],
   },
+  'ai-foundations': {
+    aif_setup: ['sop.asset-inventory'],
+    aif_capabilities: ['sop.ai-system-map'],
+    aif_responsible: ['sop.governance-report'],
+    aif_eval: ['sop.test-and-acceptance'],
+    aif_build: ['sop.build-record'],
+    aif_services: ['sop.build-record'],
+    aif_governance: ['sop.risk-register', 'sop.governance-report'],
+    aif_handover: ['sop.handover', 'sop.chain-of-custody'],
+  },
   'a-plus': {
     ap_intake: ['sop.asset-inventory'],
     ap_asset: ['sop.asset-inventory', 'sop.build-record'],
@@ -243,6 +253,14 @@ export const TASK_SOPS: Record<string, Record<string, string[]>> = {
     'np-w3-change': ['sop.change-record', 'sop.backup-plan'],
     'np-w3-faults': ['sop.incident-record'],
     'np-w4-handover': ['sop.handover', 'sop.chain-of-custody'],
+  },
+  'ai-foundations': {
+    'aif-w1-workloads': ['sop.ai-system-map'],
+    'aif-w2-responsible': ['sop.governance-report'],
+    'aif-w2-eval': ['sop.test-and-acceptance'],
+    'aif-w3-deploy': ['sop.build-record'],
+    'aif-w4-govern': ['sop.risk-register'],
+    'aif-w4-handover': ['sop.handover', 'sop.chain-of-custody'],
   },
   'a-plus': {
     'ap-w1-fault': ['sop.incident-record'],
