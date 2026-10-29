@@ -1,6 +1,6 @@
 # Network+ Capstone Branch — skills sheet
 
-13 graded tasks and 2 advanced · 25 skills · 13 tools · 12 procedures · 4 standards (7 controls cited) · 0 tactics · 17 practices
+17 graded tasks and 2 advanced · 29 skills · 14 tools · 12 procedures · 5 standards (7 controls cited) · 0 tactics · 18 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -8,6 +8,10 @@ Generated from the registries and the course document by `npm run content:export
 
 | Skill | Area | Anchored to | Practised by |
 | --- | --- | --- | --- |
+| Run a local AI assistant offline `comp.ai.local-assistant` | Applied AI | NIST.AI-RMF.MANAGE | AI extension: check the IP plan; AI extension: read a verification log; AI extension: explain a change; AI extension: draft the migration plan |
+| Ground an AI answer in the records `comp.ai.ground-in-records` | Applied AI | NIST.AI-RMF.MAP | AI extension: read a verification log; AI extension: explain a change; AI extension: draft the migration plan |
+| Verify AI output against the evidence `comp.ai.verify-ai-output` | Applied AI | NIST.AI-RMF.MEASURE | AI extension: check the IP plan; AI extension: read a verification log; AI extension: explain a change; AI extension: draft the migration plan |
+| Write a task-specific prompt `comp.ai.prompt-for-the-task` | Applied AI | NIST.AI-RMF.MAP | AI extension: check the IP plan |
 | Troubleshoot with the structured method `comp.sysadmin.troubleshooting-method` | System administration | SK0-005.d4, 200-301.d3, ITIL.problem | Work three faults by layer |
 | Design a hierarchical network with boundaries `comp.network.hierarchical-design` | Network engineering | 200-301.d1 | Plan the addresses and the VLANs |
 | Bring switches up with management addressing `comp.network.switch-bringup` | Network engineering | 200-301.d2 | Cut the switches into VLANs; Build it on hardware |
@@ -43,11 +47,12 @@ Generated from the registries and the course document by `npm run content:export
 | ping / traceroute | cli | Route between them and out; Hand out addresses and names; Enforce the policy; Work three faults by layer |
 | nslookup | cli | Hand out addresses and names |
 | sha256sum | cli | Plan the move and hand over |
-| Capstone forms | document | Discover before you design; Plan the addresses and the VLANs; Build the empty topology; Cut the switches into VLANs; Route between them and out; Hand out addresses and names; Watch it and back it up; Enforce the policy; Change it properly; Work three faults by layer; Research the equipment; Price the bill of materials; Plan the move and hand over; Build it on hardware; Write down what differed |
+| Capstone forms | document | Discover before you design; Plan the addresses and the VLANs; Build the empty topology; Cut the switches into VLANs; Route between them and out; Hand out addresses and names; Watch it and back it up; Enforce the policy; Change it properly; Work three faults by layer; Research the equipment; Price the bill of materials; Plan the move and hand over; Build it on hardware; Write down what differed; AI extension: check the IP plan; AI extension: read a verification log; AI extension: explain a change; AI extension: draft the migration plan |
 | Notes | document | Discover before you design; Write down what differed |
 | Spreadsheet | app | Plan the addresses and the VLANs; Research the equipment; Price the bill of materials |
 | Terminal program | app | Build it on hardware |
 | Vendor documentation | document | Research the equipment |
+| Ollama | service | AI extension: check the IP plan; AI extension: read a verification log; AI extension: explain a change; AI extension: draft the migration plan |
 | Cisco IOS | appliance | Build the empty topology; Cut the switches into VLANs; Route between them and out; Hand out addresses and names; Watch it and back it up; Enforce the policy; Change it properly; Work three faults by layer; Build it on hardware |
 | Console cable | hardware | Build it on hardware |
 | Network simulator | app | Build the empty topology; Cut the switches into VLANs; Route between them and out; Hand out addresses and names; Watch it and back it up; Enforce the policy; Change it properly; Work three faults by layer |
@@ -77,6 +82,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | --- | --- | --- |
 | Network+ N10-009 | Discover before you design; Plan the addresses and the VLANs; Build the empty topology; Cut the switches into VLANs; Route between them and out; Hand out addresses and names; Watch it and back it up; Enforce the policy; Change it properly; Work three faults by layer; Research the equipment; Price the bill of materials; Plan the move and hand over; Build it on hardware; Write down what differed | — |
 | ITIL 4 | Watch it and back it up; Change it properly; Work three faults by layer; Plan the move and hand over | — |
+| NIST AI RMF | AI extension: check the IP plan; AI extension: read a verification log; AI extension: explain a change; AI extension: draft the migration plan | — |
 | NIST SP 800-53 | — | Lab & Path Register; Design Brief & IP Plan; VLAN & Port Map; Configuration Record; Services & Verification Log; Change & Fault Log; Equipment Research & BOM; Migration Plan & Handover; Portfolio |
 | ISO/IEC/IEEE 42010 | — | Portfolio |
 
@@ -123,6 +129,7 @@ Adversary tactics are not part of this course.
 | Test and acceptance | ITIL.transition | Route between them and out; Hand out addresses and names; Build it on hardware |
 | Structured troubleshooting | ITIL.problem | Work three faults by layer |
 | Asset inventory | NIST.CSF.ID.AM | Price the bill of materials |
+| Human checkpoint | NIST_AI_RMF | AI extension: check the IP plan; AI extension: read a verification log; AI extension: explain a change; AI extension: draft the migration plan |
 | Work tracked on a board | ITIL.knowledge | Work three faults by layer |
 
 ## KPI board
@@ -131,32 +138,32 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 
 | KPI | Family | Reads | Denominator in this course |
 | --- | --- | --- | --- |
-| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | design: 18 skills with a verifiable step; sw: 18 skills with a verifiable step; rt: 18 skills with a verifiable step; ops: 18 skills with a verifiable step |
+| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | design: 22 skills with a verifiable step; sw: 22 skills with a verifiable step; rt: 22 skills with a verifiable step; ops: 22 skills with a verifiable step |
 | Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | design: 100 percent of the exam over 5 domains; sw: 100 percent of the exam over 5 domains; rt: 100 percent of the exam over 5 domains; ops: 100 percent of the exam over 5 domains |
-| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | design: 15 verifiable steps that run a command; sw: 15 verifiable steps that run a command; rt: 15 verifiable steps that run a command; ops: 15 verifiable steps that run a command |
+| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | design: 19 verifiable steps that run a command; sw: 19 verifiable steps that run a command; rt: 19 verifiable steps that run a command; ops: 19 verifiable steps that run a command |
 | Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | design: 12 procedures; sw: 12 procedures; rt: 12 procedures; ops: 12 procedures |
 | Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | design: 2 fault, incident or triage tables; sw: 2 fault, incident or triage tables; rt: 2 fault, incident or triage tables; ops: 2 fault, incident or triage tables |
-| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | design: 15 verifiable steps; sw: 15 verifiable steps; rt: 15 verifiable steps; ops: 15 verifiable steps |
+| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | design: 19 verifiable steps; sw: 19 verifiable steps; rt: 19 verifiable steps; ops: 19 verifiable steps |
 | Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
-| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | design: 15 verifiable steps that can carry two stamps; sw: 15 verifiable steps that can carry two stamps; rt: 15 verifiable steps that can carry two stamps; ops: 15 verifiable steps that can carry two stamps |
+| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | design: 19 verifiable steps that can carry two stamps; sw: 19 verifiable steps that can carry two stamps; rt: 19 verifiable steps that can carry two stamps; ops: 19 verifiable steps that can carry two stamps |
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | design: 5 tasks with two or more verifiable steps; sw: 5 tasks with two or more verifiable steps; rt: 5 tasks with two or more verifiable steps; ops: 5 tasks with two or more verifiable steps |
-| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | design: 15 verifiable steps; sw: 15 verifiable steps; rt: 15 verifiable steps; ops: 15 verifiable steps |
+| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | design: 19 verifiable steps; sw: 19 verifiable steps; rt: 19 verifiable steps; ops: 19 verifiable steps |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
 | Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | design: 37 checks on 9 forms; sw: 37 checks on 9 forms; rt: 37 checks on 9 forms; ops: 37 checks on 9 forms |
 | Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | design: 1 decision block; sw: 1 decision block; rt: 1 decision block; ops: 1 decision block |
 | Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | design: 1 decision block; sw: 1 decision block; rt: 1 decision block; ops: 1 decision block |
 | Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | design: 1 decision block; sw: 1 decision block; rt: 1 decision block; ops: 1 decision block |
 | Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | design: 1 change table with a rollback column; sw: 1 change table with a rollback column; rt: 1 change table with a rollback column; ops: 1 change table with a rollback column |
-| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | design: 13 hand-offs; sw: 13 hand-offs; rt: 13 hand-offs; ops: 13 hand-offs |
+| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | design: 17 hand-offs; sw: 17 hand-offs; rt: 17 hand-offs; ops: 17 hand-offs |
 | RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | design: 9 forms with a RACI; sw: 9 forms with a RACI; rt: 9 forms with a RACI; ops: 9 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
-| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | design: 15 tasks of the role; sw: 15 tasks of the role; rt: 15 tasks of the role; ops: 15 tasks of the role |
+| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | design: 19 tasks of the role; sw: 19 tasks of the role; rt: 19 tasks of the role; ops: 19 tasks of the role |
 | Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | design: 9 forms; sw: 9 forms; rt: 9 forms; ops: 9 forms |
 | Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | design: 4 control codes on 4 forms; sw: 1 control code on 1 form; rt: 2 control codes on 2 forms; ops: 2 control codes on 2 forms |
 | Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | design: 9 forms; sw: 9 forms; rt: 9 forms; ops: 9 forms |
-| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | design: 2 skills on two or more tasks; sw: 2 skills on two or more tasks; rt: 2 skills on two or more tasks; ops: 2 skills on two or more tasks |
-| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | design: 18 skills with a verifiable step; sw: 18 skills with a verifiable step; rt: 18 skills with a verifiable step; ops: 18 skills with a verifiable step |
+| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | design: 5 skills on two or more tasks; sw: 5 skills on two or more tasks; rt: 5 skills on two or more tasks; ops: 5 skills on two or more tasks |
+| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | design: 22 skills with a verifiable step; sw: 22 skills with a verifiable step; rt: 22 skills with a verifiable step; ops: 22 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
 | Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | design: Network Operations Specialist: 62 required, 38 not taught here; sw: Network Operations Specialist: 62 required, 38 not taught here; rt: Network Operations Specialist: 62 required, 38 not taught here; ops: Network Operations Specialist: 62 required, 38 not taught here |
 | Values recalled `kpi.validation.recall-accuracy` | validation | metric.validation-recall (own) |  |

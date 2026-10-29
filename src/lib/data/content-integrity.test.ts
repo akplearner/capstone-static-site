@@ -574,7 +574,8 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (
   const serverBaseBuild = (x: { task: { week: number } }) => course.id === 'server-plus' && baseBuild(x);
   it('every Server+ base-build command says which machine it runs on', () => {
     const missing = allSteps(course)
-      .filter(serverBaseBuild)
+      // R143: the AI extension runs on the student's own machine, not a server, so it names no MachineId.
+      .filter((x) => serverBaseBuild(x) && !x.task.track)
       .flatMap(({ step }) => (step.commands ?? []).filter((c) => !c.on).map((c) => `${step.id}: ${c.cmd.slice(0, 50)}`));
     expect(missing, `add these to serverCommands.ts: ${missing.join(', ')}`).toHaveLength(0);
   });
@@ -582,7 +583,7 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (
   it('every Server+ base-build command names a machine that exists', () => {
     const ids = new Set(Object.keys(MACHINES));
     const bad = allSteps(course)
-      .filter(serverBaseBuild)
+      .filter((x) => serverBaseBuild(x) && !x.task.track)
       .flatMap(({ step }) => (step.commands ?? []).filter((c) => c.on && !ids.has(c.on)).map((c) => `${step.id}: ${c.on}`));
     expect(bad, `not a MachineId: ${bad.join(', ')}`).toHaveLength(0);
   });

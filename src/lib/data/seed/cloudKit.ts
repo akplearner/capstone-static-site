@@ -1,5 +1,6 @@
 import type { Course, Framework, RoleDef, Step, Task, TaskCost, WeekDef } from '../../types';
 import { withPortfolioStep } from '../../docs/portfolioPlan';
+import { withAiExtensions } from '../../docs/aiExtension';
 
 /**
  * The shared shape of the two cloud capstones (R87) — Azure and AWS, twelve
@@ -293,8 +294,8 @@ export function sliceCourse(
     const t = opts.setup.task;
     tasks.unshift({ ...retag(t, block.authoredFramework, block.framework), steps: t.steps.map((s) => retag(s, block.authoredFramework, block.framework)) });
   }
-  // R142: the Architect's last task writes the Portfolio beside the week's document.
-  return withPortfolioStep({
+  // R142: the Architect's last task writes the Portfolio; R143: each graded week gains an AI extension.
+  return withAiExtensions(withPortfolioStep({
     id: block.id,
     title: block.title,
     slug: block.id,
@@ -316,7 +317,7 @@ export function sliceCourse(
     lifecyclePath: CLOUD_CYCLE,
     isSeed: true,
     version: 1,
-  });
+  }));
 }
 
 /** The setup week every course after the first opens with. */

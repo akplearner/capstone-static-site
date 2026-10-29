@@ -1,6 +1,6 @@
 # SecAI+ Capstone: Four Releases — skills sheet
 
-12 graded tasks · 29 skills · 26 tools · 18 procedures · 10 standards (11 controls cited) · 7 tactics · 27 practices
+16 graded tasks · 33 skills · 26 tools · 18 procedures · 10 standards (11 controls cited) · 7 tactics · 27 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -37,6 +37,10 @@ Generated from the registries and the course document by `npm run content:export
 | Check AI-assisted work with a human `comp.ai-attack.ai-assisted-check` | AI attack and evaluation | CY0-001.d3, NIST_AI_RMF | Automate the suite and check AI-assisted work |
 | Reproduce a suite on a rebuilt copy `comp.ai-attack.reproduce` | AI attack and evaluation | CY0-001.d3, NIST_800_218 | Reproduce the suite and add four paper cases |
 | Write paper cases: poisoning, theft, inference `comp.ai-attack.paper-cases` | AI attack and evaluation | CY0-001.d3, MITRE.ATLAS | Reproduce the suite and add four paper cases |
+| Run a local AI assistant offline `comp.ai.local-assistant` | Applied AI | NIST.AI-RMF.MANAGE | AI extension: map the system model; AI extension: explain an attack case; AI extension: check a control; AI extension: draft the assurance answer |
+| Ground an AI answer in the records `comp.ai.ground-in-records` | Applied AI | NIST.AI-RMF.MAP | AI extension: explain an attack case; AI extension: check a control; AI extension: draft the assurance answer |
+| Verify AI output against the evidence `comp.ai.verify-ai-output` | Applied AI | NIST.AI-RMF.MEASURE | AI extension: map the system model; AI extension: explain an attack case; AI extension: check a control; AI extension: draft the assurance answer |
+| Write a task-specific prompt `comp.ai.prompt-for-the-task` | Applied AI | NIST.AI-RMF.MAP | AI extension: map the system model |
 
 ## Tools
 
@@ -44,7 +48,7 @@ Generated from the registries and the course document by `npm run content:export
 | --- | --- | --- |
 | Linux shell | cli | Map the system, write the rules, sign v1; Prove two attack cases with evidence; Close SA-1 and log every attempt; Six cases and a mapped threat model; Map the data and every rule that applies; Gate the pipeline and alert on every case; Automate the suite and check AI-assisted work; Find shadow AI and measure accuracy; Rebuild clean and hand over monitoring; Reproduce the suite and add four paper cases; Accept the risks and answer the customers |
 | sha256sum | cli | Map the system, write the rules, sign v1; Prove two attack cases with evidence; Accept the risks and answer the customers |
-| Capstone forms | document | Map the system, write the rules, sign v1; Map the data and every rule that applies; Find shadow AI and measure accuracy; Rebuild clean and hand over monitoring; Reproduce the suite and add four paper cases; Accept the risks and answer the customers |
+| Capstone forms | document | Map the system, write the rules, sign v1; Map the data and every rule that applies; Find shadow AI and measure accuracy; Rebuild clean and hand over monitoring; Reproduce the suite and add four paper cases; Accept the risks and answer the customers; AI extension: map the system model; AI extension: explain an attack case; AI extension: check a control; AI extension: draft the assurance answer |
 | draw.io | app | Map the system, write the rules, sign v1; Map the data and every rule that applies |
 | Mermaid | language | Map the system, write the rules, sign v1 |
 | garak | cli | Prove two attack cases with evidence |
@@ -60,7 +64,7 @@ Generated from the registries and the course document by `npm run content:export
 | Microsoft Presidio | service | Guard the inputs, scope the agent, redact the logs |
 | LLM Guard | service | Guard the inputs, scope the agent, redact the logs |
 | LiteLLM | service | Close SA-1 and log every attempt; Guard the inputs, scope the agent, redact the logs |
-| Ollama | service | Prove two attack cases with evidence; Six cases and a mapped threat model; Automate the suite and check AI-assisted work; Reproduce the suite and add four paper cases |
+| Ollama | service | Prove two attack cases with evidence; Six cases and a mapped threat model; Automate the suite and check AI-assisted work; Reproduce the suite and add four paper cases; AI extension: map the system model; AI extension: explain an attack case; AI extension: check a control; AI extension: draft the assurance answer |
 | Continue (IDE assistant) | app | Automate the suite and check AI-assisted work |
 | CISO Assistant | service | Map the data and every rule that applies; Find shadow AI and measure accuracy |
 | OWASP Threat Dragon | app | Six cases and a mapped threat model |
@@ -102,7 +106,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | STRIDE | Six cases and a mapped threat model | — |
 | ITIL 4 | — | Release Note |
 | SecAI+ CY0-001 | Map the system, write the rules, sign v1; Prove two attack cases with evidence; Close SA-1 and log every attempt; Six cases and a mapped threat model; Guard the inputs, scope the agent, redact the logs; Map the data and every rule that applies; Gate the pipeline and alert on every case; Automate the suite and check AI-assisted work; Find shadow AI and measure accuracy; Rebuild clean and hand over monitoring; Reproduce the suite and add four paper cases; Accept the risks and answer the customers | — |
-| NIST AI RMF | Map the system, write the rules, sign v1; Map the data and every rule that applies; Find shadow AI and measure accuracy; Accept the risks and answer the customers | P1 System Map; P5 Governance Pack |
+| NIST AI RMF | Map the system, write the rules, sign v1; Map the data and every rule that applies; Find shadow AI and measure accuracy; Accept the risks and answer the customers; AI extension: map the system model; AI extension: explain an attack case; AI extension: check a control; AI extension: draft the assurance answer | P1 System Map; P5 Governance Pack |
 | OWASP LLM Top 10 | Prove two attack cases with evidence; Close SA-1 and log every attempt; Six cases and a mapped threat model; Guard the inputs, scope the agent, redact the logs; Gate the pipeline and alert on every case; Automate the suite and check AI-assisted work; Reproduce the suite and add four paper cases | P2 Attack Casebook |
 | MITRE ATLAS | Six cases and a mapped threat model; Reproduce the suite and add four paper cases | P2 Attack Casebook |
 | ISO/IEC 42001 | Map the data and every rule that applies; Accept the risks and answer the customers | P5 Governance Pack |
@@ -165,7 +169,7 @@ Forms whose standard names a practice rather than a control:
 | Least privilege for agents | OWASP_LLM | Guard the inputs, scope the agent, redact the logs |
 | Redact before write | NIST_AI_RMF | Guard the inputs, scope the agent, redact the logs |
 | Model file scanning | OWASP_LLM | Rebuild clean and hand over monitoring |
-| Human checkpoint | NIST_AI_RMF | Automate the suite and check AI-assisted work |
+| Human checkpoint | NIST_AI_RMF | Automate the suite and check AI-assisted work; AI extension: map the system model; AI extension: explain an attack case; AI extension: check a control; AI extension: draft the assurance answer |
 | Model cards | NIST_AI_RMF | Accept the risks and answer the customers |
 | Shadow AI discovery | NIST_AI_RMF | Find shadow AI and measure accuracy |
 | Suites with a pass line | NIST_AI_RMF | Automate the suite and check AI-assisted work |
@@ -176,32 +180,32 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 
 | KPI | Family | Reads | Denominator in this course |
 | --- | --- | --- | --- |
-| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | redteam: 10 skills with a verifiable step; defender: 9 skills with a verifiable step; governance: 10 skills with a verifiable step |
+| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | redteam: 14 skills with a verifiable step; defender: 13 skills with a verifiable step; governance: 14 skills with a verifiable step |
 | Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | redteam: 50 percent of the exam over 2 domains; defender: 50 percent of the exam over 2 domains; governance: 50 percent of the exam over 2 domains |
-| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | redteam: 6 verifiable steps that run a command; defender: 10 verifiable steps that run a command; governance: 5 verifiable steps that run a command |
+| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | redteam: 10 verifiable steps that run a command; defender: 14 verifiable steps that run a command; governance: 9 verifiable steps that run a command |
 | Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | redteam: 11 procedures; defender: 17 procedures; governance: 16 procedures |
 | Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | redteam: 2 fault, incident or triage tables; defender: 1 fault, incident or triage table; governance: 2 fault, incident or triage tables |
-| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | redteam: 6 verifiable steps; defender: 10 verifiable steps; governance: 5 verifiable steps |
+| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | redteam: 10 verifiable steps; defender: 14 verifiable steps; governance: 9 verifiable steps |
 | Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
-| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | redteam: 6 verifiable steps that can carry two stamps; defender: 10 verifiable steps that can carry two stamps; governance: 5 verifiable steps that can carry two stamps |
+| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | redteam: 10 verifiable steps that can carry two stamps; defender: 14 verifiable steps that can carry two stamps; governance: 9 verifiable steps that can carry two stamps |
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | redteam: 2 tasks with two or more verifiable steps; defender: 4 tasks with two or more verifiable steps; governance: 1 task with two or more verifiable steps |
-| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | redteam: 6 verifiable steps; defender: 10 verifiable steps; governance: 5 verifiable steps |
+| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | redteam: 10 verifiable steps; defender: 14 verifiable steps; governance: 9 verifiable steps |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
 | Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | redteam: 16 checks on 3 forms; defender: 14 checks on 3 forms; governance: 26 checks on 7 forms |
 | Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | redteam: 1 decision block; defender: 1 decision block; governance: 1 decision block |
 | Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | redteam: 1 decision block; defender: 1 decision block; governance: 1 decision block |
 | Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | redteam: 1 decision block; defender: 1 decision block; governance: 1 decision block |
 | Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | redteam: 1 change table with a rollback column; defender: 1 change table with a rollback column; governance: 1 change table with a rollback column |
-| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | redteam: 4 hand-offs; defender: 5 hand-offs; governance: 4 hand-offs |
+| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | redteam: 8 hand-offs; defender: 9 hand-offs; governance: 8 hand-offs |
 | RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | redteam: 5 forms with a RACI; defender: 8 forms with a RACI; governance: 9 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
-| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | redteam: 4 tasks of the role; defender: 4 tasks of the role; governance: 4 tasks of the role |
+| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | redteam: 8 tasks of the role; defender: 8 tasks of the role; governance: 8 tasks of the role |
 | Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | redteam: 3 forms; defender: 3 forms; governance: 7 forms |
 | Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | redteam: 2 control codes on 1 form; defender: 3 control codes on 2 forms; governance: 6 control codes on 6 forms |
 | Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | redteam: 3 forms; defender: 3 forms; governance: 7 forms |
-| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | redteam: 0 skills on two or more tasks; defender: 0 skills on two or more tasks; governance: 0 skills on two or more tasks |
-| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | redteam: 10 skills with a verifiable step; defender: 9 skills with a verifiable step; governance: 10 skills with a verifiable step |
+| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | redteam: 3 skills on two or more tasks; defender: 3 skills on two or more tasks; governance: 3 skills on two or more tasks |
+| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | redteam: 14 skills with a verifiable step; defender: 13 skills with a verifiable step; governance: 14 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
 | Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | redteam: Exploitation Analyst: 29 required, 20 not taught here; defender: Systems Security Analyst: 34 required, 26 not taught here; governance: Cyber Policy and Strategy Planner: 47 required, 40 not taught here |
 | Values recalled `kpi.validation.recall-accuracy` | validation | metric.validation-recall (own) |  |

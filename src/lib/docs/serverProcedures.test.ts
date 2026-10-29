@@ -247,7 +247,8 @@ describe('R72 — a command is written down once', () => {
     // and the seed holds the addresses those resolve to.
     const known = new Set(RESOLVED.map((c) => norm(c.k)));
     const missing: string[] = [];
-    for (const t of SERVER_PLUS.tasks.filter((t) => t.week <= 4))
+    // R143: the AI extension runs on the student's own machine, not a server, so its command is not in the server registry.
+    for (const t of SERVER_PLUS.tasks.filter((t) => t.week <= 4 && !t.track))
       for (const s of t.steps)
         for (const c of s.commands ?? [])
           if (!known.has(norm(c.cmd))) missing.push(`${s.id}: ${c.cmd.slice(0, 50)}`);

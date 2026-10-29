@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "areas": {
     "recon": "Reconnaissance",
     "vuln": "Vulnerability management",
@@ -19,6 +19,7 @@
     "data": "Data security",
     "ops": "Security operations",
     "ai-attack": "AI attack and evaluation",
+    "ai": "Applied AI",
     "hardware": "Server hardware",
     "virt": "Virtualisation",
     "sysadmin": "System administration",
@@ -1397,6 +1398,42 @@
       "objectiveRefs": [
         "CY0-001.d3",
         "MITRE.ATLAS"
+      ]
+    },
+    {
+      "id": "comp.ai.local-assistant",
+      "version": "1.0.0",
+      "label": "Run a local AI assistant offline",
+      "area": "ai",
+      "objectiveRefs": [
+        "NIST.AI-RMF.MANAGE"
+      ]
+    },
+    {
+      "id": "comp.ai.ground-in-records",
+      "version": "1.0.0",
+      "label": "Ground an AI answer in the records",
+      "area": "ai",
+      "objectiveRefs": [
+        "NIST.AI-RMF.MAP"
+      ]
+    },
+    {
+      "id": "comp.ai.verify-ai-output",
+      "version": "1.0.0",
+      "label": "Verify AI output against the evidence",
+      "area": "ai",
+      "objectiveRefs": [
+        "NIST.AI-RMF.MEASURE"
+      ]
+    },
+    {
+      "id": "comp.ai.prompt-for-the-task",
+      "version": "1.0.0",
+      "label": "Write a task-specific prompt",
+      "area": "ai",
+      "objectiveRefs": [
+        "NIST.AI-RMF.MAP"
       ]
     },
     {
@@ -3185,6 +3222,758 @@
       {
         "courseId": "ccna",
         "taskId": "ccna-w8-handover"
+      }
+    ],
+    "comp.ai.prompt-for-the-task": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w1-ai"
+      },
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w1-ai"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-w1-ai"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-w1-ai"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-w1-ai"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-w1-ai"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-w1-ai"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "srv-w1-ai"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w1-ai"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-w1-ai"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-w1-ai"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-w1-ai"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-w1-ai"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-w1-ai"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-w1-ai"
+      }
+    ],
+    "comp.ai.local-assistant": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w1-ai"
+      },
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w2-ai"
+      },
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w3-ai"
+      },
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w4-ai"
+      },
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w1-ai"
+      },
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w2-ai"
+      },
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w3-ai"
+      },
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w4-ai"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-w1-ai"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-w2-ai"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-w3-ai"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-w4-ai"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-w1-ai"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-w2-ai"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-w3-ai"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-w4-ai"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-w1-ai"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-w2-ai"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-w3-ai"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-w4-ai"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-w1-ai"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-w2-ai"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-w3-ai"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-w4-ai"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-w1-ai"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-w2-ai"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-w3-ai"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-w4-ai"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-w5-ai"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-w6-ai"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "srv-w1-ai"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "srv-w2-ai"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "srv-w3-ai"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "srv-w4-ai"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w1-ai"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w2-ai"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w3-ai"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w4-ai"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-w1-ai"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-w2-ai"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-w3-ai"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-w4-ai"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-w1-ai"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-w2-ai"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-w3-ai"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-w4-ai"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-w1-ai"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-w2-ai"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-w3-ai"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-w4-ai"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-w1-ai"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-w2-ai"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-w3-ai"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-w4-ai"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-w1-ai"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-w2-ai"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-w3-ai"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-w4-ai"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-w1-ai"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-w2-ai"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-w3-ai"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-w4-ai"
+      }
+    ],
+    "comp.ai.verify-ai-output": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w1-ai"
+      },
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w2-ai"
+      },
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w3-ai"
+      },
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w4-ai"
+      },
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w1-ai"
+      },
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w2-ai"
+      },
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w3-ai"
+      },
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w4-ai"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-w1-ai"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-w2-ai"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-w3-ai"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-w4-ai"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-w1-ai"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-w2-ai"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-w3-ai"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-w4-ai"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-w1-ai"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-w2-ai"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-w3-ai"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-w4-ai"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-w1-ai"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-w2-ai"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-w3-ai"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-w4-ai"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-w1-ai"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-w2-ai"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-w3-ai"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-w4-ai"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-w5-ai"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-w6-ai"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "srv-w1-ai"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "srv-w2-ai"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "srv-w3-ai"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "srv-w4-ai"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w1-ai"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w2-ai"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w3-ai"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w4-ai"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-w1-ai"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-w2-ai"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-w3-ai"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-w4-ai"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-w1-ai"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-w2-ai"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-w3-ai"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-w4-ai"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-w1-ai"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-w2-ai"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-w3-ai"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-w4-ai"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-w1-ai"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-w2-ai"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-w3-ai"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-w4-ai"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-w1-ai"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-w2-ai"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-w3-ai"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-w4-ai"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-w1-ai"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-w2-ai"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-w3-ai"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-w4-ai"
+      }
+    ],
+    "comp.ai.ground-in-records": [
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w2-ai"
+      },
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w3-ai"
+      },
+      {
+        "courseId": "network-plus",
+        "taskId": "np-w4-ai"
+      },
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w2-ai"
+      },
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w3-ai"
+      },
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w4-ai"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-w2-ai"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-w3-ai"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-w4-ai"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-w2-ai"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-w3-ai"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-w4-ai"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-w2-ai"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-w3-ai"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-w4-ai"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-w2-ai"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-w3-ai"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-w4-ai"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-w2-ai"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-w3-ai"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-w4-ai"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-w5-ai"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-w6-ai"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "srv-w2-ai"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "srv-w3-ai"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "srv-w4-ai"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w2-ai"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w3-ai"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w4-ai"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-w2-ai"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-w3-ai"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-w4-ai"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-w2-ai"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-w3-ai"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-w4-ai"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-w2-ai"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-w3-ai"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-w4-ai"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-w2-ai"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-w3-ai"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-w4-ai"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-w2-ai"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-w3-ai"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-w4-ai"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-w2-ai"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-w3-ai"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-w4-ai"
       }
     ],
     "comp.hardware.identify-components": [

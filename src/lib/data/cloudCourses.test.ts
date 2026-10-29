@@ -191,9 +191,12 @@ describe.each(ALL.map((c) => [c.id, c] as const))('R90 cloud capstone — %s', (
     expect(course.weeks.some((w) => w.setup), `${id} setup week`).toBe(!first);
   });
 
+  // R143: the AI extension is the one shared, premium task a graded week may carry; these cert-exam contracts cover the required four.
+  const required = course.tasks.filter((t) => !t.track);
+
   it('every graded week is exactly one independent task per role', () => {
     for (const w of graded) {
-      const tasks = course.tasks.filter((t) => t.week === w.number);
+      const tasks = required.filter((t) => t.week === w.number);
       expect(tasks.map((t) => t.role).sort(), `week ${w.number}`).toEqual(course.roles.map((r) => r.id).sort());
       expect(tasks.some((t) => t.shared), `week ${w.number}: a shared task makes a role wait`).toBe(false);
       expect(tasks.some((t) => (t.consumes?.length ?? 0) > 0), `week ${w.number}: a task consumes another's output`).toBe(false);
@@ -201,11 +204,11 @@ describe.each(ALL.map((c) => [c.id, c] as const))('R90 cloud capstone — %s', (
   });
 
   it('every task is under an hour, five steps at most, one short line each, and records its work', () => {
-    expect(course.tasks.flatMap(taskProblems)).toEqual([]);
+    expect(required.flatMap(taskProblems)).toEqual([]);
   });
 
   it('R92 — free tier stated, portal first with the shell as the option, official docs with what to look for', () => {
-    expect(course.tasks.flatMap(r92Problems)).toEqual([]);
+    expect(required.flatMap(r92Problems)).toEqual([]);
     // Every exemption names a real step, so the list cannot go stale.
     for (const id of Object.keys(SHELL_ONLY)) {
       if (id.startsWith(course.tasks[0].id.slice(0, 3))) expect(ALL.some((c) => c.tasks.some((t) => t.steps.some((s) => s.id === id))), id).toBe(true);
@@ -217,15 +220,15 @@ describe.each(ALL.map((c) => [c.id, c] as const))('R90 cloud capstone — %s', (
     // The course's local week 1 is the block's first global week.
     const base = id.includes('fundamentals') || id.includes('practitioner') ? 0 : id.includes('administrator') || id.includes('solutions') ? 4 : 8;
     expect(first.number).toBe(1);
-    expect(course.tasks.flatMap((t) => r93Problems(t, t.week === 0 ? 0 : base + t.week))).toEqual([]);
+    expect(required.flatMap((t) => r93Problems(t, t.week === 0 ? 0 : base + t.week))).toEqual([]);
   });
 
   it('R95 — the entry courses teach the exam: a domain first, nothing from the next course, identity and audit covered', () => {
-    expect(course.tasks.flatMap((t) => r95Problems(course, t))).toEqual([]);
+    expect(required.flatMap((t) => r95Problems(course, t))).toEqual([]);
   });
 
   it('R97 — entry courses: three short clicks, what the screen shows, docs on every step; the shell is optional there only', () => {
-    expect(course.tasks.flatMap((t) => r97Problems(course, t))).toEqual([]);
+    expect(required.flatMap((t) => r97Problems(course, t))).toEqual([]);
     expect(course.shellOptional ?? false, `${id} shellOptional`).toBe(ENTRY.has(id));
   });
 
@@ -242,7 +245,8 @@ describe.each(ALL.map((c) => [c.id, c] as const))('R90 cloud capstone — %s', (
   it('every task carries this course’s own exam tag, not another quarter’s', () => {
     const tag = course.certification!.includes('AZ-900') ? 'AZ_900' : course.certification!.includes('AZ-104') ? 'AZ_104' : course.certification!.includes('AZ-400') ? 'AZ_400'
       : course.certification!.includes('CLF') ? 'AWS_CLF' : course.certification!.includes('SAA') ? 'AWS_SAA' : 'AWS_DOP';
-    for (const t of course.tasks) {
+    // R143: the AI extension carries the AI framework, not the quarter's exam tag.
+    for (const t of required) {
       expect(t.frameworks, t.id).toContain(tag);
       for (const s of t.steps) expect(s.frameworks, s.id).toContain(tag);
     }
@@ -270,8 +274,8 @@ describe('R90 — three quarters make one plan', () => {
     const ranges = Object.values(blocks).map((b) => b.weeks);
     expect(ranges).toEqual([[1, 4], [5, 8], [9, 12]]);
     expect(courses.map((c) => c.id)).toEqual(Object.values(blocks).map((b) => b.id));
-    // 48 authored tasks, each in exactly one course.
-    expect(courses.reduce((n, c) => n + c.tasks.filter((t) => t.week > 0).length, 0)).toBe(48);
+    // 48 authored cert tasks, each in exactly one course (the AI extensions are counted apart).
+    expect(courses.reduce((n, c) => n + c.tasks.filter((t) => t.week > 0 && !t.track).length, 0)).toBe(48);
   });
 
   it('a later course’s Week 0 deploys the previous course’s end state from the template', () => {
@@ -315,7 +319,8 @@ const AUTOMATED = /pipeline|workflow|what-if|change set|drift|roll(s|ed)? ?back|
 const taskText = (t: Task) => [t.title, t.objective, ...t.steps.flatMap((s) => [s.title, s.instruction ?? '', ...(s.instructionList ?? [])])].join(' ');
 
 describe.each(ALL.map((c) => [c.id, c] as const))('R106f level contract — %s', (id, course: Course) => {
-  const graded = course.tasks.filter((t) => t.week > 0);
+  // R143: the AI extension is premium content beyond the exam; the level contract covers the cert tasks.
+  const graded = course.tasks.filter((t) => t.week > 0 && !t.track);
   const weeks = [...new Set(graded.map((t) => t.week))];
   const byWeek = (w: number) => graded.filter((t) => t.week === w);
 

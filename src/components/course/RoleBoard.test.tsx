@@ -137,14 +137,17 @@ describe('RoleBoard', () => {
   it('on a week of shared work only, no card repeats “no task of its own”; the roles still show their holders and an open role its button', () => {
     const sharedOnly: Course = { ...C, tasks: C.tasks.map((t) => (t.week === 1 ? { ...t, shared: true } : t)) };
     const { container, card } = setup({ course: sharedOnly });
-    expect(container.querySelectorAll('[data-board-shared] [data-board-task]')).toHaveLength(4);
+    // R143: the four role tasks plus the AI extension, all shared.
+    expect(container.querySelectorAll('[data-board-shared] [data-board-task]')).toHaveLength(5);
     expect(container.textContent).not.toContain('No task of its own');
     expect(card('arch').querySelector('[data-board-holders]')).toHaveTextContent('Held by Ada');
     expect(within(card('dev')).getByRole('button', { name: /Take this role/ })).toBeInTheDocument();
   });
 
   it('shows no shared group when the week has no shared task', () => {
-    const { container } = setup();
+    // R143: every graded week now carries the shared AI extension, so strip it to test the no-shared case.
+    const noShared: Course = { ...C, tasks: C.tasks.filter((t) => !t.track).map((t) => ({ ...t, shared: false })) };
+    const { container } = setup({ course: noShared });
     expect(container.querySelector('[data-board-shared]')).toBeNull();
   });
 });

@@ -108,12 +108,14 @@ describe('R142 — what a course offers beyond the certification', () => {
     expect(teamWeekCompletion(COURSE, 1, only)).toBe(0);
   });
 
-  it('every seed course reports its premium counts in the course index, and none carries an AI task or a tracked week yet', () => {
+  it('every seed course reports its premium counts in the course index, and each graded week carries one AI extension', () => {
     const rows = courseIndex().courses;
     for (const c of SEED_COURSES) {
       const row = rows.find((r) => r.id === c.id)!;
       expect(row.premium, c.id).toEqual(premiumSummary(c));
-      expect(row.premium.aiTasks, `${c.id} AI tasks land in R143`).toBe(0);
+      // R143: one AI extension per graded week — CISSP grades six weeks, the rest four.
+      const graded = c.weeks.filter((w) => w.number > 0 && !w.setup && !w.advanced).length;
+      expect(row.premium.aiTasks, `${c.id} AI tasks`).toBe(graded);
     }
     expect(rows.find((r) => r.id === 'server-plus')!.premium.otherWeeks).toBe(4);
   });

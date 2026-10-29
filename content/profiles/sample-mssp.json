@@ -75,6 +75,7 @@
     "tool.linux-shell",
     "tool.lynis",
     "tool.nmap",
+    "tool.ollama",
     "tool.sha256sum",
     "tool.sigma",
     "tool.sqlmap",
@@ -182,6 +183,10 @@
     {
       "workRole": "role.issm",
       "requiredCompetencies": [
+        "comp.ai.ground-in-records",
+        "comp.ai.local-assistant",
+        "comp.ai.prompt-for-the-task",
+        "comp.ai.verify-ai-output",
         "comp.audit.control-matrix",
         "comp.audit.corrective-action",
         "comp.audit.evidence-collection",

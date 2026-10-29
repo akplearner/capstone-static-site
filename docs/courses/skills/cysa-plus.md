@@ -1,6 +1,6 @@
 # CySA+ SOC Capstone — skills sheet
 
-13 graded tasks · 21 skills · 21 tools · 13 procedures · 8 standards (13 controls cited) · 5 tactics · 17 practices
+17 graded tasks · 25 skills · 22 tools · 13 procedures · 9 standards (13 controls cited) · 5 tactics · 18 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -29,6 +29,10 @@ Generated from the registries and the course document by `npm run content:export
 | Capture packets and quote the attacker request `comp.forensics.packet-capture` | Evidence and forensics | CS0-003.d1, NIST.800-61.DETECT | Investigate & prove it |
 | Pivot across logs to prove an attack `comp.forensics.log-pivoting` | Evidence and forensics | CS0-003.d1 | Investigate & prove it |
 | Turn findings into indicators with ATT&CK ids `comp.forensics.iocs` | Evidence and forensics | CS0-003.d3, MITRE_ATTACK | Turn findings into indicators |
+| Run a local AI assistant offline `comp.ai.local-assistant` | Applied AI | NIST.AI-RMF.MANAGE | AI extension: read the monitoring baseline; AI extension: explain an alert triage; AI extension: rank the vulnerabilities; AI extension: write the executive debrief |
+| Ground an AI answer in the records `comp.ai.ground-in-records` | Applied AI | NIST.AI-RMF.MAP | AI extension: explain an alert triage; AI extension: rank the vulnerabilities; AI extension: write the executive debrief |
+| Verify AI output against the evidence `comp.ai.verify-ai-output` | Applied AI | NIST.AI-RMF.MEASURE | AI extension: read the monitoring baseline; AI extension: explain an alert triage; AI extension: rank the vulnerabilities; AI extension: write the executive debrief |
+| Write a task-specific prompt `comp.ai.prompt-for-the-task` | Applied AI | NIST.AI-RMF.MAP | AI extension: read the monitoring baseline |
 
 ## Tools
 
@@ -39,7 +43,7 @@ Generated from the registries and the course document by `npm run content:export
 | SSH | cli | Deploy your Ubuntu sensor, prove the feed, write the baseline; Deploy the network sensor, then validate coverage; Investigate & prove it; Scan from the attacker’s side; Rebuild the attack; Contain, preserve & report |
 | curl | cli | Deploy your Ubuntu sensor, prove the feed, write the baseline; Investigate & prove it |
 | sha256sum | cli | Investigate & prove it; Contain, preserve & report |
-| Capstone forms | document | Deploy the Windows endpoint sensor; Read what the SOC already knows; Rebuild the attack; Debrief the team (capstone) |
+| Capstone forms | document | Deploy the Windows endpoint sensor; Read what the SOC already knows; Rebuild the attack; Debrief the team (capstone); AI extension: read the monitoring baseline; AI extension: explain an alert triage; AI extension: rank the vulnerabilities; AI extension: write the executive debrief |
 | Notes | document | Deploy your Ubuntu sensor, prove the feed, write the baseline; Deploy the network sensor, then validate coverage; Triage the alerts; Turn findings into indicators; Scan from the attacker’s side; Rank the risk & write the fix plan; Find the incident; Debrief the team (capstone); Contain, preserve & report |
 | Threat-intel sites | service | Turn findings into indicators |
 | CVE lookup (NVD) | service | Rank the risk & write the fix plan |
@@ -55,6 +59,7 @@ Generated from the registries and the course document by `npm run content:export
 | Suricata | service | Deploy the network sensor, then validate coverage |
 | Wazuh | service | Deploy the Windows endpoint sensor; Deploy your Ubuntu sensor, prove the feed, write the baseline; Deploy the network sensor, then validate coverage; Triage the alerts; Investigate & prove it; Turn findings into indicators; Read what the SOC already knows; Find the incident; Rebuild the attack |
 | Apache httpd | service | Rebuild the attack |
+| Ollama | service | AI extension: read the monitoring baseline; AI extension: explain an alert triage; AI extension: rank the vulnerabilities; AI extension: write the executive debrief |
 
 ## Procedures
 
@@ -85,6 +90,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | CVSS | Read what the SOC already knows; Scan from the attacker’s side; Rank the risk & write the fix plan | Vulnerability Assessment; SOC Findings Record |
 | NIST 800-61 | Find the incident; Rebuild the attack; Contain, preserve & report | Threat Investigation Report; Incident Response Report; Alert Triage Report; Detection Record; Executive Debrief & Lessons Learned |
 | NIST 800-115 | Read what the SOC already knows; Scan from the attacker’s side; Rank the risk & write the fix plan | Vulnerability Assessment; Scan Validation Report |
+| NIST AI RMF | AI extension: read the monitoring baseline; AI extension: explain an alert triage; AI extension: rank the vulnerabilities; AI extension: write the executive debrief | — |
 | NIST SP 800-53 | — | Portfolio |
 | ISO/IEC/IEEE 42010 | — | Portfolio |
 | MITRE ATT&CK | — | IOC Database |
@@ -134,6 +140,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | Evidence by design | SOC2 | Deploy the network sensor, then validate coverage |
 | Write for leadership | NIST.CSF.RS.CO | Debrief the team (capstone) |
 | Metrics with targets | ISO27001.9.1 | Debrief the team (capstone) |
+| Human checkpoint | NIST_AI_RMF | AI extension: read the monitoring baseline; AI extension: explain an alert triage; AI extension: rank the vulnerabilities; AI extension: write the executive debrief |
 
 ## KPI board
 
@@ -141,32 +148,32 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 
 | KPI | Family | Reads | Denominator in this course |
 | --- | --- | --- | --- |
-| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | blue: 4 skills with a verifiable step; grc: 9 skills with a verifiable step; red: 4 skills with a verifiable step |
+| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | blue: 8 skills with a verifiable step; grc: 13 skills with a verifiable step; red: 8 skills with a verifiable step |
 | Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | blue: 83 percent of the exam over 3 domains; grc: 100 percent of the exam over 4 domains; red: 100 percent of the exam over 4 domains |
-| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | blue: 4 verifiable steps that run a command; grc: 7 verifiable steps that run a command; red: 4 verifiable steps that run a command |
+| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | blue: 8 verifiable steps that run a command; grc: 11 verifiable steps that run a command; red: 8 verifiable steps that run a command |
 | Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | blue: 10 procedures; grc: 12 procedures; red: 12 procedures |
 | Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | blue: 2 fault, incident or triage tables; grc: 2 fault, incident or triage tables; red: 2 fault, incident or triage tables |
-| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | blue: 6 verifiable steps; grc: 8 verifiable steps; red: 4 verifiable steps |
+| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | blue: 10 verifiable steps; grc: 12 verifiable steps; red: 8 verifiable steps |
 | Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
-| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | blue: 6 verifiable steps that can carry two stamps; grc: 8 verifiable steps that can carry two stamps; red: 4 verifiable steps that can carry two stamps |
+| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | blue: 10 verifiable steps that can carry two stamps; grc: 12 verifiable steps that can carry two stamps; red: 8 verifiable steps that can carry two stamps |
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | blue: 1 task with two or more verifiable steps; grc: 3 tasks with two or more verifiable steps; red: 2 tasks with two or more verifiable steps |
-| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | blue: 6 verifiable steps; grc: 8 verifiable steps; red: 4 verifiable steps |
+| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | blue: 10 verifiable steps; grc: 12 verifiable steps; red: 8 verifiable steps |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
 | Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | blue: 15 checks on 5 forms; grc: 19 checks on 6 forms; red: 18 checks on 6 forms |
 | Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | blue: 0 decision blocks; grc: 0 decision blocks; red: 1 decision block |
 | Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | blue: 0 decision blocks; grc: 0 decision blocks; red: 1 decision block |
 | Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | blue: 0 decision blocks; grc: 0 decision blocks; red: 1 decision block |
 | Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | blue: 1 change table with a rollback column; grc: 1 change table with a rollback column; red: 1 change table with a rollback column |
-| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | blue: 4 hand-offs; grc: 5 hand-offs; red: 4 hand-offs |
+| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | blue: 8 hand-offs; grc: 9 hand-offs; red: 8 hand-offs |
 | RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | blue: 13 forms with a RACI; grc: 13 forms with a RACI; red: 13 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
-| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | blue: 4 tasks of the role; grc: 5 tasks of the role; red: 4 tasks of the role |
+| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | blue: 8 tasks of the role; grc: 9 tasks of the role; red: 8 tasks of the role |
 | Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | blue: 5 forms; grc: 6 forms; red: 6 forms |
 | Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | blue: 4 control codes on 4 forms; grc: 7 control codes on 5 forms; red: 5 control codes on 4 forms |
 | Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | blue: 5 forms; grc: 6 forms; red: 6 forms |
-| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | blue: 0 skills on two or more tasks; grc: 0 skills on two or more tasks; red: 0 skills on two or more tasks |
-| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | blue: 4 skills with a verifiable step; grc: 9 skills with a verifiable step; red: 4 skills with a verifiable step |
+| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | blue: 3 skills on two or more tasks; grc: 3 skills on two or more tasks; red: 3 skills on two or more tasks |
+| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | blue: 8 skills with a verifiable step; grc: 13 skills with a verifiable step; red: 8 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
 | Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | blue: Cyber Defense Analyst: 78 required, 75 not taught here; grc: Threat and Warning Analyst: 24 required, 17 not taught here; red: Vulnerability Assessment Analyst: 22 required, 19 not taught here |
 | Values recalled `kpi.validation.recall-accuracy` | validation | metric.validation-recall (own) |  |

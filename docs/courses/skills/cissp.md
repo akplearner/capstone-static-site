@@ -1,6 +1,6 @@
 # CISSP Capstone: Six Releases — skills sheet
 
-18 graded tasks · 48 skills · 27 tools · 21 procedures · 17 standards (22 controls cited) · 4 tactics · 38 practices
+24 graded tasks · 52 skills · 28 tools · 21 procedures · 17 standards (22 controls cited) · 4 tactics · 39 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -56,6 +56,10 @@ Generated from the registries and the course document by `npm run content:export
 | Write logging, the incident first hour and backups `comp.ops.logging-first-hour` | Security operations | CISSP.d7, NIST.800-61.PREPARE | Write identity and operations |
 | Prove a detection fires with timings `comp.ops.detection-fires` | Security operations | CISSP.d7, NIST.CSF.DE.AE | Prove detection, restore and contingency |
 | Specify activation, recovery, reconstitution `comp.ops.contingency-phases` | Security operations | CISSP.d7, NIST_800_34 | Prove detection, restore and contingency |
+| Run a local AI assistant offline `comp.ai.local-assistant` | Applied AI | NIST.AI-RMF.MANAGE | AI extension: explain a risk; AI extension: check an asset class; AI extension: read a network rule; AI extension: draft an access review; AI extension: summarise an assessment; AI extension: review the security plan |
+| Ground an AI answer in the records `comp.ai.ground-in-records` | Applied AI | NIST.AI-RMF.MAP | AI extension: check an asset class; AI extension: read a network rule; AI extension: draft an access review; AI extension: summarise an assessment; AI extension: review the security plan |
+| Verify AI output against the evidence `comp.ai.verify-ai-output` | Applied AI | NIST.AI-RMF.MEASURE | AI extension: explain a risk; AI extension: check an asset class; AI extension: read a network rule; AI extension: draft an access review; AI extension: summarise an assessment; AI extension: review the security plan |
+| Write a task-specific prompt `comp.ai.prompt-for-the-task` | Applied AI | NIST.AI-RMF.MAP | AI extension: explain a risk |
 
 ## Tools
 
@@ -64,7 +68,7 @@ Generated from the registries and the course document by `npm run content:export
 | Linux shell | cli | Write governance, assets and the first score; Prove the pipeline and list the components; Prove MFA, accounts and federation; Prove suppliers and the server migration; Prove detection, restore and contingency; Prove data discovery and categorization; Prove AI controls and the config scan; Re-test architecture, network and change; Re-test access and run the tabletop; Self-assess the basics and assemble the SSP |
 | curl | cli | Prove MFA, accounts and federation |
 | sha256sum | cli | Write governance, assets and the first score; Prove suppliers and the server migration; Prove detection, restore and contingency; Self-assess the basics and assemble the SSP |
-| Capstone forms | document | Write governance, assets and the first score; Write architecture and network; Write identity and operations; Specify risk, assets and the metrics; Specify cryptography and the rule base; Specify access, recovery and incident response; Prove detection, restore and contingency; Prove data discovery and categorization; Prove AI controls and the config scan; Assess all sixteen controls and close findings; Re-test access and run the tabletop; Self-assess the basics and assemble the SSP; Map identity and federal incident reporting |
+| Capstone forms | document | Write governance, assets and the first score; Write architecture and network; Write identity and operations; Specify risk, assets and the metrics; Specify cryptography and the rule base; Specify access, recovery and incident response; Prove detection, restore and contingency; Prove data discovery and categorization; Prove AI controls and the config scan; Assess all sixteen controls and close findings; Re-test access and run the tabletop; Self-assess the basics and assemble the SSP; Map identity and federal incident reporting; AI extension: explain a risk; AI extension: check an asset class; AI extension: read a network rule; AI extension: draft an access review; AI extension: summarise an assessment; AI extension: review the security plan |
 | Notes | document | Write identity and operations; Specify access, recovery and incident response; Re-test access and run the tabletop; Map identity and federal incident reporting |
 | Spreadsheet | app | Write governance, assets and the first score; Specify risk, assets and the metrics |
 | draw.io | app | Write architecture and network; Specify cryptography and the rule base; Map architecture and network to federal rules |
@@ -79,6 +83,7 @@ Generated from the registries and the course document by `npm run content:export
 | Keycloak | service | Prove MFA, accounts and federation; Re-test access and run the tabletop |
 | Trivy | cli | Prove the pipeline and list the components |
 | Microsoft Presidio | service | Prove data discovery and categorization |
+| Ollama | service | AI extension: explain a risk; AI extension: check an asset class; AI extension: read a network rule; AI extension: draft an access review; AI extension: summarise an assessment; AI extension: review the security plan |
 | eramba | service | Write governance, assets and the first score; Specify risk, assets and the metrics; Assess all sixteen controls and close findings |
 | Snipe-IT | service | Specify risk, assets and the metrics |
 | OWASP Threat Dragon | app | Prove suppliers and the server migration |
@@ -130,7 +135,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | STRIDE | Prove suppliers and the server migration | — |
 | ITIL 4 | — | Release Note |
 | CISSP | Write governance, assets and the first score; Write architecture and network; Write identity and operations; Specify risk, assets and the metrics; Specify cryptography and the rule base; Specify access, recovery and incident response; Prove the pipeline and list the components; Prove MFA, accounts and federation; Prove suppliers and the server migration; Prove detection, restore and contingency; Prove data discovery and categorization; Prove AI controls and the config scan; Assess all sixteen controls and close findings; Re-test architecture, network and change; Re-test access and run the tabletop; Self-assess the basics and assemble the SSP; Map architecture and network to federal rules; Map identity and federal incident reporting | — |
-| NIST AI RMF | Prove data discovery and categorization | — |
+| NIST AI RMF | Prove data discovery and categorization; AI extension: explain a risk; AI extension: check an asset class; AI extension: read a network rule; AI extension: draft an access review; AI extension: summarise an assessment; AI extension: review the security plan | — |
 | NIST SP 800-53 | Specify risk, assets and the metrics; Specify cryptography and the rule base; Specify access, recovery and incident response; Prove the pipeline and list the components; Prove MFA, accounts and federation; Prove suppliers and the server migration; Prove detection, restore and contingency; Prove data discovery and categorization; Prove AI controls and the config scan; Re-test architecture, network and change; Re-test access and run the tabletop | D3 Architecture; Control Statements; Portfolio |
 | NIST SP 800-171 | Self-assess the basics and assemble the SSP; Map architecture and network to federal rules; Map identity and federal incident reporting | System Security Plan & Traceability |
 | NIST SP 800-88 | — | D2 Assets & Data |
@@ -213,6 +218,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | Supplier tiering | NIST.CSF.GV.SC | Prove suppliers and the server migration |
 | Write for leadership | NIST.CSF.RS.CO | Map identity and federal incident reporting |
 | Metrics with targets | ISO27001.9.1 | Specify risk, assets and the metrics |
+| Human checkpoint | NIST_AI_RMF | AI extension: explain a risk; AI extension: check an asset class; AI extension: read a network rule; AI extension: draft an access review; AI extension: summarise an assessment; AI extension: review the security plan |
 
 ## KPI board
 
@@ -220,32 +226,32 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 
 | KPI | Family | Reads | Denominator in this course |
 | --- | --- | --- | --- |
-| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | govrisk: 11 skills with a verifiable step; archnet: 9 skills with a verifiable step; idops: 8 skills with a verifiable step |
+| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | govrisk: 15 skills with a verifiable step; archnet: 13 skills with a verifiable step; idops: 12 skills with a verifiable step |
 | Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | govrisk: 38 percent of the exam over 3 domains; archnet: 48 percent of the exam over 4 domains; idops: 38 percent of the exam over 3 domains |
-| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | govrisk: 6 verifiable steps that run a command; archnet: 5 verifiable steps that run a command; idops: 5 verifiable steps that run a command |
+| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | govrisk: 12 verifiable steps that run a command; archnet: 11 verifiable steps that run a command; idops: 11 verifiable steps that run a command |
 | Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | govrisk: 21 procedures; archnet: 21 procedures; idops: 10 procedures |
 | Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | govrisk: 1 fault, incident or triage table; archnet: 1 fault, incident or triage table; idops: 1 fault, incident or triage table |
-| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | govrisk: 6 verifiable steps; archnet: 5 verifiable steps; idops: 5 verifiable steps |
+| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | govrisk: 12 verifiable steps; archnet: 11 verifiable steps; idops: 11 verifiable steps |
 | Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
-| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | govrisk: 6 verifiable steps that can carry two stamps; archnet: 5 verifiable steps that can carry two stamps; idops: 5 verifiable steps that can carry two stamps |
+| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | govrisk: 12 verifiable steps that can carry two stamps; archnet: 11 verifiable steps that can carry two stamps; idops: 11 verifiable steps that can carry two stamps |
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | govrisk: 2 tasks with two or more verifiable steps; archnet: 1 task with two or more verifiable steps; idops: 2 tasks with two or more verifiable steps |
-| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | govrisk: 6 verifiable steps; archnet: 5 verifiable steps; idops: 5 verifiable steps |
+| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | govrisk: 12 verifiable steps; archnet: 11 verifiable steps; idops: 11 verifiable steps |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
 | Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | govrisk: 33 checks on 9 forms; archnet: 16 checks on 4 forms; idops: 16 checks on 4 forms |
 | Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | govrisk: 1 decision block; archnet: 0 decision blocks; idops: 0 decision blocks |
 | Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | govrisk: 1 decision block; archnet: 0 decision blocks; idops: 0 decision blocks |
 | Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | govrisk: 1 decision block; archnet: 0 decision blocks; idops: 0 decision blocks |
 | Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | govrisk: 1 change table with a rollback column; archnet: 1 change table with a rollback column; idops: 1 change table with a rollback column |
-| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | govrisk: 6 hand-offs; archnet: 6 hand-offs; idops: 6 hand-offs |
+| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | govrisk: 12 hand-offs; archnet: 12 hand-offs; idops: 12 hand-offs |
 | RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | govrisk: 13 forms with a RACI; archnet: 13 forms with a RACI; idops: 6 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
-| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | govrisk: 6 tasks of the role; archnet: 6 tasks of the role; idops: 6 tasks of the role |
+| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | govrisk: 12 tasks of the role; archnet: 12 tasks of the role; idops: 12 tasks of the role |
 | Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | govrisk: 9 forms; archnet: 4 forms; idops: 4 forms |
 | Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | govrisk: 13 control codes on 8 forms; archnet: 5 control codes on 3 forms; idops: 6 control codes on 2 forms |
 | Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | govrisk: 9 forms; archnet: 4 forms; idops: 4 forms |
-| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | govrisk: 0 skills on two or more tasks; archnet: 0 skills on two or more tasks; idops: 0 skills on two or more tasks |
-| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | govrisk: 11 skills with a verifiable step; archnet: 9 skills with a verifiable step; idops: 8 skills with a verifiable step |
+| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | govrisk: 3 skills on two or more tasks; archnet: 3 skills on two or more tasks; idops: 3 skills on two or more tasks |
+| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | govrisk: 15 skills with a verifiable step; archnet: 13 skills with a verifiable step; idops: 12 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
 | Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | govrisk: Information Systems Security Manager: 45 required, 30 not taught here; archnet: Security Architect: 69 required, 58 not taught here; idops: Systems Security Analyst: 34 required, 27 not taught here |
 | Values recalled `kpi.validation.recall-accuracy` | validation | metric.validation-recall (own) |  |

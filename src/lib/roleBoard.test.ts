@@ -102,8 +102,9 @@ describe('roleBoard', () => {
   it('puts a shared task in its own group, owned by everyone, and out of every role', () => {
     const shared: Course = { ...C, tasks: C.tasks.map((t) => (t.id === 'az-w1-arch' ? { ...t, shared: true } : t)) };
     const board = roleBoard(input({ course: shared }));
-    expect(board.shared.map((t) => t.task.id)).toEqual(['az-w1-arch']);
-    expect(board.shared[0].ownership).toBe('shared');
+    // R143: the AI extension is shared too, so the shared group holds it beside az-w1-arch.
+    expect(board.shared.map((t) => t.task.id)).toContain('az-w1-arch');
+    expect(board.shared.find((t) => t.task.id === 'az-w1-arch')!.ownership).toBe('shared');
     expect(board.roles.flatMap((r) => r.tasks).map((t) => t.task.id)).not.toContain('az-w1-arch');
   });
 

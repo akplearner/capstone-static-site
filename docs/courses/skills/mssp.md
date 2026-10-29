@@ -1,6 +1,6 @@
 # MSSP: SOC 2 + ISO 27001 Engagement — skills sheet
 
-13 graded tasks · 21 skills · 13 tools · 13 procedures · 10 standards (13 controls cited) · 4 tactics · 17 practices
+17 graded tasks · 25 skills · 14 tools · 13 procedures · 11 standards (13 controls cited) · 4 tactics · 18 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -29,6 +29,10 @@ Generated from the registries and the course document by `npm run content:export
 | Run an ISO 27001 internal audit `comp.audit.internal-audit` | Audit and assessment | SOC-2-ISO-27001.c4, ISO27001.9.2 | Run the internal audit |
 | Raise corrective actions for nonconformities `comp.audit.corrective-action` | Audit and assessment | SOC-2-ISO-27001.c5, ISO27001.10.2 | Run the internal audit |
 | Assemble an audit evidence packet `comp.audit.evidence-packet` | Audit and assessment | SOC-2-ISO-27001.c4, SOC2 | Assemble the audit evidence packet |
+| Run a local AI assistant offline `comp.ai.local-assistant` | Applied AI | NIST.AI-RMF.MANAGE | AI extension: map a control to evidence; AI extension: check the control matrix; AI extension: triage a detection alert; AI extension: draft an audit answer |
+| Ground an AI answer in the records `comp.ai.ground-in-records` | Applied AI | NIST.AI-RMF.MAP | AI extension: check the control matrix; AI extension: triage a detection alert; AI extension: draft an audit answer |
+| Verify AI output against the evidence `comp.ai.verify-ai-output` | Applied AI | NIST.AI-RMF.MEASURE | AI extension: map a control to evidence; AI extension: check the control matrix; AI extension: triage a detection alert; AI extension: draft an audit answer |
+| Write a task-specific prompt `comp.ai.prompt-for-the-task` | Applied AI | NIST.AI-RMF.MAP | AI extension: map a control to evidence |
 
 ## Tools
 
@@ -36,7 +40,7 @@ Generated from the registries and the course document by `npm run content:export
 | --- | --- | --- |
 | Linux shell | cli | Risk assessment & Statement of Applicability; Build the control matrix; Threat-model the proposed controls; Penetration test & retest; Detection engineering; Coordinate validation & collect evidence; Close out the retest and attest; Report detection & response metrics; Run the internal audit; Assemble the audit evidence packet |
 | sha256sum | cli | Risk assessment & Statement of Applicability; Build the control matrix; Threat-model the proposed controls; Penetration test & retest; Coordinate validation & collect evidence; Close out the retest and attest; Report detection & response metrics; Run the internal audit; Assemble the audit evidence packet |
-| Capstone forms | document | Risk assessment & Statement of Applicability; Build the control matrix; Threat-model the proposed controls; Penetration test & retest; Detection engineering; Coordinate validation & collect evidence; Close out the retest and attest; Report detection & response metrics; Run the internal audit; Assemble the audit evidence packet |
+| Capstone forms | document | Risk assessment & Statement of Applicability; Build the control matrix; Threat-model the proposed controls; Penetration test & retest; Detection engineering; Coordinate validation & collect evidence; Close out the retest and attest; Report detection & response metrics; Run the internal audit; Assemble the audit evidence packet; AI extension: map a control to evidence; AI extension: check the control matrix; AI extension: triage a detection alert; AI extension: draft an audit answer |
 | Ticketing system | service | Coordinate validation & collect evidence |
 | nmap | cli | External attack-surface assessment; Penetration test & retest |
 | sqlmap | cli | Penetration test & retest |
@@ -47,6 +51,7 @@ Generated from the registries and the course document by `npm run content:export
 | auditd | cli | Implement the technical controls |
 | Wazuh | service | Detection engineering; Report detection & response metrics |
 | Sigma rules | language | Detection engineering |
+| Ollama | service | AI extension: map a control to evidence; AI extension: check the control matrix; AI extension: triage a detection alert; AI extension: draft an audit answer |
 
 ## Procedures
 
@@ -78,6 +83,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | NIST 800-115 | External attack-surface assessment; Threat-model the proposed controls; Penetration test & retest; Close out the retest and attest | Retest & Remediation-Validation Report; Gap Assessment |
 | ISO 27001 | Risk assessment & Statement of Applicability; CIS baseline gap scan; Build the control matrix; Implement the technical controls; Threat-model the proposed controls; Coordinate validation & collect evidence; Run the internal audit; Assemble the audit evidence packet | Statement of Applicability (SoA); Control Matrix; Detection & Response Metrics; Internal Audit Report |
 | SOC 2 | Risk assessment & Statement of Applicability; Build the control matrix; Implement the technical controls; Threat-model the proposed controls; Penetration test & retest; Detection engineering; Coordinate validation & collect evidence; Close out the retest and attest; Report detection & response metrics; Run the internal audit; Assemble the audit evidence packet | Control Matrix; Detection & Response Metrics; Audit Evidence Packet |
+| NIST AI RMF | AI extension: map a control to evidence; AI extension: check the control matrix; AI extension: triage a detection alert; AI extension: draft an audit answer | — |
 | NIST SP 800-53 | — | Portfolio |
 | ISO/IEC/IEEE 42010 | — | Portfolio |
 | PTES | — | Retest & Remediation-Validation Report |
@@ -131,6 +137,7 @@ Forms whose standard names a practice rather than a control:
 | Evidence by design | SOC2 | Build the control matrix; Coordinate validation & collect evidence; Assemble the audit evidence packet |
 | Corrective action | ISO27001.10.2 | Run the internal audit |
 | Metrics with targets | ISO27001.9.1 | Report detection & response metrics |
+| Human checkpoint | NIST_AI_RMF | AI extension: map a control to evidence; AI extension: check the control matrix; AI extension: triage a detection alert; AI extension: draft an audit answer |
 
 ## KPI board
 
@@ -138,32 +145,32 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 
 | KPI | Family | Reads | Denominator in this course |
 | --- | --- | --- | --- |
-| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | red: 7 skills with a verifiable step; blue: 6 skills with a verifiable step; grc: 8 skills with a verifiable step |
+| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | red: 11 skills with a verifiable step; blue: 10 skills with a verifiable step; grc: 12 skills with a verifiable step |
 | Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | red: 60 percent of the exam over 3 domains; blue: 60 percent of the exam over 3 domains; grc: 60 percent of the exam over 3 domains |
-| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | red: 7 verifiable steps that run a command; blue: 5 verifiable steps that run a command; grc: 10 verifiable steps that run a command |
+| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | red: 11 verifiable steps that run a command; blue: 9 verifiable steps that run a command; grc: 14 verifiable steps that run a command |
 | Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | red: 10 procedures; blue: 12 procedures; grc: 12 procedures |
 | Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | red: 1 fault, incident or triage table; blue: 1 fault, incident or triage table; grc: 1 fault, incident or triage table |
-| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | red: 7 verifiable steps; blue: 5 verifiable steps; grc: 10 verifiable steps |
+| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | red: 11 verifiable steps; blue: 9 verifiable steps; grc: 14 verifiable steps |
 | Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
-| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | red: 7 verifiable steps that can carry two stamps; blue: 5 verifiable steps that can carry two stamps; grc: 10 verifiable steps that can carry two stamps |
+| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | red: 11 verifiable steps that can carry two stamps; blue: 9 verifiable steps that can carry two stamps; grc: 14 verifiable steps that can carry two stamps |
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | red: 3 tasks with two or more verifiable steps; blue: 1 task with two or more verifiable steps; grc: 5 tasks with two or more verifiable steps |
-| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | red: 7 verifiable steps; blue: 5 verifiable steps; grc: 10 verifiable steps |
+| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | red: 11 verifiable steps; blue: 9 verifiable steps; grc: 14 verifiable steps |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
 | Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | red: 12 checks on 4 forms; blue: 11 checks on 4 forms; grc: 15 checks on 6 forms |
 | Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | red: 1 decision block; blue: 0 decision blocks; grc: 0 decision blocks |
 | Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | red: 1 decision block; blue: 0 decision blocks; grc: 0 decision blocks |
 | Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | red: 1 decision block; blue: 0 decision blocks; grc: 0 decision blocks |
 | Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | red: 1 change table with a rollback column; blue: 1 change table with a rollback column; grc: 1 change table with a rollback column |
-| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | red: 5 hand-offs; blue: 4 hand-offs; grc: 5 hand-offs |
+| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | red: 9 hand-offs; blue: 8 hand-offs; grc: 9 hand-offs |
 | RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | red: 7 forms with a RACI; blue: 9 forms with a RACI; grc: 10 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
-| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | red: 4 tasks of the role; blue: 4 tasks of the role; grc: 5 tasks of the role |
+| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | red: 8 tasks of the role; blue: 8 tasks of the role; grc: 9 tasks of the role |
 | Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | red: 4 forms; blue: 4 forms; grc: 6 forms |
 | Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | red: 3 control codes on 2 forms; blue: 3 control codes on 2 forms; grc: 7 control codes on 6 forms |
 | Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | red: 4 forms; blue: 4 forms; grc: 6 forms |
-| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | red: 1 skill on two or more tasks; blue: 0 skills on two or more tasks; grc: 1 skill on two or more tasks |
-| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | red: 7 skills with a verifiable step; blue: 6 skills with a verifiable step; grc: 8 skills with a verifiable step |
+| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | red: 4 skills on two or more tasks; blue: 3 skills on two or more tasks; grc: 4 skills on two or more tasks |
+| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | red: 11 skills with a verifiable step; blue: 10 skills with a verifiable step; grc: 12 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
 | Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | red: Exploitation Analyst: 29 required, 24 not taught here; blue: Cyber Defense Analyst: 78 required, 74 not taught here; grc: Information Systems Security Manager: 45 required, 37 not taught here |
 | Values recalled `kpi.validation.recall-accuracy` | validation | metric.validation-recall (own) |  |

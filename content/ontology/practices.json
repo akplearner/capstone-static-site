@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "practices": [
     {
       "id": "practice.least-privilege",
@@ -635,6 +635,18 @@
       "np-w5-differences": [
         "practice.as-built-documentation",
         "practice.lessons-learned"
+      ],
+      "np-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "np-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "np-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "np-w4-ai": [
+        "practice.human-in-the-loop"
       ]
     },
     "a-plus": {
@@ -685,6 +697,18 @@
         "practice.as-built-documentation",
         "practice.evidence-hashing",
         "practice.sign-and-version"
+      ],
+      "ap-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "ap-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "ap-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "ap-w4-ai": [
+        "practice.human-in-the-loop"
       ]
     },
     "security-plus": {
@@ -738,6 +762,18 @@
       "grc-w4-report": [
         "practice.write-for-leadership",
         "practice.evidence-by-design"
+      ],
+      "sec-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "sec-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "sec-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "sec-w4-ai": [
+        "practice.human-in-the-loop"
       ]
     },
     "cysa-plus": {
@@ -790,6 +826,18 @@
       "cr-w4": [
         "practice.containment-first",
         "practice.evidence-hashing"
+      ],
+      "cysa-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "cysa-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "cysa-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "cysa-w4-ai": [
+        "practice.human-in-the-loop"
       ]
     },
     "mssp": {
@@ -842,6 +890,18 @@
       "mg-w4b": [
         "practice.evidence-by-design",
         "practice.sign-and-version"
+      ],
+      "mssp-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "mssp-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "mssp-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "mssp-w4-ai": [
+        "practice.human-in-the-loop"
       ]
     },
     "secai-plus": {
@@ -896,6 +956,18 @@
       "sa-w4-gov": [
         "practice.model-cards",
         "practice.customer-assurance"
+      ],
+      "secai-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "secai-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "secai-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "secai-w4-ai": [
+        "practice.human-in-the-loop"
       ]
     },
     "cissp": {
@@ -983,6 +1055,24 @@
       "ci-w6-idops": [
         "practice.control-mapping",
         "practice.write-for-leadership"
+      ],
+      "cissp-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "cissp-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "cissp-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "cissp-w4-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "cissp-w5-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "cissp-w6-ai": [
+        "practice.human-in-the-loop"
       ]
     },
     "server-plus": {
@@ -1200,6 +1290,18 @@
       "sp-w8-mgmt": [
         "practice.runbooks-written",
         "practice.metrics-with-targets"
+      ],
+      "srv-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "srv-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "srv-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "srv-w4-ai": [
+        "practice.human-in-the-loop"
       ]
     },
     "ccna": {
@@ -1275,6 +1377,18 @@
       "ccna-w8-handover": [
         "practice.as-built-documentation",
         "practice.sign-and-version"
+      ],
+      "ccna-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "ccna-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "ccna-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "ccna-w4-ai": [
+        "practice.human-in-the-loop"
       ]
     },
     "azure-fundamentals": {
@@ -1334,6 +1448,18 @@
       "az-w4-secops": [
         "practice.timeline-reconstruction",
         "practice.lessons-learned"
+      ],
+      "azf-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "azf-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "azf-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "azf-w4-ai": [
+        "practice.human-in-the-loop"
       ]
     },
     "azure-administrator": {
@@ -1401,6 +1527,18 @@
         "practice.recovery-objectives",
         "practice.backups-tested",
         "practice.tear-down-after-use"
+      ],
+      "aza-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "aza-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "aza-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "aza-w4-ai": [
+        "practice.human-in-the-loop"
       ]
     },
     "azure-devops": {
@@ -1470,6 +1608,18 @@
         "practice.containment-first",
         "practice.lessons-learned",
         "practice.timeline-reconstruction"
+      ],
+      "azd-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "azd-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "azd-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "azd-w4-ai": [
+        "practice.human-in-the-loop"
       ]
     },
     "aws-cloud-practitioner": {
@@ -1529,6 +1679,18 @@
       "aws-w4-secops": [
         "practice.timeline-reconstruction",
         "practice.lessons-learned"
+      ],
+      "awsf-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "awsf-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "awsf-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "awsf-w4-ai": [
+        "practice.human-in-the-loop"
       ]
     },
     "aws-solutions-architect": {
@@ -1596,6 +1758,18 @@
         "practice.recovery-objectives",
         "practice.backups-tested",
         "practice.tear-down-after-use"
+      ],
+      "awsa-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "awsa-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "awsa-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "awsa-w4-ai": [
+        "practice.human-in-the-loop"
       ]
     },
     "aws-devops": {
@@ -1665,6 +1839,18 @@
         "practice.containment-first",
         "practice.lessons-learned",
         "practice.timeline-reconstruction"
+      ],
+      "awsd-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "awsd-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "awsd-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "awsd-w4-ai": [
+        "practice.human-in-the-loop"
       ]
     }
   }

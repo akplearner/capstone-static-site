@@ -1,5 +1,6 @@
 import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
 import { withPortfolioStep } from '../../docs/portfolioPlan';
+import { withAiExtensions } from '../../docs/aiExtension';
 
 // CISSP capstone (ISC2): "Six Releases" (R101, rewritten R102).
 //
@@ -1539,7 +1540,7 @@ const tasks: Task[] = [
 ];
 
 // R142: the SSP task closes by writing the Portfolio.
-export const CISSP: Course = withPortfolioStep({
+export const CISSP: Course = withAiExtensions(withPortfolioStep({
   id: 'cissp',
   title: 'CISSP Capstone: Six Releases',
   slug: 'cissp',
@@ -1560,4 +1561,4 @@ export const CISSP: Course = withPortfolioStep({
   topologyPicture: 'arch',
   teamCount: 18,
   teamCapacity: 6,
-});
+}));

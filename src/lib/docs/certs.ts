@@ -273,6 +273,8 @@ export function coverageOf(course: Pick<Course, 'tasks' | 'weeks'>, cert: CertDe
   const unmapped: string[] = [];
   for (const t of course.tasks) {
     if (setup.has(t.week)) continue;
+    // R143: the AI extension is premium content beyond the exam, so it names no exam domain and is not counted.
+    if (t.track) continue;
     const dom = domainOf(cert, map, t);
     if (!dom) unmapped.push(t.id);
     else rows.find((r) => r.domain.id === dom.id)!.tasks.push(t.id);

@@ -120,6 +120,13 @@
             "tasks": [
               "ci-w1-idops"
             ]
+          },
+          {
+            "id": "cissp-w1-ai-obj",
+            "label": "Extend the build with AI",
+            "tasks": [
+              "cissp-w1-ai"
+            ]
           }
         ],
         "milestone": "Eight sheets at v1, one page each. Every asset has one owner, no settings in the policy. Score 8 or better. S-1 closed. CEO signed."
@@ -152,6 +159,13 @@
             "label": "Specify access, recovery and incident response",
             "tasks": [
               "ci-w2-idops"
+            ]
+          },
+          {
+            "id": "cissp-w2-ai-obj",
+            "label": "Extend the build with AI",
+            "tasks": [
+              "cissp-w2-ai"
             ]
           }
         ],
@@ -186,6 +200,13 @@
             "tasks": [
               "ci-w3-gov"
             ]
+          },
+          {
+            "id": "cissp-w3-ai-obj",
+            "label": "Extend the build with AI",
+            "tasks": [
+              "cissp-w3-ai"
+            ]
           }
         ],
         "milestone": "Eight sheets at v3; D3, D4, D5, D8 at level 3. One blocked release, TLS 1.2 refused, one open port, two orphan accounts disabled. Score 20. S-2, S-3, S-4, S-6, S-9, S-10 closed."
@@ -218,6 +239,13 @@
             "label": "Prove AI controls and the config scan",
             "tasks": [
               "ci-w4-arch"
+            ]
+          },
+          {
+            "id": "cissp-w4-ai-obj",
+            "label": "Extend the build with AI",
+            "tasks": [
+              "cissp-w4-ai"
             ]
           }
         ],
@@ -252,6 +280,13 @@
             "tasks": [
               "ci-w5-idops"
             ]
+          },
+          {
+            "id": "cissp-w5-ai-obj",
+            "label": "Extend the build with AI",
+            "tasks": [
+              "cissp-w5-ai"
+            ]
           }
         ],
         "milestone": "Eight sheets at v5, every finding closed or accepted. Sixteen questions answered, no yes without a ledger entry. Score 32."
@@ -284,6 +319,13 @@
             "label": "Map identity and federal incident reporting",
             "tasks": [
               "ci-w6-idops"
+            ]
+          },
+          {
+            "id": "cissp-w6-ai-obj",
+            "label": "Extend the build with AI",
+            "tasks": [
+              "cissp-w6-ai"
             ]
           }
         ],
@@ -3939,6 +3981,804 @@
               "CISSP",
               "NIST_800_171"
             ]
+          }
+        ]
+      },
+      {
+        "id": "cissp-w1-ai",
+        "role": "govrisk",
+        "week": 1,
+        "title": "AI extension: explain a risk",
+        "objective": "Use a local AI assistant on what you built this week: explain a risk, grounded and checked.",
+        "steps": [
+          {
+            "id": "cissp-w1-ai-s1",
+            "title": "Run a local model",
+            "description": "A model that runs on your own machine, offline.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Pull a small local model and list it.",
+            "instructionList": [
+              "Install Ollama from the official site if it is not already there.",
+              "Run the pull command for a small model.",
+              "List the installed models and confirm it is there."
+            ],
+            "commands": [
+              {
+                "cmd": "ollama pull llama3.2 && ollama list",
+                "explain": "Pulls a small model that runs offline, then lists what is installed so you can see it is ready.",
+                "sample": "NAME             ID            SIZE      MODIFIED\nllama3.2:latest  a80c4f17acd5  2.0 GB    2 seconds ago",
+                "flags": [
+                  {
+                    "flag": "pull llama3.2",
+                    "meaning": "Downloads the model once; it then runs offline."
+                  },
+                  {
+                    "flag": "list",
+                    "meaning": "Prints the installed models as a table."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "NAME             ID            SIZE      MODIFIED\nllama3.2:latest  a80c4f17acd5  2.0 GB    2 seconds ago",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "llama3.2",
+                "label": "your offline model, ready"
+              }
+            ],
+            "verify": [
+              "llama3.2"
+            ],
+            "whatItMeans": "A model on your own machine answers without sending your work to anyone. Everything after this runs offline.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Manage function: run AI with controls, and keep a person accountable for what it produces."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "ollama: command not found",
+                "fix": "Install it from the official site, then open a new terminal so the command is on the path."
+              },
+              {
+                "symptom": "The pull is slow or fails",
+                "fix": "The model is two gigabytes; on a slow link pull llama3.2:1b instead and list again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "cissp-w1-ai-s2",
+            "title": "Ground it, and check the answer",
+            "description": "The model answers from your record; you keep what the evidence supports.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Ask the model to explain a risk, then check it.",
+            "instructionList": [
+              "Paste one of your own records into the prompt as the context.",
+              "Ask the model to explain or check that record for this week.",
+              "Read the answer against your evidence and keep only what is true."
+            ],
+            "expectedOutput": "The model answers from your record, and you keep only the parts your evidence supports.",
+            "outputKind": "result",
+            "whatItMeans": "A grounded answer cites your own work; an ungrounded one guesses. The human check is what makes it safe to use.",
+            "docs": [
+              {
+                "title": "NIST AI RMF Generative AI Profile",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "why a person must verify generative output before it is used, and how to record that check."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The answer invents a detail",
+                "fix": "It was not grounded: paste the exact record and ask it to quote only from that text."
+              },
+              {
+                "symptom": "The answer is too long to check",
+                "fix": "Ask for three bullet points, each traceable to a line of your record."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "30 min",
+        "difficulty": 2,
+        "learn": [
+          "Local models",
+          "Grounding in your own records",
+          "Verifying AI output"
+        ],
+        "tools": [
+          "Ollama"
+        ],
+        "definitionOfDone": [
+          "A local model runs offline",
+          "Its answer is grounded in a record and checked against the evidence"
+        ],
+        "shared": true,
+        "track": "ai",
+        "handoff": [
+          {
+            "to": "archnet",
+            "artifact": "D1 Governance & Risk",
+            "note": "Your section of the D1 Governance & Risk, for the review that approves it.",
+            "deliverable": "cissp_d1"
+          }
+        ]
+      },
+      {
+        "id": "cissp-w2-ai",
+        "role": "govrisk",
+        "week": 2,
+        "title": "AI extension: check an asset class",
+        "objective": "Use a local AI assistant on what you built this week: check an asset class, grounded and checked.",
+        "steps": [
+          {
+            "id": "cissp-w2-ai-s1",
+            "title": "Run a local model",
+            "description": "A model that runs on your own machine, offline.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Pull a small local model and list it.",
+            "instructionList": [
+              "Install Ollama from the official site if it is not already there.",
+              "Run the pull command for a small model.",
+              "List the installed models and confirm it is there."
+            ],
+            "commands": [
+              {
+                "cmd": "ollama pull llama3.2 && ollama list",
+                "explain": "Pulls a small model that runs offline, then lists what is installed so you can see it is ready.",
+                "sample": "NAME             ID            SIZE      MODIFIED\nllama3.2:latest  a80c4f17acd5  2.0 GB    2 seconds ago",
+                "flags": [
+                  {
+                    "flag": "pull llama3.2",
+                    "meaning": "Downloads the model once; it then runs offline."
+                  },
+                  {
+                    "flag": "list",
+                    "meaning": "Prints the installed models as a table."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "NAME             ID            SIZE      MODIFIED\nllama3.2:latest  a80c4f17acd5  2.0 GB    2 seconds ago",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "llama3.2",
+                "label": "your offline model, ready"
+              }
+            ],
+            "verify": [
+              "llama3.2"
+            ],
+            "whatItMeans": "A model on your own machine answers without sending your work to anyone. Everything after this runs offline.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Manage function: run AI with controls, and keep a person accountable for what it produces."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "ollama: command not found",
+                "fix": "Install it from the official site, then open a new terminal so the command is on the path."
+              },
+              {
+                "symptom": "The pull is slow or fails",
+                "fix": "The model is two gigabytes; on a slow link pull llama3.2:1b instead and list again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "cissp-w2-ai-s2",
+            "title": "Ground it, and check the answer",
+            "description": "The model answers from your record; you keep what the evidence supports.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Ask the model to check an asset class, then check it.",
+            "instructionList": [
+              "Paste one of your own records into the prompt as the context.",
+              "Ask the model to explain or check that record for this week.",
+              "Read the answer against your evidence and keep only what is true."
+            ],
+            "expectedOutput": "The model answers from your record, and you keep only the parts your evidence supports.",
+            "outputKind": "result",
+            "whatItMeans": "A grounded answer cites your own work; an ungrounded one guesses. The human check is what makes it safe to use.",
+            "docs": [
+              {
+                "title": "NIST AI RMF Generative AI Profile",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "why a person must verify generative output before it is used, and how to record that check."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The answer invents a detail",
+                "fix": "It was not grounded: paste the exact record and ask it to quote only from that text."
+              },
+              {
+                "symptom": "The answer is too long to check",
+                "fix": "Ask for three bullet points, each traceable to a line of your record."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "30 min",
+        "difficulty": 2,
+        "learn": [
+          "Local models",
+          "Grounding in your own records",
+          "Verifying AI output"
+        ],
+        "tools": [
+          "Ollama"
+        ],
+        "definitionOfDone": [
+          "A local model runs offline",
+          "Its answer is grounded in a record and checked against the evidence"
+        ],
+        "shared": true,
+        "track": "ai",
+        "handoff": [
+          {
+            "to": "archnet",
+            "artifact": "D1 Governance & Risk",
+            "note": "Your section of the D1 Governance & Risk, for the review that approves it.",
+            "deliverable": "cissp_d1"
+          }
+        ]
+      },
+      {
+        "id": "cissp-w3-ai",
+        "role": "govrisk",
+        "week": 3,
+        "title": "AI extension: read a network rule",
+        "objective": "Use a local AI assistant on what you built this week: read a network rule, grounded and checked.",
+        "steps": [
+          {
+            "id": "cissp-w3-ai-s1",
+            "title": "Run a local model",
+            "description": "A model that runs on your own machine, offline.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Pull a small local model and list it.",
+            "instructionList": [
+              "Install Ollama from the official site if it is not already there.",
+              "Run the pull command for a small model.",
+              "List the installed models and confirm it is there."
+            ],
+            "commands": [
+              {
+                "cmd": "ollama pull llama3.2 && ollama list",
+                "explain": "Pulls a small model that runs offline, then lists what is installed so you can see it is ready.",
+                "sample": "NAME             ID            SIZE      MODIFIED\nllama3.2:latest  a80c4f17acd5  2.0 GB    2 seconds ago",
+                "flags": [
+                  {
+                    "flag": "pull llama3.2",
+                    "meaning": "Downloads the model once; it then runs offline."
+                  },
+                  {
+                    "flag": "list",
+                    "meaning": "Prints the installed models as a table."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "NAME             ID            SIZE      MODIFIED\nllama3.2:latest  a80c4f17acd5  2.0 GB    2 seconds ago",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "llama3.2",
+                "label": "your offline model, ready"
+              }
+            ],
+            "verify": [
+              "llama3.2"
+            ],
+            "whatItMeans": "A model on your own machine answers without sending your work to anyone. Everything after this runs offline.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Manage function: run AI with controls, and keep a person accountable for what it produces."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "ollama: command not found",
+                "fix": "Install it from the official site, then open a new terminal so the command is on the path."
+              },
+              {
+                "symptom": "The pull is slow or fails",
+                "fix": "The model is two gigabytes; on a slow link pull llama3.2:1b instead and list again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "cissp-w3-ai-s2",
+            "title": "Ground it, and check the answer",
+            "description": "The model answers from your record; you keep what the evidence supports.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Ask the model to read a network rule, then check it.",
+            "instructionList": [
+              "Paste one of your own records into the prompt as the context.",
+              "Ask the model to explain or check that record for this week.",
+              "Read the answer against your evidence and keep only what is true."
+            ],
+            "expectedOutput": "The model answers from your record, and you keep only the parts your evidence supports.",
+            "outputKind": "result",
+            "whatItMeans": "A grounded answer cites your own work; an ungrounded one guesses. The human check is what makes it safe to use.",
+            "docs": [
+              {
+                "title": "NIST AI RMF Generative AI Profile",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "why a person must verify generative output before it is used, and how to record that check."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The answer invents a detail",
+                "fix": "It was not grounded: paste the exact record and ask it to quote only from that text."
+              },
+              {
+                "symptom": "The answer is too long to check",
+                "fix": "Ask for three bullet points, each traceable to a line of your record."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "30 min",
+        "difficulty": 2,
+        "learn": [
+          "Local models",
+          "Grounding in your own records",
+          "Verifying AI output"
+        ],
+        "tools": [
+          "Ollama"
+        ],
+        "definitionOfDone": [
+          "A local model runs offline",
+          "Its answer is grounded in a record and checked against the evidence"
+        ],
+        "shared": true,
+        "track": "ai",
+        "handoff": [
+          {
+            "to": "archnet",
+            "artifact": "D1 Governance & Risk",
+            "note": "Your section of the D1 Governance & Risk, for the review that approves it.",
+            "deliverable": "cissp_d1"
+          }
+        ]
+      },
+      {
+        "id": "cissp-w4-ai",
+        "role": "govrisk",
+        "week": 4,
+        "title": "AI extension: draft an access review",
+        "objective": "Use a local AI assistant on what you built this week: draft an access review, grounded and checked.",
+        "steps": [
+          {
+            "id": "cissp-w4-ai-s1",
+            "title": "Run a local model",
+            "description": "A model that runs on your own machine, offline.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Pull a small local model and list it.",
+            "instructionList": [
+              "Install Ollama from the official site if it is not already there.",
+              "Run the pull command for a small model.",
+              "List the installed models and confirm it is there."
+            ],
+            "commands": [
+              {
+                "cmd": "ollama pull llama3.2 && ollama list",
+                "explain": "Pulls a small model that runs offline, then lists what is installed so you can see it is ready.",
+                "sample": "NAME             ID            SIZE      MODIFIED\nllama3.2:latest  a80c4f17acd5  2.0 GB    2 seconds ago",
+                "flags": [
+                  {
+                    "flag": "pull llama3.2",
+                    "meaning": "Downloads the model once; it then runs offline."
+                  },
+                  {
+                    "flag": "list",
+                    "meaning": "Prints the installed models as a table."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "NAME             ID            SIZE      MODIFIED\nllama3.2:latest  a80c4f17acd5  2.0 GB    2 seconds ago",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "llama3.2",
+                "label": "your offline model, ready"
+              }
+            ],
+            "verify": [
+              "llama3.2"
+            ],
+            "whatItMeans": "A model on your own machine answers without sending your work to anyone. Everything after this runs offline.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Manage function: run AI with controls, and keep a person accountable for what it produces."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "ollama: command not found",
+                "fix": "Install it from the official site, then open a new terminal so the command is on the path."
+              },
+              {
+                "symptom": "The pull is slow or fails",
+                "fix": "The model is two gigabytes; on a slow link pull llama3.2:1b instead and list again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "cissp-w4-ai-s2",
+            "title": "Ground it, and check the answer",
+            "description": "The model answers from your record; you keep what the evidence supports.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Ask the model to draft an access review, then check it.",
+            "instructionList": [
+              "Paste one of your own records into the prompt as the context.",
+              "Ask the model to explain or check that record for this week.",
+              "Read the answer against your evidence and keep only what is true."
+            ],
+            "expectedOutput": "The model answers from your record, and you keep only the parts your evidence supports.",
+            "outputKind": "result",
+            "whatItMeans": "A grounded answer cites your own work; an ungrounded one guesses. The human check is what makes it safe to use.",
+            "docs": [
+              {
+                "title": "NIST AI RMF Generative AI Profile",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "why a person must verify generative output before it is used, and how to record that check."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The answer invents a detail",
+                "fix": "It was not grounded: paste the exact record and ask it to quote only from that text."
+              },
+              {
+                "symptom": "The answer is too long to check",
+                "fix": "Ask for three bullet points, each traceable to a line of your record."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "30 min",
+        "difficulty": 2,
+        "learn": [
+          "Local models",
+          "Grounding in your own records",
+          "Verifying AI output"
+        ],
+        "tools": [
+          "Ollama"
+        ],
+        "definitionOfDone": [
+          "A local model runs offline",
+          "Its answer is grounded in a record and checked against the evidence"
+        ],
+        "shared": true,
+        "track": "ai",
+        "handoff": [
+          {
+            "to": "archnet",
+            "artifact": "D1 Governance & Risk",
+            "note": "Your section of the D1 Governance & Risk, for the review that approves it.",
+            "deliverable": "cissp_d1"
+          }
+        ]
+      },
+      {
+        "id": "cissp-w5-ai",
+        "role": "govrisk",
+        "week": 5,
+        "title": "AI extension: summarise an assessment",
+        "objective": "Use a local AI assistant on what you built this week: summarise an assessment, grounded and checked.",
+        "steps": [
+          {
+            "id": "cissp-w5-ai-s1",
+            "title": "Run a local model",
+            "description": "A model that runs on your own machine, offline.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Pull a small local model and list it.",
+            "instructionList": [
+              "Install Ollama from the official site if it is not already there.",
+              "Run the pull command for a small model.",
+              "List the installed models and confirm it is there."
+            ],
+            "commands": [
+              {
+                "cmd": "ollama pull llama3.2 && ollama list",
+                "explain": "Pulls a small model that runs offline, then lists what is installed so you can see it is ready.",
+                "sample": "NAME             ID            SIZE      MODIFIED\nllama3.2:latest  a80c4f17acd5  2.0 GB    2 seconds ago",
+                "flags": [
+                  {
+                    "flag": "pull llama3.2",
+                    "meaning": "Downloads the model once; it then runs offline."
+                  },
+                  {
+                    "flag": "list",
+                    "meaning": "Prints the installed models as a table."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "NAME             ID            SIZE      MODIFIED\nllama3.2:latest  a80c4f17acd5  2.0 GB    2 seconds ago",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "llama3.2",
+                "label": "your offline model, ready"
+              }
+            ],
+            "verify": [
+              "llama3.2"
+            ],
+            "whatItMeans": "A model on your own machine answers without sending your work to anyone. Everything after this runs offline.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Manage function: run AI with controls, and keep a person accountable for what it produces."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "ollama: command not found",
+                "fix": "Install it from the official site, then open a new terminal so the command is on the path."
+              },
+              {
+                "symptom": "The pull is slow or fails",
+                "fix": "The model is two gigabytes; on a slow link pull llama3.2:1b instead and list again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "cissp-w5-ai-s2",
+            "title": "Ground it, and check the answer",
+            "description": "The model answers from your record; you keep what the evidence supports.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Ask the model to summarise an assessment, then check it.",
+            "instructionList": [
+              "Paste one of your own records into the prompt as the context.",
+              "Ask the model to explain or check that record for this week.",
+              "Read the answer against your evidence and keep only what is true."
+            ],
+            "expectedOutput": "The model answers from your record, and you keep only the parts your evidence supports.",
+            "outputKind": "result",
+            "whatItMeans": "A grounded answer cites your own work; an ungrounded one guesses. The human check is what makes it safe to use.",
+            "docs": [
+              {
+                "title": "NIST AI RMF Generative AI Profile",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "why a person must verify generative output before it is used, and how to record that check."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The answer invents a detail",
+                "fix": "It was not grounded: paste the exact record and ask it to quote only from that text."
+              },
+              {
+                "symptom": "The answer is too long to check",
+                "fix": "Ask for three bullet points, each traceable to a line of your record."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "30 min",
+        "difficulty": 2,
+        "learn": [
+          "Local models",
+          "Grounding in your own records",
+          "Verifying AI output"
+        ],
+        "tools": [
+          "Ollama"
+        ],
+        "definitionOfDone": [
+          "A local model runs offline",
+          "Its answer is grounded in a record and checked against the evidence"
+        ],
+        "shared": true,
+        "track": "ai",
+        "handoff": [
+          {
+            "to": "archnet",
+            "artifact": "D1 Governance & Risk",
+            "note": "Your section of the D1 Governance & Risk, for the review that approves it.",
+            "deliverable": "cissp_d1"
+          }
+        ]
+      },
+      {
+        "id": "cissp-w6-ai",
+        "role": "govrisk",
+        "week": 6,
+        "title": "AI extension: review the security plan",
+        "objective": "Use a local AI assistant on what you built this week: review the security plan, grounded and checked.",
+        "steps": [
+          {
+            "id": "cissp-w6-ai-s1",
+            "title": "Run a local model",
+            "description": "A model that runs on your own machine, offline.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Pull a small local model and list it.",
+            "instructionList": [
+              "Install Ollama from the official site if it is not already there.",
+              "Run the pull command for a small model.",
+              "List the installed models and confirm it is there."
+            ],
+            "commands": [
+              {
+                "cmd": "ollama pull llama3.2 && ollama list",
+                "explain": "Pulls a small model that runs offline, then lists what is installed so you can see it is ready.",
+                "sample": "NAME             ID            SIZE      MODIFIED\nllama3.2:latest  a80c4f17acd5  2.0 GB    2 seconds ago",
+                "flags": [
+                  {
+                    "flag": "pull llama3.2",
+                    "meaning": "Downloads the model once; it then runs offline."
+                  },
+                  {
+                    "flag": "list",
+                    "meaning": "Prints the installed models as a table."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "NAME             ID            SIZE      MODIFIED\nllama3.2:latest  a80c4f17acd5  2.0 GB    2 seconds ago",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "llama3.2",
+                "label": "your offline model, ready"
+              }
+            ],
+            "verify": [
+              "llama3.2"
+            ],
+            "whatItMeans": "A model on your own machine answers without sending your work to anyone. Everything after this runs offline.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Manage function: run AI with controls, and keep a person accountable for what it produces."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "ollama: command not found",
+                "fix": "Install it from the official site, then open a new terminal so the command is on the path."
+              },
+              {
+                "symptom": "The pull is slow or fails",
+                "fix": "The model is two gigabytes; on a slow link pull llama3.2:1b instead and list again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "cissp-w6-ai-s2",
+            "title": "Ground it, and check the answer",
+            "description": "The model answers from your record; you keep what the evidence supports.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Ask the model to review the security plan, then check it.",
+            "instructionList": [
+              "Paste one of your own records into the prompt as the context.",
+              "Ask the model to explain or check that record for this week.",
+              "Read the answer against your evidence and keep only what is true."
+            ],
+            "expectedOutput": "The model answers from your record, and you keep only the parts your evidence supports.",
+            "outputKind": "result",
+            "whatItMeans": "A grounded answer cites your own work; an ungrounded one guesses. The human check is what makes it safe to use.",
+            "docs": [
+              {
+                "title": "NIST AI RMF Generative AI Profile",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "why a person must verify generative output before it is used, and how to record that check."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The answer invents a detail",
+                "fix": "It was not grounded: paste the exact record and ask it to quote only from that text."
+              },
+              {
+                "symptom": "The answer is too long to check",
+                "fix": "Ask for three bullet points, each traceable to a line of your record."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "30 min",
+        "difficulty": 2,
+        "learn": [
+          "Local models",
+          "Grounding in your own records",
+          "Verifying AI output"
+        ],
+        "tools": [
+          "Ollama"
+        ],
+        "definitionOfDone": [
+          "A local model runs offline",
+          "Its answer is grounded in a record and checked against the evidence"
+        ],
+        "shared": true,
+        "track": "ai",
+        "handoff": [
+          {
+            "to": "archnet",
+            "artifact": "D1 Governance & Risk",
+            "note": "Your section of the D1 Governance & Risk, for the review that approves it.",
+            "deliverable": "cissp_d1"
           }
         ]
       }
@@ -8398,6 +9238,7 @@
         "data": "Data security",
         "ops": "Security operations",
         "ai-attack": "AI attack and evaluation",
+        "ai": "Applied AI",
         "hardware": "Server hardware",
         "virt": "Virtualisation",
         "sysadmin": "System administration",
@@ -9179,6 +10020,45 @@
             "800-218",
             "SSDF"
           ]
+        },
+        {
+          "code": "NIST.AI-RMF",
+          "standard": "NIST_AI_RMF",
+          "label": "AI Risk Management Framework 1.0",
+          "cites": [
+            "NIST AI RMF",
+            "AI RMF"
+          ]
+        },
+        {
+          "code": "NIST.AI-RMF.MAP",
+          "standard": "NIST_AI_RMF",
+          "label": "Map",
+          "parent": "NIST.AI-RMF",
+          "cites": [
+            "Map"
+          ],
+          "scope": "AI RMF"
+        },
+        {
+          "code": "NIST.AI-RMF.MEASURE",
+          "standard": "NIST_AI_RMF",
+          "label": "Measure",
+          "parent": "NIST.AI-RMF",
+          "cites": [
+            "Measure"
+          ],
+          "scope": "AI RMF"
+        },
+        {
+          "code": "NIST.AI-RMF.MANAGE",
+          "standard": "NIST_AI_RMF",
+          "label": "Manage",
+          "parent": "NIST.AI-RMF",
+          "cites": [
+            "Manage"
+          ],
+          "scope": "AI RMF"
         },
         {
           "code": "ISO27001",
@@ -13011,6 +13891,12 @@
           "label": "Metrics with targets",
           "anchor": "ISO27001.9.1",
           "definition": "Each metric has a formula, a source and a target, so a number can be read as good or bad."
+        },
+        {
+          "id": "practice.human-in-the-loop",
+          "label": "Human checkpoint",
+          "anchor": "NIST_AI_RMF",
+          "definition": "AI-assisted work passes a named human check before it is acted on, and the check is recorded."
         }
       ],
       "PRACTICE_OF": {
@@ -13098,6 +13984,24 @@
         "ci-w6-idops": [
           "practice.control-mapping",
           "practice.write-for-leadership"
+        ],
+        "cissp-w1-ai": [
+          "practice.human-in-the-loop"
+        ],
+        "cissp-w2-ai": [
+          "practice.human-in-the-loop"
+        ],
+        "cissp-w3-ai": [
+          "practice.human-in-the-loop"
+        ],
+        "cissp-w4-ai": [
+          "practice.human-in-the-loop"
+        ],
+        "cissp-w5-ai": [
+          "practice.human-in-the-loop"
+        ],
+        "cissp-w6-ai": [
+          "practice.human-in-the-loop"
         ]
       },
       "SCORING": [
@@ -13745,6 +14649,42 @@
             "CISSP.d7",
             "NIST_800_34"
           ]
+        },
+        {
+          "id": "comp.ai.local-assistant",
+          "version": "1.0.0",
+          "label": "Run a local AI assistant offline",
+          "area": "ai",
+          "objectiveRefs": [
+            "NIST.AI-RMF.MANAGE"
+          ]
+        },
+        {
+          "id": "comp.ai.ground-in-records",
+          "version": "1.0.0",
+          "label": "Ground an AI answer in the records",
+          "area": "ai",
+          "objectiveRefs": [
+            "NIST.AI-RMF.MAP"
+          ]
+        },
+        {
+          "id": "comp.ai.verify-ai-output",
+          "version": "1.0.0",
+          "label": "Verify AI output against the evidence",
+          "area": "ai",
+          "objectiveRefs": [
+            "NIST.AI-RMF.MEASURE"
+          ]
+        },
+        {
+          "id": "comp.ai.prompt-for-the-task",
+          "version": "1.0.0",
+          "label": "Write a task-specific prompt",
+          "area": "ai",
+          "objectiveRefs": [
+            "NIST.AI-RMF.MAP"
+          ]
         }
       ],
       "SKILL_OF": {
@@ -13832,6 +14772,36 @@
         "ci-w6-idops": [
           "comp.audit.map-to-federal",
           "comp.report.federal-incident-reporting"
+        ],
+        "cissp-w1-ai": [
+          "comp.ai.prompt-for-the-task",
+          "comp.ai.local-assistant",
+          "comp.ai.verify-ai-output"
+        ],
+        "cissp-w2-ai": [
+          "comp.ai.local-assistant",
+          "comp.ai.ground-in-records",
+          "comp.ai.verify-ai-output"
+        ],
+        "cissp-w3-ai": [
+          "comp.ai.local-assistant",
+          "comp.ai.ground-in-records",
+          "comp.ai.verify-ai-output"
+        ],
+        "cissp-w4-ai": [
+          "comp.ai.local-assistant",
+          "comp.ai.ground-in-records",
+          "comp.ai.verify-ai-output"
+        ],
+        "cissp-w5-ai": [
+          "comp.ai.local-assistant",
+          "comp.ai.ground-in-records",
+          "comp.ai.verify-ai-output"
+        ],
+        "cissp-w6-ai": [
+          "comp.ai.local-assistant",
+          "comp.ai.ground-in-records",
+          "comp.ai.verify-ai-output"
         ]
       },
       "SOPS": [
@@ -14821,6 +15791,17 @@
           "vendor": "Microsoft"
         },
         {
+          "id": "tool.ollama",
+          "label": "Ollama",
+          "kind": "service",
+          "aliases": [
+            "Ollama"
+          ],
+          "commands": [
+            "ollama"
+          ]
+        },
+        {
           "id": "tool.eramba",
           "label": "eramba",
           "kind": "service",
@@ -15024,6 +16005,30 @@
         "ci-w6-idops": [
           "tool.capstone-forms",
           "tool.notes"
+        ],
+        "cissp-w1-ai": [
+          "tool.capstone-forms",
+          "tool.ollama"
+        ],
+        "cissp-w2-ai": [
+          "tool.capstone-forms",
+          "tool.ollama"
+        ],
+        "cissp-w3-ai": [
+          "tool.capstone-forms",
+          "tool.ollama"
+        ],
+        "cissp-w4-ai": [
+          "tool.capstone-forms",
+          "tool.ollama"
+        ],
+        "cissp-w5-ai": [
+          "tool.capstone-forms",
+          "tool.ollama"
+        ],
+        "cissp-w6-ai": [
+          "tool.capstone-forms",
+          "tool.ollama"
         ]
       },
       "TROUBLE_GROUPS": [

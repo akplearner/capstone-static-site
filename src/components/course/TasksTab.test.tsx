@@ -71,11 +71,11 @@ beforeEach(() => {
 });
 
 describe('TasksTab — every task open to every member', () => {
-  it('shows four rows and four enabled objective cards, each saying whose it is', () => {
+  it('shows the role rows and objective cards, each saying whose it is', () => {
     const { container } = mount();
-    // Each title twice: once on its objective card, once on its row.
-    for (const t of week1) expect(screen.getAllByText(t.title).length).toBeGreaterThanOrEqual(2);
-    const cards = screen.getAllByRole('button', { name: /task · ~/ });
+    // Each role task's title twice: once on its objective card, once on its row (R143: the AI extension is a fifth, optional row).
+    for (const t of week1.filter((t) => !t.track)) expect(screen.getAllByText(t.title).length).toBeGreaterThanOrEqual(2);
+    const cards = screen.getAllByRole('button', { name: /tasks? · ~/ });
     expect(cards).toHaveLength(4);
     expect(cards.filter((b) => (b as HTMLButtonElement).disabled)).toHaveLength(0);
     expect(container.textContent).toContain('Yours · Security Operations (SecOps Engineer)');
@@ -113,7 +113,7 @@ describe('TasksTab — every task open to every member', () => {
     expect(container.textContent).toContain('Done by Ada');
     expect(screen.getByText('Done by Ada')).toBeInTheDocument();
     expect(container.querySelector('[data-task-you]')?.textContent).toMatch(/^You: 0 of \d+ steps$/); // R118: the member's own count sits beside the team's
-    const card = screen.getAllByRole('button', { name: /task · ~/ }).find((b) => b.textContent?.includes(infra.title))!;
+    const card = screen.getAllByRole('button', { name: /tasks? · ~/ }).find((b) => b.textContent?.includes(infra.title))!;
     expect(card.textContent).toContain('Platform Build (Infrastructure Admin) · 1 task');
     expect(card.className).toContain('bg-ok-soft');
   });
@@ -177,7 +177,7 @@ describe('TasksTab — R100 split view and focus mode', () => {
     expect(screen.queryByRole('heading', { name: 'What you build this week' })).toBeNull();
     expect(screen.queryByRole('list', { name: /Objectives this/ })).toBeNull();
     expect(container.querySelector('[data-focus-hint]')).not.toBeNull();
-    expect(container.querySelectorAll('.stratum-task').length).toBe(4);
+    expect(container.querySelectorAll('.stratum-task').length).toBe(5);
     expect(document.getElementById('tasks-head')).not.toBeNull();
   });
 });
@@ -234,8 +234,8 @@ describe('TasksTab — R116: whose task is whose, and a gate is a note, never a 
     const { container } = mount({ gateNote: (w) => (w === 1 ? note : null), goToTask });
     expect(container.querySelector('[data-gate-note="1"]')).not.toBeNull();
     expect(screen.getByText('Gate 1 is not cleared yet. This week is open.')).toBeInTheDocument();
-    expect(container.querySelectorAll('.stratum-task')).toHaveLength(4);
-    expect(screen.getAllByRole('button', { name: /task · ~/ }).filter((b) => (b as HTMLButtonElement).disabled)).toHaveLength(0);
+    expect(container.querySelectorAll('.stratum-task')).toHaveLength(5);
+    expect(screen.getAllByRole('button', { name: /tasks? · ~/ }).filter((b) => (b as HTMLButtonElement).disabled)).toHaveLength(0);
     const open = screen.getByRole('list', { name: 'Still open for Gate 1' });
     expect(open.textContent).toContain('2 steps left');
     fireEvent.click(screen.getByRole('button', { name: week1[0].title, hidden: false }));
@@ -257,7 +257,7 @@ describe('TasksTab — R116: whose task is whose, and a gate is a note, never a 
   it('Focus mode keeps only the rows and the open task: the strip steps aside', () => {
     const { container } = mount({ focusMode: true });
     expect(container.querySelector('[data-your-tasks]')).toBeNull();
-    expect(container.querySelectorAll('.stratum-task')).toHaveLength(4);
+    expect(container.querySelectorAll('.stratum-task')).toHaveLength(5);
   });
 });
 

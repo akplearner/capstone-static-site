@@ -1,6 +1,7 @@
 import { Course, RoleDef, Task, WeekDef } from '../../types';
 import { WEEKS, GATES, ALL_TASKS, STEP_DELIVERABLES } from '../../content-data';
 import { withPortfolioStep } from '../../docs/portfolioPlan';
+import { withAiExtensions } from '../../docs/aiExtension';
 
 // The original Security+ capstone, migrated into the generic Course model.
 // Task/step/gate ids are preserved so existing student progress survives the
@@ -47,7 +48,7 @@ const tasks: Task[] = ALL_TASKS.map((t) => ({
 }));
 
 // R142: the GRC report task closes by writing the Portfolio.
-export const SECURITY_PLUS: Course = withPortfolioStep({
+export const SECURITY_PLUS: Course = withAiExtensions(withPortfolioStep({
   id: 'security-plus',
   title: 'Security+ Capstone Lab',
   slug: 'security-plus',
@@ -67,4 +68,4 @@ export const SECURITY_PLUS: Course = withPortfolioStep({
   locked: false,
   teamCount: 16,
   teamCapacity: 6,
-});
+}));

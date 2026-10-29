@@ -19,11 +19,12 @@ describe('course-helpers on the Security+ seed', () => {
   it('getTasksByRole filters by role (and optionally week)', () => {
     const redAll = getTasksByRole(SECURITY_PLUS, 'red');
     expect(redAll.length).toBeGreaterThan(0);
-    expect(redAll.every((t) => t.role === 'red')).toBe(true);
+    // R143: getTasksByRole returns the role's own tasks plus every shared task (the AI extension among them).
+    expect(redAll.every((t) => t.role === 'red' || t.shared)).toBe(true);
 
-    const week = redAll[0].week;
+    const week = redAll.find((t) => t.role === 'red')!.week;
     const redWeek = getTasksByRole(SECURITY_PLUS, 'red', week);
-    expect(redWeek.every((t) => t.role === 'red' && t.week === week)).toBe(true);
+    expect(redWeek.every((t) => (t.role === 'red' || t.shared) && t.week === week)).toBe(true);
     expect(redWeek.length).toBeLessThanOrEqual(redAll.length);
   });
 
@@ -114,10 +115,10 @@ describe('week summary aggregation', () => {
   it('the flow is the objectives, and falls back to task titles when a week authors none', () => {
     const s = weekSummary(CYSA_PLUS, 'blue', 1);
     expect(s.flow).toEqual(s.objectives.map((o) => o.label));
-    // Blue's own objective is one of three; the other two are Red's and GRC's
-    // parts of the week's story, and say so.
-    expect(s.objectives).toHaveLength(3);
-    expect(s.objectives.filter((o) => o.own.length > 0)).toHaveLength(1);
+    // Blue's own objective, Red's and GRC's parts of the story, and (R143) the shared AI extension.
+    expect(s.objectives).toHaveLength(4);
+    // Blue's deep-dive and the shared AI extension both count as "own" for Blue.
+    expect(s.objectives.filter((o) => o.own.length > 0)).toHaveLength(2);
     expect(s.objectives.find((o) => o.own.length === 0)?.roles.length).toBeGreaterThan(0);
     const noObjectives = { ...CYSA_PLUS, weeks: CYSA_PLUS.weeks.map((w) => ({ ...w, objectives: undefined })) };
     const t = weekSummary(noObjectives, 'blue', 1);
@@ -129,8 +130,10 @@ describe('week summary aggregation', () => {
     const blue = weekTasksOrdered(CYSA_PLUS, 'blue', 1);
     expect(blue.map((t) => t.id).sort()).toEqual(CYSA_PLUS.tasks.filter((t) => t.week === 1).map((t) => t.id).sort());
     expect(blue[0].role).toBe('blue');
+    // R143: the AI extension comes last, after the roles' own work.
+    expect(blue[blue.length - 1].track).toBe('ai');
     const roleOrder = CYSA_PLUS.roles.map((r) => r.id);
-    const rest = blue.slice(1).map((t) => roleOrder.indexOf(t.role));
+    const rest = blue.slice(1).filter((t) => !t.track).map((t) => roleOrder.indexOf(t.role));
     expect(rest).toEqual([...rest].sort((a, b) => a - b));
     // A shared build comes first for everyone; the focus task next.
     const net = weekTasksOrdered(SERVER_PLUS, 'net', 1);

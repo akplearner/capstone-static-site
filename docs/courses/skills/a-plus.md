@@ -1,6 +1,6 @@
 # A+ Capstone Bench — skills sheet
 
-12 graded tasks · 22 skills · 19 tools · 10 procedures · 4 standards (6 controls cited) · 0 tactics · 14 practices
+16 graded tasks · 26 skills · 20 tools · 10 procedures · 5 standards (6 controls cited) · 0 tactics · 15 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -13,6 +13,10 @@ Generated from the registries and the course document by `npm run content:export
 | Set recovery targets: RTO, RPO, MTTR `comp.respond.recovery-targets` | Incident response | CISSP.d7, SK0-005.d3, AZ-104.d5, SAA-C03.d4, NIST_800_34 | Take the final image and time the restore |
 | Hash and log evidence `comp.forensics.hash-evidence` | Evidence and forensics | SY0-701.d4, CS0-003.d3, CY0-001.d2, ISO_27037 | Image the disk before anything changes |
 | Keep a chain of custody `comp.forensics.chain-of-custody` | Evidence and forensics | SY0-701.d4, ISO_27037 | Hand it over |
+| Run a local AI assistant offline `comp.ai.local-assistant` | Applied AI | NIST.AI-RMF.MANAGE | AI extension: explain the build sheet; AI extension: read a backup log; AI extension: draft a support ticket; AI extension: summarise the handover |
+| Ground an AI answer in the records `comp.ai.ground-in-records` | Applied AI | NIST.AI-RMF.MAP | AI extension: read a backup log; AI extension: draft a support ticket; AI extension: summarise the handover |
+| Verify AI output against the evidence `comp.ai.verify-ai-output` | Applied AI | NIST.AI-RMF.MEASURE | AI extension: explain the build sheet; AI extension: read a backup log; AI extension: draft a support ticket; AI extension: summarise the handover |
+| Write a task-specific prompt `comp.ai.prompt-for-the-task` | Applied AI | NIST.AI-RMF.MAP | AI extension: explain the build sheet |
 | Receive hardware and list what arrived `comp.hardware.receive-and-inspect` | Server hardware | SK0-005.d1 | Read what is really inside |
 | Write boot media and set the boot order `comp.hardware.boot-media` | Server hardware | SK0-005.d1 | Set the firmware baseline |
 | Troubleshoot with the structured method `comp.sysadmin.troubleshooting-method` | System administration | SK0-005.d4, 200-301.d3, ITIL.problem | Work the fault with the six-step method; Work three tickets with the method |
@@ -40,13 +44,14 @@ Generated from the registries and the course document by `npm run content:export
 | ping / traceroute | cli | Connect it and prove the link; Work three tickets with the method |
 | nslookup | cli | Connect it and prove the link; Work three tickets with the method |
 | sha256sum | cli | Image the disk before anything changes; Install Windows and set the baseline; Prove the image restores; Secure the machine; Hand it over |
-| Capstone forms | document | Read what is really inside; Work the fault with the six-step method; Set the firmware baseline; Image the disk before anything changes; Install Windows and set the baseline; Prove the image restores; Connect it and prove the link; Set up the user and the peripherals; Work three tickets with the method; Secure the machine; Take the final image and time the restore; Hand it over |
+| Capstone forms | document | Read what is really inside; Work the fault with the six-step method; Set the firmware baseline; Image the disk before anything changes; Install Windows and set the baseline; Prove the image restores; Connect it and prove the link; Set up the user and the peripherals; Work three tickets with the method; Secure the machine; Take the final image and time the restore; Hand it over; AI extension: explain the build sheet; AI extension: read a backup log; AI extension: draft a support ticket; AI extension: summarise the handover |
 | Remote Desktop | app | Set up the user and the peripherals |
 | Vendor documentation | document | Set the firmware baseline; Install Windows and set the baseline |
 | Windows Firewall | app | Secure the machine |
 | Microsoft Defender | app | Secure the machine |
 | Windows Event Viewer | app | Work three tickets with the method |
 | Windows | platform | Install Windows and set the baseline; Connect it and prove the link; Set up the user and the peripherals; Work three tickets with the method; Secure the machine |
+| Ollama | service | AI extension: explain the build sheet; AI extension: read a backup log; AI extension: draft a support ticket; AI extension: summarise the handover |
 | Hand tools | hardware | Read what is really inside; Work the fault with the six-step method; Work three tickets with the method |
 | USB install media | hardware | Read what is really inside; Work the fault with the six-step method; Set the firmware baseline; Image the disk before anything changes; Install Windows and set the baseline; Hand it over |
 | The bench PC | hardware | Read what is really inside; Work the fault with the six-step method; Set the firmware baseline; Image the disk before anything changes; Install Windows and set the baseline; Prove the image restores; Connect it and prove the link; Set up the user and the peripherals; Work three tickets with the method; Secure the machine; Take the final image and time the restore; Hand it over |
@@ -78,6 +83,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | --- | --- | --- |
 | NIST CSF | Read what is really inside; Work the fault with the six-step method; Set the firmware baseline; Image the disk before anything changes; Install Windows and set the baseline; Prove the image restores; Connect it and prove the link; Set up the user and the peripherals; Work three tickets with the method; Secure the machine; Take the final image and time the restore; Hand it over | — |
 | CIS | Read what is really inside; Set the firmware baseline; Image the disk before anything changes; Install Windows and set the baseline; Prove the image restores; Set up the user and the peripherals; Secure the machine | — |
+| NIST AI RMF | AI extension: explain the build sheet; AI extension: read a backup log; AI extension: draft a support ticket; AI extension: summarise the handover | — |
 | NIST SP 800-53 | — | Intake & Bench Checklist; Asset & Build Sheet; Troubleshooting Log; OS Build & Baseline Record; Backup & Image Register; Support Ticket Log; Security Checklist; Handover & As-Built; Portfolio |
 | ISO/IEC/IEEE 42010 | — | Portfolio |
 
@@ -120,6 +126,7 @@ Adversary tactics are not part of this course.
 | Test and acceptance | ITIL.transition | Connect it and prove the link |
 | Structured troubleshooting | ITIL.problem | Work the fault with the six-step method; Work three tickets with the method |
 | Asset inventory | NIST.CSF.ID.AM | Read what is really inside |
+| Human checkpoint | NIST_AI_RMF | AI extension: explain the build sheet; AI extension: read a backup log; AI extension: draft a support ticket; AI extension: summarise the handover |
 | Work tracked on a board | ITIL.knowledge | Work three tickets with the method |
 
 ## KPI board
@@ -128,32 +135,32 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 
 | KPI | Family | Reads | Denominator in this course |
 | --- | --- | --- | --- |
-| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | hw: 22 skills with a verifiable step; os: 22 skills with a verifiable step; support: 22 skills with a verifiable step; records: 22 skills with a verifiable step |
+| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | hw: 26 skills with a verifiable step; os: 26 skills with a verifiable step; support: 26 skills with a verifiable step; records: 26 skills with a verifiable step |
 | Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | hw: 88 percent of the exam over 7 domains; os: 88 percent of the exam over 7 domains; support: 88 percent of the exam over 7 domains; records: 88 percent of the exam over 7 domains |
-| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | hw: 19 verifiable steps that run a command; os: 19 verifiable steps that run a command; support: 19 verifiable steps that run a command; records: 19 verifiable steps that run a command |
+| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | hw: 23 verifiable steps that run a command; os: 23 verifiable steps that run a command; support: 23 verifiable steps that run a command; records: 23 verifiable steps that run a command |
 | Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | hw: 10 procedures; os: 10 procedures; support: 10 procedures; records: 10 procedures |
 | Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | hw: 2 fault, incident or triage tables; os: 2 fault, incident or triage tables; support: 2 fault, incident or triage tables; records: 2 fault, incident or triage tables |
-| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | hw: 19 verifiable steps; os: 19 verifiable steps; support: 19 verifiable steps; records: 19 verifiable steps |
+| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | hw: 23 verifiable steps; os: 23 verifiable steps; support: 23 verifiable steps; records: 23 verifiable steps |
 | Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
-| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | hw: 19 verifiable steps that can carry two stamps; os: 19 verifiable steps that can carry two stamps; support: 19 verifiable steps that can carry two stamps; records: 19 verifiable steps that can carry two stamps |
+| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | hw: 23 verifiable steps that can carry two stamps; os: 23 verifiable steps that can carry two stamps; support: 23 verifiable steps that can carry two stamps; records: 23 verifiable steps that can carry two stamps |
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | hw: 6 tasks with two or more verifiable steps; os: 6 tasks with two or more verifiable steps; support: 6 tasks with two or more verifiable steps; records: 6 tasks with two or more verifiable steps |
-| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | hw: 19 verifiable steps; os: 19 verifiable steps; support: 19 verifiable steps; records: 19 verifiable steps |
+| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | hw: 23 verifiable steps; os: 23 verifiable steps; support: 23 verifiable steps; records: 23 verifiable steps |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
 | Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | hw: 44 checks on 9 forms; os: 44 checks on 9 forms; support: 44 checks on 9 forms; records: 44 checks on 9 forms |
 | Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | hw: 1 decision block; os: 1 decision block; support: 1 decision block; records: 1 decision block |
 | Decisions justified `kpi.decision-making.decisions-justified` | decision-making | metric.decision-justified (team) | hw: 1 decision block; os: 1 decision block; support: 1 decision block; records: 1 decision block |
 | Decisions approved `kpi.decision-making.decisions-approved` | decision-making | metric.decision-approved (team) | hw: 1 decision block; os: 1 decision block; support: 1 decision block; records: 1 decision block |
 | Changes with rollback `kpi.decision-making.change-rollback` | decision-making | metric.procedure-change-recorded (team) | hw: 1 change table with a rollback column; os: 1 change table with a rollback column; support: 1 change table with a rollback column; records: 1 change table with a rollback column |
-| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | hw: 12 hand-offs; os: 12 hand-offs; support: 12 hand-offs; records: 12 hand-offs |
+| Hand-offs completed `kpi.teamwork.handoffs` | teamwork | metric.collab-handoffs (team) | hw: 16 hand-offs; os: 16 hand-offs; support: 16 hand-offs; records: 16 hand-offs |
 | RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | hw: 9 forms with a RACI; os: 9 forms with a RACI; support: 9 forms with a RACI; records: 9 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
-| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | hw: 12 tasks of the role; os: 12 tasks of the role; support: 12 tasks of the role; records: 12 tasks of the role |
+| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | hw: 16 tasks of the role; os: 16 tasks of the role; support: 16 tasks of the role; records: 16 tasks of the role |
 | Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | hw: 9 forms; os: 9 forms; support: 9 forms; records: 9 forms |
 | Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | hw: 2 control codes on 2 forms; os: 1 control code on 2 forms; support: 1 control code on 1 form; records: 4 control codes on 4 forms |
 | Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | hw: 9 forms; os: 9 forms; support: 9 forms; records: 9 forms |
-| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | hw: 2 skills on two or more tasks; os: 2 skills on two or more tasks; support: 2 skills on two or more tasks; records: 2 skills on two or more tasks |
-| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | hw: 22 skills with a verifiable step; os: 22 skills with a verifiable step; support: 22 skills with a verifiable step; records: 22 skills with a verifiable step |
+| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | hw: 5 skills on two or more tasks; os: 5 skills on two or more tasks; support: 5 skills on two or more tasks; records: 5 skills on two or more tasks |
+| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | hw: 26 skills with a verifiable step; os: 26 skills with a verifiable step; support: 26 skills with a verifiable step; records: 26 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
 | Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | hw: System Administrator: 117 required, 100 not taught here; os: System Administrator: 117 required, 100 not taught here; support: System Administrator: 117 required, 100 not taught here; records: System Administrator: 117 required, 100 not taught here |
 | Values recalled `kpi.validation.recall-accuracy` | validation | metric.validation-recall (own) |  |

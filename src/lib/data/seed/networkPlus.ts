@@ -1,5 +1,6 @@
 import type { Course, RoleDef, Task, WeekDef } from '../../types';
 import { withPortfolioStep } from '../../docs/portfolioPlan';
+import { withAiExtensions } from '../../docs/aiExtension';
 import { COMPANY, VLANS, WAN, addressIn, device, dhcpRangeOf, gatewayOf, mgmtAddress, prefixOf, vlan } from '../../networkPlusTopology';
 
 /**
@@ -1091,7 +1092,7 @@ function addressRange(v: { id: number; pool?: [number, number] }): string {
 }
 
 // R142: the handover task closes by writing the Portfolio.
-export const NETWORK_PLUS: Course = withPortfolioStep({
+export const NETWORK_PLUS: Course = withAiExtensions(withPortfolioStep({
   id: 'network-plus',
   title: 'Network+ Capstone Branch',
   slug: 'network-plus',
@@ -1123,4 +1124,4 @@ export const NETWORK_PLUS: Course = withPortfolioStep({
   ],
   isSeed: true,
   version: 1,
-});
+}));

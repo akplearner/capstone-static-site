@@ -44,6 +44,7 @@ export const AREA_LABEL: Record<string, string> = {
   data: 'Data security',
   ops: 'Security operations',
   'ai-attack': 'AI attack and evaluation',
+  ai: 'Applied AI',
   hardware: 'Server hardware',
   virt: 'Virtualisation',
   sysadmin: 'System administration',
@@ -212,6 +213,11 @@ export const SKILLS: SkillNode[] = [
   n('ai-attack.ai-assisted-check', 'Check AI-assisted work with a human', ['CY0-001.d3', 'NIST_AI_RMF']),
   n('ai-attack.reproduce', 'Reproduce a suite on a rebuilt copy', ['CY0-001.d3', 'NIST_800_218']),
   n('ai-attack.paper-cases', 'Write paper cases: poisoning, theft, inference', ['CY0-001.d3', 'MITRE.ATLAS']),
+  // ── Applied AI (R143): the AI extension every course now carries ───────────
+  n('ai.local-assistant', 'Run a local AI assistant offline', ['NIST.AI-RMF.MANAGE']),
+  n('ai.ground-in-records', 'Ground an AI answer in the records', ['NIST.AI-RMF.MAP']),
+  n('ai.verify-ai-output', 'Verify AI output against the evidence', ['NIST.AI-RMF.MEASURE']),
+  n('ai.prompt-for-the-task', 'Write a task-specific prompt', ['NIST.AI-RMF.MAP']),
   // ── Server hardware ──────────────────────────────────────────────────────
   n('hardware.receive-and-inspect', 'Receive hardware and list what arrived', ['SK0-005.d1']),
   n('hardware.memory-population', 'Populate memory channels per the manual', ['SK0-005.d1']),
@@ -381,6 +387,8 @@ export const SKILLS: SkillNode[] = [
  * exists as `az-…` on Azure and `aws-…` on AWS, in the entry (weeks 1–4),
  * associate (5–8) and professional (9–12) course of each. One table, both maps.
  */
+import { aiExtensionSkills } from './aiExtension';
+
 export const CLOUD_COURSES: Record<string, [prefix: string, weeks: [number, number]]> = {
   'azure-fundamentals': ['az', [1, 4]],
   'azure-administrator': ['az', [5, 8]],
@@ -646,6 +654,9 @@ export const TASK_SKILLS: Record<string, Record<string, string[]>> = {
   },
   ...cloudMap(CLOUD_SKILLS),
 };
+
+// R143: the AI extension task of each graded week teaches the applied-AI nodes.
+for (const [courseId, map] of Object.entries(aiExtensionSkills())) Object.assign((TASK_SKILLS[courseId] ??= {}), map);
 
 /* ── helpers (lowercase: never written to a document) ───────────────────── */
 

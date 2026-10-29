@@ -50,13 +50,15 @@ const profileOf = (rows: MemberCourseRow[]): MemberProfileExport =>
 const ALL = profileOf(ROWS);
 
 describe('the copy a link carries fits the cap', () => {
-  it('holds every course finished, with room, where the full export was more than twice the cap', () => {
+  it('more than halves the export, and every single course fits a link with room to spare', () => {
     const full = copyBytes(ALL);
     const compact = copyBytes(shareProfileCopy(ALL));
     expect(ROWS).toHaveLength(SEED_COURSES.length);
     expect(full, 'the full export is why a link failed').toBeGreaterThan(SHARE_LIMIT_BYTES * 1.5);
-    expect(compact, 'every course of the platform, finished, in one link').toBeLessThan(SHARE_LIMIT_BYTES);
-    expect(compact / full, 'about half, or less').toBeLessThan(0.55);
+    expect(compact / full, 'the compaction more than halves the export').toBeLessThan(0.55);
+    // R143: with the AI extension skills on every course the finished platform no longer fits one link, so the dialog
+    // lets a member pick; every single course fits well inside the cap, and the four largest together fit (next test).
+    for (const r of ROWS) expect(copyBytes(shareProfileCopy(ALL, [r.courseId])), r.courseId).toBeLessThan(SHARE_LIMIT_BYTES / 4);
   });
 
   it('holds the four largest courses together in under half the cap', () => {
@@ -66,7 +68,9 @@ describe('the copy a link carries fits the cap', () => {
   });
 
   it('is accepted by the share function’s own guard, and the guard still refuses a copy over the cap', () => {
-    const copy = shareProfileCopy(ALL) as unknown as Record<string, unknown>;
+    // A link a member actually makes: the four largest courses, which fit well under the cap.
+    const four = ROWS.map((r) => [r.courseId, copyBytes(shareProfileCopy(ALL, [r.courseId]))] as const).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([id]) => id);
+    const copy = shareProfileCopy(ALL, four) as unknown as Record<string, unknown>;
     expect(shareProblem({ kind: 'profile', days: 30, label: '', snapshot: copy })).toBeNull();
     expect(shareProblem({ kind: 'profile', days: 30, label: '', snapshot: { ...copy, blob: 'x'.repeat(SHARE_LIMIT_BYTES) } })).toBe('too-large');
   });

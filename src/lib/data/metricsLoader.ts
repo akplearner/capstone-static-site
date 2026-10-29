@@ -4,7 +4,7 @@ import { getBrowserClient } from '../supabase/client';
 import { isSupabaseConfigured } from '../supabase/config';
 import { courseRepo } from './index';
 import { localStorageProgressRepo } from './localStorageProgressRepo';
-import { getRequiredStepCount, requiredTasksByRole } from '../course-helpers';
+import { getRequiredStepCount, getTasksByRole } from '../course-helpers';
 import { AGREEMENTS, missingAcceptances } from '../legal/agreements';
 import { localAcceptances } from '../legal/acceptances';
 
@@ -53,7 +53,7 @@ export interface MetricsData {
 function percentFor(courseId: string, role: string, ticked: number): number {
   const course = courseRepo.get(courseId);
   if (!course) return 0;
-  const total = requiredTasksByRole(course, role).reduce((n, t) => n + getRequiredStepCount(t), 0);
+  const total = getTasksByRole(course, role).reduce((n, t) => n + getRequiredStepCount(t), 0);
   if (total === 0) return 0;
   return Math.min(100, Math.round((ticked / total) * 100));
 }

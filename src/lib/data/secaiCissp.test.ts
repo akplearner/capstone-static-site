@@ -106,7 +106,8 @@ describe.each([['secai-plus', SECAI_PLUS], ['cissp', CISSP]] as const)('R102 —
   });
 
   it('every graded task waits on an artifact and hands one on', () => {
-    const bad = graded.filter((t) => !t.prerequisites?.length || !(t.handoff || t.consumes?.length)).map((t) => t.id);
+    // R143: the AI extension is optional premium work; it is not a hand-off in the engagement chain.
+    const bad = graded.filter((t) => !t.track && (!t.prerequisites?.length || !(t.handoff || t.consumes?.length))).map((t) => t.id);
     expect(bad, bad.join(', ')).toEqual([]);
   });
 
