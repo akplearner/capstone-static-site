@@ -25,6 +25,7 @@ import { SERVER_PLUS_DELIVERABLES } from './serverPlusDeliverables';
 import { CCNA_DELIVERABLES } from './ccnaDeliverables';
 import { A_PLUS_DELIVERABLES } from './aPlusDeliverables';
 import { AI_FOUNDATIONS_DELIVERABLES } from './aiFoundationsDeliverables';
+import { AWS_AI_PRACTITIONER_DELIVERABLES } from './awsAiPractitionerDeliverables';
 import { NETWORK_PLUS_DELIVERABLES } from './networkPlusDeliverables';
 import { SECAI_DELIVERABLES } from './secaiDeliverables';
 import { CISSP_DELIVERABLES } from './cisspDeliverables';
@@ -788,6 +789,7 @@ export const DELIVERABLES: DeliverableDef[] = [
   ...CCNA_DELIVERABLES,
   ...A_PLUS_DELIVERABLES,
   ...AI_FOUNDATIONS_DELIVERABLES,
+  ...AWS_AI_PRACTITIONER_DELIVERABLES,
   ...NETWORK_PLUS_DELIVERABLES,
   ...SECAI_DELIVERABLES,
   ...CISSP_DELIVERABLES,

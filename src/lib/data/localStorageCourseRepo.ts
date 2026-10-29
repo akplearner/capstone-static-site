@@ -15,13 +15,14 @@ import { SECAI_PLUS } from './seed/secaiPlus';
 import { CISSP } from './seed/cissp';
 import { A_PLUS } from './seed/aPlus';
 import { AI_FOUNDATIONS } from './seed/aiFoundations';
+import { AWS_AI_PRACTITIONER } from './seed/awsAiPractitioner';
 import { NETWORK_PLUS } from './seed/networkPlus';
 import { AZURE_COURSES } from './seed/azureCloud';
 import { AWS_COURSES } from './seed/awsCloud';
 
 // Built-in courses shipped in code. They are never written to localStorage so
 // they stay upgradeable; an authored course with the same id overrides a seed.
-const SEED_MODULES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS];
+const SEED_MODULES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER];
 
 /**
  * Where the built-in courses come from: the JSON documents, with the TypeScript

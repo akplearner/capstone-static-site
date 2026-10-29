@@ -6,6 +6,7 @@ import { ARCH as SECAI } from './secaiContent';
 import { ARCH as CISSP } from './cisspContent';
 import { ARCH as APLUS } from './aPlusContent';
 import { ARCH as AIFOUND } from './aiFoundationsContent';
+import { ARCH as AWSAI } from './awsAiPractitionerContent';
 import { ARCH as NETPLUS } from './networkPlusContent';
 import { deliverablesForCourse } from './definitions';
 import { LAB_HOSTS } from '../labTopology';
@@ -26,6 +27,7 @@ const PICTURES: [string, ArchPicture][] = [
   ['cissp', CISSP],
   ['a-plus', APLUS],
   ['ai-foundations', AIFOUND],
+  ['aws-ai-practitioner', AWSAI],
   ['network-plus', NETPLUS],
 ];
 const words = (t: string) => t.split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;

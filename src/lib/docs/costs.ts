@@ -79,6 +79,10 @@ export const COURSE_COSTS: Record<string, CostLine[]> = {
     line('azure', 'cloud', 'Azure AI Foundry and AI Services, free tier', 0, 'month', 'The free tier covers the course; the deployment is stopped at week end so nothing bills.'),
     line('local', 'software', 'Ollama and a small local model', 0, 'once', 'Free download; runs on the student machine with no account.'),
   ],
+  'aws-ai-practitioner': [
+    line('bedrock', 'cloud', 'Amazon Bedrock, Comprehend and Textract, on-demand', 0, 'month', 'On-demand calls kept tiny; a cent or two at most, torn down at the end so nothing bills.'),
+    line('local', 'software', 'Ollama and a small local model', 0, 'once', 'Free download; runs on the student machine with no account.'),
+  ],
   'a-plus': [
     line('pc', 'hardware', 'A used desktop PC per team (the one the course rebuilds)', 100, 'once', 'Order of magnitude; donated or second-hand, any make that opens with a screwdriver.', { approx: true }),
     line('drive', 'hardware', 'A spare SATA or NVMe drive', 40, 'once', 'For the rebuild if the SMART check fails the fitted one.', { approx: true }),

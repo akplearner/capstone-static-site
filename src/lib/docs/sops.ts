@@ -141,6 +141,16 @@ export const DELIVERABLE_SOPS: Record<string, Record<string, string[]>> = {
     aif_governance: ['sop.risk-register', 'sop.governance-report'],
     aif_handover: ['sop.handover', 'sop.chain-of-custody'],
   },
+  'aws-ai-practitioner': {
+    awsai_setup: ['sop.asset-inventory'],
+    awsai_capabilities: ['sop.ai-system-map'],
+    awsai_responsible: ['sop.governance-report'],
+    awsai_eval: ['sop.test-and-acceptance'],
+    awsai_build: ['sop.build-record'],
+    awsai_services: ['sop.build-record'],
+    awsai_governance: ['sop.risk-register', 'sop.governance-report'],
+    awsai_handover: ['sop.handover', 'sop.chain-of-custody'],
+  },
   'a-plus': {
     ap_intake: ['sop.asset-inventory'],
     ap_asset: ['sop.asset-inventory', 'sop.build-record'],
@@ -261,6 +271,14 @@ export const TASK_SOPS: Record<string, Record<string, string[]>> = {
     'aif-w3-deploy': ['sop.build-record'],
     'aif-w4-govern': ['sop.risk-register'],
     'aif-w4-handover': ['sop.handover', 'sop.chain-of-custody'],
+  },
+  'aws-ai-practitioner': {
+    'awsai-w1-workloads': ['sop.ai-system-map'],
+    'awsai-w2-responsible': ['sop.governance-report'],
+    'awsai-w2-eval': ['sop.test-and-acceptance'],
+    'awsai-w3-deploy': ['sop.build-record'],
+    'awsai-w4-govern': ['sop.risk-register'],
+    'awsai-w4-handover': ['sop.handover', 'sop.chain-of-custody'],
   },
   'a-plus': {
     'ap-w1-fault': ['sop.incident-record'],

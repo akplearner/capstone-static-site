@@ -732,6 +732,89 @@
         "practice.human-in-the-loop"
       ]
     },
+    "aws-ai-practitioner": {
+      "awsai-w1-workloads": [
+        "practice.component-inventory",
+        "practice.build-record"
+      ],
+      "awsai-w1-components": [
+        "practice.build-record"
+      ],
+      "awsai-w1-local": [
+        "practice.human-in-the-loop",
+        "practice.evidence-by-design"
+      ],
+      "awsai-w2-responsible": [
+        "practice.architecture-decision-records",
+        "practice.risk-scoring"
+      ],
+      "awsai-w2-ml": [
+        "practice.test-and-acceptance"
+      ],
+      "awsai-w2-eval": [
+        "practice.human-in-the-loop",
+        "practice.retest-to-closure"
+      ],
+      "awsai-w3-deploy": [
+        "practice.build-record",
+        "practice.budget-guardrails"
+      ],
+      "awsai-w3-app": [
+        "practice.human-in-the-loop",
+        "practice.regression-tests-for-guardrails"
+      ],
+      "awsai-w3-services": [
+        "practice.configuration-record"
+      ],
+      "awsai-w4-agent": [
+        "practice.agent-least-privilege"
+      ],
+      "awsai-w4-govern": [
+        "practice.risk-scoring",
+        "practice.work-tracked"
+      ],
+      "awsai-w4-handover": [
+        "practice.as-built-documentation",
+        "practice.evidence-hashing",
+        "practice.sign-and-version"
+      ],
+      "awsai-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "awsai-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "awsai-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "awsai-w4-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "awsai-rag-engineering-w1-index": [
+        "practice.redaction-before-write"
+      ],
+      "awsai-rag-engineering-w1-retrieve": [
+        "practice.human-in-the-loop"
+      ],
+      "awsai-rag-engineering-w2-evalset": [
+        "practice.pass-line-suites"
+      ],
+      "awsai-rag-engineering-w2-passline": [
+        "practice.pass-line-suites"
+      ],
+      "awsai-ai-agents-mcp-w1-tools": [
+        "practice.agent-least-privilege"
+      ],
+      "awsai-ai-agents-mcp-w1-leash": [
+        "practice.human-in-the-loop"
+      ],
+      "awsai-ai-agents-mcp-w2-mcp": [
+        "practice.agent-least-privilege"
+      ],
+      "awsai-ai-agents-mcp-w2-audit": [
+        "practice.human-in-the-loop"
+      ]
+    },
     "a-plus": {
       "ap-w1-inventory": [
         "practice.asset-inventory",

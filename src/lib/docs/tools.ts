@@ -191,6 +191,8 @@ export const TOOLS: ToolDef[] = [
   t('tool.aws-cloudshell', 'AWS CloudShell', 'portal', ['CloudShell', 'CloudShell (aws)', 'AWS CloudShell'], { vendor: 'Amazon Web Services' }),
   t('tool.aws-cli', 'AWS CLI', 'cli', ['aws', 'AWS CLI'], { vendor: 'Amazon Web Services', commands: ['aws'] }),
   t('tool.aws-pricing-calculator', 'AWS Pricing Calculator', 'portal', ['AWS Pricing Calculator', 'calculator.aws'], { vendor: 'Amazon Web Services', url: 'https://calculator.aws/' }),
+  t('tool.bedrock', 'Amazon Bedrock', 'service', ['Amazon Bedrock', 'Bedrock'], { vendor: 'Amazon Web Services', url: 'https://console.aws.amazon.com/bedrock/' }),
+  t('tool.aws-ai-services', 'Amazon AI services', 'service', ['Amazon AI services', 'Amazon Comprehend', 'Amazon Textract'], { vendor: 'Amazon Web Services' }),
 ];
 
 /** `tools[]` strings that are not tools, and why. */
@@ -235,6 +237,7 @@ export const WHERE_TOOLS: Record<string, string[]> = {
   'azure.microsoft.com/pricing/calculator': ['tool.azure-pricing-calculator'],
   'AWS console · or CloudShell': ['tool.aws-console', 'tool.aws-cloudshell'],
   'AWS console': ['tool.aws-console'],
+  'Amazon Bedrock': ['tool.bedrock'],
   'AWS CloudShell': ['tool.aws-cloudshell'],
   'CloudShell': ['tool.aws-cloudshell'],
   'Your laptop, then CloudShell': ['tool.aws-cloudshell'],
@@ -346,6 +349,7 @@ export const COURSE_TOOL_DEFAULTS: Record<string, string[]> = {
   ccna: ['tool.cisco-ios'],
   'a-plus': ['tool.pc-hardware'],
   'ai-foundations': ['tool.ollama', 'tool.azure-cli', 'tool.python'],
+  'aws-ai-practitioner': ['tool.ollama', 'tool.aws-cli', 'tool.bedrock', 'tool.python'],
   'network-plus': ['tool.network-simulator'],
   'azure-fundamentals': ['tool.azure-portal', 'tool.azure-cloud-shell'],
   'azure-administrator': ['tool.azure-portal', 'tool.azure-cloud-shell'],

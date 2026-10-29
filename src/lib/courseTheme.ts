@@ -79,6 +79,11 @@ const SEED_THEMES: Record<string, CourseTheme> = {
     vendor: 'Microsoft',
     certification: 'Azure AI Fundamentals (AI-901)',
   },
+  'aws-ai-practitioner': {
+    key: 'aws-ai-practitioner',
+    vendor: 'AWS',
+    certification: 'AI Practitioner (AIF-C01)',
+  },
   'network-plus': {
     key: 'network-plus',
     vendor: 'CompTIA',

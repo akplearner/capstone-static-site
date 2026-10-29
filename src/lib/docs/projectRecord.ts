@@ -186,6 +186,14 @@ export const RECORD_FIELDS: RecordField[] = [
   fld('aif_build', 'answer', 'change', 'Grounded answer'),
   inf('aif_governance', 'risks', 'risk', 'risk', 'AI risk'),
   fld('aif_handover', 'depends', 'resource', 'Dependency'),
+  // aws-ai-practitioner — at least half the forms feed the record.
+  fld('awsai_setup', 'assistant', 'host', 'Assistant', { declares: true }),
+  inf('awsai_capabilities', 'features', 'feature', 'resource', 'Feature', { labelFrom: 'workload' }),
+  inf('awsai_responsible', 'principles', 'finding', 'risk', 'Responsible-AI finding'),
+  inf('awsai_eval', 'attempts', 'theory', 'incident', 'Grounding attempt'),
+  fld('awsai_build', 'answer', 'change', 'Grounded answer'),
+  inf('awsai_governance', 'risks', 'risk', 'risk', 'AI risk'),
+  fld('awsai_handover', 'depends', 'resource', 'Dependency'),
   // network-plus
   inf('np_design', 'vlans', 'vlan', 'vlan', 'VLAN', { unique: true }),
   inf('np_design', 'vlans', 'prefix', 'cidr', 'Prefix', { unique: true }),

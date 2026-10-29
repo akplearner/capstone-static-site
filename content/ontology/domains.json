@@ -143,6 +143,41 @@
       "courseId": "ai-foundations"
     },
     {
+      "id": "AIF-C01.d1",
+      "code": "AIF-C01",
+      "name": "Fundamentals of AI and ML",
+      "weight": 20,
+      "courseId": "aws-ai-practitioner"
+    },
+    {
+      "id": "AIF-C01.d2",
+      "code": "AIF-C01",
+      "name": "Fundamentals of Generative AI",
+      "weight": 24,
+      "courseId": "aws-ai-practitioner"
+    },
+    {
+      "id": "AIF-C01.d3",
+      "code": "AIF-C01",
+      "name": "Applications of Foundation Models",
+      "weight": 28,
+      "courseId": "aws-ai-practitioner"
+    },
+    {
+      "id": "AIF-C01.d4",
+      "code": "AIF-C01",
+      "name": "Guidelines for Responsible AI",
+      "weight": 14,
+      "courseId": "aws-ai-practitioner"
+    },
+    {
+      "id": "AIF-C01.d5",
+      "code": "AIF-C01",
+      "name": "Security, Compliance, and Governance for AI Solutions",
+      "weight": 14,
+      "courseId": "aws-ai-practitioner"
+    },
+    {
       "id": "N10-009.d1",
       "code": "N10-009",
       "name": "Networking Concepts",

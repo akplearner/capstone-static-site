@@ -94,6 +94,17 @@ export const CERTS: Record<string, CertDef> = {
       d('d2', 'Implement AI solutions by using Microsoft Foundry', 58, '55–60%'),
     ],
   },
+  'aws-ai-practitioner': {
+    courseId: 'aws-ai-practitioner', vendorId: 'aws', vendor: 'AWS', code: 'AIF-C01', name: 'AI Practitioner', level: 'entry', vendorLevel: 'Foundational', exam: true, examFeeUsd: 100, feeCheckedYear: 2026,
+    // Five domains; weights verified against the official AIF-C01 exam guide.
+    domains: [
+      d('d1', 'Fundamentals of AI and ML', 20),
+      d('d2', 'Fundamentals of Generative AI', 24),
+      d('d3', 'Applications of Foundation Models', 28),
+      d('d4', 'Guidelines for Responsible AI', 14),
+      d('d5', 'Security, Compliance, and Governance for AI Solutions', 14),
+    ],
+  },
   'network-plus': {
     courseId: 'network-plus', vendorId: 'comptia', vendor: 'CompTIA', code: 'N10-009', name: 'Network+', level: 'entry', exam: true, examFeeUsd: 369, feeCheckedYear: 2026,
     prerequisite: 'a-plus', next: 'security-plus',
@@ -230,6 +241,10 @@ export const TASK_DOMAINS: Record<string, Record<string, string>> = {
   'ai-foundations': {
     'aif-w1-workloads': 'd1', 'aif-w1-components': 'd1', 'aif-w1-local': 'd1', 'aif-w2-responsible': 'd1', 'aif-w2-ml': 'd1', 'aif-w2-eval': 'd1',
     'aif-w3-deploy': 'd2', 'aif-w3-app': 'd2', 'aif-w3-services': 'd2', 'aif-w4-agent': 'd2', 'aif-w4-govern': 'd2', 'aif-w4-handover': 'd2',
+  },
+  'aws-ai-practitioner': {
+    'awsai-w1-workloads': 'd1', 'awsai-w1-components': 'd2', 'awsai-w1-local': 'd2', 'awsai-w2-responsible': 'd4', 'awsai-w2-ml': 'd1', 'awsai-w2-eval': 'd2',
+    'awsai-w3-deploy': 'd3', 'awsai-w3-app': 'd3', 'awsai-w3-services': 'd3', 'awsai-w4-agent': 'd3', 'awsai-w4-govern': 'd5', 'awsai-w4-handover': 'd5',
   },
   'network-plus': {
     'np-w1-requirements': 'd1', 'np-w1-plan': 'd1', 'np-w1-topology': 'd2', 'np-w2-switches': 'd2', 'np-w2-routing': 'd2', 'np-w2-services': 'd2',

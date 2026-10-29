@@ -582,6 +582,42 @@
           "ai-agents-mcp"
         ]
       }
+    },
+    {
+      "id": "aws-ai-practitioner",
+      "title": "AWS Certified AI Practitioner — the Bedrock Studio",
+      "version": 1,
+      "file": "aws-ai-practitioner.json",
+      "weeks": 9,
+      "tasks": 27,
+      "steps": 60,
+      "deliverables": 9,
+      "procedures": 0,
+      "vendor": "AWS",
+      "certification": "AI Practitioner (AIF-C01)",
+      "level": "entry",
+      "examFeeUsd": 100,
+      "coveredWeight": 100,
+      "costOnceUsd": 0,
+      "costMonthlyUsd": 0,
+      "costTasksUsd": 0,
+      "skills": 17,
+      "tools": 11,
+      "standards": 4,
+      "controls": 11,
+      "sops": 9,
+      "tactics": 0,
+      "practices": 18,
+      "premium": {
+        "aiWeeks": 4,
+        "cyberWeeks": 0,
+        "otherWeeks": 0,
+        "aiTasks": 4,
+        "modules": [
+          "rag-engineering",
+          "ai-agents-mcp"
+        ]
+      }
     }
   ]
 }

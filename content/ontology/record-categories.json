@@ -488,6 +488,34 @@
       "communication",
       "projects"
     ],
+    "awsai_setup": [
+      "configurations"
+    ],
+    "awsai_capabilities": [
+      "architectures"
+    ],
+    "awsai_responsible": [
+      "decisions",
+      "investigations"
+    ],
+    "awsai_eval": [
+      "troubleshooting",
+      "investigations"
+    ],
+    "awsai_build": [
+      "configurations"
+    ],
+    "awsai_services": [
+      "configurations"
+    ],
+    "awsai_governance": [
+      "investigations",
+      "communication"
+    ],
+    "awsai_handover": [
+      "communication",
+      "projects"
+    ],
     "np_lab": [
       "configurations"
     ],
@@ -657,6 +685,12 @@
   "troubleGroups": [
     {
       "form": "aif_eval",
+      "group": "attempts",
+      "outcome": "result",
+      "resolved": "Grounded"
+    },
+    {
+      "form": "awsai_eval",
       "group": "attempts",
       "outcome": "result",
       "resolved": "Grounded"
@@ -857,6 +891,11 @@
   "changeGroups": [
     {
       "form": "aif_build",
+      "group": "changes",
+      "rollback": "rollback"
+    },
+    {
+      "form": "awsai_build",
       "group": "changes",
       "rollback": "rollback"
     },

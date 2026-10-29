@@ -165,6 +165,16 @@ const AI_FOUNDATIONS: RoleContent = {
   ],
 };
 
+const AWS_AI_PRACTITIONER: RoleContent = {
+  MOTION: DEFAULT_MOTION,
+  PROFILES: [
+    p('concepts', 'documents', 'Leads the capabilities map and the responsible-AI assessment: what each workload is for, and its risks.', ['Workloads and limits mapped', 'The parts of a model', 'Six responsible-AI guidelines', 'The deployment decision'], 'Week 1 the workloads and the model parts; Week 2 the guidelines and the decision; Week 4 approves the handover.'),
+    p('build', 'commands', 'Leads the build record: the invoked model, the grounded chat app and the extraction agent.', ['A model read from its output', 'A model invoked on Bedrock', 'A grounded chat app', 'An agent that extracts JSON'], 'Week 1 reads the model; Week 3 invokes and builds the app; Week 4 the agent; reviews the handover.'),
+    p('language', 'commands', 'Leads the services log: text, sentiment and the structured data an AI reads out of a document.', ['A local answer grounded in notes', 'A sentiment result', 'Text read out of a scan', 'A document read to JSON'], 'Week 1 grounds a local answer; Week 3 language and documents; Week 4 the extraction with the agent.'),
+    p('records', 'documents', 'Leads the records that outlive the studio: evaluation, security, the risk register, custody and handover.', ['A wrong answer worked to grounded', 'Least-privilege IAM and risks', 'A final evaluation score', 'The handover with custody'], 'Week 0 the account and folder; Week 2 the evaluation log; Week 4 the security, the score and the handover.'),
+  ],
+};
+
 const CLOUD: RoleContent = {
   MOTION: DEFAULT_MOTION,
   PROFILES: [
@@ -185,6 +195,7 @@ export const ROLE_CONTENT: Record<string, RoleContent> = {
   ccna: CCNA,
   'a-plus': A_PLUS,
   'ai-foundations': AI_FOUNDATIONS,
+  'aws-ai-practitioner': AWS_AI_PRACTITIONER,
   'network-plus': NETWORK_PLUS,
   'secai-plus': SECAI_PLUS,
   cissp: CISSP,

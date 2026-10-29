@@ -182,6 +182,15 @@ export const CATALOG: CatalogEntry[] = [
     blurb: 'Stand up a small AI assistant on Azure AI Foundry and a free local model: workloads, responsible AI, grounding, agents.',
   },
   {
+    id: 'aws-aif-c01',
+    vendorId: 'aws',
+    certName: 'AIF-C01',
+    level: 'entry',
+    status: 'available',
+    courseId: 'aws-ai-practitioner',
+    blurb: 'Stand up a small generative-AI assistant on Amazon Bedrock and a free local model: workloads, grounding, agents, responsible AI, security.',
+  },
+  {
     id: 'ms-sc-900',
     vendorId: 'microsoft',
     certName: 'SC-900',

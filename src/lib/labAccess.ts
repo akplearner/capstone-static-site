@@ -278,6 +278,7 @@ const LAB_PROFILES: Record<string, LabProfile> = {
   'secai-plus': { fields: [], checks: [] },
   cissp: { fields: [], checks: [] },
   'ai-foundations': { fields: [], checks: [] },
+  'aws-ai-practitioner': { fields: [], checks: [] },
   // The bench: the machine's name and, from Week 3, its address.
   'a-plus': {
     fields: A_PLUS_FIELDS,

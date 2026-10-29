@@ -3319,6 +3319,10 @@
         "taskId": "aif-w4-handover"
       },
       {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w4-handover"
+      },
+      {
         "courseId": "a-plus",
         "taskId": "ap-w4-handover"
       },
@@ -3365,6 +3369,18 @@
       {
         "courseId": "ai-foundations",
         "taskId": "aif-rag-engineering-w2-passline"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w1-workloads"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w1-ai"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-rag-engineering-w2-passline"
       },
       {
         "courseId": "a-plus",
@@ -3483,6 +3499,26 @@
       {
         "courseId": "ai-foundations",
         "taskId": "aif-w4-ai"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w1-local"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w1-ai"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w2-ai"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w3-ai"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w4-ai"
       },
       {
         "courseId": "a-plus",
@@ -3801,6 +3837,50 @@
       {
         "courseId": "ai-foundations",
         "taskId": "aif-ai-agents-mcp-w2-audit"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w2-eval"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w1-ai"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w2-ai"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w3-ai"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w4-ai"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-rag-engineering-w1-retrieve"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-rag-engineering-w2-evalset"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-rag-engineering-w2-passline"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-ai-agents-mcp-w1-tools"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-ai-agents-mcp-w1-leash"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-ai-agents-mcp-w2-audit"
       },
       {
         "courseId": "a-plus",
@@ -4169,6 +4249,30 @@
         "taskId": "aif-w4-ai"
       },
       {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w1-local"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w2-eval"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w3-app"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w2-ai"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w3-ai"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w4-ai"
+      },
+      {
         "courseId": "a-plus",
         "taskId": "ap-w2-ai"
       },
@@ -4349,18 +4453,30 @@
       {
         "courseId": "ai-foundations",
         "taskId": "aif-w1-workloads"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w1-workloads"
       }
     ],
     "comp.ai.model-components": [
       {
         "courseId": "ai-foundations",
         "taskId": "aif-w1-components"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w1-components"
       }
     ],
     "comp.ai.responsible-ai": [
       {
         "courseId": "ai-foundations",
         "taskId": "aif-w2-responsible"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w2-responsible"
       }
     ],
     "comp.ai.govern-ai": [
@@ -4371,6 +4487,14 @@
       {
         "courseId": "ai-foundations",
         "taskId": "aif-w4-govern"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w2-responsible"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w4-govern"
       }
     ],
     "comp.ai.evaluate-model": [
@@ -4381,12 +4505,24 @@
       {
         "courseId": "ai-foundations",
         "taskId": "aif-w4-govern"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w2-ml"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w4-govern"
       }
     ],
     "comp.ai.deploy-foundry": [
       {
         "courseId": "ai-foundations",
         "taskId": "aif-w3-deploy"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w3-deploy"
       }
     ],
     "comp.ai.rag-pipeline": [
@@ -4405,6 +4541,22 @@
       {
         "courseId": "ai-foundations",
         "taskId": "aif-rag-engineering-w2-evalset"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w3-app"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-rag-engineering-w1-retrieve"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-rag-engineering-w2-evalset"
       },
       {
         "courseId": "azure-fundamentals",
@@ -4483,6 +4635,10 @@
       {
         "courseId": "ai-foundations",
         "taskId": "aif-w3-services"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w3-services"
       }
     ],
     "comp.ai.agent-tools": [
@@ -4505,6 +4661,26 @@
       {
         "courseId": "ai-foundations",
         "taskId": "aif-ai-agents-mcp-w2-audit"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w4-agent"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-ai-agents-mcp-w1-tools"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-ai-agents-mcp-w1-leash"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-ai-agents-mcp-w2-mcp"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-ai-agents-mcp-w2-audit"
       },
       {
         "courseId": "azure-devops",
@@ -4545,6 +4721,10 @@
         "taskId": "aif-w4-handover"
       },
       {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w4-handover"
+      },
+      {
         "courseId": "a-plus",
         "taskId": "ap-w4-handover"
       },
@@ -4557,6 +4737,10 @@
       {
         "courseId": "ai-foundations",
         "taskId": "aif-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-rag-engineering-w1-index"
       },
       {
         "courseId": "azure-fundamentals",
@@ -4587,6 +4771,10 @@
       {
         "courseId": "ai-foundations",
         "taskId": "aif-ai-agents-mcp-w2-mcp"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-ai-agents-mcp-w2-mcp"
       },
       {
         "courseId": "cissp",

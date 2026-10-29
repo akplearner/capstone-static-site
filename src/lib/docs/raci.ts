@@ -105,6 +105,16 @@ export const RACI: Record<string, Raci> = {
   aif_governance: r('records', 'concepts', 'build'),
   aif_handover: r('records', 'build', 'concepts', ['language']),
 
+  // aws-ai-practitioner — concepts · build · language · records.
+  awsai_setup: r('records', 'build', 'concepts'),
+  awsai_capabilities: r('concepts', 'language', 'records'),
+  awsai_responsible: r('concepts', 'records', 'build'),
+  awsai_eval: r('records', 'language', 'concepts'),
+  awsai_build: r('build', 'language', 'records'),
+  awsai_services: r('language', 'build', 'records'),
+  awsai_governance: r('records', 'concepts', 'build'),
+  awsai_handover: r('records', 'build', 'concepts', ['language']),
+
   // Network+ — design · sw · rt · ops. Designs are reviewed by the people who
   // build them and approved by the people who run them; the handover is
   // drafted by Design, reviewed by Operations and approved by Routing.

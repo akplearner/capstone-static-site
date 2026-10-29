@@ -1777,6 +1777,28 @@
       ],
       "vendor": "Amazon Web Services",
       "url": "https://calculator.aws/"
+    },
+    {
+      "id": "tool.bedrock",
+      "label": "Amazon Bedrock",
+      "kind": "service",
+      "aliases": [
+        "Amazon Bedrock",
+        "Bedrock"
+      ],
+      "vendor": "Amazon Web Services",
+      "url": "https://console.aws.amazon.com/bedrock/"
+    },
+    {
+      "id": "tool.aws-ai-services",
+      "label": "Amazon AI services",
+      "kind": "service",
+      "aliases": [
+        "Amazon AI services",
+        "Amazon Comprehend",
+        "Amazon Textract"
+      ],
+      "vendor": "Amazon Web Services"
     }
   ],
   "wherePrefixes": {
@@ -1862,6 +1884,9 @@
     ],
     "AWS console": [
       "tool.aws-console"
+    ],
+    "Amazon Bedrock": [
+      "tool.bedrock"
     ],
     "AWS CloudShell": [
       "tool.aws-cloudshell"
@@ -2192,6 +2217,12 @@
     "ai-foundations": [
       "tool.ollama",
       "tool.azure-cli",
+      "tool.python"
+    ],
+    "aws-ai-practitioner": [
+      "tool.ollama",
+      "tool.aws-cli",
+      "tool.bedrock",
       "tool.python"
     ],
     "network-plus": [
