@@ -221,6 +221,7 @@ export const TASK_TACTICS: Record<string, Record<string, string[]>> = {
 
 import { cloudMap } from './skills';
 import { aiExtensionPractices } from './aiExtension';
+import { modulePractices } from '../data/modules';
 
 const CLOUD_PRACTICES: Record<string, string[]> = {
   'w1-arch': ['practice.budget-guardrails', 'practice.naming-and-tagging'],
@@ -468,6 +469,8 @@ export const TASK_PRACTICES: Record<string, Record<string, string[]>> = {
 
 // R143: the AI extension task of each graded week asks for the human checkpoint.
 for (const [courseId, map] of Object.entries(aiExtensionPractices())) Object.assign((TASK_PRACTICES[courseId] ??= {}), map);
+// R144: the attached modules' tasks ask for their own practices.
+for (const [courseId, map] of Object.entries(modulePractices())) Object.assign((TASK_PRACTICES[courseId] ??= {}), map);
 
 /* ── helpers (lowercase: never written to a document) ───────────────────── */
 

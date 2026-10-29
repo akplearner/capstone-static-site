@@ -446,6 +446,33 @@
           }
         ],
         "milestone": "Your site is configured by a playbook that changes nothing the second time, watched, alerted and backed up from the Core — and you rebuilt a VM from the repository alone."
+      },
+      {
+        "number": 9,
+        "title": "Local LLM serving: Serve a model locally",
+        "theme": "An API on your own hardware",
+        "objective": "Serve a quantised model behind an API and size the memory it needs.",
+        "runs": "Week 9",
+        "advanced": true,
+        "track": "ai",
+        "difficulty": 3,
+        "milestone": "Serve a quantised model behind an API and size the memory it needs.",
+        "objectives": [
+          {
+            "id": "srv-local-llm-serving-w9-obj1",
+            "label": "Serve a model behind an API",
+            "tasks": [
+              "srv-local-llm-serving-w1-serve"
+            ]
+          },
+          {
+            "id": "srv-local-llm-serving-w9-obj2",
+            "label": "Size the memory",
+            "tasks": [
+              "srv-local-llm-serving-w1-size"
+            ]
+          }
+        ]
       }
     ],
     "gates": [],
@@ -7727,6 +7754,255 @@
             "deliverable": "srv_as_built"
           }
         ]
+      },
+      {
+        "id": "srv-local-llm-serving-w1-serve",
+        "role": "net",
+        "week": 9,
+        "title": "Serve a model behind an API",
+        "objective": "Run a quantised model as a local service and call it over HTTP.",
+        "steps": [
+          {
+            "id": "srv-local-llm-serving-w1-serve-s1",
+            "title": "Serve a model behind an API",
+            "description": "Run a quantised model as a local service and call it over HTTP.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Serve a model and call it over HTTP.",
+            "instructionList": [
+              "Pull a small quantised model.",
+              "Start it as a local service.",
+              "Call the API with a prompt."
+            ],
+            "commands": [
+              {
+                "cmd": "ollama serve & sleep 2 && curl -s localhost:11434/api/generate -d '{\"model\":\"llama3.2\",\"prompt\":\"ping\",\"stream\":false}' | python -c \"import sys,json;print(json.load(sys.stdin)['done'] and 'served')\"",
+                "explain": "Starts the model service and calls it once over HTTP to prove it answers.",
+                "sample": "served",
+                "flags": [
+                  {
+                    "flag": "ollama serve &",
+                    "meaning": "Runs the model as a local API."
+                  },
+                  {
+                    "flag": "curl .../api/generate",
+                    "meaning": "Sends one prompt over HTTP."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "served",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "served",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "served"
+            ],
+            "whatItMeans": "A model behind an API runs on your own hardware, so your data never leaves the building.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "srv-local-llm-serving-w1-serve-s2",
+            "title": "Record the endpoint.",
+            "description": "The record names the endpoint, the model, its quantisation and who may call it.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Record the endpoint.",
+            "instructionList": [
+              "Note the API address and port.",
+              "Note the model and its quantisation.",
+              "Note who may call it."
+            ],
+            "expectedOutput": "The record names the endpoint, the model, its quantisation and who may call it.",
+            "outputKind": "result",
+            "whatItMeans": "Quantisation trades a little accuracy for a model that fits the hardware you actually have.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 3,
+        "learn": [
+          "Model serving",
+          "Quantisation",
+          "Local APIs"
+        ],
+        "tools": [
+          "Ollama",
+          "Python"
+        ],
+        "definitionOfDone": [
+          "Serve a model behind an API is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
+      },
+      {
+        "id": "srv-local-llm-serving-w1-size",
+        "role": "net",
+        "week": 9,
+        "title": "Size the memory",
+        "objective": "Work out the memory a model needs from its parameters and quantisation, and check it against the hardware.",
+        "steps": [
+          {
+            "id": "srv-local-llm-serving-w1-size-s1",
+            "title": "Size the memory",
+            "description": "Work out the memory a model needs from its parameters and quantisation, and check it aga…",
+            "where": "Your own machine — a terminal",
+            "instruction": "Size the model against the hardware.",
+            "instructionList": [
+              "Read the model parameter count.",
+              "Work out the memory at its quantisation.",
+              "Check it against the available memory."
+            ],
+            "commands": [
+              {
+                "cmd": "python gpumem.py --params 3e9 --bits 4 && free -g | awk '/Mem/{print $2\"G total\"}'",
+                "explain": "Estimates the memory the model needs, then prints the memory the machine has.",
+                "sample": "~1.5G needed\\n16G total",
+                "flags": [
+                  {
+                    "flag": "--params 3e9 --bits 4",
+                    "meaning": "Three billion parameters at four-bit quantisation."
+                  },
+                  {
+                    "flag": "free -g",
+                    "meaning": "Prints the machine memory in gigabytes."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "~1.5G needed\\n16G total",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "total",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "total"
+            ],
+            "whatItMeans": "Sizing before loading is what stops a model that will not fit from taking a machine down.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "srv-local-llm-serving-w1-size-s2",
+            "title": "Record the sizing.",
+            "description": "The record shows the memory needed, the memory available and the headroom.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Record the sizing.",
+            "instructionList": [
+              "Note the memory the model needs.",
+              "Note the memory available.",
+              "Note the headroom left."
+            ],
+            "expectedOutput": "The record shows the memory needed, the memory available and the headroom.",
+            "outputKind": "result",
+            "whatItMeans": "Headroom matters: a model that just fits leaves nothing for the requests it has to serve.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 3,
+        "learn": [
+          "Memory sizing",
+          "Parameters and bits",
+          "Headroom"
+        ],
+        "tools": [
+          "Python"
+        ],
+        "definitionOfDone": [
+          "Size the memory is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
       }
     ],
     "noGatekeeping": true,
@@ -7768,7 +8044,10 @@
     "isSeed": true,
     "version": 6,
     "teamCount": 16,
-    "teamCapacity": 4
+    "teamCapacity": 4,
+    "modules": [
+      "local-llm-serving"
+    ]
   },
   "deliverables": [
     {
@@ -15829,6 +16108,12 @@
           ]
         },
         "caption": "New: the fleet’s Core services. Playbooks, central metrics and backups, and a rebuild from Git."
+      },
+      {
+        "week": 9,
+        "builtThrough": 9,
+        "highlight": [],
+        "caption": ""
       }
     ],
     "roles": {
@@ -20266,6 +20551,12 @@
           "definition": "Every resource carries the agreed name and tags, so cost, ownership and environment can be read from it."
         },
         {
+          "id": "practice.right-sizing",
+          "label": "Right-sizing",
+          "anchor": "WAF.cost",
+          "definition": "Resources are sized from measured use, reviewed and shrunk when the measurement says so."
+        },
+        {
           "id": "practice.backups-tested",
           "label": "Backups tested by restore",
           "anchor": "NIST.800-53.CP-4",
@@ -20595,6 +20886,12 @@
         ],
         "srv-w4-ai": [
           "practice.human-in-the-loop"
+        ],
+        "srv-local-llm-serving-w1-serve": [
+          "practice.least-privilege"
+        ],
+        "srv-local-llm-serving-w1-size": [
+          "practice.right-sizing"
         ]
       },
       "SCORING": [
@@ -20814,6 +21111,24 @@
           "area": "ai",
           "objectiveRefs": [
             "NIST.AI-RMF.MAP"
+          ]
+        },
+        {
+          "id": "comp.ai.serve-model",
+          "version": "1.0.0",
+          "label": "Serve a model behind an API",
+          "area": "ai",
+          "objectiveRefs": [
+            "NIST.AI-RMF.MEASURE"
+          ]
+        },
+        {
+          "id": "comp.ai.gpu-sizing",
+          "version": "1.0.0",
+          "label": "Size GPU memory for a model",
+          "area": "ai",
+          "objectiveRefs": [
+            "NIST.AI-RMF.MEASURE"
           ]
         },
         {
@@ -21653,6 +21968,14 @@
           "comp.ai.local-assistant",
           "comp.ai.ground-in-records",
           "comp.ai.verify-ai-output"
+        ],
+        "srv-local-llm-serving-w1-serve": [
+          "comp.ai.serve-model",
+          "comp.ai.local-assistant"
+        ],
+        "srv-local-llm-serving-w1-size": [
+          "comp.ai.gpu-sizing",
+          "comp.ai.serve-model"
         ]
       },
       "SOPS": [
@@ -22585,6 +22908,20 @@
           ]
         },
         {
+          "id": "tool.python",
+          "label": "Python",
+          "kind": "language",
+          "aliases": [
+            "Python"
+          ],
+          "commands": [
+            "python",
+            "python3",
+            "pip",
+            "pip3"
+          ]
+        },
+        {
           "id": "tool.mysql",
           "label": "MySQL / MariaDB",
           "kind": "service",
@@ -23189,6 +23526,17 @@
         "srv-w4-ai": [
           "tool.capstone-forms",
           "tool.ollama"
+        ],
+        "srv-local-llm-serving-w1-serve": [
+          "tool.curl",
+          "tool.capstone-forms",
+          "tool.ollama",
+          "tool.python"
+        ],
+        "srv-local-llm-serving-w1-size": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.python"
         ]
       },
       "TROUBLE_GROUPS": [

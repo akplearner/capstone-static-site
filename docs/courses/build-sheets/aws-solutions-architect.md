@@ -93,6 +93,18 @@ This week adds:
 
 **Process — Scale, monitor, recover:** WebFleet → SiteAlb (scale on CPU, replace the lost one); BackupVault → SiteDistribution (recover the deleted file); admin → Database (restore from the snapshot, time it).
 
+## Week 5 — Local LLM serving: Serve a model locally
+
+Nothing new is built this week; the process is drawn over the picture.
+
+## Week 6 — RAG engineering: Index your documents
+
+Nothing new is built this week; the process is drawn over the picture.
+
+## Week 7 — RAG engineering: Evaluate the answers
+
+Nothing new is built this week; the process is drawn over the picture.
+
 ## The roles
 
 | Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |

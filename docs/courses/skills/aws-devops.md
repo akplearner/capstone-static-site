@@ -1,6 +1,6 @@
 # AWS DevOps Engineer Capstone — skills sheet
 
-20 graded tasks · 20 skills · 13 tools · 11 procedures · 6 standards (10 controls cited) · 0 tactics · 27 practices
+20 graded tasks and 8 advanced · 24 skills · 14 tools · 11 procedures · 6 standards (10 controls cited) · 0 tactics · 30 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -10,8 +10,12 @@ Generated from the registries and the course document by `npm run content:export
 | --- | --- | --- | --- |
 | Run a local AI assistant offline `comp.ai.local-assistant` | Applied AI | NIST.AI-RMF.MANAGE | AI extension: explain the template; AI extension: draft a change request; AI extension: read the cost report; AI extension: summarise the handover |
 | Ground an AI answer in the records `comp.ai.ground-in-records` | Applied AI | NIST.AI-RMF.MAP | AI extension: draft a change request; AI extension: read the cost report; AI extension: summarise the handover |
-| Verify AI output against the evidence `comp.ai.verify-ai-output` | Applied AI | NIST.AI-RMF.MEASURE | AI extension: explain the template; AI extension: draft a change request; AI extension: read the cost report; AI extension: summarise the handover |
-| Write a task-specific prompt `comp.ai.prompt-for-the-task` | Applied AI | NIST.AI-RMF.MAP | AI extension: explain the template |
+| Verify AI output against the evidence `comp.ai.verify-ai-output` | Applied AI | NIST.AI-RMF.MEASURE | AI extension: explain the template; AI extension: draft a change request; AI extension: read the cost report; AI extension: summarise the handover; Answer from the passages; Build a question set; Set the pass line; Give the agent tools; Keep it on a leash; Audit the agent |
+| Write a task-specific prompt `comp.ai.prompt-for-the-task` | Applied AI | NIST.AI-RMF.MAP | AI extension: explain the template; Set the pass line |
+| Build a retrieval-augmented pipeline `comp.ai.rag-pipeline` | Applied AI | NIST.AI-RMF.MAP | Index a document set; Answer from the passages; Build a question set |
+| Load documents into a vector store `comp.ai.vector-store` | Applied AI | NIST.AI-RMF.MAP | Index a document set |
+| Give an agent tools to call `comp.ai.agent-tools` | Applied AI | NIST.AI-RMF.MANAGE | Give the agent tools; Keep it on a leash; Serve a tool over MCP; Audit the agent |
+| Expose a tool over a model context protocol `comp.ai.mcp-connector` | Applied AI | NIST.AI-RMF.MANAGE | Serve a tool over MCP |
 | Map a template and write an ADR `comp.cloud.template-map` | Cloud services | AZ-400.d1, DOP-C02.d2, ISO42010 | Map the template and set the environment strategy |
 | Inventory with the CLI and detect drift `comp.cloud.inventory-and-drift` | Cloud services | AZ-400.d3, DOP-C02.d2, WAF.operational-excellence | Inventory with the CLI and detect drift |
 | Preview and deploy from a template `comp.cloud.deploy-from-template` | Cloud services | AZ-400.d3, DOP-C02.d2 | Fill the starter and deploy to dev |
@@ -33,15 +37,16 @@ Generated from the registries and the course document by `npm run content:export
 
 | Tool | Kind | Used by |
 | --- | --- | --- |
-| Linux shell | cli | Inventory with the CLI and detect drift; Fill the starter and deploy to dev; Parameter files, validation and policy as code; Build the staged pipeline; Blue/green the fleet with weighted target groups; Canary the counter with alias weights and an alarm; Build the dashboard, require the tag with Config and read the audit trail; Rebuild from the template and automate the restart; Fix an app failure through CI; Contain a security incident and write the post-mortem |
+| Linux shell | cli | Inventory with the CLI and detect drift; Fill the starter and deploy to dev; Parameter files, validation and policy as code; Build the staged pipeline; Blue/green the fleet with weighted target groups; Canary the counter with alias weights and an alarm; Build the dashboard, require the tag with Config and read the audit trail; Rebuild from the template and automate the restart; Fix an app failure through CI; Contain a security incident and write the post-mortem; Answer from the passages; Build a question set; Set the pass line; Give the agent tools; Keep it on a leash; Audit the agent |
 | curl | cli | Parameter files, validation and policy as code; Fix an app failure through CI |
-| Capstone forms | document | Map the template and set the environment strategy; Inventory with the CLI and detect drift; Fill the starter and deploy to dev; Parameter files, validation and policy as code; Write the change request and the gates; Protect main, add the environments and require the checks; Build the staged pipeline; Sign in with OIDC, scope the deploy role and test rollback; Review cost by service and set the service levels; Blue/green the fleet with weighted target groups; Canary the counter with alias weights and an alarm; Build the dashboard, require the tag with Config and read the audit trail; Assemble the handover package; Rebuild from the template and automate the restart; Fix an app failure through CI; Contain a security incident and write the post-mortem; AI extension: explain the template; AI extension: draft a change request; AI extension: read the cost report; AI extension: summarise the handover |
+| Capstone forms | document | Map the template and set the environment strategy; Inventory with the CLI and detect drift; Fill the starter and deploy to dev; Parameter files, validation and policy as code; Write the change request and the gates; Protect main, add the environments and require the checks; Build the staged pipeline; Sign in with OIDC, scope the deploy role and test rollback; Review cost by service and set the service levels; Blue/green the fleet with weighted target groups; Canary the counter with alias weights and an alarm; Build the dashboard, require the tag with Config and read the audit trail; Assemble the handover package; Rebuild from the template and automate the restart; Fix an app failure through CI; Contain a security incident and write the post-mortem; AI extension: explain the template; AI extension: draft a change request; AI extension: read the cost report; AI extension: summarise the handover; Index a document set; Answer from the passages; Build a question set; Set the pass line; Give the agent tools; Keep it on a leash; Serve a tool over MCP; Audit the agent |
 | Capstone guide | document | Map the template and set the environment strategy; Fill the starter and deploy to dev |
-| Ollama | service | AI extension: explain the template; AI extension: draft a change request; AI extension: read the cost report; AI extension: summarise the handover |
+| Ollama | service | AI extension: explain the template; AI extension: draft a change request; AI extension: read the cost report; AI extension: summarise the handover; Answer from the passages; Give the agent tools |
+| Chroma | service | Index a document set |
 | Git | cli | Parameter files, validation and policy as code |
 | GitHub | service | Write the change request and the gates; Protect main, add the environments and require the checks; Build the staged pipeline; Sign in with OIDC, scope the deploy role and test rollback; Fix an app failure through CI |
 | GitHub Actions | service | Build the staged pipeline |
-| Python | language | Parameter files, validation and policy as code |
+| Python | language | Parameter files, validation and policy as code; Index a document set; Answer from the passages; Build a question set; Set the pass line; Give the agent tools; Keep it on a leash; Serve a tool over MCP; Audit the agent |
 | CloudFormation | language | Parameter files, validation and policy as code |
 | AWS console | portal | Inventory with the CLI and detect drift; Fill the starter and deploy to dev; Parameter files, validation and policy as code; Build the staged pipeline; Sign in with OIDC, scope the deploy role and test rollback; Review cost by service and set the service levels; Blue/green the fleet with weighted target groups; Canary the counter with alias weights and an alarm; Build the dashboard, require the tag with Config and read the audit trail; Rebuild from the template and automate the restart; Fix an app failure through CI; Contain a security incident and write the post-mortem |
 | AWS CloudShell | portal | Inventory with the CLI and detect drift; Fill the starter and deploy to dev; Parameter files, validation and policy as code; Build the staged pipeline; Sign in with OIDC, scope the deploy role and test rollback; Review cost by service and set the service levels; Blue/green the fleet with weighted target groups; Canary the counter with alias weights and an alarm; Build the dashboard, require the tag with Config and read the audit trail; Rebuild from the template and automate the restart; Fix an app failure through CI; Contain a security incident and write the post-mortem |
@@ -72,7 +77,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | ITIL 4 | — | Change Request & Release Record; Operational Handover Package |
 | AWS DOP-C02 | Map the template and set the environment strategy; Inventory with the CLI and detect drift; Fill the starter and deploy to dev; Parameter files, validation and policy as code; Write the change request and the gates; Protect main, add the environments and require the checks; Build the staged pipeline; Sign in with OIDC, scope the deploy role and test rollback; Review cost by service and set the service levels; Blue/green the fleet with weighted target groups; Canary the counter with alias weights and an alarm; Build the dashboard, require the tag with Config and read the audit trail; Assemble the handover package; Rebuild from the template and automate the restart; Fix an app failure through CI; Contain a security incident and write the post-mortem | — |
 | Well-Architected | Map the template and set the environment strategy; Inventory with the CLI and detect drift; Fill the starter and deploy to dev; Parameter files, validation and policy as code; Write the change request and the gates; Protect main, add the environments and require the checks; Build the staged pipeline; Sign in with OIDC, scope the deploy role and test rollback; Review cost by service and set the service levels; Blue/green the fleet with weighted target groups; Canary the counter with alias weights and an alarm; Build the dashboard, require the tag with Config and read the audit trail; Assemble the handover package; Rebuild from the template and automate the restart; Fix an app failure through CI; Contain a security incident and write the post-mortem | IaC Design & Deployment Record; Governance, Security & Cost Report |
-| NIST AI RMF | AI extension: explain the template; AI extension: draft a change request; AI extension: read the cost report; AI extension: summarise the handover | — |
+| NIST AI RMF | AI extension: explain the template; AI extension: draft a change request; AI extension: read the cost report; AI extension: summarise the handover; Index a document set; Answer from the passages; Build a question set; Set the pass line; Give the agent tools; Keep it on a leash; Serve a tool over MCP; Audit the agent | — |
 | NIST SP 800-53 | — | IaC Design & Deployment Record; Change Request & Release Record; Governance, Security & Cost Report; Operational Handover Package; Portfolio |
 | ISO/IEC/IEEE 42010 | — | Portfolio |
 
@@ -121,7 +126,10 @@ Adversary tactics are not part of this course.
 | As-built documentation | ITIL.transition | Assemble the handover package |
 | Architecture decision records | ISO_42010 | Map the template and set the environment strategy |
 | Metrics with targets | ISO27001.9.1 | Review cost by service and set the service levels; Build the dashboard, require the tag with Config and read the audit trail |
-| Human checkpoint | NIST_AI_RMF | AI extension: explain the template; AI extension: draft a change request; AI extension: read the cost report; AI extension: summarise the handover |
+| Least privilege for agents | OWASP_LLM | Give the agent tools; Serve a tool over MCP |
+| Redact before write | NIST_AI_RMF | Index a document set |
+| Human checkpoint | NIST_AI_RMF | AI extension: explain the template; AI extension: draft a change request; AI extension: read the cost report; AI extension: summarise the handover; Answer from the passages; Keep it on a leash; Audit the agent |
+| Suites with a pass line | NIST_AI_RMF | Build a question set; Set the pass line |
 
 ## KPI board
 
@@ -129,16 +137,16 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 
 | KPI | Family | Reads | Denominator in this course |
 | --- | --- | --- | --- |
-| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | arch: 5 skills with a verifiable step; infra: 7 skills with a verifiable step; dev: 8 skills with a verifiable step; secops: 8 skills with a verifiable step |
+| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | arch: 9 skills with a verifiable step; infra: 11 skills with a verifiable step; dev: 12 skills with a verifiable step; secops: 12 skills with a verifiable step |
 | Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | arch: 68 percent of the exam over 4 domains; infra: 54 percent of the exam over 3 domains; dev: 68 percent of the exam over 4 domains; secops: 46 percent of the exam over 3 domains |
-| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | arch: 6 verifiable steps that run a command; infra: 14 verifiable steps that run a command; dev: 12 verifiable steps that run a command; secops: 13 verifiable steps that run a command |
+| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | arch: 14 verifiable steps that run a command; infra: 22 verifiable steps that run a command; dev: 20 verifiable steps that run a command; secops: 21 verifiable steps that run a command |
 | Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | arch: 9 procedures; infra: 10 procedures; dev: 9 procedures; secops: 10 procedures |
 | Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | arch: 1 fault, incident or triage table; infra: 1 fault, incident or triage table; dev: 1 fault, incident or triage table; secops: 1 fault, incident or triage table |
-| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | arch: 6 verifiable steps; infra: 14 verifiable steps; dev: 12 verifiable steps; secops: 13 verifiable steps |
+| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | arch: 14 verifiable steps; infra: 22 verifiable steps; dev: 20 verifiable steps; secops: 21 verifiable steps |
 | Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
-| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | arch: 6 verifiable steps that can carry two stamps; infra: 14 verifiable steps that can carry two stamps; dev: 12 verifiable steps that can carry two stamps; secops: 13 verifiable steps that can carry two stamps |
+| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | arch: 14 verifiable steps that can carry two stamps; infra: 22 verifiable steps that can carry two stamps; dev: 20 verifiable steps that can carry two stamps; secops: 21 verifiable steps that can carry two stamps |
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | arch: 1 task with two or more verifiable steps; infra: 3 tasks with two or more verifiable steps; dev: 2 tasks with two or more verifiable steps; secops: 4 tasks with two or more verifiable steps |
-| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | arch: 6 verifiable steps; infra: 14 verifiable steps; dev: 12 verifiable steps; secops: 13 verifiable steps |
+| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | arch: 14 verifiable steps; infra: 22 verifiable steps; dev: 20 verifiable steps; secops: 21 verifiable steps |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
 | Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | arch: 37 checks on 5 forms; infra: 37 checks on 5 forms; dev: 37 checks on 5 forms; secops: 37 checks on 5 forms |
 | Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | arch: 1 decision block; infra: 1 decision block; dev: 1 decision block; secops: 1 decision block |
@@ -149,12 +157,12 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | arch: 5 forms with a RACI; infra: 5 forms with a RACI; dev: 5 forms with a RACI; secops: 5 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
-| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | arch: 8 tasks of the role; infra: 8 tasks of the role; dev: 8 tasks of the role; secops: 8 tasks of the role |
+| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | arch: 16 tasks of the role; infra: 16 tasks of the role; dev: 16 tasks of the role; secops: 16 tasks of the role |
 | Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | arch: 5 forms; infra: 5 forms; dev: 5 forms; secops: 5 forms |
 | Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | arch: 3 control codes on 2 forms; infra: 2 control codes on 1 form; dev: 2 control codes on 1 form; secops: 3 control codes on 1 form |
 | Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | arch: 5 forms; infra: 5 forms; dev: 5 forms; secops: 5 forms |
-| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | arch: 3 skills on two or more tasks; infra: 3 skills on two or more tasks; dev: 3 skills on two or more tasks; secops: 3 skills on two or more tasks |
-| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | arch: 5 skills with a verifiable step; infra: 7 skills with a verifiable step; dev: 8 skills with a verifiable step; secops: 8 skills with a verifiable step |
+| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | arch: 6 skills on two or more tasks; infra: 6 skills on two or more tasks; dev: 6 skills on two or more tasks; secops: 6 skills on two or more tasks |
+| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | arch: 9 skills with a verifiable step; infra: 11 skills with a verifiable step; dev: 12 skills with a verifiable step; secops: 12 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
 | Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | arch: Security Architect: 69 required, 65 not taught here; infra: System Administrator: 117 required, 113 not taught here; dev: Software Developer: 84 required, 80 not taught here; secops: Cyber Defense Analyst: 78 required, 74 not taught here |
 | Values recalled `kpi.validation.recall-accuracy` | validation | metric.validation-recall (own) |  |

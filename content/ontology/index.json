@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "generatedFrom": [
     "src/lib/docs/skills.ts",
     "src/lib/docs/tools.ts",
@@ -36,7 +36,7 @@
     "tracks": "tracks.json"
   },
   "counts": {
-    "competencies": 290,
+    "competencies": 296,
     "tools": 134,
     "standards": 39,
     "controls": 230,

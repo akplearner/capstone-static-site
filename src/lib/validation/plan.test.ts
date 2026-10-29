@@ -21,12 +21,28 @@ describe('R140 — the validation plan', () => {
     }
   });
 
-  it('a four-week course recalls in week 3 and applies in week 4; CISSP recalls in week 4 and applies in week 6; Server+ extends on its advanced weeks', () => {
-    expect(validationPlanOf(course('security-plus'))).toEqual([{ kind: 'recall', week: 3 }, { kind: 'apply', week: 4 }]);
-    expect(validationPlanOf(course('cissp'))).toEqual([{ kind: 'recall', week: 4 }, { kind: 'apply', week: 6 }]);
+  it('a four-week course recalls in week 3 and applies in week 4; CISSP recalls in week 4 and applies in week 6; every advanced week extends', () => {
+    // Security+ recalls/applies on its graded weeks, then extends on the two
+    // weeks of the attached AI security validation module (R144).
+    expect(validationPlanOf(course('security-plus'))).toEqual([
+      { kind: 'recall', week: 3 },
+      { kind: 'apply', week: 4 },
+      { kind: 'extend', week: 5 },
+      { kind: 'extend', week: 6 },
+    ]);
+    // CISSP: AI security validation (7–8) then the enterprise AI architect module (9–10).
+    expect(validationPlanOf(course('cissp'))).toEqual([
+      { kind: 'recall', week: 4 },
+      { kind: 'apply', week: 6 },
+      { kind: 'extend', week: 7 },
+      { kind: 'extend', week: 8 },
+      { kind: 'extend', week: 9 },
+      { kind: 'extend', week: 10 },
+    ]);
     const srv = validationPlanOf(course('server-plus'));
     expect(srv.slice(0, 2)).toEqual([{ kind: 'recall', week: 3 }, { kind: 'apply', week: 4 }]);
-    expect(srv.filter((p) => p.kind === 'extend').map((p) => p.week)).toEqual([5, 6, 7, 8]);
+    // Fleet advanced weeks 5–8 plus the Local LLM serving module week 9.
+    expect(srv.filter((p) => p.kind === 'extend').map((p) => p.week)).toEqual([5, 6, 7, 8, 9]);
   });
 
   it('a course may set its own weeks, and only the checkpoints whose week has come are reached', () => {

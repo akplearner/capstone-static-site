@@ -83,6 +83,14 @@ This week adds:
 
 **Process — Hold the line:** soc → browser (detect: the first alert); browser → soc (investigate: pivot on the source); browser → firewall (contain: ufw DENY).
 
+## Week 5 — AI security validation: Attack the model
+
+Nothing new is built this week; the process is drawn over the picture.
+
+## Week 6 — AI security validation: A suite that holds
+
+Nothing new is built this week; the process is drawn over the picture.
+
 ## The roles
 
 | Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |

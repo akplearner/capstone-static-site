@@ -255,6 +255,114 @@
             ]
           }
         ]
+      },
+      {
+        "number": 5,
+        "title": "RAG engineering: Index your documents",
+        "theme": "Embeddings and a vector store",
+        "objective": "Load a folder of records into a vector store and query it for the right passage.",
+        "runs": "Week 5",
+        "advanced": true,
+        "track": "ai",
+        "difficulty": 3,
+        "milestone": "Load a folder of records into a vector store and query it for the right passage.",
+        "objectives": [
+          {
+            "id": "awsd-rag-engineering-w5-obj1",
+            "label": "Index a document set",
+            "tasks": [
+              "awsd-rag-engineering-w1-index"
+            ]
+          },
+          {
+            "id": "awsd-rag-engineering-w5-obj2",
+            "label": "Answer from the passages",
+            "tasks": [
+              "awsd-rag-engineering-w1-retrieve"
+            ]
+          }
+        ]
+      },
+      {
+        "number": 6,
+        "title": "RAG engineering: Evaluate the answers",
+        "theme": "An honest pass line",
+        "objective": "Measure the pipeline against a question set and set a pass line before you trust it.",
+        "runs": "Week 6",
+        "advanced": true,
+        "track": "ai",
+        "difficulty": 4,
+        "milestone": "Measure the pipeline against a question set and set a pass line before you trust it.",
+        "objectives": [
+          {
+            "id": "awsd-rag-engineering-w6-obj1",
+            "label": "Build a question set",
+            "tasks": [
+              "awsd-rag-engineering-w2-evalset"
+            ]
+          },
+          {
+            "id": "awsd-rag-engineering-w6-obj2",
+            "label": "Set the pass line",
+            "tasks": [
+              "awsd-rag-engineering-w2-passline"
+            ]
+          }
+        ]
+      },
+      {
+        "number": 7,
+        "title": "AI agents and MCP: An agent with tools",
+        "theme": "Tool calling, scoped",
+        "objective": "Give a model two tools it can call, and log every call it makes.",
+        "runs": "Week 7",
+        "advanced": true,
+        "track": "ai",
+        "difficulty": 3,
+        "milestone": "Give a model two tools it can call, and log every call it makes.",
+        "objectives": [
+          {
+            "id": "awsd-ai-agents-mcp-w7-obj1",
+            "label": "Give the agent tools",
+            "tasks": [
+              "awsd-ai-agents-mcp-w1-tools"
+            ]
+          },
+          {
+            "id": "awsd-ai-agents-mcp-w7-obj2",
+            "label": "Keep it on a leash",
+            "tasks": [
+              "awsd-ai-agents-mcp-w1-leash"
+            ]
+          }
+        ]
+      },
+      {
+        "number": 8,
+        "title": "AI agents and MCP: Expose a tool over MCP",
+        "theme": "The model context protocol",
+        "objective": "Serve one tool over MCP so any client can call it the same way.",
+        "runs": "Week 8",
+        "advanced": true,
+        "track": "ai",
+        "difficulty": 4,
+        "milestone": "Serve one tool over MCP so any client can call it the same way.",
+        "objectives": [
+          {
+            "id": "awsd-ai-agents-mcp-w8-obj1",
+            "label": "Serve a tool over MCP",
+            "tasks": [
+              "awsd-ai-agents-mcp-w2-mcp"
+            ]
+          },
+          {
+            "id": "awsd-ai-agents-mcp-w8-obj2",
+            "label": "Audit the agent",
+            "tasks": [
+              "awsd-ai-agents-mcp-w2-audit"
+            ]
+          }
+        ]
       }
     ],
     "gates": [],
@@ -3343,6 +3451,1001 @@
             "deliverable": "awsd_handover"
           }
         ]
+      },
+      {
+        "id": "awsd-rag-engineering-w1-index",
+        "role": "arch",
+        "week": 5,
+        "title": "Index a document set",
+        "objective": "Chunk a folder of records, embed the chunks and load them into a local vector store.",
+        "steps": [
+          {
+            "id": "awsd-rag-engineering-w1-index-s1",
+            "title": "Index a document set",
+            "description": "Chunk a folder of records, embed the chunks and load them into a local vector store.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Embed your records into a vector store.",
+            "instructionList": [
+              "Collect a folder of the team records as plain text.",
+              "Run the indexer to chunk and embed them.",
+              "Confirm the store reports the chunk count."
+            ],
+            "commands": [
+              {
+                "cmd": "python index.py ./records && python -c \"import chromadb;print(chromadb.PersistentClient('db').get_collection('records').count(),'chunks')\"",
+                "explain": "Chunks and embeds the records, then prints how many chunks the store holds.",
+                "sample": "42 chunks",
+                "flags": [
+                  {
+                    "flag": "index.py ./records",
+                    "meaning": "Reads the folder, splits each file and embeds the pieces."
+                  },
+                  {
+                    "flag": "get_collection().count()",
+                    "meaning": "Prints the number of stored chunks."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "42 chunks",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "chunks",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "chunks"
+            ],
+            "whatItMeans": "A vector store holds the meaning of each passage, so a question can find the passage that answers it.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "awsd-rag-engineering-w1-index-s2",
+            "title": "Query the store and read the top passage.",
+            "description": "The store returns the passage that answers the question, nearest first.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Query the store and read the top passage.",
+            "instructionList": [
+              "Ask the store a question the records answer.",
+              "Read the passages it returns, nearest first.",
+              "Confirm the top passage is the right one."
+            ],
+            "expectedOutput": "The store returns the passage that answers the question, nearest first.",
+            "outputKind": "result",
+            "whatItMeans": "Retrieval is only as good as the chunks: too large and it is vague, too small and it loses context.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 3,
+        "learn": [
+          "Embeddings",
+          "Chunking",
+          "Vector stores"
+        ],
+        "tools": [
+          "Python",
+          "Chroma"
+        ],
+        "definitionOfDone": [
+          "Index a document set is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
+      },
+      {
+        "id": "awsd-rag-engineering-w1-retrieve",
+        "role": "arch",
+        "week": 5,
+        "title": "Answer from the passages",
+        "objective": "Pass the retrieved passages to a local model and keep the answer grounded in them.",
+        "steps": [
+          {
+            "id": "awsd-rag-engineering-w1-retrieve-s1",
+            "title": "Answer from the passages",
+            "description": "Pass the retrieved passages to a local model and keep the answer grounded in them.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Answer a question from the retrieved passages.",
+            "instructionList": [
+              "Retrieve the top passages for a question.",
+              "Pass them to the model as the only context.",
+              "Check the answer quotes the passages."
+            ],
+            "commands": [
+              {
+                "cmd": "python rag.py \"what is the backup schedule?\" | tee answer.txt && grep -qi source answer.txt && echo grounded",
+                "explain": "Retrieves passages, answers from them, and confirms the answer cites a source.",
+                "sample": "grounded",
+                "flags": [
+                  {
+                    "flag": "rag.py \"...\"",
+                    "meaning": "Retrieves then answers, context first."
+                  },
+                  {
+                    "flag": "grep -qi source",
+                    "meaning": "Checks the answer names where it came from."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "grounded",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "grounded",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "grounded"
+            ],
+            "whatItMeans": "Grounding means the model answers from the passages, not from memory, so the answer can be checked.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "awsd-rag-engineering-w1-retrieve-s2",
+            "title": "Compare the answer to the record.",
+            "description": "Every claim in the answer traces to a passage in your records.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Compare the answer to the record.",
+            "instructionList": [
+              "Open the record the passage came from.",
+              "Check each claim against that record.",
+              "Reject any claim the record does not support."
+            ],
+            "expectedOutput": "Every claim in the answer traces to a passage in your records.",
+            "outputKind": "result",
+            "whatItMeans": "A citation is what separates a grounded answer from a guess; without it, the answer cannot be trusted.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 3,
+        "learn": [
+          "Retrieval",
+          "Grounding",
+          "Citations"
+        ],
+        "tools": [
+          "Python",
+          "Ollama"
+        ],
+        "definitionOfDone": [
+          "Answer from the passages is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
+      },
+      {
+        "id": "awsd-rag-engineering-w2-evalset",
+        "role": "arch",
+        "week": 6,
+        "title": "Build a question set",
+        "objective": "Write questions with known answers from your records, and run the pipeline against them.",
+        "steps": [
+          {
+            "id": "awsd-rag-engineering-w2-evalset-s1",
+            "title": "Build a question set",
+            "description": "Write questions with known answers from your records, and run the pipeline against them.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Write questions with known answers.",
+            "instructionList": [
+              "Write ten questions your records answer.",
+              "Record the correct answer for each.",
+              "Run the pipeline over the set."
+            ],
+            "commands": [
+              {
+                "cmd": "python eval.py questions.jsonl && cat eval_report.txt",
+                "explain": "Runs each question through the pipeline and writes a report of correct and wrong answers.",
+                "sample": "correct 8 of 10",
+                "flags": [
+                  {
+                    "flag": "eval.py questions.jsonl",
+                    "meaning": "Runs every question and scores the answer."
+                  },
+                  {
+                    "flag": "cat eval_report.txt",
+                    "meaning": "Prints the score and the misses."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "correct 8 of 10",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "correct",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "correct"
+            ],
+            "whatItMeans": "An evaluation set turns a demo into a measurement: you can say how often the pipeline is right.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "awsd-rag-engineering-w2-evalset-s2",
+            "title": "Read the misses and fix the cause.",
+            "description": "Each miss has a cause: the wrong passage retrieved, or a prompt that let the model guess.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Read the misses and fix the cause.",
+            "instructionList": [
+              "Open each wrong answer.",
+              "Decide if retrieval or the prompt failed.",
+              "Change one thing and run again."
+            ],
+            "expectedOutput": "Each miss has a cause: the wrong passage retrieved, or a prompt that let the model guess.",
+            "outputKind": "result",
+            "whatItMeans": "A miss is information: it says the chunking, the retrieval or the prompt needs one change, not all three.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 4,
+        "learn": [
+          "Evaluation sets",
+          "Measuring accuracy",
+          "Root cause"
+        ],
+        "tools": [
+          "Python"
+        ],
+        "definitionOfDone": [
+          "Build a question set is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
+      },
+      {
+        "id": "awsd-rag-engineering-w2-passline",
+        "role": "arch",
+        "week": 6,
+        "title": "Set the pass line",
+        "objective": "Decide the accuracy the pipeline must reach before it is used, and record why.",
+        "steps": [
+          {
+            "id": "awsd-rag-engineering-w2-passline-s1",
+            "title": "Set the pass line",
+            "description": "Decide the accuracy the pipeline must reach before it is used, and record why.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Set the pass line and record it.",
+            "instructionList": [
+              "Choose the accuracy the use demands.",
+              "State what a wrong answer would cost.",
+              "Record the line and the reason."
+            ],
+            "commands": [
+              {
+                "cmd": "python eval.py questions.jsonl --threshold 0.8 && echo \"pass line met\"",
+                "explain": "Fails the run unless the pipeline reaches the threshold, so the line is enforced, not hoped for.",
+                "sample": "pass line met",
+                "flags": [
+                  {
+                    "flag": "--threshold 0.8",
+                    "meaning": "The run fails below eighty percent correct."
+                  },
+                  {
+                    "flag": "echo",
+                    "meaning": "Prints only when the line is met."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "pass line met",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "pass line met",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "pass line met"
+            ],
+            "whatItMeans": "A pass line set before the run is a control; one set after the result is an excuse.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "awsd-rag-engineering-w2-passline-s2",
+            "title": "Record the decision.",
+            "description": "The record states the pass line, the cost of a wrong answer and who accepted it.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Record the decision.",
+            "instructionList": [
+              "Write the pass line into the record.",
+              "Note what a wrong answer would cost.",
+              "Note who signs off on using it."
+            ],
+            "expectedOutput": "The record states the pass line, the cost of a wrong answer and who accepted it.",
+            "outputKind": "result",
+            "whatItMeans": "Deciding the cost of a wrong answer first is what makes the pass line defensible to a reviewer.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 4,
+        "learn": [
+          "Thresholds",
+          "Risk acceptance",
+          "Sign-off"
+        ],
+        "tools": [
+          "Python"
+        ],
+        "definitionOfDone": [
+          "Set the pass line is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
+      },
+      {
+        "id": "awsd-ai-agents-mcp-w1-tools",
+        "role": "arch",
+        "week": 7,
+        "title": "Give the agent tools",
+        "objective": "Define two tools the model may call, each with a scoped credential and a log line.",
+        "steps": [
+          {
+            "id": "awsd-ai-agents-mcp-w1-tools-s1",
+            "title": "Give the agent tools",
+            "description": "Define two tools the model may call, each with a scoped credential and a log line.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Define two tools the agent can call.",
+            "instructionList": [
+              "Write a read-only search tool.",
+              "Write a tool that files a ticket.",
+              "Log every call with its arguments."
+            ],
+            "commands": [
+              {
+                "cmd": "python agent.py \"find the open incidents\" && tail -n1 agent.log",
+                "explain": "Runs the agent on a task and prints the last logged tool call so you can see what it did.",
+                "sample": "CALL search(query=\"open incidents\") -> 3 results",
+                "flags": [
+                  {
+                    "flag": "agent.py \"...\"",
+                    "meaning": "Runs the agent against the task."
+                  },
+                  {
+                    "flag": "tail -n1 agent.log",
+                    "meaning": "Shows the most recent tool call."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "CALL search(query=\"open incidents\") -> 3 results",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "CALL",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "CALL"
+            ],
+            "whatItMeans": "An agent is a model that can act; the log is what lets you see and limit what it did.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "awsd-ai-agents-mcp-w1-tools-s2",
+            "title": "Read the call log.",
+            "description": "Every tool call is logged with its arguments, and none reached beyond its scope.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Read the call log.",
+            "instructionList": [
+              "Open the agent log.",
+              "Confirm each call names its tool and arguments.",
+              "Confirm no call exceeded its scope."
+            ],
+            "expectedOutput": "Every tool call is logged with its arguments, and none reached beyond its scope.",
+            "outputKind": "result",
+            "whatItMeans": "A tool with a scoped credential is the difference between an agent that helps and one that does harm.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 3,
+        "learn": [
+          "Tool calling",
+          "Scoped credentials",
+          "Action logs"
+        ],
+        "tools": [
+          "Python",
+          "Ollama"
+        ],
+        "definitionOfDone": [
+          "Give the agent tools is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
+      },
+      {
+        "id": "awsd-ai-agents-mcp-w1-leash",
+        "role": "arch",
+        "week": 7,
+        "title": "Keep it on a leash",
+        "objective": "Require a human to approve the ticket tool, and prove the approval is enforced.",
+        "steps": [
+          {
+            "id": "awsd-ai-agents-mcp-w1-leash-s1",
+            "title": "Keep it on a leash",
+            "description": "Require a human to approve the ticket tool, and prove the approval is enforced.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Require approval before a write.",
+            "instructionList": [
+              "Mark the ticket tool as needing approval.",
+              "Run a task that would file a ticket.",
+              "Confirm it waits for a yes."
+            ],
+            "commands": [
+              {
+                "cmd": "echo n | python agent.py \"file a ticket for the outage\" && grep -q \"denied by human\" agent.log && echo held",
+                "explain": "Runs a task that wants to write, answers no, and confirms the agent stopped.",
+                "sample": "held",
+                "flags": [
+                  {
+                    "flag": "echo n |",
+                    "meaning": "Answers no at the approval prompt."
+                  },
+                  {
+                    "flag": "grep denied",
+                    "meaning": "Confirms the write was refused."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "held",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "held",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "held"
+            ],
+            "whatItMeans": "A human checkpoint on a write is the control that keeps an agent from acting on a bad plan.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "awsd-ai-agents-mcp-w1-leash-s2",
+            "title": "Record the guardrail.",
+            "description": "The record names the tools that need approval and who gives it.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Record the guardrail.",
+            "instructionList": [
+              "Note which tools need approval.",
+              "Note which run without it.",
+              "Record who approves a write."
+            ],
+            "expectedOutput": "The record names the tools that need approval and who gives it.",
+            "outputKind": "result",
+            "whatItMeans": "An agent that can write without a human check is one bad prompt away from a real incident.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 3,
+        "learn": [
+          "Human approval",
+          "Write guardrails",
+          "Audit"
+        ],
+        "tools": [
+          "Python"
+        ],
+        "definitionOfDone": [
+          "Keep it on a leash is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
+      },
+      {
+        "id": "awsd-ai-agents-mcp-w2-mcp",
+        "role": "arch",
+        "week": 8,
+        "title": "Serve a tool over MCP",
+        "objective": "Wrap the search tool as an MCP server and list its tools from a client.",
+        "steps": [
+          {
+            "id": "awsd-ai-agents-mcp-w2-mcp-s1",
+            "title": "Serve a tool over MCP",
+            "description": "Wrap the search tool as an MCP server and list its tools from a client.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Serve the search tool over MCP.",
+            "instructionList": [
+              "Wrap the tool as an MCP server.",
+              "Start the server.",
+              "List its tools from a client."
+            ],
+            "commands": [
+              {
+                "cmd": "python mcp_server.py & sleep 1 && python mcp_client.py --list",
+                "explain": "Starts the MCP server, then lists the tools it offers so you can see the contract.",
+                "sample": "tools: search",
+                "flags": [
+                  {
+                    "flag": "mcp_server.py &",
+                    "meaning": "Starts the server in the background."
+                  },
+                  {
+                    "flag": "--list",
+                    "meaning": "Asks the server what tools it offers."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "tools: search",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "search",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "search"
+            ],
+            "whatItMeans": "MCP is one contract for tools, so a tool written once works in any client that speaks it.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "awsd-ai-agents-mcp-w2-mcp-s2",
+            "title": "Call the tool from the client.",
+            "description": "The MCP client gets the same result the direct call gave.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Call the tool from the client.",
+            "instructionList": [
+              "Call the search tool over MCP.",
+              "Read the result the server returns.",
+              "Confirm it matches the direct call."
+            ],
+            "expectedOutput": "The MCP client gets the same result the direct call gave.",
+            "outputKind": "result",
+            "whatItMeans": "A shared protocol is what lets a tool be reused across agents instead of rewritten for each.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 4,
+        "learn": [
+          "MCP",
+          "Tool contracts",
+          "Reuse"
+        ],
+        "tools": [
+          "Python"
+        ],
+        "definitionOfDone": [
+          "Serve a tool over MCP is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
+      },
+      {
+        "id": "awsd-ai-agents-mcp-w2-audit",
+        "role": "arch",
+        "week": 8,
+        "title": "Audit the agent",
+        "objective": "Replay the agent log as a timeline and confirm every action had a reason.",
+        "steps": [
+          {
+            "id": "awsd-ai-agents-mcp-w2-audit-s1",
+            "title": "Audit the agent",
+            "description": "Replay the agent log as a timeline and confirm every action had a reason.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Replay the agent as a timeline.",
+            "instructionList": [
+              "Read the agent log in order.",
+              "Mark each action with its prompt.",
+              "Flag any action with no reason."
+            ],
+            "commands": [
+              {
+                "cmd": "python replay.py agent.log && grep -c CALL agent.log",
+                "explain": "Replays the log as a timeline and counts the tool calls so the run can be audited.",
+                "sample": "4",
+                "flags": [
+                  {
+                    "flag": "replay.py",
+                    "meaning": "Prints the actions in order with their prompts."
+                  },
+                  {
+                    "flag": "grep -c CALL",
+                    "meaning": "Counts the tool calls."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "4",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "4",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "4"
+            ],
+            "whatItMeans": "An agent timeline is the evidence a reviewer reads to decide whether the agent can be trusted.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "awsd-ai-agents-mcp-w2-audit-s2",
+            "title": "Record the audit.",
+            "description": "The audit lists every action, its reason and any gap, with a fix.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Record the audit.",
+            "instructionList": [
+              "Note the number of tool calls.",
+              "Note any action without a clear reason.",
+              "Record the fix for each."
+            ],
+            "expectedOutput": "The audit lists every action, its reason and any gap, with a fix.",
+            "outputKind": "result",
+            "whatItMeans": "An action with no traceable reason is the one a reviewer stops on; the audit finds it before they do.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 4,
+        "learn": [
+          "Replay",
+          "Audit trail",
+          "Review"
+        ],
+        "tools": [
+          "Python"
+        ],
+        "definitionOfDone": [
+          "Audit the agent is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
       }
     ],
     "noGatekeeping": true,
@@ -3374,7 +4477,11 @@
       }
     ],
     "isSeed": true,
-    "version": 1
+    "version": 1,
+    "modules": [
+      "rag-engineering",
+      "ai-agents-mcp"
+    ]
   },
   "deliverables": [
     {
@@ -7728,6 +8835,30 @@
           ]
         },
         "caption": "Nothing new is built. Rebuild from code, a runbook, drift fixed through CI, an incident with its post-mortem, then the handover package."
+      },
+      {
+        "week": 5,
+        "builtThrough": 13,
+        "highlight": [],
+        "caption": ""
+      },
+      {
+        "week": 6,
+        "builtThrough": 14,
+        "highlight": [],
+        "caption": ""
+      },
+      {
+        "week": 7,
+        "builtThrough": 15,
+        "highlight": [],
+        "caption": ""
+      },
+      {
+        "week": 8,
+        "builtThrough": 16,
+        "highlight": [],
+        "caption": ""
       }
     ],
     "roles": {
@@ -11973,10 +13104,28 @@
           "definition": "Each metric has a formula, a source and a target, so a number can be read as good or bad."
         },
         {
+          "id": "practice.agent-least-privilege",
+          "label": "Least privilege for agents",
+          "anchor": "OWASP_LLM",
+          "definition": "An agent or tool call holds a scoped credential and no admin right, and its actions are logged."
+        },
+        {
+          "id": "practice.redaction-before-write",
+          "label": "Redact before write",
+          "anchor": "NIST_AI_RMF",
+          "definition": "Personal data is detected and removed before a prompt, a log or a dataset is stored."
+        },
+        {
           "id": "practice.human-in-the-loop",
           "label": "Human checkpoint",
           "anchor": "NIST_AI_RMF",
           "definition": "AI-assisted work passes a named human check before it is acted on, and the check is recorded."
+        },
+        {
+          "id": "practice.pass-line-suites",
+          "label": "Suites with a pass line",
+          "anchor": "NIST_AI_RMF",
+          "definition": "An attack or evaluation suite states what passing means before it runs."
         }
       ],
       "PRACTICE_OF": {
@@ -12057,6 +13206,30 @@
           "practice.human-in-the-loop"
         ],
         "awsd-w4-ai": [
+          "practice.human-in-the-loop"
+        ],
+        "awsd-rag-engineering-w1-index": [
+          "practice.redaction-before-write"
+        ],
+        "awsd-rag-engineering-w1-retrieve": [
+          "practice.human-in-the-loop"
+        ],
+        "awsd-rag-engineering-w2-evalset": [
+          "practice.pass-line-suites"
+        ],
+        "awsd-rag-engineering-w2-passline": [
+          "practice.pass-line-suites"
+        ],
+        "awsd-ai-agents-mcp-w1-tools": [
+          "practice.agent-least-privilege"
+        ],
+        "awsd-ai-agents-mcp-w1-leash": [
+          "practice.human-in-the-loop"
+        ],
+        "awsd-ai-agents-mcp-w2-mcp": [
+          "practice.agent-least-privilege"
+        ],
+        "awsd-ai-agents-mcp-w2-audit": [
           "practice.human-in-the-loop"
         ]
       },
@@ -12253,6 +13426,42 @@
           "area": "ai",
           "objectiveRefs": [
             "NIST.AI-RMF.MAP"
+          ]
+        },
+        {
+          "id": "comp.ai.rag-pipeline",
+          "version": "1.0.0",
+          "label": "Build a retrieval-augmented pipeline",
+          "area": "ai",
+          "objectiveRefs": [
+            "NIST.AI-RMF.MAP"
+          ]
+        },
+        {
+          "id": "comp.ai.vector-store",
+          "version": "1.0.0",
+          "label": "Load documents into a vector store",
+          "area": "ai",
+          "objectiveRefs": [
+            "NIST.AI-RMF.MAP"
+          ]
+        },
+        {
+          "id": "comp.ai.agent-tools",
+          "version": "1.0.0",
+          "label": "Give an agent tools to call",
+          "area": "ai",
+          "objectiveRefs": [
+            "NIST.AI-RMF.MANAGE"
+          ]
+        },
+        {
+          "id": "comp.ai.mcp-connector",
+          "version": "1.0.0",
+          "label": "Expose a tool over a model context protocol",
+          "area": "ai",
+          "objectiveRefs": [
+            "NIST.AI-RMF.MANAGE"
           ]
         },
         {
@@ -12497,6 +13706,38 @@
         "awsd-w4-ai": [
           "comp.ai.local-assistant",
           "comp.ai.ground-in-records",
+          "comp.ai.verify-ai-output"
+        ],
+        "awsd-rag-engineering-w1-index": [
+          "comp.ai.vector-store",
+          "comp.ai.rag-pipeline"
+        ],
+        "awsd-rag-engineering-w1-retrieve": [
+          "comp.ai.rag-pipeline",
+          "comp.ai.verify-ai-output"
+        ],
+        "awsd-rag-engineering-w2-evalset": [
+          "comp.ai.verify-ai-output",
+          "comp.ai.rag-pipeline"
+        ],
+        "awsd-rag-engineering-w2-passline": [
+          "comp.ai.verify-ai-output",
+          "comp.ai.prompt-for-the-task"
+        ],
+        "awsd-ai-agents-mcp-w1-tools": [
+          "comp.ai.agent-tools",
+          "comp.ai.verify-ai-output"
+        ],
+        "awsd-ai-agents-mcp-w1-leash": [
+          "comp.ai.agent-tools",
+          "comp.ai.verify-ai-output"
+        ],
+        "awsd-ai-agents-mcp-w2-mcp": [
+          "comp.ai.mcp-connector",
+          "comp.ai.agent-tools"
+        ],
+        "awsd-ai-agents-mcp-w2-audit": [
+          "comp.ai.agent-tools",
           "comp.ai.verify-ai-output"
         ]
       },
@@ -12757,6 +13998,16 @@
           "publisher": "NIST",
           "url": "https://www.nist.gov/itl/ai-risk-management-framework",
           "codePattern": "^NIST\\.AI-RMF(\\.(GOVERN|MAP|MEASURE|MANAGE))?$"
+        },
+        {
+          "id": "OWASP_LLM",
+          "label": "OWASP LLM Top 10",
+          "description": "OWASP Top 10 for Large Language Model Applications",
+          "why": "The shared catalogue of LLM application weaknesses: prompt injection, sensitive disclosure, excessive agency and the rest. A tag here names the weakness the step attacks or defends.",
+          "kind": "framework",
+          "tone": "warn",
+          "publisher": "OWASP Foundation",
+          "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
         },
         {
           "id": "NIST_800_53",
@@ -13055,6 +14306,14 @@
           ]
         },
         {
+          "id": "tool.chroma",
+          "label": "Chroma",
+          "kind": "service",
+          "aliases": [
+            "Chroma"
+          ]
+        },
+        {
           "id": "tool.git",
           "label": "Git",
           "kind": "cli",
@@ -13288,6 +14547,47 @@
         "awsd-w4-ai": [
           "tool.capstone-forms",
           "tool.ollama"
+        ],
+        "awsd-rag-engineering-w1-index": [
+          "tool.capstone-forms",
+          "tool.chroma",
+          "tool.python"
+        ],
+        "awsd-rag-engineering-w1-retrieve": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.ollama",
+          "tool.python"
+        ],
+        "awsd-rag-engineering-w2-evalset": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.python"
+        ],
+        "awsd-rag-engineering-w2-passline": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.python"
+        ],
+        "awsd-ai-agents-mcp-w1-tools": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.ollama",
+          "tool.python"
+        ],
+        "awsd-ai-agents-mcp-w1-leash": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.python"
+        ],
+        "awsd-ai-agents-mcp-w2-mcp": [
+          "tool.capstone-forms",
+          "tool.python"
+        ],
+        "awsd-ai-agents-mcp-w2-audit": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.python"
         ]
       },
       "TROUBLE_GROUPS": [

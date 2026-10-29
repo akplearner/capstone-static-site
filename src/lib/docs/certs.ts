@@ -268,11 +268,13 @@ export interface CertCoverage {
 
 /** Coverage of the exam by the course's graded tasks — a projection, never stored. */
 export function coverageOf(course: Pick<Course, 'tasks' | 'weeks'>, cert: CertDef, map: Record<string, string>): CertCoverage {
-  const setup = new Set(course.weeks.filter((w) => w.setup || w.number === 0).map((w) => w.number));
+  // R144: setup weeks and the premium (track-tagged) advanced weeks are not the certification, so their tasks name no exam
+  // domain. An untracked advanced week (a course's own "beyond the exam" extension) still counts, as it always has.
+  const skip = new Set(course.weeks.filter((w) => w.setup || w.number === 0 || (w.advanced && w.track)).map((w) => w.number));
   const rows: DomainCoverage[] = cert.domains.map((domain) => ({ domain, tasks: [] }));
   const unmapped: string[] = [];
   for (const t of course.tasks) {
-    if (setup.has(t.week)) continue;
+    if (skip.has(t.week)) continue;
     // R143: the AI extension is premium content beyond the exam, so it names no exam domain and is not counted.
     if (t.track) continue;
     const dom = domainOf(cert, map, t);

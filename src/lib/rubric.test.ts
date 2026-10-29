@@ -50,7 +50,9 @@ describe('weeklyPoints — the 70/30 split', () => {
     expect(p.team).toBe(TEAM_WEIGHT);
   });
 
-  it('marks weeks 1–8 with 5–8 as bonus', () => {
+  it('marks weeks 1–9 with 5–9 as bonus', () => {
+    // Weeks 5–8 are the fleet advanced weeks; week 9 is the Local LLM serving
+    // module (R144) — all bonus, none counts toward the pass line.
     expect(markedWeeks(course)).toEqual([
       { week: 1, bonus: false },
       { week: 2, bonus: false },
@@ -60,6 +62,7 @@ describe('weeklyPoints — the 70/30 split', () => {
       { week: 6, bonus: true },
       { week: 7, bonus: true },
       { week: 8, bonus: true },
+      { week: 9, bonus: true },
     ]);
   });
 });

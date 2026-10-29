@@ -62,6 +62,18 @@ This week adds:
 
 **Process — The incident loop:** CounterFunction → FunctionErrorsAlarm (server errors); FunctionErrorsAlarm → AlertTopic (email the team); admin → CounterFunction (find it, fix it, retest).
 
+## Week 5 — Local LLM serving: Serve a model locally
+
+Nothing new is built this week; the process is drawn over the picture.
+
+## Week 6 — RAG engineering: Index your documents
+
+Nothing new is built this week; the process is drawn over the picture.
+
+## Week 7 — RAG engineering: Evaluate the answers
+
+Nothing new is built this week; the process is drawn over the picture.
+
 ## The roles
 
 | Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |

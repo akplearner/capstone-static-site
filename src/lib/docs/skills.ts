@@ -218,6 +218,13 @@ export const SKILLS: SkillNode[] = [
   n('ai.ground-in-records', 'Ground an AI answer in the records', ['NIST.AI-RMF.MAP']),
   n('ai.verify-ai-output', 'Verify AI output against the evidence', ['NIST.AI-RMF.MEASURE']),
   n('ai.prompt-for-the-task', 'Write a task-specific prompt', ['NIST.AI-RMF.MAP']),
+  // R144: the applied-AI modules (RAG, agents, local serving, enterprise architecture).
+  n('ai.rag-pipeline', 'Build a retrieval-augmented pipeline', ['NIST.AI-RMF.MAP']),
+  n('ai.vector-store', 'Load documents into a vector store', ['NIST.AI-RMF.MAP']),
+  n('ai.agent-tools', 'Give an agent tools to call', ['NIST.AI-RMF.MANAGE']),
+  n('ai.mcp-connector', 'Expose a tool over a model context protocol', ['NIST.AI-RMF.MANAGE']),
+  n('ai.serve-model', 'Serve a model behind an API', ['NIST.AI-RMF.MEASURE']),
+  n('ai.gpu-sizing', 'Size GPU memory for a model', ['NIST.AI-RMF.MEASURE']),
   // ── Server hardware ──────────────────────────────────────────────────────
   n('hardware.receive-and-inspect', 'Receive hardware and list what arrived', ['SK0-005.d1']),
   n('hardware.memory-population', 'Populate memory channels per the manual', ['SK0-005.d1']),
@@ -388,6 +395,7 @@ export const SKILLS: SkillNode[] = [
  * associate (5–8) and professional (9–12) course of each. One table, both maps.
  */
 import { aiExtensionSkills } from './aiExtension';
+import { moduleSkills } from '../data/modules';
 
 export const CLOUD_COURSES: Record<string, [prefix: string, weeks: [number, number]]> = {
   'azure-fundamentals': ['az', [1, 4]],
@@ -657,6 +665,8 @@ export const TASK_SKILLS: Record<string, Record<string, string[]>> = {
 
 // R143: the AI extension task of each graded week teaches the applied-AI nodes.
 for (const [courseId, map] of Object.entries(aiExtensionSkills())) Object.assign((TASK_SKILLS[courseId] ??= {}), map);
+// R144: the attached modules' advanced-week tasks teach their own nodes.
+for (const [courseId, map] of Object.entries(moduleSkills())) Object.assign((TASK_SKILLS[courseId] ??= {}), map);
 
 /* ── helpers (lowercase: never written to a document) ───────────────────── */
 

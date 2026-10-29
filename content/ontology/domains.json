@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "domains": [
     {
       "id": "SY0-701.d1",

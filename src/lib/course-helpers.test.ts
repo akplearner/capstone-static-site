@@ -194,13 +194,13 @@ describe('advanced weeks', () => {
     expect(isGradedWeek(withAdvanced, 9)).toBe(false);
   });
 
-  it('Server+ ships four of them, and exactly four', () => {
+  it('Server+ ships five of them, and exactly five', () => {
     // Weeks 5–6 (the team's own tools) and Weeks 7–8 (the fleet) — R79 split
-    // two ten-task weeks into four. All are extra work; none counts toward
-    // finishing. A fifth would need a colour (`--color-w9`), a rail chip and a
-    // rubric page before it could be added here.
+    // two ten-task weeks into four. Week 9 is the attached Local LLM serving
+    // module (R144), an AI-track advanced week. All are extra work; none counts
+    // toward finishing. `--color-w9` already exists for the rail chip.
     const advanced = SERVER_PLUS.weeks.filter((w) => isAdvancedWeek(SERVER_PLUS, w.number)).map((w) => w.number);
-    expect(advanced).toEqual([5, 6, 7, 8]);
+    expect(advanced).toEqual([5, 6, 7, 8, 9]);
     for (const n of advanced) expect(isGradedWeek(SERVER_PLUS, n)).toBe(false);
   });
 

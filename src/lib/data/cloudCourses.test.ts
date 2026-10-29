@@ -191,8 +191,8 @@ describe.each(ALL.map((c) => [c.id, c] as const))('R90 cloud capstone — %s', (
     expect(course.weeks.some((w) => w.setup), `${id} setup week`).toBe(!first);
   });
 
-  // R143: the AI extension is the one shared, premium task a graded week may carry; these cert-exam contracts cover the required four.
-  const required = course.tasks.filter((t) => !t.track);
+  // R143/R144: the AI extension and the module advanced weeks are premium content; these cert-exam contracts cover the four graded role tasks.
+  const required = course.tasks.filter((t) => !t.track && isGradedWeek(course, t.week));
 
   it('every graded week is exactly one independent task per role', () => {
     for (const w of graded) {
@@ -274,8 +274,8 @@ describe('R90 — three quarters make one plan', () => {
     const ranges = Object.values(blocks).map((b) => b.weeks);
     expect(ranges).toEqual([[1, 4], [5, 8], [9, 12]]);
     expect(courses.map((c) => c.id)).toEqual(Object.values(blocks).map((b) => b.id));
-    // 48 authored cert tasks, each in exactly one course (the AI extensions are counted apart).
-    expect(courses.reduce((n, c) => n + c.tasks.filter((t) => t.week > 0 && !t.track).length, 0)).toBe(48);
+    // 48 authored cert tasks, each in exactly one course (the AI extensions and module weeks are counted apart).
+    expect(courses.reduce((n, c) => n + c.tasks.filter((t) => isGradedWeek(c, t.week) && !t.track).length, 0)).toBe(48);
   });
 
   it('a later course’s Week 0 deploys the previous course’s end state from the template', () => {
@@ -319,8 +319,8 @@ const AUTOMATED = /pipeline|workflow|what-if|change set|drift|roll(s|ed)? ?back|
 const taskText = (t: Task) => [t.title, t.objective, ...t.steps.flatMap((s) => [s.title, s.instruction ?? '', ...(s.instructionList ?? [])])].join(' ');
 
 describe.each(ALL.map((c) => [c.id, c] as const))('R106f level contract — %s', (id, course: Course) => {
-  // R143: the AI extension is premium content beyond the exam; the level contract covers the cert tasks.
-  const graded = course.tasks.filter((t) => t.week > 0 && !t.track);
+  // R143/R144: the AI extension and the module advanced weeks are premium content; the level contract covers the cert tasks.
+  const graded = course.tasks.filter((t) => isGradedWeek(course, t.week) && !t.track);
   const weeks = [...new Set(graded.map((t) => t.week))];
   const byWeek = (w: number) => graded.filter((t) => t.week === w);
 
@@ -348,7 +348,7 @@ describe.each(ALL.map((c) => [c.id, c] as const))('R106f level contract — %s',
   it('every graded task names its own exam first, and the quarter’s difficulty matches the level', () => {
     const code = CERTS[course.id].code;
     for (const t of graded) expect((t.learn ?? [])[0], `${t.id} learn[0]`).toMatch(new RegExp(`^${code.replace(/[-+]/g, '\\$&')} · `));
-    const difficulties = new Set(course.weeks.filter((w) => w.number > 0).map((w) => w.difficulty));
+    const difficulties = new Set(course.weeks.filter((w) => isGradedWeek(course, w.number)).map((w) => w.difficulty));
     const expected = course.level === 'entry' ? [1, 2] : course.level === 'associate' ? [3] : [4];
     expect([...difficulties].sort(), `${id} difficulty arc`).toEqual(expected);
   });

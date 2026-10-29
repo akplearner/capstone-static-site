@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "practices": [
     {
       "id": "practice.least-privilege",
@@ -774,6 +774,22 @@
       ],
       "sec-w4-ai": [
         "practice.human-in-the-loop"
+      ],
+      "sec-ai-security-validation-w1-inject": [
+        "practice.authorised-testing",
+        "practice.evidence-hashing"
+      ],
+      "sec-ai-security-validation-w1-leak": [
+        "practice.input-guardrails",
+        "practice.retest-to-closure"
+      ],
+      "sec-ai-security-validation-w2-suite": [
+        "practice.pass-line-suites",
+        "practice.regression-tests-for-guardrails"
+      ],
+      "sec-ai-security-validation-w2-report": [
+        "practice.customer-assurance",
+        "practice.corrective-action"
       ]
     },
     "cysa-plus": {
@@ -838,6 +854,22 @@
       ],
       "cysa-w4-ai": [
         "practice.human-in-the-loop"
+      ],
+      "cysa-ai-security-validation-w1-inject": [
+        "practice.authorised-testing",
+        "practice.evidence-hashing"
+      ],
+      "cysa-ai-security-validation-w1-leak": [
+        "practice.input-guardrails",
+        "practice.retest-to-closure"
+      ],
+      "cysa-ai-security-validation-w2-suite": [
+        "practice.pass-line-suites",
+        "practice.regression-tests-for-guardrails"
+      ],
+      "cysa-ai-security-validation-w2-report": [
+        "practice.customer-assurance",
+        "practice.corrective-action"
       ]
     },
     "mssp": {
@@ -902,6 +934,22 @@
       ],
       "mssp-w4-ai": [
         "practice.human-in-the-loop"
+      ],
+      "mssp-ai-security-validation-w1-inject": [
+        "practice.authorised-testing",
+        "practice.evidence-hashing"
+      ],
+      "mssp-ai-security-validation-w1-leak": [
+        "practice.input-guardrails",
+        "practice.retest-to-closure"
+      ],
+      "mssp-ai-security-validation-w2-suite": [
+        "practice.pass-line-suites",
+        "practice.regression-tests-for-guardrails"
+      ],
+      "mssp-ai-security-validation-w2-report": [
+        "practice.customer-assurance",
+        "practice.corrective-action"
       ]
     },
     "secai-plus": {
@@ -968,6 +1016,22 @@
       ],
       "secai-w4-ai": [
         "practice.human-in-the-loop"
+      ],
+      "secai-ai-security-validation-w1-inject": [
+        "practice.authorised-testing",
+        "practice.evidence-hashing"
+      ],
+      "secai-ai-security-validation-w1-leak": [
+        "practice.input-guardrails",
+        "practice.retest-to-closure"
+      ],
+      "secai-ai-security-validation-w2-suite": [
+        "practice.pass-line-suites",
+        "practice.regression-tests-for-guardrails"
+      ],
+      "secai-ai-security-validation-w2-report": [
+        "practice.customer-assurance",
+        "practice.corrective-action"
       ]
     },
     "cissp": {
@@ -1073,6 +1137,38 @@
       ],
       "cissp-w6-ai": [
         "practice.human-in-the-loop"
+      ],
+      "cissp-ai-security-validation-w1-inject": [
+        "practice.authorised-testing",
+        "practice.evidence-hashing"
+      ],
+      "cissp-ai-security-validation-w1-leak": [
+        "practice.input-guardrails",
+        "practice.retest-to-closure"
+      ],
+      "cissp-ai-security-validation-w2-suite": [
+        "practice.pass-line-suites",
+        "practice.regression-tests-for-guardrails"
+      ],
+      "cissp-ai-security-validation-w2-report": [
+        "practice.customer-assurance",
+        "practice.corrective-action"
+      ],
+      "cissp-enterprise-ai-architect-w1-gateway": [
+        "practice.redundant-paths",
+        "practice.least-privilege"
+      ],
+      "cissp-enterprise-ai-architect-w1-layers": [
+        "practice.segmentation",
+        "practice.architecture-decision-records"
+      ],
+      "cissp-enterprise-ai-architect-w2-govern": [
+        "practice.mfa-everywhere",
+        "practice.budget-guardrails"
+      ],
+      "cissp-enterprise-ai-architect-w2-handover": [
+        "practice.as-built-documentation",
+        "practice.runbooks-written"
       ]
     },
     "server-plus": {
@@ -1302,6 +1398,12 @@
       ],
       "srv-w4-ai": [
         "practice.human-in-the-loop"
+      ],
+      "srv-local-llm-serving-w1-serve": [
+        "practice.least-privilege"
+      ],
+      "srv-local-llm-serving-w1-size": [
+        "practice.right-sizing"
       ]
     },
     "ccna": {
@@ -1389,6 +1491,12 @@
       ],
       "ccna-w4-ai": [
         "practice.human-in-the-loop"
+      ],
+      "ccna-local-llm-serving-w1-serve": [
+        "practice.least-privilege"
+      ],
+      "ccna-local-llm-serving-w1-size": [
+        "practice.right-sizing"
       ]
     },
     "azure-fundamentals": {
@@ -1460,6 +1568,24 @@
       ],
       "azf-w4-ai": [
         "practice.human-in-the-loop"
+      ],
+      "azf-local-llm-serving-w1-serve": [
+        "practice.least-privilege"
+      ],
+      "azf-local-llm-serving-w1-size": [
+        "practice.right-sizing"
+      ],
+      "azf-rag-engineering-w1-index": [
+        "practice.redaction-before-write"
+      ],
+      "azf-rag-engineering-w1-retrieve": [
+        "practice.human-in-the-loop"
+      ],
+      "azf-rag-engineering-w2-evalset": [
+        "practice.pass-line-suites"
+      ],
+      "azf-rag-engineering-w2-passline": [
+        "practice.pass-line-suites"
       ]
     },
     "azure-administrator": {
@@ -1539,6 +1665,24 @@
       ],
       "aza-w4-ai": [
         "practice.human-in-the-loop"
+      ],
+      "aza-local-llm-serving-w1-serve": [
+        "practice.least-privilege"
+      ],
+      "aza-local-llm-serving-w1-size": [
+        "practice.right-sizing"
+      ],
+      "aza-rag-engineering-w1-index": [
+        "practice.redaction-before-write"
+      ],
+      "aza-rag-engineering-w1-retrieve": [
+        "practice.human-in-the-loop"
+      ],
+      "aza-rag-engineering-w2-evalset": [
+        "practice.pass-line-suites"
+      ],
+      "aza-rag-engineering-w2-passline": [
+        "practice.pass-line-suites"
       ]
     },
     "azure-devops": {
@@ -1620,6 +1764,30 @@
       ],
       "azd-w4-ai": [
         "practice.human-in-the-loop"
+      ],
+      "azd-rag-engineering-w1-index": [
+        "practice.redaction-before-write"
+      ],
+      "azd-rag-engineering-w1-retrieve": [
+        "practice.human-in-the-loop"
+      ],
+      "azd-rag-engineering-w2-evalset": [
+        "practice.pass-line-suites"
+      ],
+      "azd-rag-engineering-w2-passline": [
+        "practice.pass-line-suites"
+      ],
+      "azd-ai-agents-mcp-w1-tools": [
+        "practice.agent-least-privilege"
+      ],
+      "azd-ai-agents-mcp-w1-leash": [
+        "practice.human-in-the-loop"
+      ],
+      "azd-ai-agents-mcp-w2-mcp": [
+        "practice.agent-least-privilege"
+      ],
+      "azd-ai-agents-mcp-w2-audit": [
+        "practice.human-in-the-loop"
       ]
     },
     "aws-cloud-practitioner": {
@@ -1691,6 +1859,24 @@
       ],
       "awsf-w4-ai": [
         "practice.human-in-the-loop"
+      ],
+      "awsf-local-llm-serving-w1-serve": [
+        "practice.least-privilege"
+      ],
+      "awsf-local-llm-serving-w1-size": [
+        "practice.right-sizing"
+      ],
+      "awsf-rag-engineering-w1-index": [
+        "practice.redaction-before-write"
+      ],
+      "awsf-rag-engineering-w1-retrieve": [
+        "practice.human-in-the-loop"
+      ],
+      "awsf-rag-engineering-w2-evalset": [
+        "practice.pass-line-suites"
+      ],
+      "awsf-rag-engineering-w2-passline": [
+        "practice.pass-line-suites"
       ]
     },
     "aws-solutions-architect": {
@@ -1770,6 +1956,24 @@
       ],
       "awsa-w4-ai": [
         "practice.human-in-the-loop"
+      ],
+      "awsa-local-llm-serving-w1-serve": [
+        "practice.least-privilege"
+      ],
+      "awsa-local-llm-serving-w1-size": [
+        "practice.right-sizing"
+      ],
+      "awsa-rag-engineering-w1-index": [
+        "practice.redaction-before-write"
+      ],
+      "awsa-rag-engineering-w1-retrieve": [
+        "practice.human-in-the-loop"
+      ],
+      "awsa-rag-engineering-w2-evalset": [
+        "practice.pass-line-suites"
+      ],
+      "awsa-rag-engineering-w2-passline": [
+        "practice.pass-line-suites"
       ]
     },
     "aws-devops": {
@@ -1850,6 +2054,30 @@
         "practice.human-in-the-loop"
       ],
       "awsd-w4-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "awsd-rag-engineering-w1-index": [
+        "practice.redaction-before-write"
+      ],
+      "awsd-rag-engineering-w1-retrieve": [
+        "practice.human-in-the-loop"
+      ],
+      "awsd-rag-engineering-w2-evalset": [
+        "practice.pass-line-suites"
+      ],
+      "awsd-rag-engineering-w2-passline": [
+        "practice.pass-line-suites"
+      ],
+      "awsd-ai-agents-mcp-w1-tools": [
+        "practice.agent-least-privilege"
+      ],
+      "awsd-ai-agents-mcp-w1-leash": [
+        "practice.human-in-the-loop"
+      ],
+      "awsd-ai-agents-mcp-w2-mcp": [
+        "practice.agent-least-privilege"
+      ],
+      "awsd-ai-agents-mcp-w2-audit": [
         "practice.human-in-the-loop"
       ]
     }

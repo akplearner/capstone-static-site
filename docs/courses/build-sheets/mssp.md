@@ -82,6 +82,14 @@ This week adds:
 
 **Process — Audit readiness:** tickets → analysts (MTTD · MTTR); analysts → evidence (the evidence packet); evidence → auditor (Type I · Stage 1).
 
+## Week 5 — AI security validation: Attack the model
+
+Nothing new is built this week; the process is drawn over the picture.
+
+## Week 6 — AI security validation: A suite that holds
+
+Nothing new is built this week; the process is drawn over the picture.
+
 ## The roles
 
 | Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |

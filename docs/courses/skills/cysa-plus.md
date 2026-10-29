@@ -1,6 +1,6 @@
 # CySA+ SOC Capstone — skills sheet
 
-17 graded tasks · 25 skills · 22 tools · 13 procedures · 9 standards (13 controls cited) · 5 tactics · 18 practices
+17 graded tasks and 4 advanced · 31 skills · 26 tools · 13 procedures · 10 standards (13 controls cited) · 5 tactics · 24 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -29,6 +29,12 @@ Generated from the registries and the course document by `npm run content:export
 | Capture packets and quote the attacker request `comp.forensics.packet-capture` | Evidence and forensics | CS0-003.d1, NIST.800-61.DETECT | Investigate & prove it |
 | Pivot across logs to prove an attack `comp.forensics.log-pivoting` | Evidence and forensics | CS0-003.d1 | Investigate & prove it |
 | Turn findings into indicators with ATT&CK ids `comp.forensics.iocs` | Evidence and forensics | CS0-003.d3, MITRE_ATTACK | Turn findings into indicators |
+| Prove prompt injection with evidence `comp.ai-attack.prompt-injection` | AI attack and evaluation | CY0-001.d2, OWASP.LLM | Prove a prompt injection |
+| Prove sensitive information disclosure `comp.ai-attack.sensitive-disclosure` | AI attack and evaluation | CY0-001.d2, OWASP.LLM | Prove a data leak |
+| Map AI threats to OWASP and ATLAS `comp.ai-attack.map-to-atlas` | AI attack and evaluation | CY0-001.d2, MITRE.ATLAS | Prove a prompt injection |
+| Automate an attack suite with a pass line `comp.ai-attack.automate-suite` | AI attack and evaluation | CY0-001.d3, NIST_AI_RMF | Automate the attack suite; Report the validation |
+| Reproduce a suite on a rebuilt copy `comp.ai-attack.reproduce` | AI attack and evaluation | CY0-001.d3, NIST_800_218 | Prove a data leak; Automate the attack suite |
+| Write paper cases: poisoning, theft, inference `comp.ai-attack.paper-cases` | AI attack and evaluation | CY0-001.d3, MITRE.ATLAS | Report the validation |
 | Run a local AI assistant offline `comp.ai.local-assistant` | Applied AI | NIST.AI-RMF.MANAGE | AI extension: read the monitoring baseline; AI extension: explain an alert triage; AI extension: rank the vulnerabilities; AI extension: write the executive debrief |
 | Ground an AI answer in the records `comp.ai.ground-in-records` | Applied AI | NIST.AI-RMF.MAP | AI extension: explain an alert triage; AI extension: rank the vulnerabilities; AI extension: write the executive debrief |
 | Verify AI output against the evidence `comp.ai.verify-ai-output` | Applied AI | NIST.AI-RMF.MEASURE | AI extension: read the monitoring baseline; AI extension: explain an alert triage; AI extension: rank the vulnerabilities; AI extension: write the executive debrief |
@@ -38,18 +44,19 @@ Generated from the registries and the course document by `npm run content:export
 
 | Tool | Kind | Used by |
 | --- | --- | --- |
-| Linux shell | cli | Deploy the Windows endpoint sensor; Deploy your Ubuntu sensor, prove the feed, write the baseline; Deploy the network sensor, then validate coverage; Investigate & prove it; Rebuild the attack; Contain, preserve & report |
+| Linux shell | cli | Deploy the Windows endpoint sensor; Deploy your Ubuntu sensor, prove the feed, write the baseline; Deploy the network sensor, then validate coverage; Investigate & prove it; Rebuild the attack; Contain, preserve & report; Prove a prompt injection; Prove a data leak; Automate the attack suite; Report the validation |
 | PowerShell | cli | Deploy the Windows endpoint sensor |
 | SSH | cli | Deploy your Ubuntu sensor, prove the feed, write the baseline; Deploy the network sensor, then validate coverage; Investigate & prove it; Scan from the attacker’s side; Rebuild the attack; Contain, preserve & report |
 | curl | cli | Deploy your Ubuntu sensor, prove the feed, write the baseline; Investigate & prove it |
 | sha256sum | cli | Investigate & prove it; Contain, preserve & report |
-| Capstone forms | document | Deploy the Windows endpoint sensor; Read what the SOC already knows; Rebuild the attack; Debrief the team (capstone); AI extension: read the monitoring baseline; AI extension: explain an alert triage; AI extension: rank the vulnerabilities; AI extension: write the executive debrief |
+| Capstone forms | document | Deploy the Windows endpoint sensor; Read what the SOC already knows; Rebuild the attack; Debrief the team (capstone); AI extension: read the monitoring baseline; AI extension: explain an alert triage; AI extension: rank the vulnerabilities; AI extension: write the executive debrief; Prove a prompt injection; Prove a data leak; Automate the attack suite; Report the validation |
 | Notes | document | Deploy your Ubuntu sensor, prove the feed, write the baseline; Deploy the network sensor, then validate coverage; Triage the alerts; Turn findings into indicators; Scan from the attacker’s side; Rank the risk & write the fix plan; Find the incident; Debrief the team (capstone); Contain, preserve & report |
 | Threat-intel sites | service | Turn findings into indicators |
 | CVE lookup (NVD) | service | Rank the risk & write the fix plan |
 | nmap | cli | Investigate & prove it; Scan from the attacker’s side |
 | Nikto | cli | Scan from the attacker’s side |
 | Hydra | cli | Investigate & prove it |
+| garak | cli | Prove a prompt injection |
 | Kali Linux | platform | Investigate & prove it; Scan from the attacker’s side |
 | ufw | cli | Deploy your Ubuntu sensor, prove the feed, write the baseline; Contain, preserve & report |
 | Windows | platform | Deploy the Windows endpoint sensor |
@@ -59,7 +66,10 @@ Generated from the registries and the course document by `npm run content:export
 | Suricata | service | Deploy the network sensor, then validate coverage |
 | Wazuh | service | Deploy the Windows endpoint sensor; Deploy your Ubuntu sensor, prove the feed, write the baseline; Deploy the network sensor, then validate coverage; Triage the alerts; Investigate & prove it; Turn findings into indicators; Read what the SOC already knows; Find the incident; Rebuild the attack |
 | Apache httpd | service | Rebuild the attack |
+| LLM Guard | service | Prove a data leak |
 | Ollama | service | AI extension: read the monitoring baseline; AI extension: explain an alert triage; AI extension: rank the vulnerabilities; AI extension: write the executive debrief |
+| Git | cli | Automate the attack suite |
+| Python | language | Prove a prompt injection; Prove a data leak; Automate the attack suite; Report the validation |
 
 ## Procedures
 
@@ -91,6 +101,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | NIST 800-61 | Find the incident; Rebuild the attack; Contain, preserve & report | Threat Investigation Report; Incident Response Report; Alert Triage Report; Detection Record; Executive Debrief & Lessons Learned |
 | NIST 800-115 | Read what the SOC already knows; Scan from the attacker’s side; Rank the risk & write the fix plan | Vulnerability Assessment; Scan Validation Report |
 | NIST AI RMF | AI extension: read the monitoring baseline; AI extension: explain an alert triage; AI extension: rank the vulnerabilities; AI extension: write the executive debrief | — |
+| OWASP LLM Top 10 | Prove a prompt injection; Prove a data leak; Automate the attack suite; Report the validation | — |
 | NIST SP 800-53 | — | Portfolio |
 | ISO/IEC/IEEE 42010 | — | Portfolio |
 | MITRE ATT&CK | — | IOC Database |
@@ -123,12 +134,14 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 
 | Practice | Anchor | Asked for by |
 | --- | --- | --- |
-| Hash evidence at capture | ISO_27037 | Investigate & prove it; Scan from the attacker’s side; Contain, preserve & report |
-| Authorised testing only | NIST_800_115 | Investigate & prove it; Scan from the attacker’s side |
+| Hash evidence at capture | ISO_27037 | Investigate & prove it; Scan from the attacker’s side; Contain, preserve & report; Prove a prompt injection |
+| Authorised testing only | NIST_800_115 | Investigate & prove it; Scan from the attacker’s side; Prove a prompt injection |
+| Retest to closure | NIST_800_115 | Prove a data leak |
 | CVSS severity | CVSS | Rank the risk & write the fix plan |
 | Likelihood-times-impact scoring | NIST_800_30 | Rank the risk & write the fix plan |
 | Managed patching | NIST_800_40 | Rank the risk & write the fix plan |
 | Configuration scanning | CIS.BENCHMARK | Read what the SOC already knows |
+| Guardrail regression tests | NIST_800_218 | Automate the attack suite |
 | Centralised logging | NIST.CSF.DE.CM | Deploy the Windows endpoint sensor; Deploy your Ubuntu sensor, prove the feed, write the baseline; Deploy the network sensor, then validate coverage |
 | Capture a baseline | NIST.CSF.DE.CM | Deploy your Ubuntu sensor, prove the feed, write the baseline |
 | Alert to ticket | ITIL.incident | Triage the alerts; Find the incident |
@@ -138,9 +151,13 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | Evidence-backed timeline | NIST.800-61.DETECT | Find the incident; Rebuild the attack |
 | Lessons learned | NIST.800-61.POST | Debrief the team (capstone) |
 | Evidence by design | SOC2 | Deploy the network sensor, then validate coverage |
+| Corrective action | ISO27001.10.2 | Report the validation |
 | Write for leadership | NIST.CSF.RS.CO | Debrief the team (capstone) |
 | Metrics with targets | ISO27001.9.1 | Debrief the team (capstone) |
+| Customer assurance | SOC2 | Report the validation |
+| Input and output guardrails | OWASP_LLM | Prove a data leak |
 | Human checkpoint | NIST_AI_RMF | AI extension: read the monitoring baseline; AI extension: explain an alert triage; AI extension: rank the vulnerabilities; AI extension: write the executive debrief |
+| Suites with a pass line | NIST_AI_RMF | Automate the attack suite |
 
 ## KPI board
 
@@ -148,16 +165,16 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 
 | KPI | Family | Reads | Denominator in this course |
 | --- | --- | --- | --- |
-| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | blue: 8 skills with a verifiable step; grc: 13 skills with a verifiable step; red: 8 skills with a verifiable step |
+| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | blue: 14 skills with a verifiable step; grc: 19 skills with a verifiable step; red: 14 skills with a verifiable step |
 | Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | blue: 83 percent of the exam over 3 domains; grc: 100 percent of the exam over 4 domains; red: 100 percent of the exam over 4 domains |
-| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | blue: 8 verifiable steps that run a command; grc: 11 verifiable steps that run a command; red: 8 verifiable steps that run a command |
+| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | blue: 12 verifiable steps that run a command; grc: 15 verifiable steps that run a command; red: 12 verifiable steps that run a command |
 | Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | blue: 10 procedures; grc: 12 procedures; red: 12 procedures |
 | Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | blue: 2 fault, incident or triage tables; grc: 2 fault, incident or triage tables; red: 2 fault, incident or triage tables |
-| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | blue: 10 verifiable steps; grc: 12 verifiable steps; red: 8 verifiable steps |
+| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | blue: 14 verifiable steps; grc: 16 verifiable steps; red: 12 verifiable steps |
 | Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
-| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | blue: 10 verifiable steps that can carry two stamps; grc: 12 verifiable steps that can carry two stamps; red: 8 verifiable steps that can carry two stamps |
+| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | blue: 14 verifiable steps that can carry two stamps; grc: 16 verifiable steps that can carry two stamps; red: 12 verifiable steps that can carry two stamps |
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | blue: 1 task with two or more verifiable steps; grc: 3 tasks with two or more verifiable steps; red: 2 tasks with two or more verifiable steps |
-| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | blue: 10 verifiable steps; grc: 12 verifiable steps; red: 8 verifiable steps |
+| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | blue: 14 verifiable steps; grc: 16 verifiable steps; red: 12 verifiable steps |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
 | Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | blue: 15 checks on 5 forms; grc: 19 checks on 6 forms; red: 18 checks on 6 forms |
 | Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | blue: 0 decision blocks; grc: 0 decision blocks; red: 1 decision block |
@@ -168,12 +185,12 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | blue: 13 forms with a RACI; grc: 13 forms with a RACI; red: 13 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
-| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | blue: 8 tasks of the role; grc: 9 tasks of the role; red: 8 tasks of the role |
+| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | blue: 12 tasks of the role; grc: 13 tasks of the role; red: 12 tasks of the role |
 | Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | blue: 5 forms; grc: 6 forms; red: 6 forms |
 | Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | blue: 4 control codes on 4 forms; grc: 7 control codes on 5 forms; red: 5 control codes on 4 forms |
 | Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | blue: 5 forms; grc: 6 forms; red: 6 forms |
-| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | blue: 3 skills on two or more tasks; grc: 3 skills on two or more tasks; red: 3 skills on two or more tasks |
-| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | blue: 8 skills with a verifiable step; grc: 13 skills with a verifiable step; red: 8 skills with a verifiable step |
+| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | blue: 5 skills on two or more tasks; grc: 5 skills on two or more tasks; red: 5 skills on two or more tasks |
+| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | blue: 14 skills with a verifiable step; grc: 19 skills with a verifiable step; red: 14 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
 | Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | blue: Cyber Defense Analyst: 78 required, 75 not taught here; grc: Threat and Warning Analyst: 24 required, 17 not taught here; red: Vulnerability Assessment Analyst: 22 required, 19 not taught here |
 | Values recalled `kpi.validation.recall-accuracy` | validation | metric.validation-recall (own) |  |

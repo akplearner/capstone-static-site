@@ -40,9 +40,12 @@ import { CASE_STUDY_WORDS } from './portfolioForm';
  *
  * R143 — 2.4.0: the Applied-AI competency area and its four nodes, taught by
  * the AI extension task every graded week now carries.
+ *
+ * R144 — 2.5.0: six more Applied-AI nodes for the attachable modules (RAG,
+ * agents and MCP, local serving, the enterprise platform).
  */
 export const ONTOLOGY_SCHEMA = 'capstone-ontology/1';
-export const ONTOLOGY_VERSION = '2.4.0';
+export const ONTOLOGY_VERSION = '2.5.0';
 export const MEMBER_PROFILE_SCHEMA = 'capstone-member-profile/3';
 
 const GENERATED_FROM = ['src/lib/docs/skills.ts', 'src/lib/docs/tools.ts', 'src/lib/docs/standards.ts', 'src/lib/docs/sops.ts', 'src/lib/docs/tactics.ts', 'src/lib/docs/metricCatalogue.ts', 'src/lib/docs/certs.ts', 'src/lib/docs/kpis.ts', 'src/lib/docs/workRoles.ts', 'src/lib/docs/skillDomains.ts', 'src/lib/docs/recordCategories.ts', 'src/lib/docs/scoring.ts', 'src/lib/docs/projectRecord.ts', 'src/lib/course-helpers.ts', 'src/lib/docs/portfolioPlan.ts'];

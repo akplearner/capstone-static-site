@@ -124,6 +124,10 @@ Nothing new is built this week; the process is drawn over the picture.
 
 **Process — Engineer:** SW-ACC-02 → SW-CORE-01 (break it on purpose); ADMIN-PC → NETOPS (incident → RCA); NETOPS → ADMIN-PC (handover).
 
+## Week 9 — Local LLM serving: Serve a model locally
+
+Nothing new is built this week; the process is drawn over the picture.
+
 ## The roles
 
 | Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |

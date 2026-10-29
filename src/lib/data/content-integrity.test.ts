@@ -252,7 +252,8 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('content integrity — %s'
   it('gated courses gate every week that has a following week', () => {
     if (course.noGatekeeping || course.gates.length === 0) return;
     const gatedWeeks = new Set(course.gates.map((g) => g.week));
-    const graded = course.weeks.map((w) => w.number).filter((n) => n > 0);
+    // R144: the advanced module weeks are premium add-ons, not part of the gated graded arc.
+    const graded = course.weeks.filter((w) => isGradedWeek(course, w.number)).map((w) => w.number);
     const last = Math.max(...graded);
     for (const n of graded) {
       if (n === last) continue;
@@ -677,7 +678,8 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (
 // inside a teammate's form, which is exactly the state Week 1 (Responder) and
 // Week 3 (Analyst and Hunter) were in before round 24. This asserts the grid.
 describe('role-week ownership — cysa-plus', () => {
-  const graded = CYSA_PLUS.weeks.filter((w) => !w.setup).map((w) => w.number);
+  // R144: only the graded weeks own role deliverables; the advanced module weeks carry shared premium tasks, no forms.
+  const graded = CYSA_PLUS.weeks.filter((w) => isGradedWeek(CYSA_PLUS, w.number)).map((w) => w.number);
 
   it('every role owns exactly one deliverable in every graded week', () => {
     const defs = deliverablesForCourse(CYSA_PLUS.id);

@@ -255,6 +255,87 @@
             ]
           }
         ]
+      },
+      {
+        "number": 5,
+        "title": "Local LLM serving: Serve a model locally",
+        "theme": "An API on your own hardware",
+        "objective": "Serve a quantised model behind an API and size the memory it needs.",
+        "runs": "Week 5",
+        "advanced": true,
+        "track": "ai",
+        "difficulty": 3,
+        "milestone": "Serve a quantised model behind an API and size the memory it needs.",
+        "objectives": [
+          {
+            "id": "aza-local-llm-serving-w5-obj1",
+            "label": "Serve a model behind an API",
+            "tasks": [
+              "aza-local-llm-serving-w1-serve"
+            ]
+          },
+          {
+            "id": "aza-local-llm-serving-w5-obj2",
+            "label": "Size the memory",
+            "tasks": [
+              "aza-local-llm-serving-w1-size"
+            ]
+          }
+        ]
+      },
+      {
+        "number": 6,
+        "title": "RAG engineering: Index your documents",
+        "theme": "Embeddings and a vector store",
+        "objective": "Load a folder of records into a vector store and query it for the right passage.",
+        "runs": "Week 6",
+        "advanced": true,
+        "track": "ai",
+        "difficulty": 3,
+        "milestone": "Load a folder of records into a vector store and query it for the right passage.",
+        "objectives": [
+          {
+            "id": "aza-rag-engineering-w6-obj1",
+            "label": "Index a document set",
+            "tasks": [
+              "aza-rag-engineering-w1-index"
+            ]
+          },
+          {
+            "id": "aza-rag-engineering-w6-obj2",
+            "label": "Answer from the passages",
+            "tasks": [
+              "aza-rag-engineering-w1-retrieve"
+            ]
+          }
+        ]
+      },
+      {
+        "number": 7,
+        "title": "RAG engineering: Evaluate the answers",
+        "theme": "An honest pass line",
+        "objective": "Measure the pipeline against a question set and set a pass line before you trust it.",
+        "runs": "Week 7",
+        "advanced": true,
+        "track": "ai",
+        "difficulty": 4,
+        "milestone": "Measure the pipeline against a question set and set a pass line before you trust it.",
+        "objectives": [
+          {
+            "id": "aza-rag-engineering-w7-obj1",
+            "label": "Build a question set",
+            "tasks": [
+              "aza-rag-engineering-w2-evalset"
+            ]
+          },
+          {
+            "id": "aza-rag-engineering-w7-obj2",
+            "label": "Set the pass line",
+            "tasks": [
+              "aza-rag-engineering-w2-passline"
+            ]
+          }
+        ]
       }
     ],
     "gates": [],
@@ -3681,6 +3762,753 @@
             "deliverable": "aza_dr"
           }
         ]
+      },
+      {
+        "id": "aza-local-llm-serving-w1-serve",
+        "role": "arch",
+        "week": 5,
+        "title": "Serve a model behind an API",
+        "objective": "Run a quantised model as a local service and call it over HTTP.",
+        "steps": [
+          {
+            "id": "aza-local-llm-serving-w1-serve-s1",
+            "title": "Serve a model behind an API",
+            "description": "Run a quantised model as a local service and call it over HTTP.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Serve a model and call it over HTTP.",
+            "instructionList": [
+              "Pull a small quantised model.",
+              "Start it as a local service.",
+              "Call the API with a prompt."
+            ],
+            "commands": [
+              {
+                "cmd": "ollama serve & sleep 2 && curl -s localhost:11434/api/generate -d '{\"model\":\"llama3.2\",\"prompt\":\"ping\",\"stream\":false}' | python -c \"import sys,json;print(json.load(sys.stdin)['done'] and 'served')\"",
+                "explain": "Starts the model service and calls it once over HTTP to prove it answers.",
+                "sample": "served",
+                "flags": [
+                  {
+                    "flag": "ollama serve &",
+                    "meaning": "Runs the model as a local API."
+                  },
+                  {
+                    "flag": "curl .../api/generate",
+                    "meaning": "Sends one prompt over HTTP."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "served",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "served",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "served"
+            ],
+            "whatItMeans": "A model behind an API runs on your own hardware, so your data never leaves the building.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "aza-local-llm-serving-w1-serve-s2",
+            "title": "Record the endpoint.",
+            "description": "The record names the endpoint, the model, its quantisation and who may call it.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Record the endpoint.",
+            "instructionList": [
+              "Note the API address and port.",
+              "Note the model and its quantisation.",
+              "Note who may call it."
+            ],
+            "expectedOutput": "The record names the endpoint, the model, its quantisation and who may call it.",
+            "outputKind": "result",
+            "whatItMeans": "Quantisation trades a little accuracy for a model that fits the hardware you actually have.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 3,
+        "learn": [
+          "Model serving",
+          "Quantisation",
+          "Local APIs"
+        ],
+        "tools": [
+          "Ollama",
+          "Python"
+        ],
+        "definitionOfDone": [
+          "Serve a model behind an API is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
+      },
+      {
+        "id": "aza-local-llm-serving-w1-size",
+        "role": "arch",
+        "week": 5,
+        "title": "Size the memory",
+        "objective": "Work out the memory a model needs from its parameters and quantisation, and check it against the hardware.",
+        "steps": [
+          {
+            "id": "aza-local-llm-serving-w1-size-s1",
+            "title": "Size the memory",
+            "description": "Work out the memory a model needs from its parameters and quantisation, and check it aga…",
+            "where": "Your own machine — a terminal",
+            "instruction": "Size the model against the hardware.",
+            "instructionList": [
+              "Read the model parameter count.",
+              "Work out the memory at its quantisation.",
+              "Check it against the available memory."
+            ],
+            "commands": [
+              {
+                "cmd": "python gpumem.py --params 3e9 --bits 4 && free -g | awk '/Mem/{print $2\"G total\"}'",
+                "explain": "Estimates the memory the model needs, then prints the memory the machine has.",
+                "sample": "~1.5G needed\\n16G total",
+                "flags": [
+                  {
+                    "flag": "--params 3e9 --bits 4",
+                    "meaning": "Three billion parameters at four-bit quantisation."
+                  },
+                  {
+                    "flag": "free -g",
+                    "meaning": "Prints the machine memory in gigabytes."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "~1.5G needed\\n16G total",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "total",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "total"
+            ],
+            "whatItMeans": "Sizing before loading is what stops a model that will not fit from taking a machine down.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "aza-local-llm-serving-w1-size-s2",
+            "title": "Record the sizing.",
+            "description": "The record shows the memory needed, the memory available and the headroom.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Record the sizing.",
+            "instructionList": [
+              "Note the memory the model needs.",
+              "Note the memory available.",
+              "Note the headroom left."
+            ],
+            "expectedOutput": "The record shows the memory needed, the memory available and the headroom.",
+            "outputKind": "result",
+            "whatItMeans": "Headroom matters: a model that just fits leaves nothing for the requests it has to serve.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 3,
+        "learn": [
+          "Memory sizing",
+          "Parameters and bits",
+          "Headroom"
+        ],
+        "tools": [
+          "Python"
+        ],
+        "definitionOfDone": [
+          "Size the memory is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
+      },
+      {
+        "id": "aza-rag-engineering-w1-index",
+        "role": "arch",
+        "week": 6,
+        "title": "Index a document set",
+        "objective": "Chunk a folder of records, embed the chunks and load them into a local vector store.",
+        "steps": [
+          {
+            "id": "aza-rag-engineering-w1-index-s1",
+            "title": "Index a document set",
+            "description": "Chunk a folder of records, embed the chunks and load them into a local vector store.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Embed your records into a vector store.",
+            "instructionList": [
+              "Collect a folder of the team records as plain text.",
+              "Run the indexer to chunk and embed them.",
+              "Confirm the store reports the chunk count."
+            ],
+            "commands": [
+              {
+                "cmd": "python index.py ./records && python -c \"import chromadb;print(chromadb.PersistentClient('db').get_collection('records').count(),'chunks')\"",
+                "explain": "Chunks and embeds the records, then prints how many chunks the store holds.",
+                "sample": "42 chunks",
+                "flags": [
+                  {
+                    "flag": "index.py ./records",
+                    "meaning": "Reads the folder, splits each file and embeds the pieces."
+                  },
+                  {
+                    "flag": "get_collection().count()",
+                    "meaning": "Prints the number of stored chunks."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "42 chunks",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "chunks",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "chunks"
+            ],
+            "whatItMeans": "A vector store holds the meaning of each passage, so a question can find the passage that answers it.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "aza-rag-engineering-w1-index-s2",
+            "title": "Query the store and read the top passage.",
+            "description": "The store returns the passage that answers the question, nearest first.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Query the store and read the top passage.",
+            "instructionList": [
+              "Ask the store a question the records answer.",
+              "Read the passages it returns, nearest first.",
+              "Confirm the top passage is the right one."
+            ],
+            "expectedOutput": "The store returns the passage that answers the question, nearest first.",
+            "outputKind": "result",
+            "whatItMeans": "Retrieval is only as good as the chunks: too large and it is vague, too small and it loses context.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 3,
+        "learn": [
+          "Embeddings",
+          "Chunking",
+          "Vector stores"
+        ],
+        "tools": [
+          "Python",
+          "Chroma"
+        ],
+        "definitionOfDone": [
+          "Index a document set is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
+      },
+      {
+        "id": "aza-rag-engineering-w1-retrieve",
+        "role": "arch",
+        "week": 6,
+        "title": "Answer from the passages",
+        "objective": "Pass the retrieved passages to a local model and keep the answer grounded in them.",
+        "steps": [
+          {
+            "id": "aza-rag-engineering-w1-retrieve-s1",
+            "title": "Answer from the passages",
+            "description": "Pass the retrieved passages to a local model and keep the answer grounded in them.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Answer a question from the retrieved passages.",
+            "instructionList": [
+              "Retrieve the top passages for a question.",
+              "Pass them to the model as the only context.",
+              "Check the answer quotes the passages."
+            ],
+            "commands": [
+              {
+                "cmd": "python rag.py \"what is the backup schedule?\" | tee answer.txt && grep -qi source answer.txt && echo grounded",
+                "explain": "Retrieves passages, answers from them, and confirms the answer cites a source.",
+                "sample": "grounded",
+                "flags": [
+                  {
+                    "flag": "rag.py \"...\"",
+                    "meaning": "Retrieves then answers, context first."
+                  },
+                  {
+                    "flag": "grep -qi source",
+                    "meaning": "Checks the answer names where it came from."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "grounded",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "grounded",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "grounded"
+            ],
+            "whatItMeans": "Grounding means the model answers from the passages, not from memory, so the answer can be checked.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "aza-rag-engineering-w1-retrieve-s2",
+            "title": "Compare the answer to the record.",
+            "description": "Every claim in the answer traces to a passage in your records.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Compare the answer to the record.",
+            "instructionList": [
+              "Open the record the passage came from.",
+              "Check each claim against that record.",
+              "Reject any claim the record does not support."
+            ],
+            "expectedOutput": "Every claim in the answer traces to a passage in your records.",
+            "outputKind": "result",
+            "whatItMeans": "A citation is what separates a grounded answer from a guess; without it, the answer cannot be trusted.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 3,
+        "learn": [
+          "Retrieval",
+          "Grounding",
+          "Citations"
+        ],
+        "tools": [
+          "Python",
+          "Ollama"
+        ],
+        "definitionOfDone": [
+          "Answer from the passages is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
+      },
+      {
+        "id": "aza-rag-engineering-w2-evalset",
+        "role": "arch",
+        "week": 7,
+        "title": "Build a question set",
+        "objective": "Write questions with known answers from your records, and run the pipeline against them.",
+        "steps": [
+          {
+            "id": "aza-rag-engineering-w2-evalset-s1",
+            "title": "Build a question set",
+            "description": "Write questions with known answers from your records, and run the pipeline against them.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Write questions with known answers.",
+            "instructionList": [
+              "Write ten questions your records answer.",
+              "Record the correct answer for each.",
+              "Run the pipeline over the set."
+            ],
+            "commands": [
+              {
+                "cmd": "python eval.py questions.jsonl && cat eval_report.txt",
+                "explain": "Runs each question through the pipeline and writes a report of correct and wrong answers.",
+                "sample": "correct 8 of 10",
+                "flags": [
+                  {
+                    "flag": "eval.py questions.jsonl",
+                    "meaning": "Runs every question and scores the answer."
+                  },
+                  {
+                    "flag": "cat eval_report.txt",
+                    "meaning": "Prints the score and the misses."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "correct 8 of 10",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "correct",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "correct"
+            ],
+            "whatItMeans": "An evaluation set turns a demo into a measurement: you can say how often the pipeline is right.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "aza-rag-engineering-w2-evalset-s2",
+            "title": "Read the misses and fix the cause.",
+            "description": "Each miss has a cause: the wrong passage retrieved, or a prompt that let the model guess.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Read the misses and fix the cause.",
+            "instructionList": [
+              "Open each wrong answer.",
+              "Decide if retrieval or the prompt failed.",
+              "Change one thing and run again."
+            ],
+            "expectedOutput": "Each miss has a cause: the wrong passage retrieved, or a prompt that let the model guess.",
+            "outputKind": "result",
+            "whatItMeans": "A miss is information: it says the chunking, the retrieval or the prompt needs one change, not all three.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 4,
+        "learn": [
+          "Evaluation sets",
+          "Measuring accuracy",
+          "Root cause"
+        ],
+        "tools": [
+          "Python"
+        ],
+        "definitionOfDone": [
+          "Build a question set is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
+      },
+      {
+        "id": "aza-rag-engineering-w2-passline",
+        "role": "arch",
+        "week": 7,
+        "title": "Set the pass line",
+        "objective": "Decide the accuracy the pipeline must reach before it is used, and record why.",
+        "steps": [
+          {
+            "id": "aza-rag-engineering-w2-passline-s1",
+            "title": "Set the pass line",
+            "description": "Decide the accuracy the pipeline must reach before it is used, and record why.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Set the pass line and record it.",
+            "instructionList": [
+              "Choose the accuracy the use demands.",
+              "State what a wrong answer would cost.",
+              "Record the line and the reason."
+            ],
+            "commands": [
+              {
+                "cmd": "python eval.py questions.jsonl --threshold 0.8 && echo \"pass line met\"",
+                "explain": "Fails the run unless the pipeline reaches the threshold, so the line is enforced, not hoped for.",
+                "sample": "pass line met",
+                "flags": [
+                  {
+                    "flag": "--threshold 0.8",
+                    "meaning": "The run fails below eighty percent correct."
+                  },
+                  {
+                    "flag": "echo",
+                    "meaning": "Prints only when the line is met."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "pass line met",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "pass line met",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "pass line met"
+            ],
+            "whatItMeans": "A pass line set before the run is a control; one set after the result is an excuse.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "aza-rag-engineering-w2-passline-s2",
+            "title": "Record the decision.",
+            "description": "The record states the pass line, the cost of a wrong answer and who accepted it.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Record the decision.",
+            "instructionList": [
+              "Write the pass line into the record.",
+              "Note what a wrong answer would cost.",
+              "Note who signs off on using it."
+            ],
+            "expectedOutput": "The record states the pass line, the cost of a wrong answer and who accepted it.",
+            "outputKind": "result",
+            "whatItMeans": "Deciding the cost of a wrong answer first is what makes the pass line defensible to a reviewer.",
+            "docs": [
+              {
+                "title": "NIST AI Risk Management Framework",
+                "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+                "lookFor": "the Map and Manage functions: know the AI system, and keep a person accountable for it."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ],
+        "frameworks": [
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 4,
+        "learn": [
+          "Thresholds",
+          "Risk acceptance",
+          "Sign-off"
+        ],
+        "tools": [
+          "Python"
+        ],
+        "definitionOfDone": [
+          "Set the pass line is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
       }
     ],
     "noGatekeeping": true,
@@ -3712,7 +4540,11 @@
       }
     ],
     "isSeed": true,
-    "version": 1
+    "version": 1,
+    "modules": [
+      "local-llm-serving",
+      "rag-engineering"
+    ]
   },
   "deliverables": [
     {
@@ -7475,6 +8307,24 @@
           ]
         },
         "caption": "New: the scaling policy. The fleet grows on CPU and replaces a lost instance; a file and the database come back; the drill is timed."
+      },
+      {
+        "week": 5,
+        "builtThrough": 9,
+        "highlight": [],
+        "caption": ""
+      },
+      {
+        "week": 6,
+        "builtThrough": 10,
+        "highlight": [],
+        "caption": ""
+      },
+      {
+        "week": 7,
+        "builtThrough": 11,
+        "highlight": [],
+        "caption": ""
       }
     ],
     "roles": {
@@ -11589,10 +12439,22 @@
           "definition": "Subnets, addresses and names are planned on paper before any device is configured."
         },
         {
+          "id": "practice.redaction-before-write",
+          "label": "Redact before write",
+          "anchor": "NIST_AI_RMF",
+          "definition": "Personal data is detected and removed before a prompt, a log or a dataset is stored."
+        },
+        {
           "id": "practice.human-in-the-loop",
           "label": "Human checkpoint",
           "anchor": "NIST_AI_RMF",
           "definition": "AI-assisted work passes a named human check before it is acted on, and the check is recorded."
+        },
+        {
+          "id": "practice.pass-line-suites",
+          "label": "Suites with a pass line",
+          "anchor": "NIST_AI_RMF",
+          "definition": "An attack or evaluation suite states what passing means before it runs."
         },
         {
           "id": "practice.encryption-at-rest",
@@ -11684,6 +12546,24 @@
         ],
         "aza-w4-ai": [
           "practice.human-in-the-loop"
+        ],
+        "aza-local-llm-serving-w1-serve": [
+          "practice.least-privilege"
+        ],
+        "aza-local-llm-serving-w1-size": [
+          "practice.right-sizing"
+        ],
+        "aza-rag-engineering-w1-index": [
+          "practice.redaction-before-write"
+        ],
+        "aza-rag-engineering-w1-retrieve": [
+          "practice.human-in-the-loop"
+        ],
+        "aza-rag-engineering-w2-evalset": [
+          "practice.pass-line-suites"
+        ],
+        "aza-rag-engineering-w2-passline": [
+          "practice.pass-line-suites"
         ]
       },
       "SCORING": [
@@ -11892,6 +12772,42 @@
           "area": "ai",
           "objectiveRefs": [
             "NIST.AI-RMF.MAP"
+          ]
+        },
+        {
+          "id": "comp.ai.rag-pipeline",
+          "version": "1.0.0",
+          "label": "Build a retrieval-augmented pipeline",
+          "area": "ai",
+          "objectiveRefs": [
+            "NIST.AI-RMF.MAP"
+          ]
+        },
+        {
+          "id": "comp.ai.vector-store",
+          "version": "1.0.0",
+          "label": "Load documents into a vector store",
+          "area": "ai",
+          "objectiveRefs": [
+            "NIST.AI-RMF.MAP"
+          ]
+        },
+        {
+          "id": "comp.ai.serve-model",
+          "version": "1.0.0",
+          "label": "Serve a model behind an API",
+          "area": "ai",
+          "objectiveRefs": [
+            "NIST.AI-RMF.MEASURE"
+          ]
+        },
+        {
+          "id": "comp.ai.gpu-sizing",
+          "version": "1.0.0",
+          "label": "Size GPU memory for a model",
+          "area": "ai",
+          "objectiveRefs": [
+            "NIST.AI-RMF.MEASURE"
           ]
         },
         {
@@ -12139,6 +13055,30 @@
           "comp.ai.local-assistant",
           "comp.ai.ground-in-records",
           "comp.ai.verify-ai-output"
+        ],
+        "aza-local-llm-serving-w1-serve": [
+          "comp.ai.serve-model",
+          "comp.ai.local-assistant"
+        ],
+        "aza-local-llm-serving-w1-size": [
+          "comp.ai.gpu-sizing",
+          "comp.ai.serve-model"
+        ],
+        "aza-rag-engineering-w1-index": [
+          "comp.ai.vector-store",
+          "comp.ai.rag-pipeline"
+        ],
+        "aza-rag-engineering-w1-retrieve": [
+          "comp.ai.rag-pipeline",
+          "comp.ai.verify-ai-output"
+        ],
+        "aza-rag-engineering-w2-evalset": [
+          "comp.ai.verify-ai-output",
+          "comp.ai.rag-pipeline"
+        ],
+        "aza-rag-engineering-w2-passline": [
+          "comp.ai.verify-ai-output",
+          "comp.ai.prompt-for-the-task"
         ]
       },
       "SOPS": [
@@ -12629,6 +13569,14 @@
           ]
         },
         {
+          "id": "tool.chroma",
+          "label": "Chroma",
+          "kind": "service",
+          "aliases": [
+            "Chroma"
+          ]
+        },
+        {
           "id": "tool.python",
           "label": "Python",
           "kind": "language",
@@ -12837,6 +13785,38 @@
         "aza-w4-ai": [
           "tool.capstone-forms",
           "tool.ollama"
+        ],
+        "aza-local-llm-serving-w1-serve": [
+          "tool.curl",
+          "tool.capstone-forms",
+          "tool.ollama",
+          "tool.python"
+        ],
+        "aza-local-llm-serving-w1-size": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.python"
+        ],
+        "aza-rag-engineering-w1-index": [
+          "tool.capstone-forms",
+          "tool.chroma",
+          "tool.python"
+        ],
+        "aza-rag-engineering-w1-retrieve": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.ollama",
+          "tool.python"
+        ],
+        "aza-rag-engineering-w2-evalset": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.python"
+        ],
+        "aza-rag-engineering-w2-passline": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.python"
         ]
       },
       "TROUBLE_GROUPS": [

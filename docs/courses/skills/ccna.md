@@ -1,6 +1,6 @@
 # CCNA Network Capstone — skills sheet
 
-15 graded tasks and 8 advanced · 30 skills · 8 tools · 14 procedures · 7 standards (11 controls cited) · 0 tactics · 24 practices
+15 graded tasks and 10 advanced · 32 skills · 10 tools · 14 procedures · 7 standards (11 controls cited) · 0 tactics · 26 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -8,10 +8,12 @@ Generated from the registries and the course document by `npm run content:export
 
 | Skill | Area | Anchored to | Practised by |
 | --- | --- | --- | --- |
-| Run a local AI assistant offline `comp.ai.local-assistant` | Applied AI | NIST.AI-RMF.MANAGE | AI extension: explain the high-level design; AI extension: check the IP plan; AI extension: read a validation result; AI extension: draft the ACL rationale |
+| Run a local AI assistant offline `comp.ai.local-assistant` | Applied AI | NIST.AI-RMF.MANAGE | AI extension: explain the high-level design; AI extension: check the IP plan; AI extension: read a validation result; AI extension: draft the ACL rationale; Serve a model behind an API |
 | Ground an AI answer in the records `comp.ai.ground-in-records` | Applied AI | NIST.AI-RMF.MAP | AI extension: check the IP plan; AI extension: read a validation result; AI extension: draft the ACL rationale |
 | Verify AI output against the evidence `comp.ai.verify-ai-output` | Applied AI | NIST.AI-RMF.MEASURE | AI extension: explain the high-level design; AI extension: check the IP plan; AI extension: read a validation result; AI extension: draft the ACL rationale |
 | Write a task-specific prompt `comp.ai.prompt-for-the-task` | Applied AI | NIST.AI-RMF.MAP | AI extension: explain the high-level design |
+| Serve a model behind an API `comp.ai.serve-model` | Applied AI | NIST.AI-RMF.MEASURE | Serve a model behind an API; Size the memory |
+| Size GPU memory for a model `comp.ai.gpu-sizing` | Applied AI | NIST.AI-RMF.MEASURE | Size the memory |
 | Troubleshoot with the structured method `comp.sysadmin.troubleshooting-method` | System administration | SK0-005.d4, 200-301.d3, ITIL.problem | Work a ticket, not a hunch |
 | Design a hierarchical network with boundaries `comp.network.hierarchical-design` | Network engineering | 200-301.d1 | Design the shape; Join the second building |
 | Bring switches up with management addressing `comp.network.switch-bringup` | Network engineering | 200-301.d2 | Bring the first switches up; Survive a cable being pulled |
@@ -43,12 +45,14 @@ Generated from the registries and the course document by `npm run content:export
 
 | Tool | Kind | Used by |
 | --- | --- | --- |
-| Linux shell | cli | Bring the first switches up; Back it up, then change it properly; Build a small NOC; The network as data; Configure from the source of truth |
+| Linux shell | cli | Bring the first switches up; Back it up, then change it properly; Build a small NOC; The network as data; Configure from the source of truth; Size the memory |
+| curl | cli | Serve a model behind an API |
 | ping / traceroute | cli | Route between the departments; Join the second building; Turn the policy into access lists |
-| Capstone forms | document | Cut the network into departments; Turn the policy into access lists; Harden the management plane; Back it up, then change it properly; Work a ticket, not a hunch; Configure from the source of truth; Something breaks — work it properly; Hand the network over; AI extension: explain the high-level design; AI extension: check the IP plan; AI extension: read a validation result; AI extension: draft the ACL rationale |
+| Capstone forms | document | Cut the network into departments; Turn the policy into access lists; Harden the management plane; Back it up, then change it properly; Work a ticket, not a hunch; Configure from the source of truth; Something breaks — work it properly; Hand the network over; AI extension: explain the high-level design; AI extension: check the IP plan; AI extension: read a validation result; AI extension: draft the ACL rationale; Serve a model behind an API; Size the memory |
 | Notes | document | Discover before you design; Design the shape |
 | Wireshark | app | Work a ticket, not a hunch |
-| Ollama | service | AI extension: explain the high-level design; AI extension: check the IP plan; AI extension: read a validation result; AI extension: draft the ACL rationale |
+| Ollama | service | AI extension: explain the high-level design; AI extension: check the IP plan; AI extension: read a validation result; AI extension: draft the ACL rationale; Serve a model behind an API |
+| Python | language | Serve a model behind an API; Size the memory |
 | NetBox | service | A source of truth, not a spreadsheet |
 | Cisco IOS | appliance | Discover before you design; Design the shape; Bring the first switches up; Cut the network into departments; Route between the departments; Survive a cable being pulled; Join the second building; One way out to the internet; Turn the policy into access lists; Harden the management plane; Put the WLANs on the air; Back it up, then change it properly; Build a small NOC; Work a ticket, not a hunch; Something breaks — work it properly |
 
@@ -81,7 +85,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | CIS | Harden the management plane | — |
 | CCNA 200-301 | Discover before you design; Design the shape; Bring the first switches up; Cut the network into departments; Route between the departments; Survive a cable being pulled; Join the second building; One way out to the internet; Turn the policy into access lists; Harden the management plane; Put the WLANs on the air; A source of truth, not a spreadsheet; Back it up, then change it properly; Build a small NOC; Work a ticket, not a hunch; The network as data; Configure from the source of truth; Something breaks — work it properly; Hand the network over | — |
 | ITIL 4 | Discover before you design; A source of truth, not a spreadsheet; Back it up, then change it properly; Work a ticket, not a hunch; Something breaks — work it properly; Hand the network over | Operations & Change Records; Monitoring & Incident Log |
-| NIST AI RMF | AI extension: explain the high-level design; AI extension: check the IP plan; AI extension: read a validation result; AI extension: draft the ACL rationale | — |
+| NIST AI RMF | AI extension: explain the high-level design; AI extension: check the IP plan; AI extension: read a validation result; AI extension: draft the ACL rationale; Serve a model behind an API; Size the memory | — |
 | NIST SP 800-53 | — | Kit & Capability Register; Requirements & Site Survey; High-Level Design; Low-Level Design & IP Plan; Build & Configuration Log; Validation & Test Matrix; Security Baseline & ACL Policy; Operations & Change Records; Monitoring & Incident Log; As-Built & Operations Handover; Portfolio |
 | ISO/IEC/IEEE 42010 | — | Portfolio |
 
@@ -116,6 +120,7 @@ Adversary tactics are not part of this course.
 
 | Practice | Anchor | Asked for by |
 | --- | --- | --- |
+| Least privilege | NIST.800-53.AC-6 | Serve a model behind an API |
 | Default deny | NIST.800-53.SC-7 | Turn the policy into access lists |
 | Network segmentation | ISO27001.A.8.22 | Cut the network into departments; Put the WLANs on the air |
 | Encryption in transit | NIST.800-53.SC-8 | Harden the management plane |
@@ -125,6 +130,7 @@ Adversary tactics are not part of this course.
 | Configuration record | ITIL.configuration | Cut the network into departments; One way out to the internet |
 | Build record | ITIL.configuration | Bring the first switches up |
 | Infrastructure as code | WAF.operational-excellence | The network as data; Configure from the source of truth |
+| Right-sizing | WAF.cost | Size the memory |
 | Backups tested by restore | NIST.800-53.CP-4 | Back it up, then change it properly |
 | Centralised logging | NIST.CSF.DE.CM | Build a small NOC |
 | Alert to ticket | ITIL.incident | Build a small NOC |
@@ -147,16 +153,16 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 
 | KPI | Family | Reads | Denominator in this course |
 | --- | --- | --- | --- |
-| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | arch: 18 skills with a verifiable step; impl: 18 skills with a verifiable step; ops: 18 skills with a verifiable step; auto: 18 skills with a verifiable step |
+| Skills verified `kpi.technical.skills-verified` | technical | metric.skill-verified (own) | arch: 20 skills with a verifiable step; impl: 20 skills with a verifiable step; ops: 20 skills with a verifiable step; auto: 20 skills with a verifiable step |
 | Exam weight verified `kpi.technical.exam-weight-verified` | technical | metric.domain-weight-verified (own) | arch: 100 percent of the exam over 6 domains; impl: 100 percent of the exam over 6 domains; ops: 100 percent of the exam over 6 domains; auto: 100 percent of the exam over 6 domains |
-| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | arch: 26 verifiable steps that run a command; impl: 26 verifiable steps that run a command; ops: 26 verifiable steps that run a command; auto: 26 verifiable steps that run a command |
+| Commands verified `kpi.technical.commands-verified` | technical | metric.tool-commands-verified (own) | arch: 28 verifiable steps that run a command; impl: 28 verifiable steps that run a command; ops: 28 verifiable steps that run a command; auto: 28 verifiable steps that run a command |
 | Procedures to standard `kpi.technical.procedures-to-standard` | technical | metric.procedure-to-standard (team) | arch: 14 procedures; impl: 14 procedures; ops: 14 procedures; auto: 14 procedures |
 | Faults resolved `kpi.problem-solving.faults-resolved` | problem-solving | metric.trouble-resolved (team) | arch: 2 fault, incident or triage tables; impl: 2 fault, incident or triage tables; ops: 2 fault, incident or triage tables; auto: 2 fault, incident or triage tables |
-| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | arch: 26 verifiable steps; impl: 26 verifiable steps; ops: 26 verifiable steps; auto: 26 verifiable steps |
+| Verified after retry `kpi.problem-solving.persistence` | problem-solving | metric.ability-persistence (own) | arch: 28 verifiable steps; impl: 28 verifiable steps; ops: 28 verifiable steps; auto: 28 verifiable steps |
 | Stuck flags cleared `kpi.problem-solving.flags-cleared` | problem-solving | metric.ability-flags-cleared (own) | the stuck flags the member raises; no content denominator |
-| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | arch: 26 verifiable steps that can carry two stamps; impl: 26 verifiable steps that can carry two stamps; ops: 26 verifiable steps that can carry two stamps; auto: 26 verifiable steps that can carry two stamps |
+| Time to resolution `kpi.problem-solving.time-to-resolution` | problem-solving | metric.time-to-verify (own) | arch: 28 verifiable steps that can carry two stamps; impl: 28 verifiable steps that can carry two stamps; ops: 28 verifiable steps that can carry two stamps; auto: 28 verifiable steps that can carry two stamps |
 | Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | arch: 11 tasks with two or more verifiable steps; impl: 11 tasks with two or more verifiable steps; ops: 11 tasks with two or more verifiable steps; auto: 11 tasks with two or more verifiable steps |
-| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | arch: 26 verifiable steps; impl: 26 verifiable steps; ops: 26 verifiable steps; auto: 26 verifiable steps |
+| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | arch: 28 verifiable steps; impl: 28 verifiable steps; ops: 28 verifiable steps; auto: 28 verifiable steps |
 | Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
 | Definition-of-Done met `kpi.execution.dod-met` | execution | metric.doc-dod-met (team) | arch: 43 checks on 11 forms; impl: 43 checks on 11 forms; ops: 43 checks on 11 forms; auto: 43 checks on 11 forms |
 | Decisions recorded `kpi.decision-making.decisions-recorded` | decision-making | metric.decision-recorded (team) | arch: 1 decision block; impl: 1 decision block; ops: 1 decision block; auto: 1 decision block |
@@ -167,12 +173,12 @@ The sixteen numbers the Skill board keeps per member of this course, the catalog
 | RACI respected `kpi.teamwork.raci-respected` | teamwork | metric.collab-raci-respected (team) | arch: 11 forms with a RACI; impl: 11 forms with a RACI; ops: 11 forms with a RACI; auto: 11 forms with a RACI |
 | Peer reviews given `kpi.teamwork.peer-reviews-given` | teamwork | metric.collab-peer-reviews-given (own) | the reviews assigned to the member; no content denominator |
 | Teammate steps ticked `kpi.teamwork.teammate-steps` | teamwork | metric.collab-teammate-steps (own) | a count; no denominator |
-| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | arch: 23 tasks of the role; impl: 23 tasks of the role; ops: 23 tasks of the role; auto: 23 tasks of the role |
+| On time `kpi.professionalism.on-time` | professionalism | metric.ability-deadline-adherence (own) | arch: 25 tasks of the role; impl: 25 tasks of the role; ops: 25 tasks of the role; auto: 25 tasks of the role |
 | Document control complete `kpi.professionalism.document-control` | professionalism | metric.doc-control-complete (team) | arch: 11 forms; impl: 11 forms; ops: 11 forms; auto: 11 forms |
 | Controls cited `kpi.professionalism.controls-cited` | professionalism | metric.standard-controls-cited (team) | arch: 4 control codes on 6 forms; impl: 1 control code on 1 form; ops: 5 control codes on 3 forms; auto: 1 control code on 1 form |
 | Instructor approved `kpi.professionalism.instructor-approved` | professionalism | metric.doc-instructor-approved (team) | arch: 11 forms; impl: 11 forms; ops: 11 forms; auto: 11 forms |
-| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | arch: 9 skills on two or more tasks; impl: 9 skills on two or more tasks; ops: 9 skills on two or more tasks; auto: 9 skills on two or more tasks |
-| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | arch: 18 skills with a verifiable step; impl: 18 skills with a verifiable step; ops: 18 skills with a verifiable step; auto: 18 skills with a verifiable step |
+| Skills proved twice `kpi.growth.skills-transferred` | growth | metric.skill-transfer (own) | arch: 10 skills on two or more tasks; impl: 10 skills on two or more tasks; ops: 10 skills on two or more tasks; auto: 10 skills on two or more tasks |
+| Skills retained `kpi.growth.retention` | growth | metric.ability-recall (own) | arch: 20 skills with a verifiable step; impl: 20 skills with a verifiable step; ops: 20 skills with a verifiable step; auto: 20 skills with a verifiable step |
 | Learning velocity `kpi.growth.learning-velocity` | growth | metric.time-learning-velocity (own) | the verification stamps of the last two months; no content denominator |
 | Profile coverage `kpi.growth.profile-coverage` | growth | metric.profile-coverage (own) | arch: Network Operations Specialist: 62 required, 40 not taught here; impl: Network Operations Specialist: 62 required, 40 not taught here; ops: Network Operations Specialist: 62 required, 40 not taught here; auto: Software Developer: 84 required, 71 not taught here |
 | Values recalled `kpi.validation.recall-accuracy` | validation | metric.validation-recall (own) |  |

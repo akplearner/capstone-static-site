@@ -148,7 +148,11 @@ export function isGradedWeek(course: Course, weekNumber: number): boolean {
  *  capstone stone, resume, the portfolio and the gate checks, so anywhere else
  *  would have left three of four students reading 0% on a build they had done. */
 export function getTasksByRole(course: Course, role: string, week?: number): Task[] {
-  let tasks = course.tasks.filter((t) => t.role === role || t.shared);
+  // A shared task belongs to the crew — the course's own roles — not to an
+  // arbitrary role string, so a role outside the course inherits nothing (a
+  // synthetic course with no roles keeps the open behaviour).
+  const crew = !course.roles?.length || course.roles.some((r) => r.id === role);
+  let tasks = course.tasks.filter((t) => t.role === role || (t.shared && crew));
   if (week != null) tasks = tasks.filter((t) => t.week === week);
   return tasks;
 }

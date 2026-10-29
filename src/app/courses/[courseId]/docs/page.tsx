@@ -35,7 +35,7 @@ import { deliverablesForCourse, deliverablesForRole, isTeamAuthorized, seedDeliv
 import { applyCarryForward, buildFormContext } from '@/lib/docs/formContext';
 import { useAutoSave, type SaveStatus } from '@/lib/docs/useAutoSave';
 import type { DeliverableDef } from '@/lib/docs/types';
-import { unitWord, getRoleDef } from '@/lib/course-helpers';
+import { unitWord, getRoleDef, isAdvancedWeek, trackOfWeek, getWeekDef } from '@/lib/course-helpers';
 import { toDeliverableCSV, toDeliverableHTML, toDeliverableMarkdown, toRoleReportHTML } from '@/lib/docs/report';
 import { buildTeamPackage, packageFileName, packageRoot } from '@/lib/docs/package';
 import { exportTeamData, mergeTeamData, parseTeamData } from '@/lib/docs/handoff';
@@ -349,6 +349,9 @@ export default function DeliverablesPage() {
             label: w === 0 ? 'Setup' : `${unitWord(course)} ${w}`,
             done: owned.length > 0 && owned.every((d) => isDoneBy(d, own(d.id, d), w)),
             doneLabel: 'every document meets the definition of done',
+            // R142/R144: the premium track chip, same as the Tasks and ledger rails.
+            advanced: isAdvancedWeek(course, w),
+            track: trackOfWeek(getWeekDef(course, w)),
           };
         })}
       />

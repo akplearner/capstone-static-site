@@ -122,6 +122,10 @@ This week adds:
 
 **Process — Run it as a fleet:** opsVm → websrv (playbook, idempotent); host → core (metrics · backups → PBS); core → host (rebuild from Git).
 
+## Week 9 — Local LLM serving: Serve a model locally
+
+Nothing new is built this week; the process is drawn over the picture.
+
 ## The roles
 
 | Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |

@@ -93,6 +93,22 @@ Nothing new is built this week; the process is drawn over the picture.
 
 **Process — Incident, compliance and handover:** user → SiteDistribution (the symptom); admin → ToolsInstance (recover · runbook · contain); admin → github (post-mortem and handover).
 
+## Week 5 — RAG engineering: Index your documents
+
+Nothing new is built this week; the process is drawn over the picture.
+
+## Week 6 — RAG engineering: Evaluate the answers
+
+Nothing new is built this week; the process is drawn over the picture.
+
+## Week 7 — AI agents and MCP: An agent with tools
+
+Nothing new is built this week; the process is drawn over the picture.
+
+## Week 8 — AI agents and MCP: Expose a tool over MCP
+
+Nothing new is built this week; the process is drawn over the picture.
+
 ## The roles
 
 | Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |

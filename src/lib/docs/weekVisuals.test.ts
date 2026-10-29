@@ -122,6 +122,7 @@ describe('R99 — the build models cover their topologies', () => {
     expect(v.find((x) => x.week === 1)?.highlight).toContain('kv'); // Key Vault arrives in global week 5
     // The DevOps slice adds almost nothing to the template: its process carries each week.
     const devops = AZURE_COURSES.find((c) => c.id === 'azure-devops')!;
-    for (const x of weekVisualsFor(devops, cloudOf(devops))) if (x.week > 0) expect(x.process, `devops week ${x.week}`).toBeTruthy();
+    // Graded weeks only: the attached module weeks (R144) carry AI content, not the cloud lifecycle process.
+    for (const x of weekVisualsFor(devops, cloudOf(devops))) if (isGradedWeek(devops, x.week)) expect(x.process, `devops week ${x.week}`).toBeTruthy();
   });
 });

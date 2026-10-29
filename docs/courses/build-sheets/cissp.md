@@ -113,6 +113,22 @@ This week adds:
 
 **Process — Release v6: federal-ready:** federal → staff (show basic safeguarding); db → federal (federal information stays inside); r_d6 → r_ssp (the plan assembled).
 
+## Week 7 — AI security validation: Attack the model
+
+Nothing new is built this week; the process is drawn over the picture.
+
+## Week 8 — AI security validation: A suite that holds
+
+Nothing new is built this week; the process is drawn over the picture.
+
+## Week 9 — Enterprise AI architect: Design the hybrid platform
+
+Nothing new is built this week; the process is drawn over the picture.
+
+## Week 10 — Enterprise AI architect: Govern the platform
+
+Nothing new is built this week; the process is drawn over the picture.
+
 ## The roles
 
 | Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |

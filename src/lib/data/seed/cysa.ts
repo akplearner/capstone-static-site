@@ -1,6 +1,7 @@
 import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
 import { withPortfolioStep } from '../../docs/portfolioPlan';
 import { withAiExtensions } from '../../docs/aiExtension';
+import { withModules } from '../modules';
 
 // CySA+ SOC Capstone (CS0-003) — a 4-week Security Operations simulation built on a
 // Wazuh SOC. Three tiers rotate: Tier 1 SOC Analyst, Tier 2 Threat Hunter, Tier 3
@@ -2040,7 +2041,7 @@ student@team07-ubuntu:~$ sha256sum -c ~/team-artifacts/week-4/access.log.sha256
 ];
 
 // R142: the debrief task closes by writing the Portfolio.
-export const CYSA_PLUS: Course = withAiExtensions(withPortfolioStep({
+export const CYSA_PLUS: Course = withModules(withAiExtensions(withPortfolioStep({
   id: 'cysa-plus',
   title: 'CySA+ SOC Capstone',
   slug: 'cysa-plus',
@@ -2074,4 +2075,4 @@ export const CYSA_PLUS: Course = withAiExtensions(withPortfolioStep({
   locked: false,
   teamCount: 16,
   teamCapacity: 6,
-}));
+})));

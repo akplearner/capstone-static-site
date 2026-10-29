@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "areas": {
     "recon": "Reconnaissance",
     "vuln": "Vulnerability management",
@@ -1434,6 +1434,60 @@
       "area": "ai",
       "objectiveRefs": [
         "NIST.AI-RMF.MAP"
+      ]
+    },
+    {
+      "id": "comp.ai.rag-pipeline",
+      "version": "1.0.0",
+      "label": "Build a retrieval-augmented pipeline",
+      "area": "ai",
+      "objectiveRefs": [
+        "NIST.AI-RMF.MAP"
+      ]
+    },
+    {
+      "id": "comp.ai.vector-store",
+      "version": "1.0.0",
+      "label": "Load documents into a vector store",
+      "area": "ai",
+      "objectiveRefs": [
+        "NIST.AI-RMF.MAP"
+      ]
+    },
+    {
+      "id": "comp.ai.agent-tools",
+      "version": "1.0.0",
+      "label": "Give an agent tools to call",
+      "area": "ai",
+      "objectiveRefs": [
+        "NIST.AI-RMF.MANAGE"
+      ]
+    },
+    {
+      "id": "comp.ai.mcp-connector",
+      "version": "1.0.0",
+      "label": "Expose a tool over a model context protocol",
+      "area": "ai",
+      "objectiveRefs": [
+        "NIST.AI-RMF.MANAGE"
+      ]
+    },
+    {
+      "id": "comp.ai.serve-model",
+      "version": "1.0.0",
+      "label": "Serve a model behind an API",
+      "area": "ai",
+      "objectiveRefs": [
+        "NIST.AI-RMF.MEASURE"
+      ]
+    },
+    {
+      "id": "comp.ai.gpu-sizing",
+      "version": "1.0.0",
+      "label": "Size GPU memory for a model",
+      "area": "ai",
+      "objectiveRefs": [
+        "NIST.AI-RMF.MEASURE"
       ]
     },
     {
@@ -3266,24 +3320,48 @@
         "taskId": "azf-w1-ai"
       },
       {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-rag-engineering-w2-passline"
+      },
+      {
         "courseId": "azure-administrator",
         "taskId": "aza-w1-ai"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-rag-engineering-w2-passline"
       },
       {
         "courseId": "azure-devops",
         "taskId": "azd-w1-ai"
       },
       {
+        "courseId": "azure-devops",
+        "taskId": "azd-rag-engineering-w2-passline"
+      },
+      {
         "courseId": "aws-cloud-practitioner",
         "taskId": "awsf-w1-ai"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-rag-engineering-w2-passline"
       },
       {
         "courseId": "aws-solutions-architect",
         "taskId": "awsa-w1-ai"
       },
       {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-rag-engineering-w2-passline"
+      },
+      {
         "courseId": "aws-devops",
         "taskId": "awsd-w1-ai"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-rag-engineering-w2-passline"
       }
     ],
     "comp.ai.local-assistant": [
@@ -3424,6 +3502,10 @@
         "taskId": "srv-w4-ai"
       },
       {
+        "courseId": "server-plus",
+        "taskId": "srv-local-llm-serving-w1-serve"
+      },
+      {
         "courseId": "ccna",
         "taskId": "ccna-w1-ai"
       },
@@ -3438,6 +3520,10 @@
       {
         "courseId": "ccna",
         "taskId": "ccna-w4-ai"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-local-llm-serving-w1-serve"
       },
       {
         "courseId": "azure-fundamentals",
@@ -3456,6 +3542,10 @@
         "taskId": "azf-w4-ai"
       },
       {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-local-llm-serving-w1-serve"
+      },
+      {
         "courseId": "azure-administrator",
         "taskId": "aza-w1-ai"
       },
@@ -3470,6 +3560,10 @@
       {
         "courseId": "azure-administrator",
         "taskId": "aza-w4-ai"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-local-llm-serving-w1-serve"
       },
       {
         "courseId": "azure-devops",
@@ -3504,6 +3598,10 @@
         "taskId": "awsf-w4-ai"
       },
       {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-local-llm-serving-w1-serve"
+      },
+      {
         "courseId": "aws-solutions-architect",
         "taskId": "awsa-w1-ai"
       },
@@ -3518,6 +3616,10 @@
       {
         "courseId": "aws-solutions-architect",
         "taskId": "awsa-w4-ai"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-local-llm-serving-w1-serve"
       },
       {
         "courseId": "aws-devops",
@@ -3706,6 +3808,18 @@
         "taskId": "azf-w4-ai"
       },
       {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-rag-engineering-w1-retrieve"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-rag-engineering-w2-evalset"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-rag-engineering-w2-passline"
+      },
+      {
         "courseId": "azure-administrator",
         "taskId": "aza-w1-ai"
       },
@@ -3720,6 +3834,18 @@
       {
         "courseId": "azure-administrator",
         "taskId": "aza-w4-ai"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-rag-engineering-w1-retrieve"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-rag-engineering-w2-evalset"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-rag-engineering-w2-passline"
       },
       {
         "courseId": "azure-devops",
@@ -3738,6 +3864,30 @@
         "taskId": "azd-w4-ai"
       },
       {
+        "courseId": "azure-devops",
+        "taskId": "azd-rag-engineering-w1-retrieve"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-rag-engineering-w2-evalset"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-rag-engineering-w2-passline"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-ai-agents-mcp-w1-tools"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-ai-agents-mcp-w1-leash"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-ai-agents-mcp-w2-audit"
+      },
+      {
         "courseId": "aws-cloud-practitioner",
         "taskId": "awsf-w1-ai"
       },
@@ -3752,6 +3902,18 @@
       {
         "courseId": "aws-cloud-practitioner",
         "taskId": "awsf-w4-ai"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-rag-engineering-w1-retrieve"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-rag-engineering-w2-evalset"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-rag-engineering-w2-passline"
       },
       {
         "courseId": "aws-solutions-architect",
@@ -3770,6 +3932,18 @@
         "taskId": "awsa-w4-ai"
       },
       {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-rag-engineering-w1-retrieve"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-rag-engineering-w2-evalset"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-rag-engineering-w2-passline"
+      },
+      {
         "courseId": "aws-devops",
         "taskId": "awsd-w1-ai"
       },
@@ -3784,6 +3958,30 @@
       {
         "courseId": "aws-devops",
         "taskId": "awsd-w4-ai"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-rag-engineering-w1-retrieve"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-rag-engineering-w2-evalset"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-rag-engineering-w2-passline"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-ai-agents-mcp-w1-tools"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-ai-agents-mcp-w1-leash"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-ai-agents-mcp-w2-audit"
       }
     ],
     "comp.ai.ground-in-records": [
@@ -4362,6 +4560,202 @@
         "taskId": "grc-w4-report"
       }
     ],
+    "comp.ai-attack.prompt-injection": [
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-ai-security-validation-w1-inject"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-ai-security-validation-w1-inject"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-ai-security-validation-w1-inject"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w1-red"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-ai-security-validation-w1-inject"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-ai-security-validation-w1-inject"
+      }
+    ],
+    "comp.ai-attack.map-to-atlas": [
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-ai-security-validation-w1-inject"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-ai-security-validation-w1-inject"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-ai-security-validation-w1-inject"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w2-red"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-ai-security-validation-w1-inject"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-ai-security-validation-w1-inject"
+      }
+    ],
+    "comp.ai-attack.sensitive-disclosure": [
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-ai-security-validation-w1-leak"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-ai-security-validation-w1-leak"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-ai-security-validation-w1-leak"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w1-red"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-ai-security-validation-w1-leak"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-ai-security-validation-w1-leak"
+      }
+    ],
+    "comp.ai-attack.reproduce": [
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-ai-security-validation-w1-leak"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-ai-security-validation-w2-suite"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-ai-security-validation-w1-leak"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-ai-security-validation-w2-suite"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-ai-security-validation-w1-leak"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-ai-security-validation-w2-suite"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w4-red"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-ai-security-validation-w1-leak"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-ai-security-validation-w2-suite"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-ai-security-validation-w1-leak"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-ai-security-validation-w2-suite"
+      }
+    ],
+    "comp.ai-attack.automate-suite": [
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-ai-security-validation-w2-suite"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-ai-security-validation-w2-report"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-ai-security-validation-w2-suite"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-ai-security-validation-w2-report"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-ai-security-validation-w2-suite"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-ai-security-validation-w2-report"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w3-red"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-ai-security-validation-w2-suite"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-ai-security-validation-w2-report"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-ai-security-validation-w2-suite"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-ai-security-validation-w2-report"
+      }
+    ],
+    "comp.ai-attack.paper-cases": [
+      {
+        "courseId": "security-plus",
+        "taskId": "sec-ai-security-validation-w2-report"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cysa-ai-security-validation-w2-report"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mssp-ai-security-validation-w2-report"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w4-red"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "secai-ai-security-validation-w2-report"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-ai-security-validation-w2-report"
+      }
+    ],
     "comp.detect.deploy-endpoint-sensor": [
       {
         "courseId": "cysa-plus",
@@ -4608,18 +5002,6 @@
         "taskId": "ci-w1-gov"
       }
     ],
-    "comp.ai-attack.prompt-injection": [
-      {
-        "courseId": "secai-plus",
-        "taskId": "sa-w1-red"
-      }
-    ],
-    "comp.ai-attack.sensitive-disclosure": [
-      {
-        "courseId": "secai-plus",
-        "taskId": "sa-w1-red"
-      }
-    ],
     "comp.harden.secrets-and-gateway": [
       {
         "courseId": "secai-plus",
@@ -4633,12 +5015,6 @@
       }
     ],
     "comp.ai-attack.excessive-agency": [
-      {
-        "courseId": "secai-plus",
-        "taskId": "sa-w2-red"
-      }
-    ],
-    "comp.ai-attack.map-to-atlas": [
       {
         "courseId": "secai-plus",
         "taskId": "sa-w2-red"
@@ -4702,12 +5078,6 @@
         "taskId": "sa-w3-def"
       }
     ],
-    "comp.ai-attack.automate-suite": [
-      {
-        "courseId": "secai-plus",
-        "taskId": "sa-w3-red"
-      }
-    ],
     "comp.ai-attack.ai-assisted-check": [
       {
         "courseId": "secai-plus",
@@ -4740,18 +5110,6 @@
       {
         "courseId": "secai-plus",
         "taskId": "sa-w4-def"
-      }
-    ],
-    "comp.ai-attack.reproduce": [
-      {
-        "courseId": "secai-plus",
-        "taskId": "sa-w4-red"
-      }
-    ],
-    "comp.ai-attack.paper-cases": [
-      {
-        "courseId": "secai-plus",
-        "taskId": "sa-w4-red"
       }
     ],
     "comp.grc.model-cards": [
@@ -4792,6 +5150,14 @@
       {
         "courseId": "cissp",
         "taskId": "ci-w1-arch"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-enterprise-ai-architect-w1-gateway"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-enterprise-ai-architect-w1-layers"
       }
     ],
     "comp.arch.shared-responsibility": [
@@ -4804,6 +5170,10 @@
       {
         "courseId": "cissp",
         "taskId": "ci-w1-arch"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-enterprise-ai-architect-w1-layers"
       }
     ],
     "comp.identity.rbac": [
@@ -4846,6 +5216,10 @@
       {
         "courseId": "cissp",
         "taskId": "ci-w2-arch"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-enterprise-ai-architect-w2-govern"
       }
     ],
     "comp.arch.sdlc-gates": [
@@ -4876,6 +5250,10 @@
       {
         "courseId": "cissp",
         "taskId": "ci-w3-arch"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-enterprise-ai-architect-w2-handover"
       }
     ],
     "comp.identity.mfa-console": [
@@ -5030,6 +5408,78 @@
       {
         "courseId": "cissp",
         "taskId": "ci-w6-idops"
+      }
+    ],
+    "comp.ai.serve-model": [
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-enterprise-ai-architect-w1-gateway"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-enterprise-ai-architect-w2-handover"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "srv-local-llm-serving-w1-serve"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "srv-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-local-llm-serving-w1-serve"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-local-llm-serving-w1-serve"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-local-llm-serving-w1-serve"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-local-llm-serving-w1-serve"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-local-llm-serving-w1-serve"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-local-llm-serving-w1-size"
+      }
+    ],
+    "comp.ai.mcp-connector": [
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-enterprise-ai-architect-w2-govern"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-ai-agents-mcp-w2-mcp"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-ai-agents-mcp-w2-mcp"
       }
     ],
     "comp.hardware.memory-population": [
@@ -5540,6 +5990,32 @@
         "taskId": "sp-w2-mgmt"
       }
     ],
+    "comp.ai.gpu-sizing": [
+      {
+        "courseId": "server-plus",
+        "taskId": "srv-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-local-llm-serving-w1-size"
+      }
+    ],
     "comp.docs.design-decisions": [
       {
         "courseId": "ccna",
@@ -5756,6 +6232,106 @@
       {
         "courseId": "aws-cloud-practitioner",
         "taskId": "aws-w4-secops"
+      }
+    ],
+    "comp.ai.vector-store": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-rag-engineering-w1-index"
+      }
+    ],
+    "comp.ai.rag-pipeline": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-rag-engineering-w1-retrieve"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-rag-engineering-w2-evalset"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-rag-engineering-w1-retrieve"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-rag-engineering-w2-evalset"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-rag-engineering-w1-retrieve"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-rag-engineering-w2-evalset"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-rag-engineering-w1-retrieve"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-rag-engineering-w2-evalset"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-rag-engineering-w1-retrieve"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-rag-engineering-w2-evalset"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-rag-engineering-w1-retrieve"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-rag-engineering-w2-evalset"
       }
     ],
     "comp.cloud.access-matrix": [
@@ -6076,6 +6652,40 @@
       {
         "courseId": "aws-devops",
         "taskId": "aws-w12-secops"
+      }
+    ],
+    "comp.ai.agent-tools": [
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-ai-agents-mcp-w1-tools"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-ai-agents-mcp-w1-leash"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-ai-agents-mcp-w2-mcp"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-ai-agents-mcp-w2-audit"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-ai-agents-mcp-w1-tools"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-ai-agents-mcp-w1-leash"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-ai-agents-mcp-w2-mcp"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-ai-agents-mcp-w2-audit"
       }
     ]
   }

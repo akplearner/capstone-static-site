@@ -257,6 +257,60 @@
           }
         ],
         "milestone": "The incident is closed and the final report and briefing are ready to hand over."
+      },
+      {
+        "number": 5,
+        "title": "AI security validation: Attack the model",
+        "theme": "Prompt injection and leakage",
+        "objective": "Prove a prompt injection and a data leak against a model, with evidence.",
+        "runs": "Week 5",
+        "advanced": true,
+        "track": "cyber",
+        "difficulty": 4,
+        "milestone": "Prove a prompt injection and a data leak against a model, with evidence.",
+        "objectives": [
+          {
+            "id": "sec-ai-security-validation-w5-obj1",
+            "label": "Prove a prompt injection",
+            "tasks": [
+              "sec-ai-security-validation-w1-inject"
+            ]
+          },
+          {
+            "id": "sec-ai-security-validation-w5-obj2",
+            "label": "Prove a data leak",
+            "tasks": [
+              "sec-ai-security-validation-w1-leak"
+            ]
+          }
+        ]
+      },
+      {
+        "number": 6,
+        "title": "AI security validation: A suite that holds",
+        "theme": "Regression for guardrails",
+        "objective": "Turn every proven attack into a test the pipeline runs, so a removed guardrail fails the build.",
+        "runs": "Week 6",
+        "advanced": true,
+        "track": "cyber",
+        "difficulty": 4,
+        "milestone": "Turn every proven attack into a test the pipeline runs, so a removed guardrail fails the build.",
+        "objectives": [
+          {
+            "id": "sec-ai-security-validation-w6-obj1",
+            "label": "Automate the attack suite",
+            "tasks": [
+              "sec-ai-security-validation-w2-suite"
+            ]
+          },
+          {
+            "id": "sec-ai-security-validation-w6-obj2",
+            "label": "Report the validation",
+            "tasks": [
+              "sec-ai-security-validation-w2-report"
+            ]
+          }
+        ]
       }
     ],
     "gates": [
@@ -4111,6 +4165,505 @@
             "deliverable": "final_report"
           }
         ]
+      },
+      {
+        "id": "sec-ai-security-validation-w1-inject",
+        "role": "red",
+        "week": 5,
+        "title": "Prove a prompt injection",
+        "objective": "Make the model ignore its instructions with an injected prompt, and capture the proof.",
+        "steps": [
+          {
+            "id": "sec-ai-security-validation-w1-inject-s1",
+            "title": "Prove a prompt injection",
+            "description": "Make the model ignore its instructions with an injected prompt, and capture the proof.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Prove an injection against the model.",
+            "instructionList": [
+              "Write a prompt that overrides the system rule.",
+              "Send it to the model.",
+              "Capture the response as evidence."
+            ],
+            "commands": [
+              {
+                "cmd": "python attack.py --case injection | tee evidence/injection.txt && grep -qi \"ignored\" evidence/injection.txt && echo proven",
+                "explain": "Runs the injection case and confirms the model ignored its instruction, saving the proof.",
+                "sample": "proven",
+                "flags": [
+                  {
+                    "flag": "--case injection",
+                    "meaning": "Runs the prompt-injection attack case."
+                  },
+                  {
+                    "flag": "tee evidence/...",
+                    "meaning": "Saves the response as evidence."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "proven",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "proven",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "proven"
+            ],
+            "whatItMeans": "A prompt injection makes a model follow the attacker instead of you; the saved response is the proof.",
+            "docs": [
+              {
+                "title": "OWASP Top 10 for LLM Applications",
+                "url": "https://genai.owasp.org/",
+                "lookFor": "the ten risks: prompt injection, insecure output, data leakage, and how each is tested."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "OWASP_LLM"
+            ]
+          },
+          {
+            "id": "sec-ai-security-validation-w1-inject-s2",
+            "title": "Map it to OWASP.",
+            "description": "The case maps to an OWASP LLM risk and an ATLAS technique, with hashed evidence.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Map it to OWASP.",
+            "instructionList": [
+              "Find the matching OWASP LLM risk.",
+              "Note the technique in ATLAS.",
+              "Record the evidence file and its hash."
+            ],
+            "expectedOutput": "The case maps to an OWASP LLM risk and an ATLAS technique, with hashed evidence.",
+            "outputKind": "result",
+            "whatItMeans": "Mapping to a published list is what lets a finding be compared, ranked and taken seriously.",
+            "docs": [
+              {
+                "title": "OWASP Top 10 for LLM Applications",
+                "url": "https://genai.owasp.org/",
+                "lookFor": "the ten risks: prompt injection, insecure output, data leakage, and how each is tested."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "OWASP_LLM"
+            ]
+          }
+        ],
+        "frameworks": [
+          "OWASP_LLM"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 4,
+        "learn": [
+          "Prompt injection",
+          "OWASP LLM",
+          "ATLAS"
+        ],
+        "tools": [
+          "Python",
+          "garak"
+        ],
+        "definitionOfDone": [
+          "Prove a prompt injection is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
+      },
+      {
+        "id": "sec-ai-security-validation-w1-leak",
+        "role": "red",
+        "week": 5,
+        "title": "Prove a data leak",
+        "objective": "Get the model to reveal something it should not, and record the containment.",
+        "steps": [
+          {
+            "id": "sec-ai-security-validation-w1-leak-s1",
+            "title": "Prove a data leak",
+            "description": "Get the model to reveal something it should not, and record the containment.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Prove a data leak, then contain it.",
+            "instructionList": [
+              "Ask the model for withheld data.",
+              "Capture the leak as evidence.",
+              "Add a filter that blocks it."
+            ],
+            "commands": [
+              {
+                "cmd": "python attack.py --case leak | tee evidence/leak.txt; python attack.py --case leak --guard | grep -qi blocked && echo contained",
+                "explain": "Proves the leak, then runs it again behind a guard and confirms the guard blocks it.",
+                "sample": "contained",
+                "flags": [
+                  {
+                    "flag": "--case leak",
+                    "meaning": "Runs the data-leakage attack case."
+                  },
+                  {
+                    "flag": "--guard",
+                    "meaning": "Runs it again behind the output filter."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "contained",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "contained",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "contained"
+            ],
+            "whatItMeans": "A leak proven and then contained is a closed finding; a leak only proven is still open.",
+            "docs": [
+              {
+                "title": "OWASP Top 10 for LLM Applications",
+                "url": "https://genai.owasp.org/",
+                "lookFor": "the ten risks: prompt injection, insecure output, data leakage, and how each is tested."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "OWASP_LLM"
+            ]
+          },
+          {
+            "id": "sec-ai-security-validation-w1-leak-s2",
+            "title": "Record the finding.",
+            "description": "The finding records the leak, the guard and the retest that closed it.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Record the finding.",
+            "instructionList": [
+              "Note what leaked and how.",
+              "Note the guard that now blocks it.",
+              "Record the retest that confirms it."
+            ],
+            "expectedOutput": "The finding records the leak, the guard and the retest that closed it.",
+            "outputKind": "result",
+            "whatItMeans": "An output filter is the control; the retest is what proves the control actually holds.",
+            "docs": [
+              {
+                "title": "OWASP Top 10 for LLM Applications",
+                "url": "https://genai.owasp.org/",
+                "lookFor": "the ten risks: prompt injection, insecure output, data leakage, and how each is tested."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "OWASP_LLM"
+            ]
+          }
+        ],
+        "frameworks": [
+          "OWASP_LLM"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 4,
+        "learn": [
+          "Data leakage",
+          "Output filters",
+          "Retest"
+        ],
+        "tools": [
+          "Python",
+          "LLM Guard"
+        ],
+        "definitionOfDone": [
+          "Prove a data leak is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
+      },
+      {
+        "id": "sec-ai-security-validation-w2-suite",
+        "role": "red",
+        "week": 6,
+        "title": "Automate the attack suite",
+        "objective": "Run every attack case as a suite with a pass line, and fail on a regression.",
+        "steps": [
+          {
+            "id": "sec-ai-security-validation-w2-suite-s1",
+            "title": "Automate the attack suite",
+            "description": "Run every attack case as a suite with a pass line, and fail on a regression.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Run the attacks as a suite.",
+            "instructionList": [
+              "Collect the proven cases into a suite.",
+              "Set the pass line: all contained.",
+              "Run the suite."
+            ],
+            "commands": [
+              {
+                "cmd": "python suite.py --all && echo \"suite green\"",
+                "explain": "Runs every attack case and passes only when all of them are contained.",
+                "sample": "suite green",
+                "flags": [
+                  {
+                    "flag": "--all",
+                    "meaning": "Runs every case in the suite."
+                  },
+                  {
+                    "flag": "echo",
+                    "meaning": "Prints only when all cases are contained."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "suite green",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "suite green",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "suite green"
+            ],
+            "whatItMeans": "A suite turns a one-off test into a control: a guardrail someone removes fails the build.",
+            "docs": [
+              {
+                "title": "OWASP Top 10 for LLM Applications",
+                "url": "https://genai.owasp.org/",
+                "lookFor": "the ten risks: prompt injection, insecure output, data leakage, and how each is tested."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "OWASP_LLM"
+            ]
+          },
+          {
+            "id": "sec-ai-security-validation-w2-suite-s2",
+            "title": "Prove the regression catch.",
+            "description": "With a guard disabled the suite fails on exactly that case.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Prove the regression catch.",
+            "instructionList": [
+              "Disable one guard.",
+              "Run the suite.",
+              "Confirm it fails on that case."
+            ],
+            "expectedOutput": "With a guard disabled the suite fails on exactly that case.",
+            "outputKind": "result",
+            "whatItMeans": "A regression test that never fails proves nothing; disabling a guard is how you know it works.",
+            "docs": [
+              {
+                "title": "OWASP Top 10 for LLM Applications",
+                "url": "https://genai.owasp.org/",
+                "lookFor": "the ten risks: prompt injection, insecure output, data leakage, and how each is tested."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "OWASP_LLM"
+            ]
+          }
+        ],
+        "frameworks": [
+          "OWASP_LLM"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 4,
+        "learn": [
+          "Attack suites",
+          "Regression",
+          "Guardrails"
+        ],
+        "tools": [
+          "Python",
+          "Git"
+        ],
+        "definitionOfDone": [
+          "Automate the attack suite is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
+      },
+      {
+        "id": "sec-ai-security-validation-w2-report",
+        "role": "red",
+        "week": 6,
+        "title": "Report the validation",
+        "objective": "Write the validation up: cases, outcomes, residual risk and the retest plan.",
+        "steps": [
+          {
+            "id": "sec-ai-security-validation-w2-report-s1",
+            "title": "Report the validation",
+            "description": "Write the validation up: cases, outcomes, residual risk and the retest plan.",
+            "where": "Your own machine — a terminal",
+            "instruction": "Report the validation result.",
+            "instructionList": [
+              "List each case and its outcome.",
+              "State the residual risk.",
+              "State when the suite runs next."
+            ],
+            "commands": [
+              {
+                "cmd": "python suite.py --report | tee validation.md && grep -qi contained validation.md && echo reported",
+                "explain": "Writes the validation report of cases and outcomes, then confirms it holds the contained cases.",
+                "sample": "reported",
+                "flags": [
+                  {
+                    "flag": "--report",
+                    "meaning": "Writes the report of cases and outcomes."
+                  },
+                  {
+                    "flag": "grep -qi contained",
+                    "meaning": "Confirms the report records the contained cases."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "reported",
+            "outputKind": "console",
+            "outputHighlights": [
+              {
+                "text": "reported",
+                "label": "what proves it worked"
+              }
+            ],
+            "verify": [
+              "reported"
+            ],
+            "whatItMeans": "The report is what a customer or an auditor reads to decide the AI system is safe to use.",
+            "docs": [
+              {
+                "title": "OWASP Top 10 for LLM Applications",
+                "url": "https://genai.owasp.org/",
+                "lookFor": "the ten risks: prompt injection, insecure output, data leakage, and how each is tested."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "The command is not found",
+                "fix": "Install the tool it names from its official site, then open a new terminal."
+              },
+              {
+                "symptom": "The output does not match",
+                "fix": "Re-read the instruction, check the file paths, and run the one command again."
+              }
+            ],
+            "frameworks": [
+              "OWASP_LLM"
+            ]
+          },
+          {
+            "id": "sec-ai-security-validation-w2-report-s2",
+            "title": "Record the residual risk.",
+            "description": "The report states the residual risk and who accepted it.",
+            "where": "Deliverables tab, then the terminal",
+            "instruction": "Record the residual risk.",
+            "instructionList": [
+              "Note any case not fully contained.",
+              "Note the plan for it.",
+              "Record who accepted the residual risk."
+            ],
+            "expectedOutput": "The report states the residual risk and who accepted it.",
+            "outputKind": "result",
+            "whatItMeans": "Residual risk stated and accepted is honest; residual risk hidden is the finding an auditor opens with.",
+            "docs": [
+              {
+                "title": "OWASP Top 10 for LLM Applications",
+                "url": "https://genai.owasp.org/",
+                "lookFor": "the ten risks: prompt injection, insecure output, data leakage, and how each is tested."
+              }
+            ],
+            "fixes": [
+              {
+                "symptom": "There is nothing to compare against",
+                "fix": "Open the record the work produced and check each claim against it."
+              },
+              {
+                "symptom": "The check disagrees with the output",
+                "fix": "Trust the evidence: record what the output actually shows, not what you expected."
+              }
+            ],
+            "frameworks": [
+              "OWASP_LLM"
+            ]
+          }
+        ],
+        "frameworks": [
+          "OWASP_LLM"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "difficulty": 4,
+        "learn": [
+          "Validation reports",
+          "Residual risk",
+          "Assurance"
+        ],
+        "tools": [
+          "Python"
+        ],
+        "definitionOfDone": [
+          "Report the validation is done and recorded",
+          "The result is checked against the evidence"
+        ],
+        "shared": true
       }
     ],
     "topologyPicture": "arch",
@@ -4118,7 +4671,10 @@
     "version": 1,
     "locked": false,
     "teamCount": 16,
-    "teamCapacity": 6
+    "teamCapacity": 6,
+    "modules": [
+      "ai-security-validation"
+    ]
   },
   "deliverables": [
     {
@@ -8174,6 +8730,18 @@
           ]
         },
         "caption": "New: the final report. No new traffic — the evidence becomes findings and recommendations."
+      },
+      {
+        "week": 5,
+        "builtThrough": 5,
+        "highlight": [],
+        "caption": ""
+      },
+      {
+        "week": 6,
+        "builtThrough": 6,
+        "highlight": [],
+        "caption": ""
       }
     ],
     "roles": {
@@ -9071,6 +9639,27 @@
           "scope": "ISO"
         },
         {
+          "code": "ISO27001.10",
+          "standard": "ISO_27001",
+          "label": "Improvement",
+          "parent": "ISO27001",
+          "cites": [
+            "Clause 10",
+            "cl. 10"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.10.2",
+          "standard": "ISO_27001",
+          "label": "Nonconformity and corrective action",
+          "parent": "ISO27001.10",
+          "cites": [
+            "10.2"
+          ],
+          "scope": "ISO"
+        },
+        {
           "code": "ISO27001.A.5.1",
           "standard": "ISO_27001",
           "label": "Policies for information security",
@@ -9308,6 +9897,25 @@
             "OWASP",
             "OWASP Top 10",
             "WSTG"
+          ]
+        },
+        {
+          "code": "OWASP.LLM",
+          "standard": "OWASP_LLM",
+          "label": "OWASP Top 10 for LLM Applications",
+          "cites": [
+            "OWASP LLM Top 10",
+            "OWASP LLM",
+            "LLM Top 10"
+          ]
+        },
+        {
+          "code": "MITRE.ATLAS",
+          "standard": "MITRE_ATLAS",
+          "label": "ATLAS",
+          "cites": [
+            "MITRE ATLAS",
+            "ATLAS"
           ]
         },
         {
@@ -12464,6 +13072,12 @@
           "definition": "Open sources and passive lookups come before any packet reaches the target."
         },
         {
+          "id": "practice.retest-to-closure",
+          "label": "Retest to closure",
+          "anchor": "NIST_800_115",
+          "definition": "A finding is closed only by a retest that shows the fix, and every finding ends Closed, Open or Risk accepted."
+        },
+        {
           "id": "practice.cvss-severity",
           "label": "CVSS severity",
           "anchor": "CVSS",
@@ -12486,6 +13100,12 @@
           "label": "Hardening baseline",
           "anchor": "CIS.BENCHMARK",
           "definition": "Hosts are configured to a written benchmark and checked against it, so drift from the baseline is visible."
+        },
+        {
+          "id": "practice.regression-tests-for-guardrails",
+          "label": "Guardrail regression tests",
+          "anchor": "NIST_800_218",
+          "definition": "Every blocked attack case becomes a test the pipeline runs, so a removed guardrail fails the build."
         },
         {
           "id": "practice.capture-and-baseline",
@@ -12542,16 +13162,40 @@
           "definition": "Every control names the evidence that proves it operates, and the evidence is collected as the work happens."
         },
         {
+          "id": "practice.corrective-action",
+          "label": "Corrective action",
+          "anchor": "ISO27001.10.2",
+          "definition": "Every nonconformity gets a cause, a corrective action, an owner and a date, and the action is checked."
+        },
+        {
           "id": "practice.write-for-leadership",
           "label": "Write for leadership",
           "anchor": "NIST.CSF.RS.CO",
           "definition": "A report opens with what a non-technical reader must decide, and the technical detail follows."
         },
         {
+          "id": "practice.customer-assurance",
+          "label": "Customer assurance",
+          "anchor": "SOC2",
+          "definition": "A customer question is answered with evidence or an honest gap, never with a promise."
+        },
+        {
+          "id": "practice.input-guardrails",
+          "label": "Input and output guardrails",
+          "anchor": "OWASP_LLM",
+          "definition": "Prompts and model outputs pass through filters that block or contain the listed attack cases."
+        },
+        {
           "id": "practice.human-in-the-loop",
           "label": "Human checkpoint",
           "anchor": "NIST_AI_RMF",
           "definition": "AI-assisted work passes a named human check before it is acted on, and the check is recorded."
+        },
+        {
+          "id": "practice.pass-line-suites",
+          "label": "Suites with a pass line",
+          "anchor": "NIST_AI_RMF",
+          "definition": "An attack or evaluation suite states what passing means before it runs."
         }
       ],
       "PRACTICE_OF": {
@@ -12617,6 +13261,22 @@
         ],
         "sec-w4-ai": [
           "practice.human-in-the-loop"
+        ],
+        "sec-ai-security-validation-w1-inject": [
+          "practice.authorised-testing",
+          "practice.evidence-hashing"
+        ],
+        "sec-ai-security-validation-w1-leak": [
+          "practice.input-guardrails",
+          "practice.retest-to-closure"
+        ],
+        "sec-ai-security-validation-w2-suite": [
+          "practice.pass-line-suites",
+          "practice.regression-tests-for-guardrails"
+        ],
+        "sec-ai-security-validation-w2-report": [
+          "practice.customer-assurance",
+          "practice.corrective-action"
         ]
       },
       "SCORING": [
@@ -13066,6 +13726,66 @@
           ]
         },
         {
+          "id": "comp.ai-attack.prompt-injection",
+          "version": "1.0.0",
+          "label": "Prove prompt injection with evidence",
+          "area": "ai-attack",
+          "objectiveRefs": [
+            "CY0-001.d2",
+            "OWASP.LLM"
+          ]
+        },
+        {
+          "id": "comp.ai-attack.sensitive-disclosure",
+          "version": "1.0.0",
+          "label": "Prove sensitive information disclosure",
+          "area": "ai-attack",
+          "objectiveRefs": [
+            "CY0-001.d2",
+            "OWASP.LLM"
+          ]
+        },
+        {
+          "id": "comp.ai-attack.map-to-atlas",
+          "version": "1.0.0",
+          "label": "Map AI threats to OWASP and ATLAS",
+          "area": "ai-attack",
+          "objectiveRefs": [
+            "CY0-001.d2",
+            "MITRE.ATLAS"
+          ]
+        },
+        {
+          "id": "comp.ai-attack.automate-suite",
+          "version": "1.0.0",
+          "label": "Automate an attack suite with a pass line",
+          "area": "ai-attack",
+          "objectiveRefs": [
+            "CY0-001.d3",
+            "NIST_AI_RMF"
+          ]
+        },
+        {
+          "id": "comp.ai-attack.reproduce",
+          "version": "1.0.0",
+          "label": "Reproduce a suite on a rebuilt copy",
+          "area": "ai-attack",
+          "objectiveRefs": [
+            "CY0-001.d3",
+            "NIST_800_218"
+          ]
+        },
+        {
+          "id": "comp.ai-attack.paper-cases",
+          "version": "1.0.0",
+          "label": "Write paper cases: poisoning, theft, inference",
+          "area": "ai-attack",
+          "objectiveRefs": [
+            "CY0-001.d3",
+            "MITRE.ATLAS"
+          ]
+        },
+        {
           "id": "comp.ai.local-assistant",
           "version": "1.0.0",
           "label": "Run a local AI assistant offline",
@@ -13176,6 +13896,22 @@
           "comp.ai.local-assistant",
           "comp.ai.ground-in-records",
           "comp.ai.verify-ai-output"
+        ],
+        "sec-ai-security-validation-w1-inject": [
+          "comp.ai-attack.prompt-injection",
+          "comp.ai-attack.map-to-atlas"
+        ],
+        "sec-ai-security-validation-w1-leak": [
+          "comp.ai-attack.sensitive-disclosure",
+          "comp.ai-attack.reproduce"
+        ],
+        "sec-ai-security-validation-w2-suite": [
+          "comp.ai-attack.automate-suite",
+          "comp.ai-attack.reproduce"
+        ],
+        "sec-ai-security-validation-w2-report": [
+          "comp.ai-attack.paper-cases",
+          "comp.ai-attack.automate-suite"
         ]
       },
       "SOPS": [
@@ -13550,6 +14286,26 @@
           "codePattern": "^NIST\\.AI-RMF(\\.(GOVERN|MAP|MEASURE|MANAGE))?$"
         },
         {
+          "id": "OWASP_LLM",
+          "label": "OWASP LLM Top 10",
+          "description": "OWASP Top 10 for Large Language Model Applications",
+          "why": "The shared catalogue of LLM application weaknesses: prompt injection, sensitive disclosure, excessive agency and the rest. A tag here names the weakness the step attacks or defends.",
+          "kind": "framework",
+          "tone": "warn",
+          "publisher": "OWASP Foundation",
+          "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/"
+        },
+        {
+          "id": "MITRE_ATLAS",
+          "label": "MITRE ATLAS",
+          "description": "MITRE ATLAS: adversary tactics and techniques against AI systems",
+          "why": "ATT&CK for AI: real-world techniques attackers use against models and their data. Mapping a case to an ATLAS technique makes it comparable with the threat intelligence everyone else holds.",
+          "kind": "framework",
+          "tone": "danger",
+          "publisher": "MITRE",
+          "url": "https://atlas.mitre.org/"
+        },
+        {
           "id": "NIST_800_53",
           "label": "NIST SP 800-53",
           "description": "NIST SP 800-53 Rev. 5 security and privacy controls",
@@ -13579,6 +14335,16 @@
           "tone": "accent",
           "publisher": "NIST",
           "url": "https://csrc.nist.gov/pubs/sp/800/40/r4/final"
+        },
+        {
+          "id": "NIST_800_218",
+          "label": "NIST SP 800-218",
+          "description": "NIST SP 800-218 Secure Software Development Framework (SSDF)",
+          "why": "The practices a secure software pipeline follows: protect the code, produce well-secured software, respond to vulnerabilities. A pipeline record that cites it names the gate each practice became.",
+          "kind": "publication",
+          "tone": "accent",
+          "publisher": "NIST",
+          "url": "https://csrc.nist.gov/pubs/sp/800/218/final"
         },
         {
           "id": "ISO_27005",
@@ -14130,6 +14896,17 @@
           ]
         },
         {
+          "id": "tool.garak",
+          "label": "garak",
+          "kind": "cli",
+          "aliases": [
+            "garak"
+          ],
+          "commands": [
+            "garak"
+          ]
+        },
+        {
           "id": "tool.kali",
           "label": "Kali Linux",
           "kind": "platform",
@@ -14268,6 +15045,14 @@
           ]
         },
         {
+          "id": "tool.llm-guard",
+          "label": "LLM Guard",
+          "kind": "service",
+          "aliases": [
+            "LLM Guard"
+          ]
+        },
+        {
           "id": "tool.ollama",
           "label": "Ollama",
           "kind": "service",
@@ -14276,6 +15061,17 @@
           ],
           "commands": [
             "ollama"
+          ]
+        },
+        {
+          "id": "tool.git",
+          "label": "Git",
+          "kind": "cli",
+          "aliases": [
+            "Git"
+          ],
+          "commands": [
+            "git"
           ]
         },
         {
@@ -14288,6 +15084,20 @@
           "commands": [
             "docker",
             "docker-compose"
+          ]
+        },
+        {
+          "id": "tool.python",
+          "label": "Python",
+          "kind": "language",
+          "aliases": [
+            "Python"
+          ],
+          "commands": [
+            "python",
+            "python3",
+            "pip",
+            "pip3"
           ]
         }
       ],
@@ -14399,6 +15209,29 @@
         "sec-w4-ai": [
           "tool.capstone-forms",
           "tool.ollama"
+        ],
+        "sec-ai-security-validation-w1-inject": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.garak",
+          "tool.python"
+        ],
+        "sec-ai-security-validation-w1-leak": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.llm-guard",
+          "tool.python"
+        ],
+        "sec-ai-security-validation-w2-suite": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.git",
+          "tool.python"
+        ],
+        "sec-ai-security-validation-w2-report": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.python"
         ]
       },
       "TROUBLE_GROUPS": [

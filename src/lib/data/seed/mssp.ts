@@ -1,6 +1,7 @@
 import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
 import { withPortfolioStep } from '../../docs/portfolioPlan';
 import { withAiExtensions } from '../../docs/aiExtension';
+import { withModules } from '../modules';
 
 // MSSP / SOC 2 + ISO 27001 engagement course.
 //
@@ -972,7 +973,7 @@ To         Action      From
 ];
 
 // R142: the evidence-packet task closes by writing the Portfolio.
-export const MSSP: Course = withAiExtensions(withPortfolioStep({
+export const MSSP: Course = withModules(withAiExtensions(withPortfolioStep({
   id: 'mssp',
   title: 'MSSP: SOC 2 + ISO 27001 Engagement',
   slug: 'mssp',
@@ -997,4 +998,4 @@ export const MSSP: Course = withAiExtensions(withPortfolioStep({
   topologyPicture: 'arch',
   teamCount: 16,
   teamCapacity: 6,
-}));
+})));
