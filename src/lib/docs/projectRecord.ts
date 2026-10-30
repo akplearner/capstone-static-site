@@ -229,6 +229,14 @@ export const RECORD_FIELDS: RecordField[] = [
   inf('scs_detect', 'findings', 'type', 'incident', 'Finding'),
   inf('scs_incident', 'actions', 'theory', 'incident', 'Containment attempt'),
   inf('scs_handover', 'risks', 'risk', 'risk', 'Open risk'),
+  // ccsp — at least half the forms feed the record.
+  fld('ccsp_setup', 'application', 'host', 'Application', { declares: true }),
+  inf('ccsp_architecture', 'components', 'component', 'resource', 'Component'),
+  inf('ccsp_legal', 'obligations', 'obligation', 'risk', 'Obligation'),
+  fld('ccsp_data', 'key_manager', 'resource', 'Key manager'),
+  inf('ccsp_platform', 'changes', 'change', 'resource', 'Platform change'),
+  inf('ccsp_operations', 'actions', 'theory', 'incident', 'Containment attempt'),
+  inf('ccsp_handover', 'risks', 'risk', 'risk', 'Open risk'),
   // network-plus
   inf('np_design', 'vlans', 'vlan', 'vlan', 'VLAN', { unique: true }),
   inf('np_design', 'vlans', 'prefix', 'cidr', 'Prefix', { unique: true }),

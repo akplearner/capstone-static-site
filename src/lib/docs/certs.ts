@@ -148,6 +148,19 @@ export const CERTS: Record<string, CertDef> = {
       d('d6', 'Security Foundations and Governance', 14),
     ],
   },
+  ccsp: {
+    courseId: 'ccsp', vendorId: 'isc2', vendor: 'ISC2', code: 'CCSP', name: 'CCSP', level: 'professional', exam: true, examFeeUsd: 599, feeCheckedYear: 2026,
+    prerequisite: 'cissp',
+    // Six domains; weights verified against the official ISC2 CCSP exam outline.
+    domains: [
+      d('d1', 'Cloud Concepts, Architecture and Design', 17),
+      d('d2', 'Cloud Data Security', 20),
+      d('d3', 'Cloud Platform & Infrastructure Security', 17),
+      d('d4', 'Cloud Application Security', 16),
+      d('d5', 'Cloud Security Operations', 17),
+      d('d6', 'Legal, Risk and Compliance', 13),
+    ],
+  },
   'network-plus': {
     courseId: 'network-plus', vendorId: 'comptia', vendor: 'CompTIA', code: 'N10-009', name: 'Network+', level: 'entry', exam: true, examFeeUsd: 369, feeCheckedYear: 2026,
     prerequisite: 'a-plus', next: 'security-plus',
@@ -185,7 +198,7 @@ export const CERTS: Record<string, CertDef> = {
   },
   cissp: {
     courseId: 'cissp', vendorId: 'isc2', vendor: 'ISC2', code: 'CISSP', name: 'CISSP', level: 'expert', exam: true, examFeeUsd: 749, feeCheckedYear: 2026,
-    prerequisite: 'cysa-plus',
+    prerequisite: 'cysa-plus', next: 'ccsp',
     domains: [
       d('d1', 'Security and Risk Management', 16),
       d('d2', 'Asset Security', 10),
@@ -312,6 +325,12 @@ export const TASK_DOMAINS: Record<string, Record<string, string>> = {
     'scs-w2-vpc': 'd2', 'scs-w2-sg': 'd2', 'scs-w2-edge': 'd2',
     'scs-w3-kms': 'd3', 'scs-w3-s3': 'd3', 'scs-w3-detect': 'd4',
     'scs-w4-incident': 'd5', 'scs-w4-detect': 'd4', 'scs-w4-handover': 'd6',
+  },
+  ccsp: {
+    'ccsp-w1-concepts': 'd1', 'ccsp-w1-architecture': 'd1', 'ccsp-w1-legal': 'd6',
+    'ccsp-w2-classify': 'd2', 'ccsp-w2-protect': 'd2', 'ccsp-w2-keys': 'd2',
+    'ccsp-w3-platform': 'd3', 'ccsp-w3-network': 'd3', 'ccsp-w3-appsec': 'd4',
+    'ccsp-w4-operations': 'd5', 'ccsp-w4-incident': 'd5', 'ccsp-w4-handover': 'd6',
   },
   'network-plus': {
     'np-w1-requirements': 'd1', 'np-w1-plan': 'd1', 'np-w1-topology': 'd2', 'np-w2-switches': 'd2', 'np-w2-routing': 'd2', 'np-w2-services': 'd2',

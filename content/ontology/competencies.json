@@ -3339,6 +3339,10 @@
         "taskId": "scs-w4-handover"
       },
       {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w4-handover"
+      },
+      {
         "courseId": "a-plus",
         "taskId": "ap-w4-handover"
       },
@@ -3421,6 +3425,10 @@
       {
         "courseId": "aws-security-specialty",
         "taskId": "scs-w1-ai"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w1-ai"
       },
       {
         "courseId": "a-plus",
@@ -3643,6 +3651,22 @@
       {
         "courseId": "aws-security-specialty",
         "taskId": "scs-local-llm-serving-w1-serve"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w1-ai"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w2-ai"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w3-ai"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w4-ai"
       },
       {
         "courseId": "a-plus",
@@ -4107,6 +4131,22 @@
         "taskId": "scs-w4-ai"
       },
       {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w1-ai"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w2-ai"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w3-ai"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w4-ai"
+      },
+      {
         "courseId": "a-plus",
         "taskId": "ap-w1-ai"
       },
@@ -4545,6 +4585,18 @@
         "taskId": "scs-w4-ai"
       },
       {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w2-ai"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w3-ai"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w4-ai"
+      },
+      {
         "courseId": "a-plus",
         "taskId": "ap-w2-ai"
       },
@@ -4763,6 +4815,10 @@
         "taskId": "cka-w1-rbac"
       },
       {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w3-platform"
+      },
+      {
         "courseId": "security-plus",
         "taskId": "blue-w1-hardening"
       }
@@ -4855,6 +4911,10 @@
         "taskId": "scs-w2-vpc"
       },
       {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w3-network"
+      },
+      {
         "courseId": "azure-fundamentals",
         "taskId": "az-w1-infra"
       },
@@ -4911,6 +4971,10 @@
       {
         "courseId": "kubernetes-cka",
         "taskId": "cka-w1-rbac"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w3-platform"
       },
       {
         "courseId": "security-plus",
@@ -4985,6 +5049,10 @@
         "taskId": "scs-w4-handover"
       },
       {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w4-handover"
+      },
+      {
         "courseId": "a-plus",
         "taskId": "ap-w4-handover"
       },
@@ -5029,6 +5097,14 @@
       {
         "courseId": "aws-security-specialty",
         "taskId": "scs-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-enterprise-ai-architect-w1-gateway"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-enterprise-ai-architect-w2-handover"
       },
       {
         "courseId": "cissp",
@@ -5413,6 +5489,10 @@
         "taskId": "awsai-ai-agents-mcp-w2-mcp"
       },
       {
+        "courseId": "ccsp",
+        "taskId": "ccsp-enterprise-ai-architect-w2-govern"
+      },
+      {
         "courseId": "cissp",
         "taskId": "cissp-enterprise-ai-architect-w2-govern"
       },
@@ -5451,6 +5531,10 @@
       {
         "courseId": "aws-security-specialty",
         "taskId": "scs-w3-detect"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w4-operations"
       },
       {
         "courseId": "azure-fundamentals",
@@ -5501,6 +5585,10 @@
       {
         "courseId": "aws-security-specialty",
         "taskId": "scs-w4-detect"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w4-operations"
       },
       {
         "courseId": "azure-fundamentals",
@@ -5663,6 +5751,10 @@
         "taskId": "scs-w1-governance"
       },
       {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w1-legal"
+      },
+      {
         "courseId": "security-plus",
         "taskId": "grc-w1-framework"
       }
@@ -5687,6 +5779,10 @@
         "taskId": "scs-w2-edge"
       },
       {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w3-network"
+      },
+      {
         "courseId": "azure-administrator",
         "taskId": "az-w6-secops"
       },
@@ -5699,6 +5795,10 @@
       {
         "courseId": "aws-security-specialty",
         "taskId": "scs-w3-kms"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w2-keys"
       },
       {
         "courseId": "azure-administrator",
@@ -5715,6 +5815,10 @@
         "taskId": "scs-w3-kms"
       },
       {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w2-classify"
+      },
+      {
         "courseId": "cissp",
         "taskId": "ci-w1-gov"
       }
@@ -5723,6 +5827,10 @@
       {
         "courseId": "aws-security-specialty",
         "taskId": "scs-w3-s3"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w2-protect"
       },
       {
         "courseId": "azure-administrator",
@@ -5749,6 +5857,10 @@
         "taskId": "scs-w4-incident"
       },
       {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w4-incident"
+      },
+      {
         "courseId": "security-plus",
         "taskId": "blue-w3-detection"
       },
@@ -5761,6 +5873,10 @@
       {
         "courseId": "aws-security-specialty",
         "taskId": "scs-w4-incident"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w4-incident"
       },
       {
         "courseId": "security-plus",
@@ -5781,6 +5897,10 @@
       {
         "courseId": "aws-security-specialty",
         "taskId": "scs-ai-security-validation-w1-inject"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-ai-security-validation-w1-inject"
       },
       {
         "courseId": "security-plus",
@@ -5813,6 +5933,10 @@
         "taskId": "scs-ai-security-validation-w1-inject"
       },
       {
+        "courseId": "ccsp",
+        "taskId": "ccsp-ai-security-validation-w1-inject"
+      },
+      {
         "courseId": "security-plus",
         "taskId": "sec-ai-security-validation-w1-inject"
       },
@@ -5841,6 +5965,10 @@
       {
         "courseId": "aws-security-specialty",
         "taskId": "scs-ai-security-validation-w1-leak"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-ai-security-validation-w1-leak"
       },
       {
         "courseId": "security-plus",
@@ -5875,6 +6003,14 @@
       {
         "courseId": "aws-security-specialty",
         "taskId": "scs-ai-security-validation-w2-suite"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-ai-security-validation-w1-leak"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-ai-security-validation-w2-suite"
       },
       {
         "courseId": "security-plus",
@@ -5931,6 +6067,14 @@
         "taskId": "scs-ai-security-validation-w2-report"
       },
       {
+        "courseId": "ccsp",
+        "taskId": "ccsp-ai-security-validation-w2-suite"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-ai-security-validation-w2-report"
+      },
+      {
         "courseId": "security-plus",
         "taskId": "sec-ai-security-validation-w2-suite"
       },
@@ -5981,6 +6125,10 @@
         "taskId": "scs-ai-security-validation-w2-report"
       },
       {
+        "courseId": "ccsp",
+        "taskId": "ccsp-ai-security-validation-w2-report"
+      },
+      {
         "courseId": "security-plus",
         "taskId": "sec-ai-security-validation-w2-report"
       },
@@ -6003,6 +6151,148 @@
       {
         "courseId": "cissp",
         "taskId": "cissp-ai-security-validation-w2-report"
+      }
+    ],
+    "comp.cloud.shared-responsibility": [
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w1-concepts"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w1-arch"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w1-arch"
+      }
+    ],
+    "comp.grc.system-map": [
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w1-architecture"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w1-gov"
+      }
+    ],
+    "comp.risk.threat-model": [
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w1-architecture"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w3-gov"
+      }
+    ],
+    "comp.grc.applicability": [
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w1-legal"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w2-gov"
+      }
+    ],
+    "comp.data.discovery": [
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w2-classify"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w4-gov"
+      }
+    ],
+    "comp.harden.secrets-and-gateway": [
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w3-appsec"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w1-def"
+      }
+    ],
+    "comp.harden.pipeline-gates": [
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-w3-appsec"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w3-def"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w3-arch"
+      }
+    ],
+    "comp.arch.trust-boundaries": [
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-enterprise-ai-architect-w1-gateway"
+      },
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-enterprise-ai-architect-w1-layers"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w1-arch"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-enterprise-ai-architect-w1-gateway"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-enterprise-ai-architect-w1-layers"
+      }
+    ],
+    "comp.arch.default-deny-zones": [
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-enterprise-ai-architect-w1-layers"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w1-arch"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-enterprise-ai-architect-w1-layers"
+      }
+    ],
+    "comp.arch.rule-base": [
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-enterprise-ai-architect-w2-govern"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w2-arch"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-enterprise-ai-architect-w2-govern"
+      }
+    ],
+    "comp.arch.component-list": [
+      {
+        "courseId": "ccsp",
+        "taskId": "ccsp-enterprise-ai-architect-w2-handover"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w3-arch"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-enterprise-ai-architect-w2-handover"
       }
     ],
     "comp.hardware.identify-components": [
@@ -6565,12 +6855,6 @@
         "taskId": "mg-w4b"
       }
     ],
-    "comp.grc.system-map": [
-      {
-        "courseId": "secai-plus",
-        "taskId": "sa-w1-gov"
-      }
-    ],
     "comp.grc.policy-shall": [
       {
         "courseId": "secai-plus",
@@ -6579,12 +6863,6 @@
       {
         "courseId": "cissp",
         "taskId": "ci-w1-gov"
-      }
-    ],
-    "comp.harden.secrets-and-gateway": [
-      {
-        "courseId": "secai-plus",
-        "taskId": "sa-w1-def"
       }
     ],
     "comp.ai-attack.indirect-injection": [
@@ -6627,22 +6905,6 @@
       {
         "courseId": "secai-plus",
         "taskId": "sa-w2-gov"
-      }
-    ],
-    "comp.grc.applicability": [
-      {
-        "courseId": "secai-plus",
-        "taskId": "sa-w2-gov"
-      }
-    ],
-    "comp.harden.pipeline-gates": [
-      {
-        "courseId": "secai-plus",
-        "taskId": "sa-w3-def"
-      },
-      {
-        "courseId": "cissp",
-        "taskId": "ci-w3-arch"
       }
     ],
     "comp.harden.guardrail-tests": [
@@ -6707,34 +6969,10 @@
         "taskId": "ci-w1-gov"
       }
     ],
-    "comp.arch.trust-boundaries": [
-      {
-        "courseId": "cissp",
-        "taskId": "ci-w1-arch"
-      },
-      {
-        "courseId": "cissp",
-        "taskId": "cissp-enterprise-ai-architect-w1-gateway"
-      },
-      {
-        "courseId": "cissp",
-        "taskId": "cissp-enterprise-ai-architect-w1-layers"
-      }
-    ],
     "comp.arch.shared-responsibility": [
       {
         "courseId": "cissp",
         "taskId": "ci-w1-arch"
-      }
-    ],
-    "comp.arch.default-deny-zones": [
-      {
-        "courseId": "cissp",
-        "taskId": "ci-w1-arch"
-      },
-      {
-        "courseId": "cissp",
-        "taskId": "cissp-enterprise-ai-architect-w1-layers"
       }
     ],
     "comp.identity.rbac": [
@@ -6773,16 +7011,6 @@
         "taskId": "ci-w2-arch"
       }
     ],
-    "comp.arch.rule-base": [
-      {
-        "courseId": "cissp",
-        "taskId": "ci-w2-arch"
-      },
-      {
-        "courseId": "cissp",
-        "taskId": "cissp-enterprise-ai-architect-w2-govern"
-      }
-    ],
     "comp.arch.sdlc-gates": [
       {
         "courseId": "cissp",
@@ -6805,16 +7033,6 @@
       {
         "courseId": "cissp",
         "taskId": "ci-w3-arch"
-      }
-    ],
-    "comp.arch.component-list": [
-      {
-        "courseId": "cissp",
-        "taskId": "ci-w3-arch"
-      },
-      {
-        "courseId": "cissp",
-        "taskId": "cissp-enterprise-ai-architect-w2-handover"
       }
     ],
     "comp.identity.mfa-console": [
@@ -6841,12 +7059,6 @@
         "taskId": "ci-w3-gov"
       }
     ],
-    "comp.risk.threat-model": [
-      {
-        "courseId": "cissp",
-        "taskId": "ci-w3-gov"
-      }
-    ],
     "comp.data.sanitisation": [
       {
         "courseId": "cissp",
@@ -6863,12 +7075,6 @@
       {
         "courseId": "cissp",
         "taskId": "ci-w4-idops"
-      }
-    ],
-    "comp.data.discovery": [
-      {
-        "courseId": "cissp",
-        "taskId": "ci-w4-gov"
       }
     ],
     "comp.grc.categorise-system": [
@@ -7504,16 +7710,6 @@
       }
     ],
     "comp.cloud.budget-and-tags": [
-      {
-        "courseId": "azure-fundamentals",
-        "taskId": "az-w1-arch"
-      },
-      {
-        "courseId": "aws-cloud-practitioner",
-        "taskId": "aws-w1-arch"
-      }
-    ],
-    "comp.cloud.shared-responsibility": [
       {
         "courseId": "azure-fundamentals",
         "taskId": "az-w1-arch"

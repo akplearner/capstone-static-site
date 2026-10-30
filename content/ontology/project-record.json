@@ -950,6 +950,54 @@
       "label": "Open risk"
     },
     {
+      "form": "ccsp_setup",
+      "field": "application",
+      "kind": "host",
+      "label": "Application",
+      "declares": true
+    },
+    {
+      "form": "ccsp_architecture",
+      "group": "components",
+      "column": "component",
+      "kind": "resource",
+      "label": "Component"
+    },
+    {
+      "form": "ccsp_legal",
+      "group": "obligations",
+      "column": "obligation",
+      "kind": "risk",
+      "label": "Obligation"
+    },
+    {
+      "form": "ccsp_data",
+      "field": "key_manager",
+      "kind": "resource",
+      "label": "Key manager"
+    },
+    {
+      "form": "ccsp_platform",
+      "group": "changes",
+      "column": "change",
+      "kind": "resource",
+      "label": "Platform change"
+    },
+    {
+      "form": "ccsp_operations",
+      "group": "actions",
+      "column": "theory",
+      "kind": "incident",
+      "label": "Containment attempt"
+    },
+    {
+      "form": "ccsp_handover",
+      "group": "risks",
+      "column": "risk",
+      "kind": "risk",
+      "label": "Open risk"
+    },
+    {
       "form": "np_design",
       "group": "vlans",
       "column": "vlan",
@@ -1538,6 +1586,12 @@
     },
     {
       "form": "scs_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "ccsp_portfolio",
       "field": "repo_url",
       "kind": "resource",
       "label": "Repository"

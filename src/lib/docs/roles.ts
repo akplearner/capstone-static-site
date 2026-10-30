@@ -165,6 +165,16 @@ const AI_FOUNDATIONS: RoleContent = {
   ],
 };
 
+const CCSP_ROLES: RoleContent = {
+  MOTION: DEFAULT_MOTION,
+  PROFILES: [
+    p('data', 'commands', 'Leads the data record: classification, encryption, key ownership and retention.', ['Every data set classified', 'The store locked and encrypted', 'A customer-owned key', 'The key-ownership decision'], 'Week 2 the classification, the encryption and the key; reviews the platform and the handover.'),
+    p('platform', 'commands', 'Leads the platform record: the reference architecture, the network and the controls.', ['The shared-responsibility line', 'The reference architecture', 'The platform baseline', 'A segmented network'], 'Week 1 the responsibility line and the architecture; Week 3 the baseline and the segmentation; reviews the handover.'),
+    p('appsec', 'commands', 'Leads the application record: the secure lifecycle, the secrets and the dependencies.', ['A source clean of secrets', 'No critical dependency CVE', 'A lifecycle gate', 'Reviews the operations'], 'Week 3 the secret and dependency scans and the lifecycle gate; reviews the platform and the operations.'),
+    p('grc', 'documents', 'Leads the records that outlive the build: law, operations, the incident and handover.', ['Obligations mapped to controls', 'Monitoring and change control', 'An incident worked to contained', 'The control-to-evidence handover'], 'Week 0 the scope; Week 1 the law; Week 4 operations, the incident and the handover.'),
+  ],
+};
+
 const AWS_SECURITY_SPECIALTY: RoleContent = {
   MOTION: DEFAULT_MOTION,
   PROFILES: [
@@ -237,6 +247,7 @@ export const ROLE_CONTENT: Record<string, RoleContent> = {
   'ai-foundations': AI_FOUNDATIONS,
   'aws-ai-practitioner': AWS_AI_PRACTITIONER,
   'aws-security-specialty': AWS_SECURITY_SPECIALTY,
+  ccsp: CCSP_ROLES,
   'docker-dca': DOCKER_DCA,
   'kubernetes-cka': KUBERNETES_CKA,
   'nvidia-ai-infrastructure': NVIDIA_AI_INFRASTRUCTURE,

@@ -318,6 +318,48 @@
       "courseId": "aws-security-specialty"
     },
     {
+      "id": "CCSP.d1",
+      "code": "CCSP",
+      "name": "Cloud Concepts, Architecture and Design",
+      "weight": 17,
+      "courseId": "ccsp"
+    },
+    {
+      "id": "CCSP.d2",
+      "code": "CCSP",
+      "name": "Cloud Data Security",
+      "weight": 20,
+      "courseId": "ccsp"
+    },
+    {
+      "id": "CCSP.d3",
+      "code": "CCSP",
+      "name": "Cloud Platform & Infrastructure Security",
+      "weight": 17,
+      "courseId": "ccsp"
+    },
+    {
+      "id": "CCSP.d4",
+      "code": "CCSP",
+      "name": "Cloud Application Security",
+      "weight": 16,
+      "courseId": "ccsp"
+    },
+    {
+      "id": "CCSP.d5",
+      "code": "CCSP",
+      "name": "Cloud Security Operations",
+      "weight": 17,
+      "courseId": "ccsp"
+    },
+    {
+      "id": "CCSP.d6",
+      "code": "CCSP",
+      "name": "Legal, Risk and Compliance",
+      "weight": 13,
+      "courseId": "ccsp"
+    },
+    {
       "id": "N10-009.d1",
       "code": "N10-009",
       "name": "Networking Concepts",

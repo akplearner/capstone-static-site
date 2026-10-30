@@ -153,6 +153,12 @@ export const WORK_ROLE_OF: Record<string, Record<string, string[]>> = {
     data: ['role.cyber-policy-planner'],
     records: ['role.incident-responder', 'role.cyber-policy-planner'],
   },
+  ccsp: {
+    data: ['role.cyber-policy-planner'],
+    platform: ['role.cyber-policy-planner'],
+    appsec: ['role.cyber-policy-planner'],
+    grc: ['role.cyber-policy-planner'],
+  },
   'network-plus': {
     design: ['role.network-operations-specialist', 'role.security-architect'],
     sw: ['role.network-operations-specialist'],

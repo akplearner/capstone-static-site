@@ -30,6 +30,7 @@ import kubernetesCkaDoc from '../../../content/courses/kubernetes-cka.json';
 import nvidiaAiInfrastructureDoc from '../../../content/courses/nvidia-ai-infrastructure.json';
 import awsAiPractitionerDoc from '../../../content/courses/aws-ai-practitioner.json';
 import awsSecuritySpecialtyDoc from '../../../content/courses/aws-security-specialty.json';
+import ccspDoc from '../../../content/courses/ccsp.json';
 import networkPlusDoc from '../../../content/courses/network-plus.json';
 import secaiDoc from '../../../content/courses/secai-plus.json';
 import cisspDoc from '../../../content/courses/cissp.json';
@@ -54,6 +55,7 @@ export const SEED_DOCUMENTS: Record<string, CourseDto> = {
   'nvidia-ai-infrastructure': nvidiaAiInfrastructureDoc as unknown as CourseDto,
   'aws-ai-practitioner': awsAiPractitionerDoc as unknown as CourseDto,
   'aws-security-specialty': awsSecuritySpecialtyDoc as unknown as CourseDto,
+  ccsp: ccspDoc as unknown as CourseDto,
   'network-plus': networkPlusDoc as unknown as CourseDto,
   'secai-plus': secaiDoc as unknown as CourseDto,
   cissp: cisspDoc as unknown as CourseDto,

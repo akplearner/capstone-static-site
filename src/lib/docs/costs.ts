@@ -99,6 +99,9 @@ export const COURSE_COSTS: Record<string, CostLine[]> = {
     line('aws', 'cloud', 'AWS free tier (IAM, VPC, KMS, S3, CloudTrail, CloudWatch)', 0, 'month', 'Every proof runs on the free tier, with --dry-run where a change would cost, and resources are removed at the end.'),
     line('findings', 'software', 'The sample GuardDuty/CloudTrail findings shipped with the course', 0, 'once', 'Detection is read from a provided JSON file with jq; no paid detection service is stood up.'),
   ],
+  ccsp: [
+    line('artifacts', 'software', 'The sample artifacts shipped with the course (inventory, controls, configs)', 0, 'once', 'Every proof runs against provided files read with awk, jq and grep; no paid cloud resource is required.'),
+  ],
   'a-plus': [
     line('pc', 'hardware', 'A used desktop PC per team (the one the course rebuilds)', 100, 'once', 'Order of magnitude; donated or second-hand, any make that opens with a screwdriver.', { approx: true }),
     line('drive', 'hardware', 'A spare SATA or NVMe drive', 40, 'once', 'For the rebuild if the SMART check fails the fitted one.', { approx: true }),

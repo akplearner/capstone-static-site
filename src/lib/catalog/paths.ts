@@ -55,7 +55,7 @@ export const PATHS: CareerPath[] = [
     name: 'Cloud Security',
     role: 'Cloud Security Engineer',
     blurb: 'Secure what runs in the cloud: identity, network, data and the blast radius when a zone dies.',
-    entryIds: ['aws-cloud-practitioner', 'aws-saa', 'ms-az-500', 'aws-security-specialty'],
+    entryIds: ['aws-cloud-practitioner', 'aws-saa', 'aws-scs-c03', 'isc2-ccsp'],
   },
   {
     id: 'azure-platform',
@@ -77,6 +77,20 @@ export const PATHS: CareerPath[] = [
     role: 'Systems / Network Engineer',
     blurb: 'Build the ground everything else stands on — hosts, networks, and the automation that keeps them honest.',
     entryIds: ['comptia-a-plus', 'comptia-network-plus', 'linux-lpic-1', 'cisco-ccna'],
+  },
+  {
+    id: 'ai-platform',
+    name: 'AI Platform',
+    role: 'AI Platform / MLOps Engineer',
+    blurb: 'Run the stack models live on: the AI building blocks, containers, a Kubernetes cluster, and the GPU fabric underneath.',
+    entryIds: ['ms-ai-901', 'docker-dca', 'cncf-cka', 'nvidia-nca-aiio'],
+  },
+  {
+    id: 'ai-security',
+    name: 'AI Security',
+    role: 'AI Security Engineer',
+    blurb: 'Secure an AI product end to end: the fundamentals, attack and defend the model, and build it on a cloud you can govern.',
+    entryIds: ['aws-aif-c01', 'comptia-secai-plus', 'aws-scs-c03'],
   },
 ];
 

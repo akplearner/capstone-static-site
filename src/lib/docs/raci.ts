@@ -129,6 +129,15 @@ export const RACI: Record<string, Raci> = {
   nca_troubleshoot: r('records', 'datacenter', 'infra'),
   nca_handover: r('records', 'datacenter', 'infra', ['knowledge']),
 
+  // ccsp — data · platform · appsec · grc.
+  ccsp_setup: r('grc', 'platform', 'data'),
+  ccsp_architecture: r('platform', 'data', 'grc'),
+  ccsp_legal: r('grc', 'data', 'platform'),
+  ccsp_data: r('data', 'grc', 'platform'),
+  ccsp_platform: r('platform', 'appsec', 'grc'),
+  ccsp_appsec: r('appsec', 'platform', 'grc'),
+  ccsp_operations: r('grc', 'platform', 'data'),
+  ccsp_handover: r('grc', 'platform', 'data'),
   // aws-security-specialty — iam · infra · data · records.
   scs_setup: r('records', 'iam', 'infra'),
   scs_identity: r('iam', 'records', 'infra'),

@@ -636,6 +636,39 @@
         "sop.portfolio"
       ]
     },
+    "ccsp": {
+      "ccsp_setup": [
+        "sop.asset-inventory"
+      ],
+      "ccsp_architecture": [
+        "sop.architecture-record"
+      ],
+      "ccsp_legal": [
+        "sop.control-mapping",
+        "sop.risk-register"
+      ],
+      "ccsp_data": [
+        "sop.data-handling"
+      ],
+      "ccsp_platform": [
+        "sop.hardening-baseline",
+        "sop.network-design"
+      ],
+      "ccsp_appsec": [
+        "sop.pipeline-record"
+      ],
+      "ccsp_operations": [
+        "sop.monitoring-plan",
+        "sop.incident-response-plan"
+      ],
+      "ccsp_handover": [
+        "sop.handover",
+        "sop.chain-of-custody"
+      ],
+      "ccsp_portfolio": [
+        "sop.portfolio"
+      ]
+    },
     "aws-security-specialty": {
       "scs_setup": [
         "sop.asset-inventory"
@@ -1241,6 +1274,30 @@
         "sop.test-and-acceptance"
       ],
       "nca-w4-handover": [
+        "sop.handover",
+        "sop.chain-of-custody"
+      ]
+    },
+    "ccsp": {
+      "ccsp-w1-legal": [
+        "sop.control-mapping"
+      ],
+      "ccsp-w2-classify": [
+        "sop.data-handling"
+      ],
+      "ccsp-w3-platform": [
+        "sop.hardening-baseline"
+      ],
+      "ccsp-w3-appsec": [
+        "sop.pipeline-record"
+      ],
+      "ccsp-w4-operations": [
+        "sop.monitoring-plan"
+      ],
+      "ccsp-w4-incident": [
+        "sop.incident-response-plan"
+      ],
+      "ccsp-w4-handover": [
         "sop.handover",
         "sop.chain-of-custody"
       ]

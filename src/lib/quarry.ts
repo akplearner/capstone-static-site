@@ -112,6 +112,7 @@ const COURSE_REGION: Record<string, { region: string; seam: string }> = {
   'nvidia-ai-infrastructure': { region: 'linux', seam: 'cloud' },
   'aws-ai-practitioner': { region: 'aws', seam: 'cloud' },
   'aws-security-specialty': { region: 'aws', seam: 'cloud' },
+  ccsp: { region: 'isc2', seam: 'cissp' },
   'network-plus': { region: 'comptia', seam: 'network-plus' },
   'secai-plus': { region: 'comptia', seam: 'secai' },
   cissp: { region: 'isc2', seam: 'cissp' },

@@ -1112,6 +1112,91 @@
         "practice.right-sizing"
       ]
     },
+    "ccsp": {
+      "ccsp-w1-concepts": [
+        "practice.control-mapping"
+      ],
+      "ccsp-w1-architecture": [
+        "practice.defence-in-depth"
+      ],
+      "ccsp-w1-legal": [
+        "practice.control-mapping",
+        "practice.data-classification"
+      ],
+      "ccsp-w2-classify": [
+        "practice.data-classification"
+      ],
+      "ccsp-w2-protect": [
+        "practice.encryption-at-rest"
+      ],
+      "ccsp-w2-keys": [
+        "practice.encryption-at-rest"
+      ],
+      "ccsp-w3-platform": [
+        "practice.hardening-baseline"
+      ],
+      "ccsp-w3-network": [
+        "practice.default-deny"
+      ],
+      "ccsp-w3-appsec": [
+        "practice.dependency-scanning"
+      ],
+      "ccsp-w4-operations": [
+        "practice.centralised-logging",
+        "practice.change-control"
+      ],
+      "ccsp-w4-incident": [
+        "practice.containment-first"
+      ],
+      "ccsp-w4-handover": [
+        "practice.as-built-documentation",
+        "practice.evidence-hashing"
+      ],
+      "ccsp-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "ccsp-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "ccsp-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "ccsp-w4-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "ccsp-ai-security-validation-w1-inject": [
+        "practice.authorised-testing",
+        "practice.evidence-hashing"
+      ],
+      "ccsp-ai-security-validation-w1-leak": [
+        "practice.input-guardrails",
+        "practice.retest-to-closure"
+      ],
+      "ccsp-ai-security-validation-w2-suite": [
+        "practice.pass-line-suites",
+        "practice.regression-tests-for-guardrails"
+      ],
+      "ccsp-ai-security-validation-w2-report": [
+        "practice.customer-assurance",
+        "practice.corrective-action"
+      ],
+      "ccsp-enterprise-ai-architect-w1-gateway": [
+        "practice.redundant-paths",
+        "practice.least-privilege"
+      ],
+      "ccsp-enterprise-ai-architect-w1-layers": [
+        "practice.segmentation",
+        "practice.architecture-decision-records"
+      ],
+      "ccsp-enterprise-ai-architect-w2-govern": [
+        "practice.mfa-everywhere",
+        "practice.budget-guardrails"
+      ],
+      "ccsp-enterprise-ai-architect-w2-handover": [
+        "practice.as-built-documentation",
+        "practice.runbooks-written"
+      ]
+    },
     "a-plus": {
       "ap-w1-inventory": [
         "practice.asset-inventory",

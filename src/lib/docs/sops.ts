@@ -168,6 +168,16 @@ export const DELIVERABLE_SOPS: Record<string, Record<string, string[]>> = {
     nca_troubleshoot: ['sop.test-and-acceptance'],
     nca_handover: ['sop.handover', 'sop.chain-of-custody'],
   },
+  ccsp: {
+    ccsp_setup: ['sop.asset-inventory'],
+    ccsp_architecture: ['sop.architecture-record'],
+    ccsp_legal: ['sop.control-mapping', 'sop.risk-register'],
+    ccsp_data: ['sop.data-handling'],
+    ccsp_platform: ['sop.hardening-baseline', 'sop.network-design'],
+    ccsp_appsec: ['sop.pipeline-record'],
+    ccsp_operations: ['sop.monitoring-plan', 'sop.incident-response-plan'],
+    ccsp_handover: ['sop.handover', 'sop.chain-of-custody'],
+  },
   'aws-security-specialty': {
     scs_setup: ['sop.asset-inventory'],
     scs_identity: ['sop.identity-standard', 'sop.access-review'],
@@ -329,6 +339,15 @@ export const TASK_SOPS: Record<string, Record<string, string[]>> = {
     'nca-w2-sizing': ['sop.build-record'],
     'nca-w4-troubleshoot': ['sop.test-and-acceptance'],
     'nca-w4-handover': ['sop.handover', 'sop.chain-of-custody'],
+  },
+  ccsp: {
+    'ccsp-w1-legal': ['sop.control-mapping'],
+    'ccsp-w2-classify': ['sop.data-handling'],
+    'ccsp-w3-platform': ['sop.hardening-baseline'],
+    'ccsp-w3-appsec': ['sop.pipeline-record'],
+    'ccsp-w4-operations': ['sop.monitoring-plan'],
+    'ccsp-w4-incident': ['sop.incident-response-plan'],
+    'ccsp-w4-handover': ['sop.handover', 'sop.chain-of-custody'],
   },
   'aws-security-specialty': {
     'scs-w1-identity': ['sop.identity-standard'],

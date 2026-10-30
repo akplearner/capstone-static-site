@@ -571,6 +571,35 @@
       "communication",
       "projects"
     ],
+    "ccsp_setup": [
+      "configurations"
+    ],
+    "ccsp_architecture": [
+      "architectures"
+    ],
+    "ccsp_legal": [
+      "investigations",
+      "communication"
+    ],
+    "ccsp_data": [
+      "decisions",
+      "configurations"
+    ],
+    "ccsp_platform": [
+      "architectures",
+      "configurations"
+    ],
+    "ccsp_appsec": [
+      "configurations"
+    ],
+    "ccsp_operations": [
+      "troubleshooting",
+      "investigations"
+    ],
+    "ccsp_handover": [
+      "communication",
+      "projects"
+    ],
     "cka_setup": [
       "configurations"
     ],
@@ -827,6 +856,12 @@
       "resolved": "Contained it"
     },
     {
+      "form": "ccsp_operations",
+      "group": "actions",
+      "outcome": "result",
+      "resolved": "Contained it"
+    },
+    {
       "form": "incident_report",
       "group": "iocs",
       "outcome": "attack_type",
@@ -1047,6 +1082,16 @@
     },
     {
       "form": "scs_network",
+      "group": "changes",
+      "rollback": "rollback"
+    },
+    {
+      "form": "ccsp_platform",
+      "group": "changes",
+      "rollback": "rollback"
+    },
+    {
+      "form": "ccsp_operations",
       "group": "changes",
       "rollback": "rollback"
     },

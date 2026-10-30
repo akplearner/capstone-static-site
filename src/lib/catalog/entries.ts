@@ -153,14 +153,6 @@ export const CATALOG: CatalogEntry[] = [
     courseId: 'cissp',
     blurb: 'Build a security programme across all eight domains, six releases to federal-ready.',
   },
-  {
-    id: 'isc2-ccsp',
-    vendorId: 'isc2',
-    certName: 'CCSP',
-    level: 'expert',
-    status: 'coming-soon',
-    blurb: 'Design and govern a secure cloud platform.',
-  },
 
   // ── Microsoft — the Azure Crystal Basin ────────────────────────────────────
   {
@@ -225,6 +217,15 @@ export const CATALOG: CatalogEntry[] = [
     status: 'available',
     courseId: 'aws-security-specialty',
     blurb: 'Secure one small AWS workload end to end: least-privilege identity proved on a denial, a fenced network, data under its own keys, detection that pages, and an incident worked one change per row.',
+  },
+  {
+    id: 'isc2-ccsp',
+    vendorId: 'isc2',
+    certName: 'CCSP',
+    level: 'professional',
+    status: 'available',
+    courseId: 'ccsp',
+    blurb: 'Secure one small cloud application across its lifecycle and govern it: shared responsibility and the law, classified data under its own key, a fenced platform, a secure build, operations and an incident, handed over control-by-control.',
   },
   {
     id: 'ms-sc-900',
@@ -296,14 +297,6 @@ export const CATALOG: CatalogEntry[] = [
     status: 'available',
     courseId: 'aws-devops',
     blurb: 'Codify it, deploy it from a pipeline, check it with Config, hand it over.',
-  },
-  {
-    id: 'aws-security-specialty',
-    vendorId: 'aws',
-    certName: 'Security – Specialty',
-    level: 'professional',
-    status: 'coming-soon',
-    blurb: 'Lock down IAM, logging and data protection across accounts.',
   },
 
   // ── Linux — the Emerald System Caverns ─────────────────────────────────────

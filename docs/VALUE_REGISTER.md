@@ -69,7 +69,7 @@ report and the event contract. R132 to R134 added the last row of each list: the
 |---|---|---|---|---|
 | 1 | The ontology as a versioned artifact: semver, additive, ids as join keys | `content/ontology/` (`index.json` states the rules) | — | available now |
 | 2 | JSON Schemas for every published shape | `content/schemas/` | — | available now |
-| 3 | Thirteen course DTOs and the catalogue, content only | `content/courses/` | — | available now |
+| 3 | Twenty-two course DTOs and the catalogue, content only | `content/courses/` | — | available now |
 | 4 | The SOP register anchored to standards, as an evaluation target ("did the agent follow the runbook to NIST CSF RS.MA") | `content/ontology/sops.json`, DTO `deliverables[]` | `metric.procedure-followed` | available now |
 | 5 | The predicate vocabulary: Definition-of-Done checks and derived columns an agent can evaluate | `src/lib/docs/predicate.ts`, DTO `deliverables[].dod` | `metric.doc-dod-met` | available now |
 | 6 | The xAPI statement shape with `competencyIds` and `consentScope` | `content/schemas/xapi-statement.schema.json` | — | shape now; statements: needs events + consent |

@@ -104,6 +104,11 @@ const SEED_THEMES: Record<string, CourseTheme> = {
     vendor: 'AWS',
     certification: 'Security – Specialty (SCS-C03)',
   },
+  ccsp: {
+    key: 'ccsp',
+    vendor: 'ISC2',
+    certification: 'CCSP',
+  },
   'network-plus': {
     key: 'network-plus',
     vendor: 'CompTIA',

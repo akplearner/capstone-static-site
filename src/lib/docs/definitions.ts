@@ -30,6 +30,7 @@ import { KUBERNETES_CKA_DELIVERABLES } from './kubernetesCkaDeliverables';
 import { NVIDIA_AI_INFRASTRUCTURE_DELIVERABLES } from './nvidiaAiInfrastructureDeliverables';
 import { AWS_AI_PRACTITIONER_DELIVERABLES } from './awsAiPractitionerDeliverables';
 import { AWS_SECURITY_SPECIALTY_DELIVERABLES } from './awsSecuritySpecialtyDeliverables';
+import { CCSP_DELIVERABLES } from './ccspDeliverables';
 import { NETWORK_PLUS_DELIVERABLES } from './networkPlusDeliverables';
 import { SECAI_DELIVERABLES } from './secaiDeliverables';
 import { CISSP_DELIVERABLES } from './cisspDeliverables';
@@ -798,6 +799,7 @@ export const DELIVERABLES: DeliverableDef[] = [
   ...NVIDIA_AI_INFRASTRUCTURE_DELIVERABLES,
   ...AWS_AI_PRACTITIONER_DELIVERABLES,
   ...AWS_SECURITY_SPECIALTY_DELIVERABLES,
+  ...CCSP_DELIVERABLES,
   ...NETWORK_PLUS_DELIVERABLES,
   ...SECAI_DELIVERABLES,
   ...CISSP_DELIVERABLES,

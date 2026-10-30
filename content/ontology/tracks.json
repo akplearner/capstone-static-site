@@ -94,6 +94,12 @@
         "feeds": "scs_handover"
       },
       {
+        "courseId": "ccsp",
+        "id": "ccsp_portfolio",
+        "week": 4,
+        "feeds": "ccsp_handover"
+      },
+      {
         "courseId": "network-plus",
         "id": "np_portfolio",
         "week": 4,

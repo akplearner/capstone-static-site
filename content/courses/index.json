@@ -300,6 +300,7 @@
       "certification": "CISSP (CISSP)",
       "level": "expert",
       "prerequisite": "cysa-plus",
+      "next": "ccsp",
       "examFeeUsd": 749,
       "coveredWeight": 100,
       "costOnceUsd": 0,
@@ -760,6 +761,43 @@
         "modules": [
           "ai-security-validation",
           "local-llm-serving"
+        ]
+      }
+    },
+    {
+      "id": "ccsp",
+      "title": "CCSP — the Cloud Assurance",
+      "version": 1,
+      "file": "ccsp.json",
+      "weeks": 9,
+      "tasks": 27,
+      "steps": 49,
+      "deliverables": 9,
+      "procedures": 0,
+      "vendor": "ISC2",
+      "certification": "CCSP (CCSP)",
+      "level": "professional",
+      "prerequisite": "cissp",
+      "examFeeUsd": 599,
+      "coveredWeight": 100,
+      "costOnceUsd": 0,
+      "costMonthlyUsd": 0,
+      "costTasksUsd": 0,
+      "skills": 37,
+      "tools": 9,
+      "standards": 8,
+      "controls": 10,
+      "sops": 13,
+      "tactics": 0,
+      "practices": 27,
+      "premium": {
+        "aiWeeks": 2,
+        "cyberWeeks": 2,
+        "otherWeeks": 0,
+        "aiTasks": 4,
+        "modules": [
+          "ai-security-validation",
+          "enterprise-ai-architect"
         ]
       }
     }

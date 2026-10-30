@@ -32,6 +32,7 @@ export const COURSE_DEFAULT_VISUAL: Record<string, DeliverableVisual> = {
   'nvidia-ai-infrastructure': { kit: 'week' },
   'aws-ai-practitioner': { kit: 'week' },
   'aws-security-specialty': { kit: 'week' },
+  ccsp: { kit: 'week' },
   'network-plus': { kit: 'week' },
   'cysa-plus': { kit: 'week' },
   'security-plus': { kit: 'week' },

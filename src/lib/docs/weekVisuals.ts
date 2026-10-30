@@ -27,6 +27,7 @@ import { ARCH_BUILD as KUBERNETES_CKA_BUILD } from './kubernetesCkaContent';
 import { ARCH_BUILD as NVIDIA_AI_INFRASTRUCTURE_BUILD } from './nvidiaAiInfrastructureContent';
 import { ARCH_BUILD as AWS_AI_PRACTITIONER_BUILD } from './awsAiPractitionerContent';
 import { ARCH_BUILD as AWS_SECURITY_SPECIALTY_BUILD } from './awsSecuritySpecialtyContent';
+import { ARCH_BUILD as CCSP_BUILD } from './ccspContent';
 import { ARCH_BUILD as NETWORK_PLUS_BUILD } from './networkPlusContent';
 
 /** The build model of each course that draws its own picture. */
@@ -43,6 +44,7 @@ export const BUILD_MODELS: Record<string, BuildModel> = {
   'nvidia-ai-infrastructure': NVIDIA_AI_INFRASTRUCTURE_BUILD,
   'aws-ai-practitioner': AWS_AI_PRACTITIONER_BUILD,
   'aws-security-specialty': AWS_SECURITY_SPECIALTY_BUILD,
+  ccsp: CCSP_BUILD,
   'network-plus': NETWORK_PLUS_BUILD,
   'secai-plus': SECAI_BUILD,
   cissp: CISSP_BUILD,

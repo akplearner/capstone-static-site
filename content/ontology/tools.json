@@ -2276,6 +2276,9 @@
       "tool.aws-console",
       "tool.linux-shell"
     ],
+    "ccsp": [
+      "tool.linux-shell"
+    ],
     "network-plus": [
       "tool.network-simulator"
     ],
