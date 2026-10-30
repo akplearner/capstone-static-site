@@ -17,22 +17,34 @@ import { stepKey } from './teamProgress';
  * Pure: no repositories, no React. The hook feeds it the team's step set, the per-task percent and the
  * set of filed form ids; the renderer reads the numbers.
  */
+/**
+ * R152 — the one rule, over any list of parts that name the work building them (the architecture
+ * picture's nodes, the lab network's controls and attack steps): a `task::step` entry is met when any
+ * teammate ticked it, a task id when the team's percent is 100; the value is the met fraction.
+ */
+export function builtMapFrom(
+  entries: readonly { id: string; builtBy: readonly string[] }[],
+  teamDone: ReadonlySet<string>,
+  taskPercent: Readonly<Record<string, number>>,
+): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const e of entries) {
+    if (!e.builtBy.length) continue;
+    const met = e.builtBy.filter((entry) => (entry.includes('::') ? teamDone.has(entry) : (taskPercent[entry] ?? 0) >= 100)).length;
+    out[e.id] = met / e.builtBy.length;
+  }
+  return out;
+}
+
 export function archBuiltMap(
   nodes: readonly ArchNode[],
   teamDone: ReadonlySet<string>,
   taskPercent: Readonly<Record<string, number>>,
   filedForms: ReadonlySet<string>,
 ): Record<string, number> {
-  const out: Record<string, number> = {};
+  const out = builtMapFrom(nodes.filter((n): n is ArchNode & { builtBy: string[] } => !!n.builtBy?.length), teamDone, taskPercent);
   for (const n of nodes) {
-    if (n.builtBy && n.builtBy.length > 0) {
-      const met = n.builtBy.filter((entry) =>
-        entry.includes('::') ? teamDone.has(entry) : (taskPercent[entry] ?? 0) >= 100,
-      ).length;
-      out[n.id] = met / n.builtBy.length;
-    } else if (n.kind === 'record' && n.records) {
-      out[n.id] = filedForms.has(n.records) ? 1 : 0;
-    }
+    if (!(n.builtBy && n.builtBy.length > 0) && n.kind === 'record' && n.records) out[n.id] = filedForms.has(n.records) ? 1 : 0;
   }
   return out;
 }

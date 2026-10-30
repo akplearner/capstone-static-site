@@ -879,6 +879,7 @@ describe('R75-B — the content is not in the components', () => {
     ['src/components/docs/GuideManual.tsx', 'manualOf'],
     ['src/components/diagrams/WeekBuildDiagram.tsx', 'weekVisualsOf'],
     ['src/components/diagrams/ArchDiagram.tsx', 'archOf'],
+    ['src/components/diagrams/LabNetworkDiagram.tsx', 'networkOf'],
     ['src/components/course/WeekAddsList.tsx', 'weekVisualsOf'],
     ['src/components/docs/RoleTable.tsx', 'rolesOf'],
     ['src/components/diagrams/RoleFlowDiagram.tsx', 'rolesOf'],
@@ -1195,7 +1196,7 @@ describe('R78-C2 — fold the duplicates', () => {
  */
 describe('R78-D3 — components read the document', () => {
   const CONTENT_MODULES =
-    /from '@\/lib\/docs\/(securityContent|cysaContent|manual|serverDiagrams|ccnaDiagrams|ccnaKit|troubleshooting|serverProcedures|custodyTemplate|msspContent|secaiContent|cisspContent|weekVisuals|roles|certs|costs|skills|tools|standards|sops|tactics|metricCatalogue|skillsCopy|skillCoverage|skillSheet|skillsSection|kpis|workRoles|environmentProfile|kpiSheet)'/;
+    /from '@\/lib\/docs\/(securityContent|cysaContent|manual|serverDiagrams|ccnaDiagrams|ccnaKit|troubleshooting|serverProcedures|custodyTemplate|msspContent|secaiContent|cisspContent|securityNetwork|weekVisuals|roles|certs|costs|skills|tools|standards|sops|tactics|metricCatalogue|skillsCopy|skillCoverage|skillSheet|skillsSection|kpis|workRoles|environmentProfile|kpiSheet)'/;
   const renderers = [...collectSourceFiles('src/components'), ...collectSourceFiles('src/app')];
 
   it('no component or page imports a table from a content module', () => {
@@ -2178,6 +2179,25 @@ describe('R103 — build sheets', () => {
  * R151 — the picture lights up as the team builds it. The learner surfaces pass a team-wide `built`
  * map (never the instructor's `validation` overlay); the map is built from the team's completion.
  */
+describe('R152 — the lab network picture', () => {
+  it('the network diagram reads the document and the switch is on the learner surfaces', () => {
+    const d = code('src/components/diagrams/LabNetworkDiagram.tsx');
+    expect(d).toContain('networkOf(useCourseDocument())');
+    expect(d, 'aria-label must not match the build picture’s /week N/ img matcher').not.toMatch(/aria-label=\{`[^`]*week \$\{/);
+    expect(d, 'no reserved build-picture hooks').not.toContain('data-node');
+    for (const f of ['src/components/course/WeekVisualPanel.tsx', 'src/components/docs/GuideManual.tsx']) {
+      expect(code(f), `${f}: gates the switch on the network`).toContain('networkOf(useCourseDocument())');
+      expect(code(f)).toContain("data-picture-pick");
+    }
+    // The step sentence is built in the data module, never typed in the component (R75-B).
+    expect(code('src/lib/docs/labNetwork.ts')).toContain('export function attackSentence(');
+    expect(code('src/components/diagrams/LabNetworkPanel.tsx')).toContain('attackSentence(');
+    // One pure mapper serves both pictures.
+    expect(code('src/lib/archBuilt.ts')).toContain('export function builtMapFrom(');
+    expect(code('src/components/course/useArchBuilt.ts')).toContain('netBuiltEntries(');
+  });
+});
+
 describe('R151 — the picture marks what the team has built', () => {
   it('the learner surfaces thread built, from the one team-wide hook', () => {
     expect(code('src/components/diagrams/WeekBuildDiagram.tsx'), 'the arch picture takes built').toContain('built={built}');

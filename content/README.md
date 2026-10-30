@@ -81,6 +81,7 @@ a seed changed without regenerating; CI runs the export and diffs this folder.
     "custody":        { CUSTODY_COLUMNS, CUSTODY_RULES },            // every course
     "troubleshooting": { … },                                        // courses that run commands
     "arch":           { ARCH, ARCH_BUILD },                          // the five self-drawn courses (R103)
+    "network":        { NETWORK },                                   // the lab network picture (Security+ today, R152)
     "cloud":          { topology, iac, block, workflows, raci, phases },   // the six cloud courses
     "security" | "cysa" | "mssp" | "diagrams" | "kit" | "ccnaDiagrams": { … }   // per course
   },

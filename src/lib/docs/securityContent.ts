@@ -40,7 +40,7 @@ export const HYPERVISORS: string[] = [
 export const LAB_PREFLIGHT: string[] = [
   'All VMs powered on and on the SAME isolated lab network/subnet',
   'Kali can ping the Ubuntu (and Windows) target',
-  'DVWA login page loads at http://<UBUNTU_IP>/ (admin / password)',
+  'DVWA login page loads at http://<UBUNTU_IP>:8080/ (admin / password)',
   '“pre-hardening” snapshots taken of the target VMs',
   'Target IPs recorded in the Lab access panel; Rules of Engagement read',
 ];
@@ -100,7 +100,7 @@ export const DVWA = {
   ] as Run[],
   commands: [
     { cmd: 'sudo apt install -y docker.io && sudo systemctl enable --now docker', explain: 'Install Docker and start it (first time only).' },
-    { cmd: 'sudo docker run -d --name dvwa --restart unless-stopped -p 80:80 vulnerables/web-dvwa', explain: 'Create + start the named DVWA container on port 80.' },
+    { cmd: 'sudo docker run -d --name dvwa --restart unless-stopped -p 8080:80 vulnerables/web-dvwa', explain: 'Create + start the named DVWA container on port 8080.' },
     { cmd: 'sudo docker start dvwa', explain: 'Start the existing container again (after a reboot/stop).' },
     { cmd: 'sudo docker stop dvwa', explain: 'Stop it when you are done.' },
     { cmd: 'sudo docker ps', explain: 'List running containers — confirm dvwa is up.' },
@@ -198,7 +198,7 @@ export const ARCH: ArchPicture = {
     { id: 'exploits', label: 'Authorized attacks', sub: 'sqlmap · hydra · Metasploit', kind: 'app', zone: 'attacker', x: 110, y: 380, arrives: 3, records: 'pentest_report', role: 'red', purpose: 'Proves each finding with evidence, inside scope', builtBy: ['red-w3-attacks::red-w3-s1', 'red-w3-attacks::red-w3-msf'] },
     // Blue builds the targets.
     { id: 'ubuntu', label: 'Ubuntu web server', sub: labHost('ubuntu').services.join(' · '), addr: labHost('ubuntu').ip, kind: 'server', zone: 'targets', x: 300, y: 170, arrives: 0, records: 'asset_inventory', role: 'blue', purpose: 'The web target the attack chain lands on', builtBy: ['blue-w0-setup::blue-w0-s1'] },
-    { id: 'dvwa', label: 'DVWA', sub: 'Docker · :80', kind: 'app', zone: 'targets', x: 300, y: 240, arrives: 0, records: 'asset_inventory', role: 'blue', purpose: 'The deliberately vulnerable app Red attacks', builtBy: ['blue-w0-setup::blue-w0-s4', 'blue-w0-setup::blue-w0-s5'] },
+    { id: 'dvwa', label: 'DVWA', sub: 'Docker · :8080', kind: 'app', zone: 'targets', x: 300, y: 240, arrives: 0, records: 'asset_inventory', role: 'blue', purpose: 'The deliberately vulnerable app Red attacks', builtBy: ['blue-w0-setup::blue-w0-s4', 'blue-w0-setup::blue-w0-s5'] },
     { id: 'linhard', label: 'Linux hardening', sub: 'ufw · fail2ban · Lynis', kind: 'control', zone: 'targets', x: 300, y: 310, arrives: 1, records: 'hardening_baseline', role: 'blue', purpose: 'The controls applied before the attack and checked after', builtBy: ['blue-w1-hardening::blue-w1-s3', 'blue-w1-hardening::blue-w1-s4', 'blue-w1-hardening::blue-w1-s5'] },
     { id: 'snapshot', label: 'VM snapshot', sub: 'pre-hardening restore point', kind: 'backup', zone: 'targets', x: 300, y: 380, arrives: 0, records: 'ir_runbook', role: 'blue', purpose: 'The restore point the runbook falls back to', builtBy: ['blue-w0-setup::blue-w0-s3'] },
     { id: 'windows', label: 'Windows host', sub: labHost('windows').note, addr: labHost('windows').ip, kind: 'endpoint', zone: 'targets', x: 460, y: 170, arrives: 0, records: 'asset_inventory', role: 'blue', purpose: 'The second target: RDP and local accounts', builtBy: ['blue-w0-setup::blue-w0-s2'] },
@@ -206,7 +206,7 @@ export const ARCH: ArchPicture = {
     { id: 'winlog', label: 'Windows logging', sub: 'audit logon 4624 · 4625', kind: 'monitor', zone: 'targets', x: 460, y: 310, arrives: 2, records: 'vm_sop', role: 'blue', purpose: 'Records every logon so a brute force is visible', builtBy: ['blue-w2-baseline::blue-w2-s4'] },
     { id: 'capture', label: 'Packet capture', sub: 'tcpdump · Wireshark pcaps', kind: 'monitor', zone: 'targets', x: 620, y: 170, arrives: 2, records: 'vm_sop', role: 'blue', purpose: 'The normal and attack traffic samples Blue reads', builtBy: ['blue-w2-baseline::blue-w2-s1', 'blue-w2-baseline::blue-w2-s2'] },
     { id: 'rules', label: 'Detection filters', sub: 'SYN-scan · SQLi', kind: 'control', zone: 'targets', x: 620, y: 240, arrives: 2, records: 'vm_sop', role: 'blue', purpose: 'The filters that name the attack in the capture', builtBy: ['blue-w2-baseline::blue-w2-s3'] },
-    { id: 'weblog', label: 'Web-log watch', sub: 'tail -f · grep access.log', kind: 'monitor', zone: 'targets', x: 620, y: 310, arrives: 3, records: 'incident_report', role: 'blue', purpose: 'Catches the live SQL injection as it is tried', builtBy: ['blue-w3-detection::blue-w3-s2', 'blue-w3-detection::blue-w3-s3'] },
+    { id: 'weblog', label: 'Web-log watch', sub: 'docker exec · access.log', kind: 'monitor', zone: 'targets', x: 620, y: 310, arrives: 3, records: 'incident_report', role: 'blue', purpose: 'Catches the live SQL injection as it is tried', builtBy: ['blue-w3-detection::blue-w3-s2', 'blue-w3-detection::blue-w3-s3'] },
     { id: 'contain', label: 'Containment', sub: 'ufw deny · firewall rule', kind: 'firewall', zone: 'targets', x: 620, y: 380, arrives: 3, records: 'incident_report', role: 'blue', purpose: 'Cuts the attacker off once the case is confirmed', builtBy: ['blue-w3-detection::blue-w3-s4', 'blue-w3-detection::blue-w3-s5'] },
     // GRC keeps the proof.
     { id: 'workspace', label: 'Team workspace', sub: 'team-artifacts/', kind: 'data', zone: 'proof', x: 830, y: 170, arrives: 0, records: 'scope_roe', role: 'grc', purpose: 'Where every artefact is filed, week by week', builtBy: ['grc-w0-setup::grc-w0-s1'] },
@@ -231,7 +231,6 @@ export const ARCH: ArchPicture = {
   ],
   edges: [
     { from: 'kali', to: 'ubuntu', label: 'recon · scans · exploits' },
-    { from: 'kali', to: 'windows', label: 'RDP · accounts' },
     { from: 'linhard', to: 'ubuntu', label: 'baseline', kind: 'trust' },
     { from: 'winhard', to: 'windows', label: 'baseline', kind: 'trust' },
     { from: 'ubuntu', to: 'weblog', label: 'access.log', kind: 'log' },

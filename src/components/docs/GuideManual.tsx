@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { CloudManualArchitecture, CloudOverview } from '@/components/cloud/CloudOverview';
 import { useCourseProgress } from '@/components/course/useCourseProgress';
 import { WeekBuildDiagram } from '@/components/diagrams/WeekBuildDiagram';
+import { LabNetworkPanel } from '@/components/diagrams/LabNetworkPanel';
 import { useArchBuilt } from '@/components/course/useArchBuilt';
 import { WeekAddsList } from '@/components/course/WeekAddsList';
 import { CaseLifecycleChain } from '@/components/diagrams/CaseLifecycleChain';
@@ -23,7 +24,7 @@ import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
 import { TeamBusinessPicker } from '@/components/team/TeamBusinessPicker';
 import { manualHas, manualSectionsFor } from '@/lib/docs/manual';
 import { useCourseDocument } from '@/lib/useCourse';
-import { manualOf } from '@/lib/content/read';
+import { manualOf, networkOf } from '@/lib/content/read';
 import { docsRepo } from '@/lib/data';
 import { useClientStore } from '@/lib/useClientStore';
 import { buildDeliverableChain } from '@/lib/deliverableChain';
@@ -73,6 +74,8 @@ export function GuideManual({ course, member }: { course: Course; member: Member
   const built = useArchBuilt(course, member);
   // R99: the lab picture opens on the student's week and carries the week pills.
   const [pictureWeek, setPictureWeek] = useState(progress.activeWeek);
+  const [labView, setLabView] = useState<'build' | 'network'>('build');
+  const hasNet = networkOf(useCourseDocument()).hosts.length > 0;
 
   // The deliverable chain, with filed status recomputed whenever docs change,
   // so the diagram reads as a live status board rather than a static plan.
@@ -115,8 +118,23 @@ export function GuideManual({ course, member }: { course: Course; member: Member
           ) : (
             <>
               {picture === 'rack' && <TeamBusinessPicker courseId={course.id} teamId={member.teamId} onBusiness={setTeamBusiness} />}
-              <WeekBuildDiagram course={course} week={pictureWeek} controls onWeekChange={setPictureWeek} business={teamBusiness} highlightRole={member.role} built={built} />
-              <WeekAddsList courseId={course.id} week={pictureWeek} />
+              {hasNet && (
+                <div className="inline-flex overflow-hidden rounded-[var(--radius-control)] depth-edge" role="group" aria-label="Picture">
+                  {(['build', 'network'] as const).map((v) => (
+                    <button key={v} type="button" data-picture-pick={v} aria-pressed={labView === v} onClick={() => setLabView(v)} className={`px-2.5 py-1 text-xs font-medium capitalize transition-colors ${labView === v ? 'bg-accent-soft text-accent-ink' : 'bg-panel text-muted hover:text-ink'}`}>
+                      {v}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {hasNet && labView === 'network' ? (
+                <LabNetworkPanel week={pictureWeek} built={built} />
+              ) : (
+                <>
+                  <WeekBuildDiagram course={course} week={pictureWeek} controls onWeekChange={setPictureWeek} business={teamBusiness} highlightRole={member.role} built={built} />
+                  <WeekAddsList courseId={course.id} week={pictureWeek} />
+                </>
+              )}
             </>
           )}
           {course.id === 'security-plus' && <LabSetupGuide />}

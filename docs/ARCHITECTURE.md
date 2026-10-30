@@ -992,6 +992,20 @@ learner as the **team** builds it. Each part of the picture names the task or st
 lights the part on every teammate's screen. It is a learner-only `built` prop, distinct from the
 instructor's `validation` overlay — the two never mix, and the picture with neither is unchanged.
 
+
+### The lab network picture (R152)
+
+Alongside the architecture picture, Security+ draws a **lab network**: the hosts on the one Host-Only
+segment, each host's open ports and the controls Blue has placed on it, and the week's numbered Red
+attacks (exam vocabulary) with the Blue response to each. A **Build | Network** switch on the week panel
+(Tasks tab and Guide) chooses between the two pictures; a **Before | After** toggle shows the system
+entering and leaving the week; a Prev/Next step-through walks the attacks. It is data
+(`src/lib/docs/labNetwork.ts` shape, `securityNetwork.ts` instance, read via `networkOf`) drawn by
+`LabNetworkDiagram`/`LabNetworkPanel`; before/after is a pure projection of one data set
+(`servicesAt`/`controlsAt`). Controls and attack steps light as the team finishes the work through the
+same `builtMapFrom` the architecture picture uses, with namespaced ids so one built map serves both. A
+course without a network reads `NO_NETWORK` and shows no switch.
+
 ### Longitudinal validation, the task timer and the Understanding score (R140)
 
 Did the learner retain what the team built, understand the decisions, and apply them later? From the middle graded

@@ -60,6 +60,7 @@ import * as manual from '@/lib/docs/manual';
 import * as serverDiagrams from '@/lib/docs/serverDiagrams';
 import * as cysaContent from '@/lib/docs/cysaContent';
 import * as securityContent from '@/lib/docs/securityContent';
+import * as securityNetwork from '@/lib/docs/securityNetwork';
 import * as troubleshooting from '@/lib/docs/troubleshooting';
 import * as ccnaTopology from '@/lib/ccnaTopology';
 import * as ccnaKit from '@/lib/docs/ccnaKit';
@@ -341,8 +342,10 @@ export function courseDto(courseId: string): CourseDto {
     content.cysa = contentData(cysaContent);
   }
   if (courseId === 'security-plus') {
-    generatedFrom.push('src/lib/docs/securityContent.ts', 'src/lib/docs/cysaContent.ts');
+    generatedFrom.push('src/lib/docs/securityContent.ts', 'src/lib/docs/cysaContent.ts', 'src/lib/docs/securityNetwork.ts');
     content.security = contentData(securityContent);
+    // R152: the lab network — hosts, ports, controls and the week's attack steps with Blue's answers.
+    content.network = contentData(securityNetwork);
     // Security+ draws two of the SOC diagrams on its own forms — the risk
     // matrix on the Risk Register, the incident timeline on the Incident
     // Report — so its document carries exactly those tables, no more.

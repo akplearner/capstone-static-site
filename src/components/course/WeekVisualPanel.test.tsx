@@ -38,3 +38,42 @@ describe('WeekVisualPanel', () => {
     expect(container.querySelector('[data-compact="true"]')).toBeNull();
   });
 });
+
+/**
+ * R152 — a course with a lab network (Security+) gets a Build | Network switch once expanded; a course
+ * without one (azure-fundamentals) never shows it, and the single heading holds either way.
+ */
+describe('WeekVisualPanel — R152 Build | Network switch', () => {
+  const mountSec = (fill?: boolean) => {
+    const doc = courseDocument('security-plus')!;
+    return render(
+      <CourseDocumentContext.Provider value={doc}>
+        <WeekVisualPanel course={doc.course} week={3} fill={fill} />
+      </CourseDocumentContext.Provider>
+    );
+  };
+
+  it('azure-fundamentals shows no switch and keeps one h3', () => {
+    const { container } = mount();
+    expect(container.querySelector('[data-picture-pick]')).toBeNull();
+    expect(container.querySelectorAll('h3')).toHaveLength(1);
+  });
+
+  it('Security+ reveals the switch when expanded, still one h3, and Network shows the network root', async () => {
+    const { container } = mountSec();
+    // collapsed: no switch yet
+    expect(container.querySelector('[data-picture-pick]')).toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: 'Expand' }));
+    expect(container.querySelector('[data-picture-pick="network"]')).not.toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: 'network' }));
+    expect(container.querySelector('[data-net-root]')).not.toBeNull();
+    // The network picture adds no heading of its own — only the panel's one h3 remains.
+    expect(container.querySelectorAll('h3')).toHaveLength(1);
+  });
+
+  it('in the split-pane fill view the switch is available without an Expand toggle', () => {
+    const { container } = mountSec(true);
+    expect(container.querySelector('[data-picture-pick="network"]')).not.toBeNull();
+    expect(screen.queryByRole('button', { name: /Expand|Shrink/ })).toBeNull();
+  });
+});

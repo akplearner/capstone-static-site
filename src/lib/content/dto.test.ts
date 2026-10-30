@@ -92,6 +92,15 @@ describe('content/courses — the JSON snapshot of every course', () => {
       expect(JSON.parse(read(`${id}.json`)).topology, id).toBeUndefined();
     }
   });
+
+  it('R152: Security+ carries its lab network under content.network, and other courses do not', () => {
+    const sp = JSON.parse(read('security-plus.json'));
+    expect(sp.content.network?.NETWORK?.hosts?.length).toBe(3);
+    expect(sp.generatedFrom).toContain('src/lib/docs/securityNetwork.ts');
+    for (const id of ['cysa-plus', 'mssp', 'azure-fundamentals']) {
+      expect(JSON.parse(read(`${id}.json`)).content.network, id).toBeUndefined();
+    }
+  });
 });
 
 /**

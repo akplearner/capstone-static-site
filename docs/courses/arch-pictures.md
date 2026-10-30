@@ -59,6 +59,25 @@ this week`". The map is **separate from the instructor's `validation` overlay**:
 never passes `validation`, and with no `built` prop the picture is exactly the calendar-only one above.
 `archPicture.test.ts` proves every `builtBy` id resolves to a real task or step of its course.
 
+## The lab network picture (R152)
+
+Security+ carries a second, different picture behind a **Build | Network** switch on the week panel
+(the Tasks tab and the Guide lab section): the lab as a NETWORK. `src/lib/docs/labNetwork.ts` is the
+course-agnostic shape — hosts with their open ports (`NetService`, each with the week window it is
+present), the controls Blue puts on each host (`NetControl`, by kind: harden, detect, contain, recover),
+and per week a list of numbered `NetAttack`s in exam vocabulary (reconnaissance, scanning, enumeration,
+injection, brute force, remote code execution) with the Blue `response` that answers each. One data set
+is projected two ways: `servicesAt`/`controlsAt` give the system **before** and **after** each week, so
+the Before | After toggle is a pure projection, not a second copy. The attack `tool` is a category, never
+a command. `src/lib/docs/securityNetwork.ts` holds the Security+ instance (addresses from `labTopology`),
+read through `networkOf` and drawn by `LabNetworkDiagram` inside `LabNetworkPanel` (the Before|After
+toggle and the Prev/Next attack step-through, whose sentence comes from `attackSentence`). Controls and
+attack steps light up as the team completes the work, through the same `builtMapFrom` the architecture
+picture uses; their ids are namespaced (`ctl:`, `atk:`) so one built map serves both pictures. A course
+without a network reads the empty `NO_NETWORK`, so the switch never shows. Honest framing: no Red step
+attacks Windows, so its Week-3 4625 case is drawn as Blue's own test logons (`selfTest`), a badge on the
+host, never a Kali arrow.
+
 ## The weekly breakdown
 
 `partsOf(doc)` (`src/lib/content/read.ts`) returns the catalogue of any

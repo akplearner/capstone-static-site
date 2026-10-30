@@ -34,6 +34,7 @@ import type { CloudTopology, IacBundle } from '@/lib/cloud/model';
 import type { KitSpec } from '@/lib/diagrams/kitSpec';
 import type { BuildModel, WeekVisual } from '@/lib/weekVisual';
 import type { ArchPart, ArchPicture } from '@/lib/docs/archPicture';
+import { NO_NETWORK, type LabNetwork } from '@/lib/docs/labNetwork';
 
 type DataOf<M> = { [K in keyof M as M[K] extends (...args: never[]) => unknown ? never : K]: M[K] };
 type ContentOf<M> = Serialisable<DataOf<M>>;
@@ -49,6 +50,8 @@ export type CustodyContent = ContentOf<typeof import('@/lib/docs/custodyTemplate
 export type MsspContent = ContentOf<typeof import('@/lib/docs/msspContent')>;
 /** R103: the architecture picture and its build model, one shape for every course that draws its own. */
 export type ArchContent = Serialisable<{ ARCH: ArchPicture; ARCH_BUILD: BuildModel }>;
+/** R152: the lab network picture (Security+ today); a course without one reads the empty network. */
+export type NetworkContent = Serialisable<{ NETWORK: LabNetwork }>;
 export type ProcedureWeeks = Serialisable<typeof import('@/lib/docs/serverProcedures').WEEKS>;
 export type Procedures = Serialisable<typeof import('@/lib/docs/serverProcedures').PROCEDURES>;
 
@@ -80,6 +83,8 @@ export const custodyOf = (doc: CourseDto) => section<CustodyContent>(doc, 'custo
 export const msspOf = (doc: CourseDto) => section<MsspContent>(doc, 'mssp');
 /** R103: the course's architecture picture (Security+, CySA+, MSSP, SecAI+, CISSP). */
 export const archOf = (doc: CourseDto) => section<ArchContent>(doc, 'arch');
+/** R152: the course's lab network, or the empty one (no hosts → the Build | Network switch never shows). */
+export const networkOf = (doc: CourseDto): LabNetwork => (section<Partial<NetworkContent>>(doc, 'network').NETWORK as LabNetwork | undefined) ?? NO_NETWORK;
 
 /**
  * R103: every part of the course's picture, whatever draws it — the arch

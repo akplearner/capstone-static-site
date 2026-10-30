@@ -29,6 +29,7 @@ the record. `src/lib/page-shape.test.ts` fails if an id is removed from the tabl
 | F20 | The acknowledgement gate never shows a returning account the first-time welcome: the reads filter by the account (an instructor no longer passes on other people's acceptances), a failed or session-less read is a Retry screen, a session fault refreshes instead of signing out, a network fault queues the acceptance for the next load, and the Week-0 acknowledgement and every other personal-state key are merged on the server (0027) so one device cannot erase another's | R149 | Done |
 | F21 | A student may leave a team (what they earned stays on the account, the course work starts over, the team's documents stay with the team) and may join this month's or next month's class session — never an earlier one, and never one behind a session they have already been in; the rule is the database's (0028: a floor table only triggers write, a guard on every join; instructors exempt) as well as the browser's | R150 | Done |
 | F22 | The Security+ lab picture draws what the tasks actually build (DVWA in Docker, ufw/fail2ban/Lynis, Defender/SMBv1, tcpdump/Wireshark, Windows 4625, the web-log watch and the ufw-deny containment, the snapshot and the hypervisor) with the correct arrival weeks, and it lights up as the team completes the work; the CySA+, MSSP and SecAI+ pictures name only real tools; Security+ task text no longer cites files nothing produces | R151 | Done |
+| F23 | Students asked for a network picture they can reference: Security+ now draws a lab network (hosts, addresses, open ports, Blue's controls) behind a Build | Network switch, with a Before | After toggle and a numbered attack step-through in exam vocabulary; DVWA is on :8080 everywhere, Blue's Week-3 log watch reads the DVWA container's log, and the Windows 4625 case is shown honestly as Blue's own test logons | R152 | Done |
 
 Order of the rounds: the field bug first (it blocks reporting and links), then the link size (the link
 fails today), then the earned-skills ledger (the record and the PDF both read it), then the live and
@@ -284,3 +285,29 @@ parts built this week". It is a learner-only prop, never the instructor's `valid
 pictures still pass the archPicture, weekVisuals and content-integrity suites; the regenerated
 `content/courses/{security-plus,cysa-plus,mssp,secai-plus}.json` and build sheets; page-shape pins for
 the threaded `built` and the absent `validation`.
+
+## F23 — the lab network picture (R152, done)
+
+**What.** The owner asked for a picture students reference: the network structure and devices, what they
+secure and attack, the attack types and the flow each week, and the system before and after. The R151
+picture shows the parts a course builds, not the network. `src/lib/docs/labNetwork.ts` (course-agnostic)
+and `src/lib/docs/securityNetwork.ts` (Security+) add the lab as a network — Kali, the Ubuntu web server
+and the optional Windows host on one Host-Only segment, each with its open ports and the controls Blue
+applies, and per week the numbered Red attacks (reconnaissance → scanning → enumeration → injection →
+brute force → remote code execution) each paired with the Blue detection or containment that answers it.
+
+**Wired.** A Build | Network switch on `WeekVisualPanel` and the Guide lab section (shown only when the
+course carries a network); `LabNetworkDiagram` (pure SVG, token-only, `data-net-*` hooks, an aria-label
+that never matches the build picture's `/week N/` img) inside `LabNetworkPanel` (Before | After toggle,
+Prev/Next step-through whose sentence is `attackSentence`). Before/after is one data set projected by
+`servicesAt`/`controlsAt`. Controls and attacks light as the team completes the work via `builtMapFrom`
+(extracted from `archBuiltMap`), with `ctl:`/`atk:` ids disjoint from the architecture nodes so one
+`useArchBuilt` map serves both. Content fixes: DVWA :8080 everywhere; Blue's Week-3 log watch reads the
+DVWA container's log (`docker exec`); the dishonest `kali → windows` architecture edge removed, the
+Windows 4625 case drawn as Blue's own test logons.
+
+**Verified.** `labNetwork.test.ts` (addresses, builtBy resolution, id disjointness, before/after change,
+word budgets, :8080); `LabNetworkPanel.test.tsx` (hosts, DVWA port, toggle, step-through, built tint,
+aria-label); `WeekVisualPanel` switch present for Security+ and absent for azure, one h3; `dto.test`
+(content.network carries three hosts, no top-level topology); page-shape pins; regenerated
+`content/courses/security-plus.json` and `index.json`.

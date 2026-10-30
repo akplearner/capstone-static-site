@@ -126,7 +126,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
           columns: [
             c('hostname', 'Hostname', 'text', { placeholder: 'dvwa-vm' }),
             c('ip', 'IP address', 'ipv4', { placeholder: '10.10.10.5' }),
-            c('service', 'Service / port', 'text', { placeholder: '80/tcp HTTP' }),
+            c('service', 'Service / port', 'text', { placeholder: '8080/tcp HTTP' }),
             c('version', 'Version', 'text', { placeholder: 'Apache 2.4.41' }),
             c('os', 'OS', 'text', { placeholder: 'Ubuntu 20.04' }),
             c('role', 'Role / purpose', 'text', { placeholder: 'DVWA web target' }),
@@ -135,7 +135,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
             c('notes', 'Notes', 'text', { placeholder: 'default install' }),
           ],
           seed: [
-            { hostname: 'dvwa-vm', ip: '10.10.10.5', service: '80/tcp HTTP', version: 'Apache 2.4.41', os: 'Ubuntu 20.04', role: 'DVWA web target', discovered_by: 'Red / nmap', evidence: 'Nmap_Scan.txt', notes: 'default install' },
+            { hostname: 'dvwa-vm', ip: '10.10.10.5', service: '8080/tcp HTTP', version: 'Apache 2.4.41', os: 'Ubuntu 20.04', role: 'DVWA web target', discovered_by: 'Red / nmap', evidence: 'Nmap_Scan.txt', notes: 'DVWA in Docker' },
           ],
         },
       },

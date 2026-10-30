@@ -1,6 +1,6 @@
 # Security+ Capstone Lab — skills sheet
 
-16 graded tasks and 4 advanced · 38 skills · 34 tools · 16 procedures · 18 standards (16 controls cited) · 5 tactics · 25 practices
+16 graded tasks and 4 advanced · 38 skills · 35 tools · 16 procedures · 18 standards (16 controls cited) · 5 tactics · 25 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -84,6 +84,7 @@ Generated from the registries and the course document by `npm run content:export
 | LLM Guard | service | Prove a data leak |
 | Ollama | service | AI extension: explain the hardening baseline; AI extension: summarise the risks found; AI extension: draft the incident timeline; AI extension: review the final report |
 | Git | cli | Automate the attack suite |
+| Docker | cli | Live Detection & Response (Linux + Windows) |
 | Python | language | Prove a prompt injection; Prove a data leak; Automate the attack suite; Report the validation |
 
 ## Procedures
