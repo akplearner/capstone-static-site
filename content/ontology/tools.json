@@ -1264,7 +1264,9 @@
       "label": "Docker",
       "kind": "cli",
       "aliases": [
-        "Docker"
+        "Docker",
+        "Docker Compose",
+        "Compose"
       ],
       "commands": [
         "docker",
@@ -2218,6 +2220,9 @@
       "tool.ollama",
       "tool.azure-cli",
       "tool.python"
+    ],
+    "docker-dca": [
+      "tool.docker"
     ],
     "aws-ai-practitioner": [
       "tool.ollama",

@@ -8,6 +8,7 @@ import { CCNA } from '../data/seed/ccna';
 import { A_PLUS } from '../data/seed/aPlus';
 import { AI_FOUNDATIONS } from '../data/seed/aiFoundations';
 import { AWS_AI_PRACTITIONER } from '../data/seed/awsAiPractitioner';
+import { DOCKER_DCA } from '../data/seed/dockerDca';
 import { NETWORK_PLUS } from '../data/seed/networkPlus';
 import { SECAI_PLUS } from '../data/seed/secaiPlus';
 import { CISSP } from '../data/seed/cissp';
@@ -15,7 +16,7 @@ import { AZURE_COURSES } from '../data/seed/azureCloud';
 import { AWS_COURSES } from '../data/seed/awsCloud';
 import type { Course } from '../types';
 
-const COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER];
+const COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA];
 
 /**
  * The manual's sections used to be gated on `course.id === 'server-plus'` and
@@ -43,7 +44,7 @@ describe('manual sections', () => {
     // after it was replaced (CCNA) never went through that rule, so asserting it
     // against a reconstruction of the rule would only be asserting the
     // reconstruction. It is checked on its own terms below.
-    for (const c of COURSES.filter((x) => x.id !== 'ccna' && x.id !== 'a-plus' && x.id !== 'network-plus' && x.id !== 'ai-foundations' && x.id !== 'aws-ai-practitioner' && x.manualSections?.includes('cloud-iac') !== true)) {
+    for (const c of COURSES.filter((x) => x.id !== 'ccna' && x.id !== 'a-plus' && x.id !== 'network-plus' && x.id !== 'ai-foundations' && x.id !== 'aws-ai-practitioner' && x.id !== 'docker-dca' && x.manualSections?.includes('cloud-iac') !== true)) {
       expect(manualSectionsFor(c).map((s) => s.id), c.id).toEqual(oldGating(c));
     }
   });
@@ -78,6 +79,12 @@ describe('manual sections', () => {
     const ids = manualSectionsFor(AWS_AI_PRACTITIONER).map((s) => s.id);
     expect(ids).toEqual(['lab', 'terminal', 'evidence', 'forms', 'roles', 'lifecycle', 'frameworks']);
     expect(manualSectionsFor(AWS_AI_PRACTITIONER).find((s) => s.id === 'lab')?.title).toBe('The lab');
+  });
+
+  it('the Docker DCA yard gets only the sections it can fill', () => {
+    const ids = manualSectionsFor(DOCKER_DCA).map((s) => s.id);
+    expect(ids).toEqual(['lab', 'terminal', 'evidence', 'forms', 'roles', 'lifecycle', 'frameworks']);
+    expect(manualSectionsFor(DOCKER_DCA).find((s) => s.id === 'lab')?.title).toBe('The lab');
   });
 
   it('the Network+ branch gets only the sections it can fill', () => {

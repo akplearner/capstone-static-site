@@ -62,7 +62,7 @@ beforeEach(() => {
 describe('the cloud course repo', () => {
   it('serves the built-in courses from their documents', () => {
     const ids = supabaseCourseRepo.list().map((c) => c.id);
-    expect(ids).toEqual(['security-plus', 'mssp', 'cysa-plus', 'server-plus', 'ccna', 'a-plus', 'network-plus', 'secai-plus', 'cissp', 'azure-fundamentals', 'azure-administrator', 'azure-devops', 'aws-cloud-practitioner', 'aws-solutions-architect', 'aws-devops', 'ai-foundations', 'aws-ai-practitioner']);
+    expect(ids).toEqual(['security-plus', 'mssp', 'cysa-plus', 'server-plus', 'ccna', 'a-plus', 'network-plus', 'secai-plus', 'cissp', 'azure-fundamentals', 'azure-administrator', 'azure-devops', 'aws-cloud-practitioner', 'aws-solutions-architect', 'aws-devops', 'ai-foundations', 'aws-ai-practitioner', 'docker-dca']);
     expect(supabaseCourseRepo.get('server-plus')?.title).toBe(parent.course.title);
   });
 

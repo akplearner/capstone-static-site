@@ -107,6 +107,7 @@ const COURSE_REGION: Record<string, { region: string; seam: string }> = {
   ccna: { region: 'cisco', seam: 'ccna' },
   'a-plus': { region: 'comptia', seam: 'a-plus' },
   'ai-foundations': { region: 'microsoft', seam: 'cloud' },
+  'docker-dca': { region: 'linux', seam: 'cloud' },
   'aws-ai-practitioner': { region: 'aws', seam: 'cloud' },
   'network-plus': { region: 'comptia', seam: 'network-plus' },
   'secai-plus': { region: 'comptia', seam: 'secai' },

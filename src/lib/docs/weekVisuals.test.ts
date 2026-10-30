@@ -10,6 +10,7 @@ import { CCNA } from '../data/seed/ccna';
 import { A_PLUS } from '../data/seed/aPlus';
 import { AI_FOUNDATIONS } from '../data/seed/aiFoundations';
 import { AWS_AI_PRACTITIONER } from '../data/seed/awsAiPractitioner';
+import { DOCKER_DCA } from '../data/seed/dockerDca';
 import { NETWORK_PLUS } from '../data/seed/networkPlus';
 import { AZURE_BLOCKS, AZURE_COURSES } from '../data/seed/azureCloud';
 import { AWS_BLOCKS, AWS_COURSES } from '../data/seed/awsCloud';
@@ -26,6 +27,7 @@ import { ARCH as CISSP_ARCH } from './cisspContent';
 import { ARCH as A_PLUS_ARCH } from './aPlusContent';
 import { ARCH as AI_FOUNDATIONS_ARCH } from './aiFoundationsContent';
 import { ARCH as AWS_AI_PRACTITIONER_ARCH } from './awsAiPractitionerContent';
+import { ARCH as DOCKER_DCA_ARCH } from './dockerDcaContent';
 import { ARCH as NETWORK_PLUS_ARCH } from './networkPlusContent';
 import { partsBuiltThrough, processIds, type WeekVisual } from '../weekVisual';
 import { BUILD_MODELS, cloudBuildModel, weekVisualsFor } from './weekVisuals';
@@ -49,7 +51,7 @@ const pictureIds = (c: Course): Set<string> => {
   return new Set(Object.keys(BUILD_MODELS[c.id].arrives));
 };
 
-const ALL: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER];
+const ALL: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA];
 
 describe.each(ALL.map((c) => [c.id, c] as const))('R99 — what you build this week · %s', (id, course) => {
   const visuals: WeekVisual[] = weekVisualsFor(course, cloudOf(course));
@@ -110,7 +112,7 @@ describe('R99 — the build models cover their topologies', () => {
   it('Server+ draws every base and advanced VM; CCNA every device; every arch course every part of its picture', () => {
     for (const v of BASE_VMS) expect(BUILD_MODELS['server-plus'].arrives, v.hostname).toHaveProperty(v.hostname);
     for (const d of DEVICES) expect(BUILD_MODELS.ccna.arrives, d.name).toHaveProperty(d.name);
-    const ARCHES = { 'a-plus': A_PLUS_ARCH, 'ai-foundations': AI_FOUNDATIONS_ARCH, 'aws-ai-practitioner': AWS_AI_PRACTITIONER_ARCH, 'network-plus': NETWORK_PLUS_ARCH, mssp: MSSP_ARCH, 'security-plus': SEC_ARCH, 'cysa-plus': CYSA_ARCH, 'secai-plus': SECAI_ARCH, cissp: CISSP_ARCH };
+    const ARCHES = { 'a-plus': A_PLUS_ARCH, 'ai-foundations': AI_FOUNDATIONS_ARCH, 'aws-ai-practitioner': AWS_AI_PRACTITIONER_ARCH, 'docker-dca': DOCKER_DCA_ARCH, 'network-plus': NETWORK_PLUS_ARCH, mssp: MSSP_ARCH, 'security-plus': SEC_ARCH, 'cysa-plus': CYSA_ARCH, 'secai-plus': SECAI_ARCH, cissp: CISSP_ARCH };
     for (const [id, arch] of Object.entries(ARCHES)) {
       for (const n of arch.nodes) expect(BUILD_MODELS[id].arrives, `${id} ${n.id}`).toHaveProperty(n.id);
       for (const e of arch.edges) for (const end of [e.from, e.to]) expect(arch.nodes.some((n) => n.id === end), `${id} ${end}`).toBe(true);

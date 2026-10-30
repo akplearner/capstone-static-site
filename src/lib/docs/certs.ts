@@ -32,7 +32,7 @@ export interface ExamDomain {
 export interface CertDef {
   /** = the course id it prepares for. */
   courseId: string;
-  vendorId: 'comptia' | 'cisco' | 'isc2' | 'microsoft' | 'aws' | 'engagement';
+  vendorId: 'comptia' | 'cisco' | 'isc2' | 'microsoft' | 'aws' | 'engagement' | 'docker' | 'cncf' | 'nvidia';
   vendor: string;
   /** The exam code, or the framework pair for an engagement. */
   code: string;
@@ -92,6 +92,17 @@ export const CERTS: Record<string, CertDef> = {
     domains: [
       d('d1', 'Identify AI concepts and capabilities', 42, '40–45%'),
       d('d2', 'Implement AI solutions by using Microsoft Foundry', 58, '55–60%'),
+    ],
+  },
+  'docker-dca': {
+    courseId: 'docker-dca', vendorId: 'docker', vendor: 'Docker', code: 'DCA', name: 'Docker Certified Associate', level: 'associate', vendorLevel: 'Associate', exam: true, examFeeUsd: 195, feeCheckedYear: 2026,
+    domains: [
+      d('d1', 'Orchestration', 25),
+      d('d2', 'Image Creation, Management, and Registry', 20),
+      d('d3', 'Installation and Configuration', 15),
+      d('d4', 'Networking', 15),
+      d('d5', 'Security', 15),
+      d('d6', 'Storage and Volumes', 10),
     ],
   },
   'aws-ai-practitioner': {
@@ -241,6 +252,12 @@ export const TASK_DOMAINS: Record<string, Record<string, string>> = {
   'ai-foundations': {
     'aif-w1-workloads': 'd1', 'aif-w1-components': 'd1', 'aif-w1-local': 'd1', 'aif-w2-responsible': 'd1', 'aif-w2-ml': 'd1', 'aif-w2-eval': 'd1',
     'aif-w3-deploy': 'd2', 'aif-w3-app': 'd2', 'aif-w3-services': 'd2', 'aif-w4-agent': 'd2', 'aif-w4-govern': 'd2', 'aif-w4-handover': 'd2',
+  },
+  'docker-dca': {
+    'dca-w1-build': 'd2', 'dca-w1-registry': 'd2', 'dca-w1-config': 'd3',
+    'dca-w2-compose': 'd1', 'dca-w2-swarm': 'd1', 'dca-w2-scale': 'd1',
+    'dca-w3-network': 'd4', 'dca-w3-volumes': 'd6', 'dca-w3-ports': 'd4',
+    'dca-w4-scan': 'd5', 'dca-w4-harden': 'd5', 'dca-w4-handover': 'd5',
   },
   'aws-ai-practitioner': {
     'awsai-w1-workloads': 'd1', 'awsai-w1-components': 'd2', 'awsai-w1-local': 'd2', 'awsai-w2-responsible': 'd4', 'awsai-w2-ml': 'd1', 'awsai-w2-eval': 'd2',

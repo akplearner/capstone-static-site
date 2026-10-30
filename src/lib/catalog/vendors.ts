@@ -57,6 +57,12 @@ export const VENDORS: Vendor[] = [
     blurb: 'The system caverns — the shell, services and automation everything runs on.',
   },
   {
+    id: 'docker',
+    name: 'Docker',
+    region: 'linux',
+    blurb: 'The container yard — images, stacks and orchestration built on the Linux ground.',
+  },
+  {
     id: 'engagement',
     name: 'Engagements',
     region: 'engagement',

@@ -29,6 +29,7 @@ export const COURSE_TINT: Record<string, CourseTint> = {
   ccna: { name: 'CCNA', acc: '#22a6cc', lt: '#9ee6f7', dk: '#0b5a70', cut: 'bar' },
   'a-plus': { name: 'A+', acc: '#5b8f2a', lt: '#c3e39a', dk: '#2d5212', cut: 'quad' },
   'ai-foundations': { name: 'AI-901', acc: '#0369a1', lt: '#bae6fd', dk: '#0c4a6e', cut: 'quad' },
+  'docker-dca': { name: 'DCA', acc: '#2563eb', lt: '#bfdbfe', dk: '#1e3a8a', cut: 'quad' },
   'aws-ai-practitioner': { name: 'AIF-C01', acc: '#b45309', lt: '#fed7aa', dk: '#7c2d12', cut: 'quad' },
   'network-plus': { name: 'Network+', acc: '#0e7c86', lt: '#9fe0e6', dk: '#064b52', cut: 'bar' },
   'azure-fundamentals': { name: 'AZ-900', acc: '#2f74c0', lt: '#a8d0ff', dk: '#123e6e', cut: 'cloud' },

@@ -618,6 +618,42 @@
           "ai-agents-mcp"
         ]
       }
+    },
+    {
+      "id": "docker-dca",
+      "title": "Docker Certified Associate — the Container Yard",
+      "version": 1,
+      "file": "docker-dca.json",
+      "weeks": 8,
+      "tasks": 25,
+      "steps": 45,
+      "deliverables": 8,
+      "procedures": 0,
+      "vendor": "Docker",
+      "certification": "Docker Certified Associate (DCA)",
+      "level": "associate",
+      "examFeeUsd": 195,
+      "coveredWeight": 100,
+      "costOnceUsd": 0,
+      "costMonthlyUsd": 0,
+      "costTasksUsd": 0,
+      "skills": 23,
+      "tools": 7,
+      "standards": 4,
+      "controls": 10,
+      "sops": 8,
+      "tactics": 0,
+      "practices": 12,
+      "premium": {
+        "aiWeeks": 3,
+        "cyberWeeks": 0,
+        "otherWeeks": 0,
+        "aiTasks": 4,
+        "modules": [
+          "local-llm-serving",
+          "rag-engineering"
+        ]
+      }
     }
   ]
 }

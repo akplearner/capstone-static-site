@@ -3315,6 +3315,10 @@
         "taskId": "np-w4-handover"
       },
       {
+        "courseId": "docker-dca",
+        "taskId": "dca-w4-handover"
+      },
+      {
         "courseId": "ai-foundations",
         "taskId": "aif-w4-handover"
       },
@@ -3357,6 +3361,14 @@
       {
         "courseId": "network-plus",
         "taskId": "np-w1-ai"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w1-ai"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-rag-engineering-w2-passline"
       },
       {
         "courseId": "ai-foundations",
@@ -3479,6 +3491,26 @@
       {
         "courseId": "network-plus",
         "taskId": "np-w4-ai"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w1-ai"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w2-ai"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w3-ai"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w4-ai"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-local-llm-serving-w1-serve"
       },
       {
         "courseId": "ai-foundations",
@@ -3793,6 +3825,34 @@
       {
         "courseId": "network-plus",
         "taskId": "np-w4-ai"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w1-ai"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w2-ai"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w3-ai"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w4-ai"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-rag-engineering-w1-retrieve"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-rag-engineering-w2-evalset"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-rag-engineering-w2-passline"
       },
       {
         "courseId": "ai-foundations",
@@ -4225,6 +4285,18 @@
         "taskId": "np-w4-ai"
       },
       {
+        "courseId": "docker-dca",
+        "taskId": "dca-w2-ai"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w3-ai"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w4-ai"
+      },
+      {
         "courseId": "ai-foundations",
         "taskId": "aif-w1-local"
       },
@@ -4449,83 +4521,337 @@
         "taskId": "awsd-w4-ai"
       }
     ],
-    "comp.ai.identify-workload": [
+    "comp.automation.golden-images": [
       {
-        "courseId": "ai-foundations",
-        "taskId": "aif-w1-workloads"
+        "courseId": "docker-dca",
+        "taskId": "dca-w1-build"
       },
       {
-        "courseId": "aws-ai-practitioner",
-        "taskId": "awsai-w1-workloads"
+        "courseId": "docker-dca",
+        "taskId": "dca-w1-registry"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-terraform"
       }
     ],
-    "comp.ai.model-components": [
+    "comp.automation.infra-in-git": [
       {
-        "courseId": "ai-foundations",
-        "taskId": "aif-w1-components"
+        "courseId": "docker-dca",
+        "taskId": "dca-w1-registry"
       },
       {
-        "courseId": "aws-ai-practitioner",
-        "taskId": "awsai-w1-components"
+        "courseId": "server-plus",
+        "taskId": "sp-w6-git"
       }
     ],
-    "comp.ai.responsible-ai": [
+    "comp.harden.linux-baseline": [
       {
-        "courseId": "ai-foundations",
-        "taskId": "aif-w2-responsible"
+        "courseId": "docker-dca",
+        "taskId": "dca-w1-config"
       },
       {
-        "courseId": "aws-ai-practitioner",
-        "taskId": "awsai-w2-responsible"
+        "courseId": "security-plus",
+        "taskId": "blue-w1-hardening"
       }
     ],
-    "comp.ai.govern-ai": [
+    "comp.automation.docker-compose": [
       {
-        "courseId": "ai-foundations",
-        "taskId": "aif-w2-responsible"
+        "courseId": "docker-dca",
+        "taskId": "dca-w2-compose"
       },
       {
-        "courseId": "ai-foundations",
-        "taskId": "aif-w4-govern"
-      },
-      {
-        "courseId": "aws-ai-practitioner",
-        "taskId": "awsai-w2-responsible"
-      },
-      {
-        "courseId": "aws-ai-practitioner",
-        "taskId": "awsai-w4-govern"
+        "courseId": "server-plus",
+        "taskId": "sp-w5-netbox"
       }
     ],
-    "comp.ai.evaluate-model": [
+    "comp.cloud.autoscale-and-self-heal": [
       {
-        "courseId": "ai-foundations",
-        "taskId": "aif-w2-ml"
+        "courseId": "docker-dca",
+        "taskId": "dca-w2-swarm"
       },
       {
-        "courseId": "ai-foundations",
-        "taskId": "aif-w4-govern"
+        "courseId": "docker-dca",
+        "taskId": "dca-w2-scale"
       },
       {
-        "courseId": "aws-ai-practitioner",
-        "taskId": "awsai-w2-ml"
+        "courseId": "azure-administrator",
+        "taskId": "az-w8-infra"
       },
       {
-        "courseId": "aws-ai-practitioner",
-        "taskId": "awsai-w4-govern"
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w8-infra"
       }
     ],
-    "comp.ai.deploy-foundry": [
+    "comp.cloud.blue-green": [
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w2-scale"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "az-w11-infra"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "aws-w11-infra"
+      }
+    ],
+    "comp.cloud.network-foundation": [
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w3-network"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w3-ports"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w1-infra"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w1-infra"
+      }
+    ],
+    "comp.cloud.data-store-choice": [
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w3-volumes"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w7-arch"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w7-arch"
+      }
+    ],
+    "comp.cloud.fix-through-ci": [
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w3-ports"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "az-w12-dev"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "aws-w12-dev"
+      }
+    ],
+    "comp.grc.hardening-standard": [
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w4-scan"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "grc-w1-framework"
+      }
+    ],
+    "comp.harden.clean-rebuild": [
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w4-scan"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w4-def"
+      }
+    ],
+    "comp.automation.secrets-out-of-history": [
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w4-harden"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-git"
+      }
+    ],
+    "comp.harden.host-firewall": [
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w4-harden"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mb-w2"
+      }
+    ],
+    "comp.forensics.chain-of-custody": [
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-w4-handover"
+      },
       {
         "courseId": "ai-foundations",
-        "taskId": "aif-w3-deploy"
+        "taskId": "aif-w4-handover"
       },
       {
         "courseId": "aws-ai-practitioner",
-        "taskId": "awsai-w3-deploy"
+        "taskId": "awsai-w4-handover"
+      },
+      {
+        "courseId": "a-plus",
+        "taskId": "ap-w4-handover"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "grc-w3-custody"
+      }
+    ],
+    "comp.ai.serve-model": [
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-local-llm-serving-w1-serve"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-enterprise-ai-architect-w1-gateway"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-enterprise-ai-architect-w2-handover"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "srv-local-llm-serving-w1-serve"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "srv-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-local-llm-serving-w1-serve"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-local-llm-serving-w1-serve"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-local-llm-serving-w1-serve"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-local-llm-serving-w1-serve"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-local-llm-serving-w1-serve"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-local-llm-serving-w1-size"
+      }
+    ],
+    "comp.ai.gpu-sizing": [
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "srv-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-local-llm-serving-w1-size"
+      }
+    ],
+    "comp.ai.vector-store": [
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "ai-foundations",
+        "taskId": "aif-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "azf-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "aza-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "awsf-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "awsa-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-rag-engineering-w1-index"
       }
     ],
     "comp.ai.rag-pipeline": [
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-rag-engineering-w1-retrieve"
+      },
+      {
+        "courseId": "docker-dca",
+        "taskId": "dca-rag-engineering-w2-evalset"
+      },
       {
         "courseId": "ai-foundations",
         "taskId": "aif-w3-app"
@@ -4631,6 +4957,82 @@
         "taskId": "awsd-rag-engineering-w2-evalset"
       }
     ],
+    "comp.ai.identify-workload": [
+      {
+        "courseId": "ai-foundations",
+        "taskId": "aif-w1-workloads"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w1-workloads"
+      }
+    ],
+    "comp.ai.model-components": [
+      {
+        "courseId": "ai-foundations",
+        "taskId": "aif-w1-components"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w1-components"
+      }
+    ],
+    "comp.ai.responsible-ai": [
+      {
+        "courseId": "ai-foundations",
+        "taskId": "aif-w2-responsible"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w2-responsible"
+      }
+    ],
+    "comp.ai.govern-ai": [
+      {
+        "courseId": "ai-foundations",
+        "taskId": "aif-w2-responsible"
+      },
+      {
+        "courseId": "ai-foundations",
+        "taskId": "aif-w4-govern"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w2-responsible"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w4-govern"
+      }
+    ],
+    "comp.ai.evaluate-model": [
+      {
+        "courseId": "ai-foundations",
+        "taskId": "aif-w2-ml"
+      },
+      {
+        "courseId": "ai-foundations",
+        "taskId": "aif-w4-govern"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w2-ml"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w4-govern"
+      }
+    ],
+    "comp.ai.deploy-foundry": [
+      {
+        "courseId": "ai-foundations",
+        "taskId": "aif-w3-deploy"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w3-deploy"
+      }
+    ],
     "comp.ai.language-vision": [
       {
         "courseId": "ai-foundations",
@@ -4713,58 +5115,6 @@
       {
         "courseId": "aws-devops",
         "taskId": "awsd-ai-agents-mcp-w2-audit"
-      }
-    ],
-    "comp.forensics.chain-of-custody": [
-      {
-        "courseId": "ai-foundations",
-        "taskId": "aif-w4-handover"
-      },
-      {
-        "courseId": "aws-ai-practitioner",
-        "taskId": "awsai-w4-handover"
-      },
-      {
-        "courseId": "a-plus",
-        "taskId": "ap-w4-handover"
-      },
-      {
-        "courseId": "security-plus",
-        "taskId": "grc-w3-custody"
-      }
-    ],
-    "comp.ai.vector-store": [
-      {
-        "courseId": "ai-foundations",
-        "taskId": "aif-rag-engineering-w1-index"
-      },
-      {
-        "courseId": "aws-ai-practitioner",
-        "taskId": "awsai-rag-engineering-w1-index"
-      },
-      {
-        "courseId": "azure-fundamentals",
-        "taskId": "azf-rag-engineering-w1-index"
-      },
-      {
-        "courseId": "azure-administrator",
-        "taskId": "aza-rag-engineering-w1-index"
-      },
-      {
-        "courseId": "azure-devops",
-        "taskId": "azd-rag-engineering-w1-index"
-      },
-      {
-        "courseId": "aws-cloud-practitioner",
-        "taskId": "awsf-rag-engineering-w1-index"
-      },
-      {
-        "courseId": "aws-solutions-architect",
-        "taskId": "awsa-rag-engineering-w1-index"
-      },
-      {
-        "courseId": "aws-devops",
-        "taskId": "awsd-rag-engineering-w1-index"
       }
     ],
     "comp.ai.mcp-connector": [
@@ -5055,12 +5405,6 @@
         "taskId": "red-w4-briefing"
       }
     ],
-    "comp.harden.linux-baseline": [
-      {
-        "courseId": "security-plus",
-        "taskId": "blue-w1-hardening"
-      }
-    ],
     "comp.detect.capture-baseline": [
       {
         "courseId": "security-plus",
@@ -5120,12 +5464,6 @@
       }
     ],
     "comp.grc.framework-mapping": [
-      {
-        "courseId": "security-plus",
-        "taskId": "grc-w1-framework"
-      }
-    ],
-    "comp.grc.hardening-standard": [
       {
         "courseId": "security-plus",
         "taskId": "grc-w1-framework"
@@ -5493,12 +5831,6 @@
         "taskId": "mg-w2"
       }
     ],
-    "comp.harden.host-firewall": [
-      {
-        "courseId": "mssp",
-        "taskId": "mb-w2"
-      }
-    ],
     "comp.harden.change-discipline": [
       {
         "courseId": "mssp",
@@ -5703,12 +6035,6 @@
       {
         "courseId": "cissp",
         "taskId": "ci-w2-gov"
-      }
-    ],
-    "comp.harden.clean-rebuild": [
-      {
-        "courseId": "secai-plus",
-        "taskId": "sa-w4-def"
       }
     ],
     "comp.harden.model-scanning": [
@@ -6015,64 +6341,6 @@
         "taskId": "ci-w6-idops"
       }
     ],
-    "comp.ai.serve-model": [
-      {
-        "courseId": "cissp",
-        "taskId": "cissp-enterprise-ai-architect-w1-gateway"
-      },
-      {
-        "courseId": "cissp",
-        "taskId": "cissp-enterprise-ai-architect-w2-handover"
-      },
-      {
-        "courseId": "server-plus",
-        "taskId": "srv-local-llm-serving-w1-serve"
-      },
-      {
-        "courseId": "server-plus",
-        "taskId": "srv-local-llm-serving-w1-size"
-      },
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-local-llm-serving-w1-serve"
-      },
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-local-llm-serving-w1-size"
-      },
-      {
-        "courseId": "azure-fundamentals",
-        "taskId": "azf-local-llm-serving-w1-serve"
-      },
-      {
-        "courseId": "azure-fundamentals",
-        "taskId": "azf-local-llm-serving-w1-size"
-      },
-      {
-        "courseId": "azure-administrator",
-        "taskId": "aza-local-llm-serving-w1-serve"
-      },
-      {
-        "courseId": "azure-administrator",
-        "taskId": "aza-local-llm-serving-w1-size"
-      },
-      {
-        "courseId": "aws-cloud-practitioner",
-        "taskId": "awsf-local-llm-serving-w1-serve"
-      },
-      {
-        "courseId": "aws-cloud-practitioner",
-        "taskId": "awsf-local-llm-serving-w1-size"
-      },
-      {
-        "courseId": "aws-solutions-architect",
-        "taskId": "awsa-local-llm-serving-w1-serve"
-      },
-      {
-        "courseId": "aws-solutions-architect",
-        "taskId": "awsa-local-llm-serving-w1-size"
-      }
-    ],
     "comp.hardware.memory-population": [
       {
         "courseId": "server-plus",
@@ -6347,12 +6615,6 @@
         "taskId": "ccna-w5-sot"
       }
     ],
-    "comp.automation.docker-compose": [
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w5-netbox"
-      }
-    ],
     "comp.docs.asset-management-tool": [
       {
         "courseId": "server-plus",
@@ -6395,24 +6657,6 @@
       {
         "courseId": "server-plus",
         "taskId": "sp-w6-ops"
-      }
-    ],
-    "comp.automation.infra-in-git": [
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w6-git"
-      }
-    ],
-    "comp.automation.secrets-out-of-history": [
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w6-git"
-      }
-    ],
-    "comp.automation.golden-images": [
-      {
-        "courseId": "server-plus",
-        "taskId": "sp-w6-terraform"
       }
     ],
     "comp.automation.drift-plan": [
@@ -6581,32 +6825,6 @@
         "taskId": "sp-w2-mgmt"
       }
     ],
-    "comp.ai.gpu-sizing": [
-      {
-        "courseId": "server-plus",
-        "taskId": "srv-local-llm-serving-w1-size"
-      },
-      {
-        "courseId": "ccna",
-        "taskId": "ccna-local-llm-serving-w1-size"
-      },
-      {
-        "courseId": "azure-fundamentals",
-        "taskId": "azf-local-llm-serving-w1-size"
-      },
-      {
-        "courseId": "azure-administrator",
-        "taskId": "aza-local-llm-serving-w1-size"
-      },
-      {
-        "courseId": "aws-cloud-practitioner",
-        "taskId": "awsf-local-llm-serving-w1-size"
-      },
-      {
-        "courseId": "aws-solutions-architect",
-        "taskId": "awsa-local-llm-serving-w1-size"
-      }
-    ],
     "comp.docs.design-decisions": [
       {
         "courseId": "ccna",
@@ -6673,16 +6891,6 @@
       {
         "courseId": "aws-cloud-practitioner",
         "taskId": "aws-w1-arch"
-      }
-    ],
-    "comp.cloud.network-foundation": [
-      {
-        "courseId": "azure-fundamentals",
-        "taskId": "az-w1-infra"
-      },
-      {
-        "courseId": "aws-cloud-practitioner",
-        "taskId": "aws-w1-infra"
       }
     ],
     "comp.cloud.team-repo-and-board": [
@@ -6905,16 +7113,6 @@
         "taskId": "aws-w6-secops"
       }
     ],
-    "comp.cloud.data-store-choice": [
-      {
-        "courseId": "azure-administrator",
-        "taskId": "az-w7-arch"
-      },
-      {
-        "courseId": "aws-solutions-architect",
-        "taskId": "aws-w7-arch"
-      }
-    ],
     "comp.cloud.ha-database": [
       {
         "courseId": "azure-administrator",
@@ -6953,16 +7151,6 @@
       {
         "courseId": "aws-solutions-architect",
         "taskId": "aws-w8-arch"
-      }
-    ],
-    "comp.cloud.autoscale-and-self-heal": [
-      {
-        "courseId": "azure-administrator",
-        "taskId": "az-w8-infra"
-      },
-      {
-        "courseId": "aws-solutions-architect",
-        "taskId": "aws-w8-infra"
       }
     ],
     "comp.cloud.restore-file-and-database": [
@@ -7075,16 +7263,6 @@
         "taskId": "aws-w11-arch"
       }
     ],
-    "comp.cloud.blue-green": [
-      {
-        "courseId": "azure-devops",
-        "taskId": "az-w11-infra"
-      },
-      {
-        "courseId": "aws-devops",
-        "taskId": "aws-w11-infra"
-      }
-    ],
     "comp.cloud.canary": [
       {
         "courseId": "azure-devops",
@@ -7123,16 +7301,6 @@
       {
         "courseId": "aws-devops",
         "taskId": "aws-w12-infra"
-      }
-    ],
-    "comp.cloud.fix-through-ci": [
-      {
-        "courseId": "azure-devops",
-        "taskId": "az-w12-dev"
-      },
-      {
-        "courseId": "aws-devops",
-        "taskId": "aws-w12-dev"
       }
     ],
     "comp.cloud.contain-and-post-mortem": [

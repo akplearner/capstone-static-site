@@ -104,6 +104,14 @@ export const RACI: Record<string, Raci> = {
   aif_services: r('language', 'build', 'records'),
   aif_governance: r('records', 'concepts', 'build'),
   aif_handover: r('records', 'build', 'concepts', ['language']),
+  // docker-dca — images · stack · net · records.
+  dca_setup: r('records', 'images', 'stack'),
+  dca_image: r('images', 'records', 'stack'),
+  dca_orchestration: r('stack', 'net', 'records'),
+  dca_network: r('net', 'stack', 'records'),
+  dca_troubleshoot: r('records', 'net', 'stack'),
+  dca_security: r('images', 'records', 'stack'),
+  dca_handover: r('records', 'stack', 'images', ['net']),
 
   // aws-ai-practitioner — concepts · build · language · records.
   awsai_setup: r('records', 'build', 'concepts'),

@@ -141,6 +141,15 @@ export const DELIVERABLE_SOPS: Record<string, Record<string, string[]>> = {
     aif_governance: ['sop.risk-register', 'sop.governance-report'],
     aif_handover: ['sop.handover', 'sop.chain-of-custody'],
   },
+  'docker-dca': {
+    dca_setup: ['sop.asset-inventory'],
+    dca_image: ['sop.build-record'],
+    dca_orchestration: ['sop.build-record'],
+    dca_network: ['sop.build-record'],
+    dca_troubleshoot: ['sop.test-and-acceptance'],
+    dca_security: ['sop.risk-register', 'sop.governance-report'],
+    dca_handover: ['sop.handover', 'sop.chain-of-custody'],
+  },
   'aws-ai-practitioner': {
     awsai_setup: ['sop.asset-inventory'],
     awsai_capabilities: ['sop.ai-system-map'],
@@ -271,6 +280,14 @@ export const TASK_SOPS: Record<string, Record<string, string[]>> = {
     'aif-w3-deploy': ['sop.build-record'],
     'aif-w4-govern': ['sop.risk-register'],
     'aif-w4-handover': ['sop.handover', 'sop.chain-of-custody'],
+  },
+  'docker-dca': {
+    'dca-w1-build': ['sop.build-record'],
+    'dca-w2-compose': ['sop.build-record'],
+    'dca-w3-ports': ['sop.test-and-acceptance'],
+    'dca-w4-scan': ['sop.risk-register'],
+    'dca-w4-harden': ['sop.governance-report'],
+    'dca-w4-handover': ['sop.handover', 'sop.chain-of-custody'],
   },
   'aws-ai-practitioner': {
     'awsai-w1-workloads': ['sop.ai-system-map'],

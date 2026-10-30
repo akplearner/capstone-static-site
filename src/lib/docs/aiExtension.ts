@@ -44,6 +44,7 @@ export const AI_EXTENSION_PLAN: Record<string, AiExtensionSpec> = {
   ccna: { prefix: 'ccna', role: 'ops', weeks: [1, 2, 3, 4], topics: { 1: 'explain the high-level design', 2: 'check the IP plan', 3: 'read a validation result', 4: 'draft the ACL rationale' } },
   'a-plus': { prefix: 'ap', role: 'records', weeks: [1, 2, 3, 4], topics: { 1: 'explain the build sheet', 2: 'read a backup log', 3: 'draft a support ticket', 4: 'summarise the handover' } },
   'ai-foundations': { prefix: 'aif', role: 'records', weeks: [1, 2, 3, 4], topics: { 1: 'explain the capabilities map', 2: 'check the responsible-AI findings', 3: 'draft the build record', 4: 'summarise the handover' } },
+  'docker-dca': { prefix: 'dca', role: 'records', weeks: [1, 2, 3, 4], topics: { 1: 'draft the image build notes', 2: 'summarise the stack layout', 3: 'explain the network and volumes', 4: 'summarise the hardening findings' } },
   'aws-ai-practitioner': { prefix: 'awsai', role: 'records', weeks: [1, 2, 3, 4], topics: { 1: 'explain the capabilities map', 2: 'check the responsible-AI findings', 3: 'draft the build record', 4: 'summarise the handover' } },
   'network-plus': { prefix: 'np', role: 'ops', weeks: [1, 2, 3, 4], topics: { 1: 'check the IP plan', 2: 'read a verification log', 3: 'explain a change', 4: 'draft the migration plan' } },
   'secai-plus': { prefix: 'secai', role: 'governance', weeks: [1, 2, 3, 4], topics: { 1: 'map the system model', 2: 'explain an attack case', 3: 'check a control', 4: 'draft the assurance answer' } },

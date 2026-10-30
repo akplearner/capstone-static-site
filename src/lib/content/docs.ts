@@ -25,6 +25,7 @@ import serverPlusDoc from '../../../content/courses/server-plus.json';
 import ccnaDoc from '../../../content/courses/ccna.json';
 import aPlusDoc from '../../../content/courses/a-plus.json';
 import aiFoundationsDoc from '../../../content/courses/ai-foundations.json';
+import dockerDcaDoc from '../../../content/courses/docker-dca.json';
 import awsAiPractitionerDoc from '../../../content/courses/aws-ai-practitioner.json';
 import networkPlusDoc from '../../../content/courses/network-plus.json';
 import secaiDoc from '../../../content/courses/secai-plus.json';
@@ -45,6 +46,7 @@ export const SEED_DOCUMENTS: Record<string, CourseDto> = {
   ccna: ccnaDoc as unknown as CourseDto,
   'a-plus': aPlusDoc as unknown as CourseDto,
   'ai-foundations': aiFoundationsDoc as unknown as CourseDto,
+  'docker-dca': dockerDcaDoc as unknown as CourseDto,
   'aws-ai-practitioner': awsAiPractitionerDoc as unknown as CourseDto,
   'network-plus': networkPlusDoc as unknown as CourseDto,
   'secai-plus': secaiDoc as unknown as CourseDto,

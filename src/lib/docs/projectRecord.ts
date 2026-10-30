@@ -186,6 +186,13 @@ export const RECORD_FIELDS: RecordField[] = [
   fld('aif_build', 'answer', 'change', 'Grounded answer'),
   inf('aif_governance', 'risks', 'risk', 'risk', 'AI risk'),
   fld('aif_handover', 'depends', 'resource', 'Dependency'),
+  // docker-dca — at least half the forms feed the record.
+  fld('dca_setup', 'app', 'host', 'App', { declares: true }),
+  fld('dca_image', 'digest', 'resource', 'Image digest'),
+  inf('dca_orchestration', 'services', 'service', 'resource', 'Service'),
+  inf('dca_troubleshoot', 'attempts', 'theory', 'incident', 'Fault attempt'),
+  inf('dca_security', 'findings', 'cve', 'risk', 'Security finding'),
+  fld('dca_handover', 'services', 'resource', 'Dependency'),
   // aws-ai-practitioner — at least half the forms feed the record.
   fld('awsai_setup', 'assistant', 'host', 'Assistant', { declares: true }),
   inf('awsai_capabilities', 'features', 'feature', 'resource', 'Feature', { labelFrom: 'workload' }),

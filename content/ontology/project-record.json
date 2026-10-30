@@ -693,6 +693,46 @@
       "label": "Dependency"
     },
     {
+      "form": "dca_setup",
+      "field": "app",
+      "kind": "host",
+      "label": "App",
+      "declares": true
+    },
+    {
+      "form": "dca_image",
+      "field": "digest",
+      "kind": "resource",
+      "label": "Image digest"
+    },
+    {
+      "form": "dca_orchestration",
+      "group": "services",
+      "column": "service",
+      "kind": "resource",
+      "label": "Service"
+    },
+    {
+      "form": "dca_troubleshoot",
+      "group": "attempts",
+      "column": "theory",
+      "kind": "incident",
+      "label": "Fault attempt"
+    },
+    {
+      "form": "dca_security",
+      "group": "findings",
+      "column": "cve",
+      "kind": "risk",
+      "label": "Security finding"
+    },
+    {
+      "form": "dca_handover",
+      "field": "services",
+      "kind": "resource",
+      "label": "Dependency"
+    },
+    {
       "form": "awsai_setup",
       "field": "assistant",
       "kind": "host",
@@ -1299,6 +1339,12 @@
     },
     {
       "form": "aif_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "dca_portfolio",
       "field": "repo_url",
       "kind": "resource",
       "label": "Repository"

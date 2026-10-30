@@ -488,6 +488,32 @@
       "communication",
       "projects"
     ],
+    "dca_setup": [
+      "configurations"
+    ],
+    "dca_image": [
+      "configurations"
+    ],
+    "dca_orchestration": [
+      "configurations",
+      "architectures"
+    ],
+    "dca_network": [
+      "configurations"
+    ],
+    "dca_troubleshoot": [
+      "troubleshooting",
+      "investigations"
+    ],
+    "dca_security": [
+      "decisions",
+      "investigations",
+      "communication"
+    ],
+    "dca_handover": [
+      "communication",
+      "projects"
+    ],
     "awsai_setup": [
       "configurations"
     ],
@@ -688,6 +714,12 @@
       "group": "attempts",
       "outcome": "result",
       "resolved": "Grounded"
+    },
+    {
+      "form": "dca_troubleshoot",
+      "group": "attempts",
+      "outcome": "result",
+      "resolved": "Fixed it"
     },
     {
       "form": "awsai_eval",
@@ -891,6 +923,11 @@
   "changeGroups": [
     {
       "form": "aif_build",
+      "group": "changes",
+      "rollback": "rollback"
+    },
+    {
+      "form": "dca_orchestration",
       "group": "changes",
       "rollback": "rollback"
     },

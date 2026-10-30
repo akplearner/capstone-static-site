@@ -649,6 +649,81 @@
         "practice.human-in-the-loop"
       ]
     },
+    "docker-dca": {
+      "dca-w1-build": [
+        "practice.build-record",
+        "practice.configuration-record"
+      ],
+      "dca-w1-registry": [
+        "practice.build-record",
+        "practice.evidence-by-design"
+      ],
+      "dca-w1-config": [
+        "practice.configuration-record"
+      ],
+      "dca-w2-compose": [
+        "practice.build-record",
+        "practice.test-and-acceptance"
+      ],
+      "dca-w2-swarm": [
+        "practice.build-record"
+      ],
+      "dca-w2-scale": [
+        "practice.retest-to-closure",
+        "practice.architecture-decision-records"
+      ],
+      "dca-w3-network": [
+        "practice.configuration-record"
+      ],
+      "dca-w3-volumes": [
+        "practice.evidence-by-design"
+      ],
+      "dca-w3-ports": [
+        "practice.retest-to-closure",
+        "practice.human-in-the-loop"
+      ],
+      "dca-w4-scan": [
+        "practice.risk-scoring"
+      ],
+      "dca-w4-harden": [
+        "practice.architecture-decision-records",
+        "practice.risk-scoring"
+      ],
+      "dca-w4-handover": [
+        "practice.build-record",
+        "practice.evidence-by-design"
+      ],
+      "dca-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "dca-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "dca-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "dca-w4-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "dca-local-llm-serving-w1-serve": [
+        "practice.least-privilege"
+      ],
+      "dca-local-llm-serving-w1-size": [
+        "practice.right-sizing"
+      ],
+      "dca-rag-engineering-w1-index": [
+        "practice.redaction-before-write"
+      ],
+      "dca-rag-engineering-w1-retrieve": [
+        "practice.human-in-the-loop"
+      ],
+      "dca-rag-engineering-w2-evalset": [
+        "practice.pass-line-suites"
+      ],
+      "dca-rag-engineering-w2-passline": [
+        "practice.pass-line-suites"
+      ]
+    },
     "ai-foundations": {
       "aif-w1-workloads": [
         "practice.component-inventory",

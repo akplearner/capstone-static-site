@@ -64,6 +64,12 @@
         "feeds": "aif_handover"
       },
       {
+        "courseId": "docker-dca",
+        "id": "dca_portfolio",
+        "week": 4,
+        "feeds": "dca_handover"
+      },
+      {
         "courseId": "aws-ai-practitioner",
         "id": "awsai_portfolio",
         "week": 4,

@@ -143,6 +143,48 @@
       "courseId": "ai-foundations"
     },
     {
+      "id": "DCA.d1",
+      "code": "DCA",
+      "name": "Orchestration",
+      "weight": 25,
+      "courseId": "docker-dca"
+    },
+    {
+      "id": "DCA.d2",
+      "code": "DCA",
+      "name": "Image Creation, Management, and Registry",
+      "weight": 20,
+      "courseId": "docker-dca"
+    },
+    {
+      "id": "DCA.d3",
+      "code": "DCA",
+      "name": "Installation and Configuration",
+      "weight": 15,
+      "courseId": "docker-dca"
+    },
+    {
+      "id": "DCA.d4",
+      "code": "DCA",
+      "name": "Networking",
+      "weight": 15,
+      "courseId": "docker-dca"
+    },
+    {
+      "id": "DCA.d5",
+      "code": "DCA",
+      "name": "Security",
+      "weight": 15,
+      "courseId": "docker-dca"
+    },
+    {
+      "id": "DCA.d6",
+      "code": "DCA",
+      "name": "Storage and Volumes",
+      "weight": 10,
+      "courseId": "docker-dca"
+    },
+    {
       "id": "AIF-C01.d1",
       "code": "AIF-C01",
       "name": "Fundamentals of AI and ML",

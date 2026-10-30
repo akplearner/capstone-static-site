@@ -79,6 +79,11 @@ const SEED_THEMES: Record<string, CourseTheme> = {
     vendor: 'Microsoft',
     certification: 'Azure AI Fundamentals (AI-901)',
   },
+  'docker-dca': {
+    key: 'docker-dca',
+    vendor: 'Docker',
+    certification: 'Docker Certified Associate (DCA)',
+  },
   'aws-ai-practitioner': {
     key: 'aws-ai-practitioner',
     vendor: 'AWS',

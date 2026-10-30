@@ -175,6 +175,16 @@ const AWS_AI_PRACTITIONER: RoleContent = {
   ],
 };
 
+const DOCKER_DCA: RoleContent = {
+  MOTION: DEFAULT_MOTION,
+  PROFILES: [
+    p('images', 'commands', 'Leads the image record: the Dockerfile, the tags, the registry and the scan.', ['A multi-stage image, tagged', 'A registry round trip', 'Daemon configured', 'The image scanned and hardened'], 'Week 1 builds, tags and pushes the image; Week 4 scans it and decides the base; reviews the handover.'),
+    p('stack', 'commands', 'Leads the stack record: Compose, the Swarm services, scaling and rollback.', ['A Compose stack with healthchecks', 'Swarm services and replicas', 'Scaled on command', 'A bad update rolled back'], 'Week 2 composes, deploys to Swarm, scales and rolls back; reviews the network and the handover.'),
+    p('net', 'commands', 'Leads the network and volume record: the container networks, the ports and the data.', ['A user network with DNS', 'Published ports', 'A named volume that persists', 'A connectivity fault worked'], 'Week 3 wires the network, publishes the ports, persists the data and works the fault.'),
+    p('records', 'documents', 'Leads the records that outlive the yard: hardening, the runbook, custody and handover.', ['A connectivity fault worked', 'Least privilege and no secret', 'The runbook', 'The handover with custody'], 'Week 0 the environment and folder; Week 3 the troubleshooting log; Week 4 the hardening and the handover.'),
+  ],
+};
+
 const CLOUD: RoleContent = {
   MOTION: DEFAULT_MOTION,
   PROFILES: [
@@ -196,6 +206,7 @@ export const ROLE_CONTENT: Record<string, RoleContent> = {
   'a-plus': A_PLUS,
   'ai-foundations': AI_FOUNDATIONS,
   'aws-ai-practitioner': AWS_AI_PRACTITIONER,
+  'docker-dca': DOCKER_DCA,
   'network-plus': NETWORK_PLUS,
   'secai-plus': SECAI_PLUS,
   cissp: CISSP,

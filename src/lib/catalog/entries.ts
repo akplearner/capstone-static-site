@@ -182,6 +182,15 @@ export const CATALOG: CatalogEntry[] = [
     blurb: 'Stand up a small AI assistant on Azure AI Foundry and a free local model: workloads, responsible AI, grounding, agents.',
   },
   {
+    id: 'docker-dca',
+    vendorId: 'docker',
+    certName: 'DCA',
+    level: 'associate',
+    status: 'available',
+    courseId: 'docker-dca',
+    blurb: 'Ship a small app in containers: build and tag an image, orchestrate with Compose and Swarm, network, persist, scan and hand it over.',
+  },
+  {
     id: 'aws-aif-c01',
     vendorId: 'aws',
     certName: 'AIF-C01',

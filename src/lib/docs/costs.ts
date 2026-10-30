@@ -79,6 +79,10 @@ export const COURSE_COSTS: Record<string, CostLine[]> = {
     line('azure', 'cloud', 'Azure AI Foundry and AI Services, free tier', 0, 'month', 'The free tier covers the course; the deployment is stopped at week end so nothing bills.'),
     line('local', 'software', 'Ollama and a small local model', 0, 'once', 'Free download; runs on the student machine with no account.'),
   ],
+  'docker-dca': [
+    line('docker', 'software', 'Docker Engine and Compose', 0, 'once', 'Free; runs on the student machine, no paid cloud needed.'),
+    line('registry', 'software', 'A local registry container', 0, 'once', 'Runs locally; the whole stack is torn down at the end so nothing lingers.'),
+  ],
   'aws-ai-practitioner': [
     line('bedrock', 'cloud', 'Amazon Bedrock, Comprehend and Textract, on-demand', 0, 'month', 'On-demand calls kept tiny; a cent or two at most, torn down at the end so nothing bills.'),
     line('local', 'software', 'Ollama and a small local model', 0, 'once', 'Free download; runs on the student machine with no account.'),
