@@ -143,19 +143,33 @@ export const supabaseProgressRepo: ProgressRepository = {
     return { ok: true };
   },
 
-  leaveTeam(courseId: string, memberId: string): void {
+  // R150: leaving is confirmed by the database before it is true — the membership row is the key every
+  // team-scoped policy turns on, so if the delete does not land the student must still LOOK joined
+  // (mirror of joinTeam, R82). The floor is written by the database's own trigger (0028) and read back
+  // on the re-hydrate.
+  async leaveTeam(courseId: string, memberId: string): Promise<boolean> {
+    const prevEntry = cache.roster(courseId).find((e) => e.memberId === memberId);
+    const prevContext = cache.context(courseId);
     cache.removeRosterEntry(courseId, memberId);
     cache.setContext(null, courseId);
     notifyStore();
     const supabase = db();
-    if (supabase) {
-      void supabase
-        .from('memberships')
-        .delete()
-        .eq('user_id', memberId)
-        .eq('course_id', courseId)
-        .then(({ error }) => onWriteError('leaveTeam', error));
+    if (!supabase) return true;
+    const { error } = await supabase.from('memberships').delete().eq('user_id', memberId).eq('course_id', courseId);
+    if (error) {
+      onWriteError('leaveTeam', error);
+      if (prevEntry) cache.upsertRosterEntry(courseId, prevEntry);
+      if (prevContext) cache.setContext(prevContext, courseId);
+      notifyStore();
+      return false;
     }
+    if (prevEntry) cache.setCohortFloor(courseId, prevEntry.cohort);
+    await hydrateCourse(courseId);
+    return true;
+  },
+
+  getCohortFloor(courseId: string): string | null {
+    return cache.cohortFloor(courseId);
   },
 
   getCompletionKeySet(courseId: string, memberId: string): Set<string> {

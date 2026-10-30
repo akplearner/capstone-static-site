@@ -10,6 +10,7 @@ import {
 } from '../course-helpers';
 import { JoinResult, ProgressRepository } from './types';
 import { KEYS, STORAGE_PREFIX } from './keys';
+import { notifyStore } from '../useClientStore';
 import { safeSetItem } from './safeStorage';
 
 function hasWindow(): boolean {
@@ -123,6 +124,12 @@ if (typeof window !== 'undefined') {
   });
 }
 
+/** R150: the latest session this device's student has sat in on the course, mirroring the database's floor table. */
+function raiseFloor(courseId: string, cohort: string): void {
+  const floor = localStorage.getItem(KEYS.cohortFloor(courseId));
+  if (!floor || cohort > floor) safeSetItem(KEYS.cohortFloor(courseId), cohort);
+}
+
 export const localStorageProgressRepo: ProgressRepository = {
   getContext(courseId: string): Member | null {
     if (!hasWindow()) return null;
@@ -183,13 +190,28 @@ export const localStorageProgressRepo: ProgressRepository = {
     };
     safeSetItem(KEYS.roster(course.id), JSON.stringify([...others, entry]));
     this.setContext(member);
+    raiseFloor(course.id, member.cohort);
     return { ok: true };
   },
 
-  leaveTeam(courseId: string, memberId: string): void {
-    if (!hasWindow()) return;
-    const remaining = this.getRoster(courseId).filter((e) => e.memberId !== memberId);
-    safeSetItem(KEYS.roster(courseId), JSON.stringify(remaining));
+  leaveTeam(courseId: string, memberId: string): boolean {
+    if (!hasWindow()) return false;
+    const roster = this.getRoster(courseId);
+    const mine = roster.find((e) => e.memberId === memberId);
+    safeSetItem(KEYS.roster(courseId), JSON.stringify(roster.filter((e) => e.memberId !== memberId)));
+    // R150: the floor only ever rises; the id they left under lets an offline rejoin keep their id.
+    if (mine) {
+      raiseFloor(courseId, mine.cohort);
+      safeSetItem(KEYS.leftMemberId(courseId), memberId);
+    }
+    localStorage.removeItem(KEYS.context(courseId));
+    notifyStore();
+    return true;
+  },
+
+  getCohortFloor(courseId: string): string | null {
+    if (!hasWindow()) return null;
+    return localStorage.getItem(KEYS.cohortFloor(courseId));
   },
 
   getCompletionKeySet(courseId: string, memberId: string): Set<string> {

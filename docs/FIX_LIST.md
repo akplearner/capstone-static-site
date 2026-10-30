@@ -27,6 +27,7 @@ the record. `src/lib/page-shape.test.ts` fails if an id is removed from the tabl
 | F18 | Longitudinal validation: checkpoints per course, activities generated from the team's own record (recall, explain, apply, consistency), answers kept append-only (0026), a pausable timer on every task that hides the content while paused, the validation KPI family and the Understanding score, with every count pin, schema and copy moved to thirty-two and seven | R140 | Done |
 | F19 | The hidden layer made visible to the instructor: the record console (record, history, conflicts, answers, per-member documents, the picture with its validation overlay) and four published documents (project architecture, project infrastructure, skill validation, competency facets), the member export carrying the last two | R141 | Done |
 | F20 | The acknowledgement gate never shows a returning account the first-time welcome: the reads filter by the account (an instructor no longer passes on other people's acceptances), a failed or session-less read is a Retry screen, a session fault refreshes instead of signing out, a network fault queues the acceptance for the next load, and the Week-0 acknowledgement and every other personal-state key are merged on the server (0027) so one device cannot erase another's | R149 | Done |
+| F21 | A student may leave a team (what they earned stays on the account, the course work starts over, the team's documents stay with the team) and may join this month's or next month's class session — never an earlier one, and never one behind a session they have already been in; the rule is the database's (0028: a floor table only triggers write, a guard on every join; instructors exempt) as well as the browser's | R150 | Done |
 
 Order of the rounds: the field bug first (it blocks reporting and links), then the link size (the link
 fails today), then the earned-skills ledger (the record and the PDF both read it), then the live and
@@ -230,3 +231,25 @@ Network+. Every id list a test pins carries `network-plus`.
 the archPicture, weekVisuals and weekAdds suites; the exported `content/courses/network-plus.json` and its sheets; the
 share-link cap with fifteen courses; a browser sweep that joins, pastes a VLAN table and sees it verified.
 
+## F21 — leave a team, join forward only (R150, done)
+
+**What.** The owner's report: a student who joined on the 30th sat alone in October's team while November's arrivals could
+not join them, and nobody could leave. `src/lib/cohortWindow.ts` is the window (this month and next, never below the
+floor); the join panel offers those sessions as chips, the student's own first when they are already enrolled;
+**Leave team** sits beside **Change team or role**. A later session is a *leave then a join* (`src/lib/leaveTeam.ts`),
+never an in-place edit: the member's live profile is **banked** first (`courseProfileFor`, the one builder the Skills
+card also reads, so what is banked is what was shown), then the member's own course work is cleared the way "Reset my
+progress" does it, then the seat frees. Team-keyed work stays with the old team by construction. Both dialogs say what
+stays, what goes and that it cannot be undone.
+
+**Wired.** Migration 0028: `membership_cohort_floor` (self and instructor read; only the triggers write), `cohort_today()`
+(pinnable for tests), `membership_guard` before insert or update (cohort prefixes the team id; this month or next in UTC
+with a two-day grace; an update never moves the cohort backward; an insert never goes below the floor; editing role or
+team inside the session you are in is not a join) and `membership_floor` before delete. Instructors are exempt. The
+offline repo mirrors the floor on the device.
+
+**Verified.** `cohortWindow.test.ts`, `leaveTeam.test.ts`, the R150 JoinPanel cases, the moved-member cohort case,
+page-shape pins (`joinableCohorts(`, `switchCohortTeam(`, bank-before-reset) and the R150 block in `supabase/tests/rls.sql`
+(forward ok, backward refused, two months out refused, mismatched team id refused, floor outlives the delete, rejoin
+below the floor refused, a closed session still editable in place, Bob never reads Ada's floor nor writes the table,
+Ivy places anyone).

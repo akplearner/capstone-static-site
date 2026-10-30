@@ -59,3 +59,15 @@ describe('buildCohort', () => {
     expect(lines.some((l) => l.includes('srv_as_built:revise'))).toBe(true);
   });
 });
+
+describe('buildCohort — R150, a member who moved sessions', () => {
+  it('is listed under the new session only: the roster holds one row per member, keyed by the team they are on now', () => {
+    const moved = [
+      ...roster.filter((r) => r.memberId !== 'a'),
+      { memberId: 'a', teamId: '2026-10-t1', role: 'net', displayName: 'Ana', cohort: '2026-10', joinedAt: 9 },
+    ];
+    const rows = buildCohort({ course: SERVER_PLUS, roster: moved, isStepDone: () => false, evidenceFor: () => ({}), docsFor: () => ({}), stuckFor: () => [] });
+    expect(rows.filter((r) => r.displayName === 'Ana').map((r) => r.cohort)).toEqual(['2026-10']);
+    expect(rows.filter((r) => r.cohort === '2026-09').map((r) => r.displayName)).toEqual(['Ben', 'Cy']);
+  });
+});

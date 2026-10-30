@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { RoleIcon } from '@/components/team/RoleIcon';
 import { SignInPanel } from '@/components/auth/SignInPanel';
 import { progressRepo } from '@/lib/data';
+import type { JoinResult } from '@/lib/data/types';
 import { useClientStore, EMPTY_ARRAY, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
 import { getRoleDef } from '@/lib/course-helpers';
 import { profileOf, splitRoleName } from '@/lib/docs/roles';
@@ -15,18 +16,41 @@ import { motion } from 'framer-motion';
 import { useCourseDocument } from '@/lib/useCourse';
 import { rolesOf } from '@/lib/content/read';
 import { getMonthlyCohorts } from '@/lib/utils';
+import { joinableCohorts } from '@/lib/cohortWindow';
+import { leaveCourseTeam, switchCohortTeam } from '@/lib/leaveTeam';
+import { KEYS } from '@/lib/data/keys';
+import { ConfirmDialog } from '@/components/ui/Dialog';
 import { composeTeamId, parseTeamId, teamLabel, type TeamMode } from '@/lib/team';
 import { LocalLegalDialog } from '@/components/legal/AgreementGate';
 import { localAcceptances } from '@/lib/legal/acceptances';
 import { missingAcceptances } from '@/lib/legal/agreements';
 import type { Course, Member } from '@/lib/types';
 
-// Cohort join window (R83): only the CURRENT month's cohort is joinable, so
-// everyone in a session is aligned in time. The next month shows a countdown.
-const [CURRENT_COHORT, NEXT_COHORT] = getMonthlyCohorts(2);
+// Cohort join window (R83, widened R150): THIS month's session or NEXT month's is joinable — a
+// student who joins on the 30th can sit with the newcomers of the 1st — never an earlier one, and a
+// student who has been in a session can only ever move forward (the database holds the same rule).
 function daysUntil(cohort: string): number {
   const opens = new Date(`${cohort}-01T00:00:00`);
   return Math.max(1, Math.ceil((opens.getTime() - Date.now()) / 86_400_000));
+}
+
+/** R150: the sentences every leave or switch is confirmed with — what stays, what goes, what cannot be undone. */
+export const LEAVE_COPY = {
+  keeps: 'Your earned skills and metrics stay on your account — nothing you have earned is lost.',
+  team: 'Your team’s capstone documents and progress stay with your old team.',
+  fresh: 'Your own ticks, evidence and notes for this course are cleared: with your new team you build the system again from Week 0.',
+  rule: 'You can only join this month’s or next month’s class session, never an earlier one. This cannot be undone.',
+} as const;
+
+function LeaveMessage() {
+  return (
+    <ul className="list-disc space-y-1 pl-5">
+      <li>{LEAVE_COPY.keeps}</li>
+      <li>{LEAVE_COPY.team}</li>
+      <li>{LEAVE_COPY.fresh}</li>
+      <li>{LEAVE_COPY.rule}</li>
+    </ul>
+  );
 }
 
 /** Inline enrollment: pick a team (capacity-aware) and role without leaving the page. */
@@ -60,9 +84,14 @@ export function JoinPanel({
   );
   const roster = useClientStore(() => progressRepo.getRoster(course.id), EMPTY_ARRAY);
   const [name, setName] = useState(member?.displayName ?? '');
-  // An enrolled member keeps their cohort when editing; a new join is always
-  // the current month (R83) — past cohorts are locked, future ones counted down.
-  const cohort = member?.cohort ?? CURRENT_COHORT;
+  // R150: the sessions this student may join — this month and next, never below the floor the
+  // database remembers for them. An enrolled member may also STAY where they are.
+  const floor = useClientStore<string | null>(() => progressRepo.getCohortFloor(course.id), null);
+  const [CURRENT_COHORT] = getMonthlyCohorts(2);
+  const openCohorts = joinableCohorts(new Date(), floor);
+  const cohortChoices = member ? [member.cohort, ...openCohorts.filter((c) => c !== member.cohort)] : openCohorts;
+  const [cohort, setCohort] = useState(member?.cohort ?? openCohorts[0] ?? CURRENT_COHORT);
+  const switching = !!member && cohort !== member.cohort;
   // How they attend (R83): a Local classroom team or an Online lobby. Two
   // separate worlds — each mode's picker lists only its own kind of team.
   const [mode, setMode] = useState<TeamMode>(member ? parseTeamId(member.teamId).mode : 'local');
@@ -103,6 +132,31 @@ export function JoinPanel({
 
   const [joining, setJoining] = useState(false);
   const [showLegal, setShowLegal] = useState(false);
+  const [confirming, setConfirming] = useState<'leave' | 'switch' | null>(null);
+  const finish = (res: JoinResult, joined: Member) => {
+    setJoining(false);
+    if (!res.ok) {
+      setError(
+        res.reason === 'team-full'
+          ? 'That team is full — pick another team.'
+          : 'Couldn’t reach the server to join — check your connection and try again.'
+      );
+      notifyStore();
+      return;
+    }
+    setError(null);
+    setEditing(false);
+    onJoined(joined);
+  };
+  // R150: leaving banks what was earned, clears this course's own work and frees the seat; the
+  // member context goes with it, so the page falls back to the join form on its own.
+  const leave = async () => {
+    if (!member) return;
+    setJoining(true);
+    const left = await leaveCourseTeam(course, member);
+    setJoining(false);
+    if (!left) setError('Couldn’t reach the server to leave — check your connection and try again.');
+  };
   const submit = async () => {
     if (!name.trim()) {
       setError('Please enter your name to continue.');
@@ -117,9 +171,11 @@ export function JoinPanel({
     }
     // When auth is on, the Supabase user id IS the member id (stable across devices);
     // otherwise fall back to the local synthesized id.
+    // R150, offline: a student who left keeps the id they left under, so a rejoin is theirs.
+    const leftId = typeof window === 'undefined' ? null : localStorage.getItem(KEYS.leftMemberId(course.id));
     const newMember: Member = {
       memberId:
-        userId ?? member?.memberId ?? `${course.id}-${cohort}-${team}-${role}-${Date.now()}`,
+        userId ?? member?.memberId ?? leftId ?? `${course.id}-${cohort}-${team}-${role}-${Date.now()}`,
       courseId: course.id,
       teamId: composeTeamId(cohort, team, mode),
       role,
@@ -130,20 +186,14 @@ export function JoinPanel({
     // every team-scoped write (forms, gates, flags) is refused by RLS without
     // it, so "joined" must mean the database agrees (R82).
     setJoining(true);
-    const res = await Promise.resolve(progressRepo.joinTeam(course, newMember));
-    setJoining(false);
-    if (!res.ok) {
-      setError(
-        res.reason === 'team-full'
-          ? 'That team is full — pick another team.'
-          : 'Couldn’t reach the server to join — check your connection and try again.'
-      );
-      notifyStore();
+    // R150: a later session is a leave followed by a join (the work starts over, the account keeps
+    // what it earned); a team or role change inside the same session is the in-place save it was.
+    if (member && switching) {
+      finish(await switchCohortTeam(course, member, newMember), newMember);
       return;
     }
-    setError(null);
-    setEditing(false);
-    onJoined(newMember);
+    const res = await Promise.resolve(progressRepo.joinTeam(course, newMember));
+    finish(res, newMember);
   };
 
   // Auth gate: when Supabase is on, you must sign in before joining a team so your
@@ -171,9 +221,23 @@ export function JoinPanel({
             </div>
           </div>
         </div>
-        <Button variant="secondary" onClick={() => setEditing(true)}>
-          Change team or role
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="secondary" onClick={() => setEditing(true)}>
+            Change team or role
+          </Button>
+          <Button variant="ghost" onClick={() => setConfirming('leave')} disabled={joining} data-leave-team>
+            {joining ? 'Leaving…' : 'Leave team'}
+          </Button>
+        </div>
+        {error && <p className="w-full text-sm text-danger">{error}</p>}
+        <ConfirmDialog
+          open={confirming === 'leave'}
+          onClose={() => setConfirming(null)}
+          onConfirm={() => void leave()}
+          title={`Leave ${teamLabel(member.teamId)} (${member.cohort}) and start fresh?`}
+          message={<LeaveMessage />}
+          confirmLabel="Leave team"
+        />
       </div>
     );
   }
@@ -205,18 +269,38 @@ export function JoinPanel({
         </label>
         <div>
           <span className="block text-sm font-medium text-body">Class session</span>
-          {/* Only the current month is joinable (R83): everyone in a session
-              moves through the weeks together. The next one counts down. */}
+          {/* This month's session or next month's (R150): everyone in a session moves through the
+              weeks together, and a late joiner may sit with the month about to start. Sessions the
+              student has already been in sit behind them — only their own current one is offered. */}
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <span className="rounded-[var(--radius-control)] depth-lift bg-accent-soft px-3 py-2 text-sm font-medium text-accent-ink">
-              {cohort}{member ? '' : ' · open now'}
-            </span>
-            {!member && (
-              <span className="rounded-[var(--radius-control)] depth-sunk bg-panel-2 px-3 py-2 text-sm text-muted" title="Future sessions open on the 1st">
-                {NEXT_COHORT} · opens in {daysUntil(NEXT_COHORT)}d
-              </span>
+            {cohortChoices.map((c) => {
+              const selected = cohort === c;
+              const tag = member?.cohort === c ? 'your session' : c === CURRENT_COHORT ? 'open now' : `next · starts in ${daysUntil(c)}d`;
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  data-cohort-pick={c}
+                  aria-pressed={selected}
+                  onClick={() => setCohort(c)}
+                  title={c === CURRENT_COHORT || member?.cohort === c ? undefined : 'Starts on the 1st — join now to be on that team from day one'}
+                  className={`rounded-[var(--radius-control)] px-3 py-2 text-sm font-medium transition-colors ${
+                    selected ? 'depth-lift bg-accent-soft text-accent-ink' : 'depth-edge depth-hover bg-panel text-body'
+                  }`}
+                >
+                  {c} · {tag}
+                </button>
+              );
+            })}
+            {cohortChoices.length === 0 && (
+              <span className="text-sm text-muted" data-no-cohort>No session is open to join right now.</span>
             )}
           </div>
+          {switching && (
+            <p className="mt-2 text-xs text-muted" data-switch-note>
+              Moving to {cohort} leaves your {member!.cohort} team: your earned skills stay, your course work starts over.
+            </p>
+          )}
         </div>
       </div>
 
@@ -417,9 +501,20 @@ export function JoinPanel({
         }}
       />
 
+      {member && (
+        <ConfirmDialog
+          open={confirming === 'switch'}
+          onClose={() => setConfirming(null)}
+          onConfirm={() => void submit()}
+          title={`Move to the ${cohort} session?`}
+          message={<LeaveMessage />}
+          confirmLabel="Leave and switch"
+        />
+      )}
+
       <div className="flex items-center gap-3">
-        <Button onClick={() => void submit()} size="lg" disabled={joining}>
-          {joining ? 'Joining…' : member ? 'Save changes' : 'Join course'}
+        <Button onClick={() => (switching ? setConfirming('switch') : void submit())} size="lg" disabled={joining || cohortChoices.length === 0}>
+          {joining ? 'Joining…' : switching ? 'Leave and switch' : member ? 'Save changes' : 'Join course'}
         </Button>
         {member && (
           <Button variant="secondary" onClick={() => setEditing(false)}>

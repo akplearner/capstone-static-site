@@ -8,6 +8,8 @@
 -- PostgREST does per request, then asserts what that person can see and do.
 -- SUPABASE_SETUP.md's "Who can read what" table is the prose version of this.
 begin;
+-- R150: every fixture joins the January 2026 session; pin the database's clock inside that window.
+set local app.cohort_today = '2026-01-15';
 
 -- ── people (their metadata is shaped like what Google and GitHub send) ───────
 insert into auth.users (id, email, raw_user_meta_data) values
@@ -1722,6 +1724,92 @@ begin
       'trigger function ' || f.proname || ' has no search_path';
   end loop;
 end $$;
+
+-- ── R150: a class session is joined forward only; the floor outlives the membership ──
+savepoint cohort_rules;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+do $$ begin
+  -- Forward to next month: fine.
+  update public.memberships set team_id = '2026-02-T01', cohort = '2026-02'
+    where user_id = '00000000-0000-4000-8000-00000000000a' and course_id = 'security-plus';
+  assert (select cohort from public.memberships where user_id = '00000000-0000-4000-8000-00000000000a' and course_id = 'security-plus') = '2026-02', 'ada: moved forward';
+  assert (select cohort from public.membership_cohort_floor where user_id = '00000000-0000-4000-8000-00000000000a' and course_id = 'security-plus') = '2026-02', 'ada: the floor rose with her';
+  -- Backward: refused.
+  begin
+    update public.memberships set team_id = '2025-12-T01', cohort = '2025-12'
+      where user_id = '00000000-0000-4000-8000-00000000000a' and course_id = 'security-plus';
+    raise exception 'ada moved her cohort backward';
+  exception when check_violation then null; end;
+  -- Beyond next month: refused.
+  begin
+    update public.memberships set team_id = '2026-03-T01', cohort = '2026-03'
+      where user_id = '00000000-0000-4000-8000-00000000000a' and course_id = 'security-plus';
+    raise exception 'ada joined a session two months out';
+  exception when check_violation then null; end;
+  -- A team id that does not carry its cohort: refused.
+  begin
+    update public.memberships set team_id = '2026-01-T01', cohort = '2026-02'
+      where user_id = '00000000-0000-4000-8000-00000000000a' and course_id = 'security-plus';
+    raise exception 'ada wrote a team id from another session';
+  exception when check_violation then null; end;
+  -- Leave: the row goes, the floor stays.
+  delete from public.memberships where user_id = '00000000-0000-4000-8000-00000000000a' and course_id = 'security-plus';
+  assert (select count(*) from public.memberships where user_id = '00000000-0000-4000-8000-00000000000a' and course_id = 'security-plus') = 0, 'ada: left';
+  assert (select cohort from public.membership_cohort_floor where user_id = '00000000-0000-4000-8000-00000000000a' and course_id = 'security-plus') = '2026-02', 'ada: the floor outlives the membership';
+  -- Rejoin earlier than the floor: refused. Rejoin at the floor: fine.
+  begin
+    insert into public.memberships (user_id, course_id, team_id, role, display_name, cohort)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', '2026-01-T02', 'net', 'Ada', '2026-01');
+    raise exception 'ada rejoined an earlier session than the one she left';
+  exception when check_violation then null; end;
+  insert into public.memberships (user_id, course_id, team_id, role, display_name, cohort)
+    values ('00000000-0000-4000-8000-00000000000a', 'security-plus', '2026-02-T02', 'net', 'Ada', '2026-02');
+  assert (select team_id from public.memberships where user_id = '00000000-0000-4000-8000-00000000000a' and course_id = 'security-plus') = '2026-02-T02', 'ada: rejoined at the floor';
+end $$;
+reset role;
+-- Months later, Bob's January session is long closed: he may still change his role or team INSIDE it (that is
+-- not a join), but the only sessions he may move to are the ones open now.
+set local app.cohort_today = '2026-04-15';
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000b';
+do $$ begin
+  update public.memberships set role = 'grc' where user_id = '00000000-0000-4000-8000-00000000000b' and course_id = 'security-plus';
+  update public.memberships set team_id = '2026-01-T02' where user_id = '00000000-0000-4000-8000-00000000000b' and course_id = 'security-plus';
+  assert (select team_id || '/' || role from public.memberships where user_id = '00000000-0000-4000-8000-00000000000b' and course_id = 'security-plus') = '2026-01-T02/grc', 'bob: edits his row inside his own closed session';
+  begin
+    update public.memberships set team_id = '2026-02-T01', cohort = '2026-02'
+      where user_id = '00000000-0000-4000-8000-00000000000b' and course_id = 'security-plus';
+    raise exception 'bob moved into a session that is already closed';
+  exception when check_violation then null; end;
+  update public.memberships set team_id = '2026-05-T01', cohort = '2026-05'
+    where user_id = '00000000-0000-4000-8000-00000000000b' and course_id = 'security-plus';
+  assert (select cohort from public.memberships where user_id = '00000000-0000-4000-8000-00000000000b' and course_id = 'security-plus') = '2026-05', 'bob: moves into next month''s session';
+end $$;
+reset role;
+set local app.cohort_today = '2026-01-15';
+-- Bob reads his own floor, never Ada's.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000b';
+do $$ begin
+  assert (select count(*) from public.membership_cohort_floor where user_id = '00000000-0000-4000-8000-00000000000a') = 0, 'bob: never ada''s floor';
+  begin
+    insert into public.membership_cohort_floor (user_id, course_id, cohort) values ('00000000-0000-4000-8000-00000000000b', 'security-plus', '2020-01');
+    raise exception 'bob wrote the floor table by hand';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+-- Ivy, the instructor, places a student anywhere: the rule is for students.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000d';
+do $$ begin
+  update public.memberships set team_id = '2025-06-T01', cohort = '2025-06'
+    where user_id = '00000000-0000-4000-8000-00000000000c' and course_id = 'security-plus';
+  assert (select cohort from public.memberships where user_id = '00000000-0000-4000-8000-00000000000c' and course_id = 'security-plus') = '2025-06', 'ivy: may place a student in any session';
+  assert (select count(*) from public.membership_cohort_floor) >= 2, 'ivy: reads every floor';
+end $$;
+reset role;
+rollback to savepoint cohort_rules;
 
 -- ── R149: the state blob is merged on the server, one key at a time ─────────
 -- Two devices each patch only the keys they own; neither erases the other's. A null removes a key.

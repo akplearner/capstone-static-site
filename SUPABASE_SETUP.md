@@ -434,6 +434,22 @@ repeat) to apply it. Until then the app keeps each member's ledger on their devi
 nothing there, and it moves to the database as soon as the table exists on the next page view. Deleting an
 account removes the ledger with the rest.
 
+### A student may leave a team, and may only move forward (R150)
+
+**Migration 0028** (in `supabase/setup.sql`) makes the class-session rule the database's. A class session is a month
+(`2026-10`) and it lives inside every team id. A student may join **this month's** session or **next month's** — so
+someone who arrives on the 30th can sit with the team that starts on the 1st — and never an earlier one. Once a student
+has been in a session on a course they may **leave** it (the seat frees, their earned skills and metrics stay on their
+account, their own work on the course starts over, and the team's documents stay with the team) and may then join the
+same month or a later one, never an earlier one: `membership_cohort_floor` remembers the latest session each student has
+belonged to, per course, and only the database's own triggers write it. Changing team or role **inside** the session you
+are already in is not a join and is always allowed. Instructors are exempt and may place a student anywhere.
+
+The month is taken in UTC with a two-day grace below the current month, because the browser works out the month in the
+student's local time: the browser shows the exact window, the database is the backstop. Paste `supabase/setup.sql` into
+the SQL Editor and **Run** (safe to repeat) to apply it. Students who left a team before this was applied have no floor
+yet; floors begin with the first join or leave after it.
+
 ## Let students delete their account
 
 The privacy policy promises account deletion. Removing the login itself needs the
@@ -602,7 +618,8 @@ Still worth ten minutes on the live site before real students:
 | Data | Who can read it |
 |---|---|
 | Profiles | you, teammates and staff (name and picture); only you may change them, never the staff flags |
-| Team membership | anyone on the same course; staff may also move/re-role/remove (students still join themselves) |
+| Team membership | anyone on the same course; staff may also move/re-role/remove (students still join themselves). A student joins **this month's or next month's** class session and, once in one, only ever moves forward (0028, below) |
+| Session floor (`membership_cohort_floor`) | **you** and staff read; **nobody** writes it by hand — the database raises it as you join or leave, and it outlives the membership so leaving never opens an earlier session |
 | Step completions | you and your teammates |
 | Evidence ledger (what earns each gem) | you and your teammates — hashes and counts, never pasted output |
 | Deliverables, gate status | your team |

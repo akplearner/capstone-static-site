@@ -57,6 +57,8 @@ const gateByKey = new Map<string, string>(); // KEYS.gate(...) -> status
 // alone because the user is implicit.
 const labAccessByCourse = new Map<string, LabAccessData>();
 const userStateByCourse = new Map<string, UserCourseState>();
+// R150: the latest class session the signed-in member has belonged to, per course (membership_cohort_floor).
+const cohortFloorByCourse = new Map<string, string>();
 // The evidence ledger. Step records are keyed
 // `${userId}::${courseId}::${taskId}::${stepId}` so one flat map serves every
 // course (the cross-course dashboard and portfolio) AND every teammate: since
@@ -174,6 +176,7 @@ export function setCurrentUserId(id: string | null) {
     gateByKey.clear();
     labAccessByCourse.clear();
     userStateByCourse.clear();
+    cohortFloorByCourse.clear();
     // The ledger holds one student's proof of work. Failing to clear it here
     // would show the next student on a shared classroom machine the previous
     // one's verified steps and evidence hashes.
@@ -256,6 +259,14 @@ export const cache = {
   },
   userState(courseId: string): UserCourseState | null {
     return userStateByCourse.get(courseId) ?? null;
+  },
+  cohortFloor(courseId: string): string | null {
+    return cohortFloorByCourse.get(courseId) ?? null;
+  },
+  /** The floor only rises. */
+  setCohortFloor(courseId: string, cohort: string) {
+    const cur = cohortFloorByCourse.get(courseId);
+    if (!cur || cohort > cur) cohortFloorByCourse.set(courseId, cohort);
   },
   setUserState(courseId: string, data: UserCourseState) {
     userStateByCourse.set(courseId, data);
@@ -718,6 +729,21 @@ export async function hydrateCourse(courseId: string): Promise<void> {
         : null
     );
   }
+
+  // R150: the floor (own row only, by RLS); a project that has not run 0028 has no table — ignore.
+  void supabase
+    .from('membership_cohort_floor')
+    .select('cohort')
+    .eq('course_id', courseId)
+    .maybeSingle()
+    .then(({ data, error }) => {
+      if (error || !data?.cohort) return;
+      const cur = cohortFloorByCourse.get(courseId);
+      if (!cur || String(data.cohort) > cur) {
+        cohortFloorByCourse.set(courseId, String(data.cohort));
+        notifyStore();
+      }
+    });
 
   if (completions.data) {
     // Drop this course's keys then re-add (keeps other courses intact).

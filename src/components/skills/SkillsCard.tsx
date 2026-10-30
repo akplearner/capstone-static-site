@@ -3,16 +3,16 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { Course, Member } from '@/lib/types';
-import { certOf, deliverablesOf, skillsOf, type SkillsContent } from '@/lib/content/read';
+import { certOf, skillsOf, type SkillsContent } from '@/lib/content/read';
 import type { DeliverableData } from '@/lib/docs/types';
 import { useCourseDocument } from '@/lib/useCourse';
-import { skillProfile, type AbilityIndicators, type ProfileRow, type SkillProfile } from '@/lib/skillProfile';
-import { useBankEarned, withEarned } from '@/lib/earnedBank';
+import type { AbilityIndicators, ProfileRow, SkillProfile } from '@/lib/skillProfile';
+import { courseProfileFor } from '@/lib/courseProfile';
+import { useBankEarned } from '@/lib/earnedBank';
 import { defaultMeasure, kpiBoard } from '@/lib/kpiBoard';
 import { ONTOLOGY_VERSION } from '@/lib/docs/ontology';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
 import { docsRepo, evidenceRepo, progressRepo } from '@/lib/data';
-import { ownFactsOf, teamFactsOf, weekDueOf } from '@/lib/recordFacts';
 import { courseMetrics } from '@/lib/metrics';
 import { getTasksByRole } from '@/lib/course-helpers';
 import { buildRecordPdf, recordPdfName } from '@/lib/recordPdf';
@@ -76,31 +76,13 @@ function saveCoursePdf({ course, member, profile, docs, registry, keySet }: { co
 export function SkillsCard({ course, member, activeWeek, crew }: { course: Course; member: Member; activeWeek: number; crew: Pick<CrewProgress, 'weeksCleared' | 'weeksTotal'> }) {
   const registry = skillsOf(useCourseDocument());
   const cert = certOf(useCourseDocument());
-  const deliverables = deliverablesOf(useCourseDocument());
   // R111: the page's clock for the currency flag; the projection reads none.
   const [asOf] = useState(() => Date.now());
-  const keySet = progressRepo.getCompletionKeySet(course.id, member.memberId);
   const docs = docsRepo.get(course.id, member.teamId) ?? {};
   // R125: the member's earned rows are laid over the live profile, so a retake reads at what was already earned.
-  const profile = withEarned(skillProfile({
-    course,
-    role: member.role,
-    memberId: member.memberId,
-    isStepDone: (t, s) => progressRepo.isStepComplete(course.id, member.memberId, t, s, keySet),
-    evidence: evidenceRepo.getSteps(course.id, member.memberId),
-    artifacts: evidenceRepo.getArtifacts(course.id, member.memberId),
-    registry,
-    cert,
-    deliverables,
-    // R136: the one loader every profile caller uses; the marks, the flag history, the review queue and the calendar travel with it.
-    team: teamFactsOf(course, member, activeWeek),
-    own: ownFactsOf(course, member),
-    weekDue: weekDueOf(course, member),
-    asOf,
-    // R113: the platform's receipts (null offline) and the re-hash checks.
-    receipts: evidenceRepo.getReceipts(course.id, member.memberId),
-    rehashes: evidenceRepo.getRehashes(course.id, member.memberId),
-  }));
+  // R150: built by `courseProfileFor`, the one builder leaving a team banks from, so what is banked is what is shown.
+  const keySet = progressRepo.getCompletionKeySet(course.id, member.memberId);
+  const profile = courseProfileFor(course, member, { activeWeek, asOf, doc: useCourseDocument() });
   // R125: bank what this course reaches, after render: the Home tab is where "Reset my progress" lives, so the ledger is current before it is used.
   useBankEarned([profile]);
   const { COPY, LEVEL_LABEL, DIMENSION_LABEL } = registry;

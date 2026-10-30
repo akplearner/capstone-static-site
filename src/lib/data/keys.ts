@@ -98,4 +98,9 @@ export const KEYS = {
   // R149: acceptances the cloud log could not take yet (network fault), kept per account until the next
   // load records them — so "you can continue" is a promise the platform keeps, not a one-shot retry.
   pendingAcceptances: (userId: string) => `${STORAGE_PREFIX}pending_acceptances_${userId}`,
+  // R150: the latest class session this device's student has belonged to on a course — kept after they
+  // leave, so a rejoin can only go to that session or a later one (the cloud keeps it in
+  // `membership_cohort_floor`). And the id they left under, so an offline rejoin keeps their progress.
+  cohortFloor: (courseId: string) => `${STORAGE_PREFIX}${courseId}_cohort_floor`,
+  leftMemberId: (courseId: string) => `${STORAGE_PREFIX}${courseId}_left_member`,
 };

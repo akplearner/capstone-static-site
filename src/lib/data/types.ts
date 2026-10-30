@@ -302,7 +302,12 @@ export interface ProgressRepository {
    *  cache if it didn't) before anyone writes team-scoped data that RLS would
    *  reject without it (R82). Await through `Promise.resolve(...)`. */
   joinTeam(course: Course, member: Member): JoinResult | Promise<JoinResult>;
-  leaveTeam(courseId: string, memberId: string): void;
+  /** R150: leave the team — the roster entry and the member context go, the seat frees, and the course
+   *  remembers the cohort as a floor so a rejoin never goes to an earlier session. The cloud repo awaits
+   *  the delete and rolls the cache back if it did not land; `false` means they are still on the team. */
+  leaveTeam(courseId: string, memberId: string): boolean | Promise<boolean>;
+  /** R150: the latest session this student has belonged to on the course, or null if never. */
+  getCohortFloor(courseId: string): string | null;
 
   getCompletionKeySet(courseId: string, memberId: string): Set<string>;
   isStepComplete(courseId: string, memberId: string, taskId: string, stepId: string, keySet?: Set<string>): boolean;

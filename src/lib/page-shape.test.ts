@@ -1609,6 +1609,12 @@ describe('R83 — cohorts and lobbies', () => {
     const jp = code('src/components/course/JoinPanel.tsx');
     expect(jp, 'the 12-month free-for-all select is gone').not.toContain('getMonthlyCohorts(12)');
     expect(jp).toContain('getMonthlyCohorts(2)');
+    // R150: this month OR next, never below the floor; a cohort change is a leave then a join.
+    expect(jp, 'the window is the one helper').toContain('joinableCohorts(');
+    expect(jp, 'a later session is a leave then a join, never an in-place cohort edit').toContain('switchCohortTeam(');
+    expect(jp, 'leaving is confirmed with what stays and what goes').toContain('leaveCourseTeam(');
+    expect(jp).toContain('<ConfirmDialog');
+    expect(code('src/lib/leaveTeam.ts'), 'banked before the reset, because banking is lazy').toMatch(/bankProfile\([\s\S]*resetCourse\(/);
     expect(jp).toContain('How are you attending?');
     expect(jp, 'lobbies and teams never mix').toContain("mode === 'local' ? (");
     expect(jp).toContain('Start a new lobby');
@@ -2353,7 +2359,9 @@ describe('R107 — skills, tools, standards and the member profile', () => {
     expect(card).not.toContain('<Surface');
     expect(card).toContain('data-skills-card');
     expect(card).toContain('data-domain={r.id}');
-    expect(card).toContain('skillProfile({');
+    // R150: the card's profile is built by `courseProfileFor`, the builder leaving a team banks from.
+    expect(card).toContain('courseProfileFor(course, member, {');
+    expect(code('src/lib/courseProfile.ts')).toContain('skillProfile({');
     for (const page of ['src/app/dashboard/page.tsx', 'src/app/portfolio/page.tsx']) {
       expect(code(page), page).toContain('courseDocument(course.id) ?? bareDocument(course)');
       expect(code(page), page).toContain('skillProfile({');
@@ -3613,7 +3621,8 @@ describe('R125 — the earned-skills ledger', () => {
     expect(code('src/app/dashboard/page.tsx')).toContain('useBankEarned(cards.map((c) => c.skills))');
     expect(code('src/app/portfolio/page.tsx')).toContain('withEarned(skillProfile({');
     expect(code('src/app/portfolio/page.tsx')).toContain('useBankEarned(rows.map((r) => r.skills))');
-    expect(code('src/components/skills/SkillsCard.tsx')).toContain('withEarned(skillProfile({');
+    expect(code('src/lib/courseProfile.ts'), 'R150: the card builds through courseProfileFor').toContain('withEarned(\n    skillProfile({');
+    expect(code('src/components/skills/SkillsCard.tsx')).toContain('courseProfileFor(');
     expect(code('src/components/skills/SkillsCard.tsx')).toContain('useBankEarned([profile])');
     expect(code('src/app/courses/[courseId]/skills/page.tsx')).toContain('withEarned(skillProfile({');
     expect(code('src/app/courses/[courseId]/skills/page.tsx')).toContain('<BankEarned profiles={[profile]} />');
@@ -4043,7 +4052,8 @@ describe('R135 — ownership and hardening', () => {
 });
 
 describe('R136 — every fact reaches the projection', () => {
-  const CALLERS = ['src/app/courses/[courseId]/skills/page.tsx', 'src/components/skills/SkillsCard.tsx', 'src/app/dashboard/page.tsx', 'src/app/portfolio/page.tsx'];
+  // R150: the Skills card builds its profile through src/lib/courseProfile.ts (the builder a leave banks from).
+  const CALLERS = ['src/app/courses/[courseId]/skills/page.tsx', 'src/lib/courseProfile.ts', 'src/app/dashboard/page.tsx', 'src/app/portfolio/page.tsx'];
 
   it('the four member surfaces build the team and own facts through the one loader, and hand the calendar in', () => {
     for (const f of CALLERS) {
