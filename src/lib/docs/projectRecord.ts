@@ -193,6 +193,15 @@ export const RECORD_FIELDS: RecordField[] = [
   inf('dca_troubleshoot', 'attempts', 'theory', 'incident', 'Fault attempt'),
   inf('dca_security', 'findings', 'cve', 'risk', 'Security finding'),
   fld('dca_handover', 'services', 'resource', 'Dependency'),
+  // kubernetes-cka — at least half the forms feed the record.
+  fld('cka_setup', 'cluster', 'host', 'Cluster', { declares: true }),
+  inf('cka_cluster', 'components', 'component', 'resource', 'Control-plane component'),
+  fld('cka_cluster', 'role', 'iam', 'Access role'),
+  fld('cka_network', 'pod_cidr', 'cidr', 'Pod network CIDR'),
+  inf('cka_workloads', 'changes', 'change', 'change', 'Workload change'),
+  inf('cka_troubleshoot', 'attempts', 'theory', 'incident', 'Fault attempt'),
+  fld('cka_backup', 'snapshot', 'resource', 'Backup'),
+  fld('cka_handover', 'exposure', 'resource', 'Dependency'),
   // aws-ai-practitioner — at least half the forms feed the record.
   fld('awsai_setup', 'assistant', 'host', 'Assistant', { declares: true }),
   inf('awsai_capabilities', 'features', 'feature', 'resource', 'Feature', { labelFrom: 'workload' }),

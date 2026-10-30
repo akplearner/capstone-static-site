@@ -63,6 +63,12 @@ export const VENDORS: Vendor[] = [
     blurb: 'The container yard — images, stacks and orchestration built on the Linux ground.',
   },
   {
+    id: 'cncf',
+    name: 'CNCF',
+    region: 'linux',
+    blurb: 'The cluster yard — Kubernetes stood up and operated on the Linux ground.',
+  },
+  {
     id: 'engagement',
     name: 'Engagements',
     region: 'engagement',

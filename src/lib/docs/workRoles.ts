@@ -129,6 +129,12 @@ export const WORK_ROLE_OF: Record<string, Record<string, string[]>> = {
     net: ['role.network-operations-specialist'],
     records: ['role.cyber-policy-planner'],
   },
+  'kubernetes-cka': {
+    cluster: ['role.system-administrator'],
+    workloads: ['role.system-administrator'],
+    net: ['role.network-operations-specialist'],
+    records: ['role.cyber-policy-planner'],
+  },
   'aws-ai-practitioner': {
     concepts: ['role.cyber-policy-planner'],
     build: ['role.software-developer'],

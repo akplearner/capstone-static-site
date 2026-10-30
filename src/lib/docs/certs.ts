@@ -105,6 +105,16 @@ export const CERTS: Record<string, CertDef> = {
       d('d6', 'Storage and Volumes', 10),
     ],
   },
+  'kubernetes-cka': {
+    courseId: 'kubernetes-cka', vendorId: 'cncf', vendor: 'CNCF', code: 'CKA', name: 'Certified Kubernetes Administrator', level: 'professional', vendorLevel: 'Administrator', exam: true, examFeeUsd: 445, feeCheckedYear: 2026,
+    domains: [
+      d('d1', 'Troubleshooting', 30),
+      d('d2', 'Cluster Architecture, Installation and Configuration', 25),
+      d('d3', 'Services and Networking', 20),
+      d('d4', 'Workloads and Scheduling', 15),
+      d('d5', 'Storage', 10),
+    ],
+  },
   'aws-ai-practitioner': {
     courseId: 'aws-ai-practitioner', vendorId: 'aws', vendor: 'AWS', code: 'AIF-C01', name: 'AI Practitioner', level: 'entry', vendorLevel: 'Foundational', exam: true, examFeeUsd: 100, feeCheckedYear: 2026,
     // Five domains; weights verified against the official AIF-C01 exam guide.
@@ -258,6 +268,12 @@ export const TASK_DOMAINS: Record<string, Record<string, string>> = {
     'dca-w2-compose': 'd1', 'dca-w2-swarm': 'd1', 'dca-w2-scale': 'd1',
     'dca-w3-network': 'd4', 'dca-w3-volumes': 'd6', 'dca-w3-ports': 'd4',
     'dca-w4-scan': 'd5', 'dca-w4-harden': 'd5', 'dca-w4-handover': 'd5',
+  },
+  'kubernetes-cka': {
+    'cka-w1-cluster': 'd2', 'cka-w1-components': 'd2', 'cka-w1-rbac': 'd2',
+    'cka-w2-deploy': 'd4', 'cka-w2-resources': 'd4', 'cka-w2-schedule': 'd4',
+    'cka-w3-services': 'd3', 'cka-w3-networkpolicy': 'd3', 'cka-w3-storage': 'd5',
+    'cka-w4-troubleshoot': 'd1', 'cka-w4-backup': 'd2', 'cka-w4-handover': 'd1',
   },
   'aws-ai-practitioner': {
     'awsai-w1-workloads': 'd1', 'awsai-w1-components': 'd2', 'awsai-w1-local': 'd2', 'awsai-w2-responsible': 'd4', 'awsai-w2-ml': 'd1', 'awsai-w2-eval': 'd2',

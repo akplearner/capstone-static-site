@@ -3319,6 +3319,10 @@
         "taskId": "dca-w4-handover"
       },
       {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w4-handover"
+      },
+      {
         "courseId": "ai-foundations",
         "taskId": "aif-w4-handover"
       },
@@ -3369,6 +3373,10 @@
       {
         "courseId": "docker-dca",
         "taskId": "dca-rag-engineering-w2-passline"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w1-ai"
       },
       {
         "courseId": "ai-foundations",
@@ -3511,6 +3519,26 @@
       {
         "courseId": "docker-dca",
         "taskId": "dca-local-llm-serving-w1-serve"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w1-ai"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w2-ai"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w3-ai"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w4-ai"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-local-llm-serving-w1-serve"
       },
       {
         "courseId": "ai-foundations",
@@ -3853,6 +3881,34 @@
       {
         "courseId": "docker-dca",
         "taskId": "dca-rag-engineering-w2-passline"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w1-ai"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w2-ai"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w3-ai"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w4-ai"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-ai-agents-mcp-w1-tools"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-ai-agents-mcp-w1-leash"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-ai-agents-mcp-w2-audit"
       },
       {
         "courseId": "ai-foundations",
@@ -4297,6 +4353,18 @@
         "taskId": "dca-w4-ai"
       },
       {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w2-ai"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w3-ai"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w4-ai"
+      },
+      {
         "courseId": "ai-foundations",
         "taskId": "aif-w1-local"
       },
@@ -4541,6 +4609,14 @@
         "taskId": "dca-w1-registry"
       },
       {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w1-cluster"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w1-components"
+      },
+      {
         "courseId": "server-plus",
         "taskId": "sp-w6-git"
       }
@@ -4549,6 +4625,10 @@
       {
         "courseId": "docker-dca",
         "taskId": "dca-w1-config"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w1-rbac"
       },
       {
         "courseId": "security-plus",
@@ -4575,6 +4655,18 @@
         "taskId": "dca-w2-scale"
       },
       {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w2-deploy"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w2-resources"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w2-schedule"
+      },
+      {
         "courseId": "azure-administrator",
         "taskId": "az-w8-infra"
       },
@@ -4587,6 +4679,10 @@
       {
         "courseId": "docker-dca",
         "taskId": "dca-w2-scale"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w2-schedule"
       },
       {
         "courseId": "azure-devops",
@@ -4607,6 +4703,14 @@
         "taskId": "dca-w3-ports"
       },
       {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w3-services"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w3-networkpolicy"
+      },
+      {
         "courseId": "azure-fundamentals",
         "taskId": "az-w1-infra"
       },
@@ -4619,6 +4723,10 @@
       {
         "courseId": "docker-dca",
         "taskId": "dca-w3-volumes"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w3-storage"
       },
       {
         "courseId": "azure-administrator",
@@ -4635,6 +4743,10 @@
         "taskId": "dca-w3-ports"
       },
       {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w4-troubleshoot"
+      },
+      {
         "courseId": "azure-devops",
         "taskId": "az-w12-dev"
       },
@@ -4649,6 +4761,10 @@
         "taskId": "dca-w4-scan"
       },
       {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w1-rbac"
+      },
+      {
         "courseId": "security-plus",
         "taskId": "grc-w1-framework"
       }
@@ -4657,6 +4773,10 @@
       {
         "courseId": "docker-dca",
         "taskId": "dca-w4-scan"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w4-backup"
       },
       {
         "courseId": "secai-plus",
@@ -4679,6 +4799,10 @@
         "taskId": "dca-w4-harden"
       },
       {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w3-networkpolicy"
+      },
+      {
         "courseId": "mssp",
         "taskId": "mb-w2"
       }
@@ -4687,6 +4811,10 @@
       {
         "courseId": "docker-dca",
         "taskId": "dca-w4-handover"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-w4-handover"
       },
       {
         "courseId": "ai-foundations",
@@ -4713,6 +4841,14 @@
       {
         "courseId": "docker-dca",
         "taskId": "dca-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-local-llm-serving-w1-serve"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-local-llm-serving-w1-size"
       },
       {
         "courseId": "cissp",
@@ -4775,6 +4911,10 @@
       {
         "courseId": "docker-dca",
         "taskId": "dca-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-local-llm-serving-w1-size"
       },
       {
         "courseId": "server-plus",
@@ -4957,6 +5097,122 @@
         "taskId": "awsd-rag-engineering-w2-evalset"
       }
     ],
+    "comp.ai.agent-tools": [
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-ai-agents-mcp-w1-tools"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-ai-agents-mcp-w1-leash"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-ai-agents-mcp-w2-mcp"
+      },
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-ai-agents-mcp-w2-audit"
+      },
+      {
+        "courseId": "ai-foundations",
+        "taskId": "aif-w4-agent"
+      },
+      {
+        "courseId": "ai-foundations",
+        "taskId": "aif-ai-agents-mcp-w1-tools"
+      },
+      {
+        "courseId": "ai-foundations",
+        "taskId": "aif-ai-agents-mcp-w1-leash"
+      },
+      {
+        "courseId": "ai-foundations",
+        "taskId": "aif-ai-agents-mcp-w2-mcp"
+      },
+      {
+        "courseId": "ai-foundations",
+        "taskId": "aif-ai-agents-mcp-w2-audit"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w4-agent"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-ai-agents-mcp-w1-tools"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-ai-agents-mcp-w1-leash"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-ai-agents-mcp-w2-mcp"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-ai-agents-mcp-w2-audit"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-ai-agents-mcp-w1-tools"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-ai-agents-mcp-w1-leash"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-ai-agents-mcp-w2-mcp"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-ai-agents-mcp-w2-audit"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-ai-agents-mcp-w1-tools"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-ai-agents-mcp-w1-leash"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-ai-agents-mcp-w2-mcp"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-ai-agents-mcp-w2-audit"
+      }
+    ],
+    "comp.ai.mcp-connector": [
+      {
+        "courseId": "kubernetes-cka",
+        "taskId": "cka-ai-agents-mcp-w2-mcp"
+      },
+      {
+        "courseId": "ai-foundations",
+        "taskId": "aif-ai-agents-mcp-w2-mcp"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-ai-agents-mcp-w2-mcp"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "cissp-enterprise-ai-architect-w2-govern"
+      },
+      {
+        "courseId": "azure-devops",
+        "taskId": "azd-ai-agents-mcp-w2-mcp"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "awsd-ai-agents-mcp-w2-mcp"
+      }
+    ],
     "comp.ai.identify-workload": [
       {
         "courseId": "ai-foundations",
@@ -5041,102 +5297,6 @@
       {
         "courseId": "aws-ai-practitioner",
         "taskId": "awsai-w3-services"
-      }
-    ],
-    "comp.ai.agent-tools": [
-      {
-        "courseId": "ai-foundations",
-        "taskId": "aif-w4-agent"
-      },
-      {
-        "courseId": "ai-foundations",
-        "taskId": "aif-ai-agents-mcp-w1-tools"
-      },
-      {
-        "courseId": "ai-foundations",
-        "taskId": "aif-ai-agents-mcp-w1-leash"
-      },
-      {
-        "courseId": "ai-foundations",
-        "taskId": "aif-ai-agents-mcp-w2-mcp"
-      },
-      {
-        "courseId": "ai-foundations",
-        "taskId": "aif-ai-agents-mcp-w2-audit"
-      },
-      {
-        "courseId": "aws-ai-practitioner",
-        "taskId": "awsai-w4-agent"
-      },
-      {
-        "courseId": "aws-ai-practitioner",
-        "taskId": "awsai-ai-agents-mcp-w1-tools"
-      },
-      {
-        "courseId": "aws-ai-practitioner",
-        "taskId": "awsai-ai-agents-mcp-w1-leash"
-      },
-      {
-        "courseId": "aws-ai-practitioner",
-        "taskId": "awsai-ai-agents-mcp-w2-mcp"
-      },
-      {
-        "courseId": "aws-ai-practitioner",
-        "taskId": "awsai-ai-agents-mcp-w2-audit"
-      },
-      {
-        "courseId": "azure-devops",
-        "taskId": "azd-ai-agents-mcp-w1-tools"
-      },
-      {
-        "courseId": "azure-devops",
-        "taskId": "azd-ai-agents-mcp-w1-leash"
-      },
-      {
-        "courseId": "azure-devops",
-        "taskId": "azd-ai-agents-mcp-w2-mcp"
-      },
-      {
-        "courseId": "azure-devops",
-        "taskId": "azd-ai-agents-mcp-w2-audit"
-      },
-      {
-        "courseId": "aws-devops",
-        "taskId": "awsd-ai-agents-mcp-w1-tools"
-      },
-      {
-        "courseId": "aws-devops",
-        "taskId": "awsd-ai-agents-mcp-w1-leash"
-      },
-      {
-        "courseId": "aws-devops",
-        "taskId": "awsd-ai-agents-mcp-w2-mcp"
-      },
-      {
-        "courseId": "aws-devops",
-        "taskId": "awsd-ai-agents-mcp-w2-audit"
-      }
-    ],
-    "comp.ai.mcp-connector": [
-      {
-        "courseId": "ai-foundations",
-        "taskId": "aif-ai-agents-mcp-w2-mcp"
-      },
-      {
-        "courseId": "aws-ai-practitioner",
-        "taskId": "awsai-ai-agents-mcp-w2-mcp"
-      },
-      {
-        "courseId": "cissp",
-        "taskId": "cissp-enterprise-ai-architect-w2-govern"
-      },
-      {
-        "courseId": "azure-devops",
-        "taskId": "azd-ai-agents-mcp-w2-mcp"
-      },
-      {
-        "courseId": "aws-devops",
-        "taskId": "awsd-ai-agents-mcp-w2-mcp"
       }
     ],
     "comp.hardware.identify-components": [

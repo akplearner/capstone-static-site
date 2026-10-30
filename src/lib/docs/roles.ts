@@ -185,6 +185,16 @@ const DOCKER_DCA: RoleContent = {
   ],
 };
 
+const KUBERNETES_CKA: RoleContent = {
+  MOTION: DEFAULT_MOTION,
+  PROFILES: [
+    p('cluster', 'commands', 'Leads the cluster record: the control plane, the nodes, RBAC and the etcd backup.', ['The control plane read', 'A namespace and RBAC', 'An etcd snapshot, verified', 'The recovery decision'], 'Week 1 reads the plane and locks RBAC; Week 4 backs up etcd and decides recovery; reviews the handover.'),
+    p('workloads', 'commands', 'Leads the workload record: Deployments, probes, resources and scheduling.', ['A Deployment with probes', 'Requests and limits', 'Scaled on command', 'A pod steered by a taint'], 'Week 2 deploys with probes, sets resources, scales and steers scheduling; reviews the networking and the handover.'),
+    p('net', 'commands', 'Leads the network and storage record: Services, Ingress, NetworkPolicy and volumes.', ['A Service and Ingress', 'A default-deny NetworkPolicy', 'A persistent volume', 'A pod steered to a node'], 'Week 2 steers scheduling; Week 3 exposes with a Service and Ingress, fences with a policy and persists the data.'),
+    p('records', 'documents', 'Leads the records that outlive the cluster: troubleshooting, the runbook, custody and handover.', ['A broken pod worked', 'RBAC locked down', 'The runbook', 'The handover with custody'], 'Week 0 the tools and folder; Week 1 the RBAC; Week 4 the troubleshooting log and the handover.'),
+  ],
+};
+
 const CLOUD: RoleContent = {
   MOTION: DEFAULT_MOTION,
   PROFILES: [
@@ -207,6 +217,7 @@ export const ROLE_CONTENT: Record<string, RoleContent> = {
   'ai-foundations': AI_FOUNDATIONS,
   'aws-ai-practitioner': AWS_AI_PRACTITIONER,
   'docker-dca': DOCKER_DCA,
+  'kubernetes-cka': KUBERNETES_CKA,
   'network-plus': NETWORK_PLUS,
   'secai-plus': SECAI_PLUS,
   cissp: CISSP,

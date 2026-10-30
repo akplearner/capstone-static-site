@@ -84,6 +84,11 @@ const SEED_THEMES: Record<string, CourseTheme> = {
     vendor: 'Docker',
     certification: 'Docker Certified Associate (DCA)',
   },
+  'kubernetes-cka': {
+    key: 'kubernetes-cka',
+    vendor: 'CNCF',
+    certification: 'Certified Kubernetes Administrator (CKA)',
+  },
   'aws-ai-practitioner': {
     key: 'aws-ai-practitioner',
     vendor: 'AWS',

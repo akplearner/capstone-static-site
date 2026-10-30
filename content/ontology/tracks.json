@@ -70,6 +70,12 @@
         "feeds": "dca_handover"
       },
       {
+        "courseId": "kubernetes-cka",
+        "id": "cka_portfolio",
+        "week": 4,
+        "feeds": "cka_handover"
+      },
+      {
         "courseId": "aws-ai-practitioner",
         "id": "awsai_portfolio",
         "week": 4,

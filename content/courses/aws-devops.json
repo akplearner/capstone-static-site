@@ -6290,6 +6290,7 @@
         "a-plus": "Clonezilla · smartctl · MemTest86+ · PowerShell · Windows · Quick Assist · Remote Desktop · Microsoft Defender · Windows Firewall · Event Viewer · sha256sum",
         "ai-foundations": "Ollama · Azure AI Foundry · Azure CLI · Python · Azure AI Language · Azure AI Vision · sha256sum",
         "docker-dca": "Docker · Docker Compose · docker build · docker swarm · docker service · docker scout · sha256sum",
+        "kubernetes-cka": "kubectl · helm · kind · kubectl describe · kubectl logs · kubectl rollout · etcdctl · sha256sum",
         "aws-ai-practitioner": "Ollama · Amazon Bedrock · AWS CLI · Python · Amazon Comprehend · Amazon Textract · sha256sum",
         "network-plus": "Packet Tracer · Cisco IOS · ping · traceroute · nslookup · draw.io · spreadsheet · sha256sum",
         "ccna": "show version · show vlan brief · show interfaces trunk · show spanning-tree · show etherchannel summary · show ip route · show ip ospf neighbor · show ip nat translations · show access-lists · ping · traceroute · Wireshark · NetBox · LibreNMS · Oxidized · Ansible",

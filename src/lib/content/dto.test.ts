@@ -248,6 +248,7 @@ describe('a course loads from its own document', () => {
       'ai-foundations': 0,
       'aws-ai-practitioner': 0,
       'docker-dca': 0,
+      'kubernetes-cka': 0,
       'network-plus': 0,
       'secai-plus': 0,
       cissp: 0,

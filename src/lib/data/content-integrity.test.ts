@@ -9,6 +9,7 @@ import { A_PLUS } from './seed/aPlus';
 import { AI_FOUNDATIONS } from './seed/aiFoundations';
 import { AWS_AI_PRACTITIONER } from './seed/awsAiPractitioner';
 import { DOCKER_DCA } from './seed/dockerDca';
+import { KUBERNETES_CKA } from './seed/kubernetesCka';
 import { NETWORK_PLUS } from './seed/networkPlus';
 import { SECAI_PLUS } from './seed/secaiPlus';
 import { CISSP } from './seed/cissp';
@@ -35,7 +36,7 @@ import { READING_BUDGET, prose, words } from '../readingBudget';
 // deliverable actually provides would render a dead link. These tests fail fast if
 // a step ever points at a form/file that isn't registered for its course.
 
-const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA];
+const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA, KUBERNETES_CKA];
 /** R106: the associate and professional cloud courses are being rewritten against their exams; coverage is enforced as each lands. */
 const PENDING_REWRITE = new Set<string>([]);
 /** R107: the courses whose skills, SOP and practice mapping lands in R107a-2; tools are derived for every course already. */

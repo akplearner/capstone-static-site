@@ -112,6 +112,14 @@ export const RACI: Record<string, Raci> = {
   dca_troubleshoot: r('records', 'net', 'stack'),
   dca_security: r('images', 'records', 'stack'),
   dca_handover: r('records', 'stack', 'images', ['net']),
+  // kubernetes-cka — cluster · workloads · net · records.
+  cka_setup: r('records', 'cluster', 'workloads'),
+  cka_cluster: r('cluster', 'records', 'workloads'),
+  cka_workloads: r('workloads', 'cluster', 'net'),
+  cka_network: r('net', 'workloads', 'records'),
+  cka_troubleshoot: r('records', 'net', 'cluster'),
+  cka_backup: r('cluster', 'records', 'workloads'),
+  cka_handover: r('records', 'workloads', 'cluster', ['net']),
 
   // aws-ai-practitioner — concepts · build · language · records.
   awsai_setup: r('records', 'build', 'concepts'),

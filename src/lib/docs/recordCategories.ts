@@ -107,6 +107,7 @@ export const FORM_CATEGORY: Record<string, Cat[]> = {
   aif_setup: [C], aif_capabilities: [A], aif_responsible: [D, I], aif_eval: [T, I], aif_build: [C], aif_services: [C], aif_governance: [I, M], aif_handover: [M, P],
   dca_setup: [C], dca_image: [C], dca_orchestration: [C, A], dca_network: [C], dca_troubleshoot: [T, I], dca_security: [D, I, M], dca_handover: [M, P],
   awsai_setup: [C], awsai_capabilities: [A], awsai_responsible: [D, I], awsai_eval: [T, I], awsai_build: [C], awsai_services: [C], awsai_governance: [I, M], awsai_handover: [M, P],
+  cka_setup: [C], cka_cluster: [A, C], cka_workloads: [C, A], cka_network: [C], cka_troubleshoot: [T, I], cka_backup: [D, C], cka_handover: [M, P],
   // network-plus
   np_lab: [C], np_design: [A, D], np_ports: [A, C], np_config: [C], np_verify: [T, I], np_changes: [T, D], np_bom: [A, D], np_handover: [A, M, P, D],
   // secai-plus
@@ -145,6 +146,7 @@ export const TROUBLE_GROUPS: TroubleGroup[] = [
   // R138: a fault table on a form of EVERY role, with a column that says how the case ended.
   { form: 'aif_eval', group: 'attempts', outcome: 'result', resolved: 'Grounded' },
   { form: 'dca_troubleshoot', group: 'attempts', outcome: 'result', resolved: 'Fixed it' },
+  { form: 'cka_troubleshoot', group: 'attempts', outcome: 'result', resolved: 'Fixed it' },
   { form: 'awsai_eval', group: 'attempts', outcome: 'result', resolved: 'Grounded' },
   { form: 'incident_report', group: 'iocs', outcome: 'attack_type', resolved: '.' },
   { form: 'pentest_report', group: 'findings', outcome: 'remediation', resolved: '.' },
@@ -191,6 +193,7 @@ export const CHANGE_GROUPS: ChangeGroup[] = [
   // R138: a change table with a rollback column in every course, on a shared form so every role reads it.
   { form: 'aif_build', group: 'changes', rollback: 'rollback' },
   { form: 'dca_orchestration', group: 'changes', rollback: 'rollback' },
+  { form: 'cka_workloads', group: 'changes', rollback: 'rollback' },
   { form: 'awsai_build', group: 'changes', rollback: 'rollback' },
   { form: 'change_log', group: 'changes', rollback: 'rollback' },
   { form: 'mssp_control_matrix', group: 'changes', rollback: 'rollback' },

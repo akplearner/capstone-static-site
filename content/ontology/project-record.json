@@ -733,6 +733,58 @@
       "label": "Dependency"
     },
     {
+      "form": "cka_setup",
+      "field": "cluster",
+      "kind": "host",
+      "label": "Cluster",
+      "declares": true
+    },
+    {
+      "form": "cka_cluster",
+      "group": "components",
+      "column": "component",
+      "kind": "resource",
+      "label": "Control-plane component"
+    },
+    {
+      "form": "cka_cluster",
+      "field": "role",
+      "kind": "iam",
+      "label": "Access role"
+    },
+    {
+      "form": "cka_network",
+      "field": "pod_cidr",
+      "kind": "cidr",
+      "label": "Pod network CIDR"
+    },
+    {
+      "form": "cka_workloads",
+      "group": "changes",
+      "column": "change",
+      "kind": "change",
+      "label": "Workload change"
+    },
+    {
+      "form": "cka_troubleshoot",
+      "group": "attempts",
+      "column": "theory",
+      "kind": "incident",
+      "label": "Fault attempt"
+    },
+    {
+      "form": "cka_backup",
+      "field": "snapshot",
+      "kind": "resource",
+      "label": "Backup"
+    },
+    {
+      "form": "cka_handover",
+      "field": "exposure",
+      "kind": "resource",
+      "label": "Dependency"
+    },
+    {
       "form": "awsai_setup",
       "field": "assistant",
       "kind": "host",
@@ -1345,6 +1397,12 @@
     },
     {
       "form": "dca_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "cka_portfolio",
       "field": "repo_url",
       "kind": "resource",
       "label": "Repository"

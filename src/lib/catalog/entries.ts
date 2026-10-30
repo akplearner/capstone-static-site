@@ -191,6 +191,15 @@ export const CATALOG: CatalogEntry[] = [
     blurb: 'Ship a small app in containers: build and tag an image, orchestrate with Compose and Swarm, network, persist, scan and hand it over.',
   },
   {
+    id: 'cncf-cka',
+    vendorId: 'cncf',
+    certName: 'CKA',
+    level: 'professional',
+    status: 'available',
+    courseId: 'kubernetes-cka',
+    blurb: 'Stand up and operate a Kubernetes cluster: bootstrap with kind, lock access with RBAC, deploy and schedule, expose and fence, persist, back up etcd and troubleshoot.',
+  },
+  {
     id: 'aws-aif-c01',
     vendorId: 'aws',
     certName: 'AIF-C01',

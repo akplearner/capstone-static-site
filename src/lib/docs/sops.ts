@@ -150,6 +150,15 @@ export const DELIVERABLE_SOPS: Record<string, Record<string, string[]>> = {
     dca_security: ['sop.risk-register', 'sop.governance-report'],
     dca_handover: ['sop.handover', 'sop.chain-of-custody'],
   },
+  'kubernetes-cka': {
+    cka_setup: ['sop.asset-inventory'],
+    cka_cluster: ['sop.build-record'],
+    cka_workloads: ['sop.build-record'],
+    cka_network: ['sop.build-record'],
+    cka_troubleshoot: ['sop.test-and-acceptance'],
+    cka_backup: ['sop.risk-register', 'sop.governance-report'],
+    cka_handover: ['sop.handover', 'sop.chain-of-custody'],
+  },
   'aws-ai-practitioner': {
     awsai_setup: ['sop.asset-inventory'],
     awsai_capabilities: ['sop.ai-system-map'],
@@ -288,6 +297,13 @@ export const TASK_SOPS: Record<string, Record<string, string[]>> = {
     'dca-w4-scan': ['sop.risk-register'],
     'dca-w4-harden': ['sop.governance-report'],
     'dca-w4-handover': ['sop.handover', 'sop.chain-of-custody'],
+  },
+  'kubernetes-cka': {
+    'cka-w1-cluster': ['sop.build-record'],
+    'cka-w2-deploy': ['sop.build-record'],
+    'cka-w4-troubleshoot': ['sop.test-and-acceptance'],
+    'cka-w4-backup': ['sop.risk-register'],
+    'cka-w4-handover': ['sop.handover', 'sop.chain-of-custody'],
   },
   'aws-ai-practitioner': {
     'awsai-w1-workloads': ['sop.ai-system-map'],

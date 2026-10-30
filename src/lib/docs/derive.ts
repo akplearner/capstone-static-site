@@ -28,6 +28,7 @@ export const COURSE_DEFAULT_VISUAL: Record<string, DeliverableVisual> = {
   'a-plus': { kit: 'week' },
   'ai-foundations': { kit: 'week' },
   'docker-dca': { kit: 'week' },
+  'kubernetes-cka': { kit: 'week' },
   'aws-ai-practitioner': { kit: 'week' },
   'network-plus': { kit: 'week' },
   'cysa-plus': { kit: 'week' },

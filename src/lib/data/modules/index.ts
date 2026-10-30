@@ -283,6 +283,7 @@ export const MODULE_PLAN: Record<string, { prefix: string; modules: string[] }> 
   'server-plus': { prefix: 'srv', modules: ['local-llm-serving'] },
   'ai-foundations': { prefix: 'aif', modules: ['rag-engineering', 'ai-agents-mcp'] },
   'docker-dca': { prefix: 'dca', modules: ['local-llm-serving', 'rag-engineering'] },
+  'kubernetes-cka': { prefix: 'cka', modules: ['local-llm-serving', 'ai-agents-mcp'] },
   'aws-ai-practitioner': { prefix: 'awsai', modules: ['rag-engineering', 'ai-agents-mcp'] },
   ccna: { prefix: 'ccna', modules: ['local-llm-serving'] },
   'azure-fundamentals': { prefix: 'azf', modules: ['local-llm-serving', 'rag-engineering'] },

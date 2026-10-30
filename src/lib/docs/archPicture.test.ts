@@ -8,6 +8,7 @@ import { ARCH as APLUS } from './aPlusContent';
 import { ARCH as AIFOUND } from './aiFoundationsContent';
 import { ARCH as AWSAI } from './awsAiPractitionerContent';
 import { ARCH as DOCKERDCA } from './dockerDcaContent';
+import { ARCH as KUBERNETESCKA } from './kubernetesCkaContent';
 import { ARCH as NETPLUS } from './networkPlusContent';
 import { deliverablesForCourse } from './definitions';
 import { LAB_HOSTS } from '../labTopology';
@@ -30,6 +31,7 @@ const PICTURES: [string, ArchPicture][] = [
   ['ai-foundations', AIFOUND],
   ['aws-ai-practitioner', AWSAI],
   ['docker-dca', DOCKERDCA],
+  ['kubernetes-cka', KUBERNETESCKA],
   ['network-plus', NETPLUS],
 ];
 const words = (t: string) => t.split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;

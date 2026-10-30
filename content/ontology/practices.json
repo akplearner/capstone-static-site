@@ -724,6 +724,80 @@
         "practice.pass-line-suites"
       ]
     },
+    "kubernetes-cka": {
+      "cka-w1-cluster": [
+        "practice.configuration-record"
+      ],
+      "cka-w1-components": [
+        "practice.configuration-record"
+      ],
+      "cka-w1-rbac": [
+        "practice.configuration-record",
+        "practice.evidence-by-design"
+      ],
+      "cka-w2-deploy": [
+        "practice.build-record",
+        "practice.test-and-acceptance"
+      ],
+      "cka-w2-resources": [
+        "practice.build-record"
+      ],
+      "cka-w2-schedule": [
+        "practice.architecture-decision-records"
+      ],
+      "cka-w3-services": [
+        "practice.configuration-record"
+      ],
+      "cka-w3-networkpolicy": [
+        "practice.configuration-record",
+        "practice.human-in-the-loop"
+      ],
+      "cka-w3-storage": [
+        "practice.evidence-by-design"
+      ],
+      "cka-w4-troubleshoot": [
+        "practice.retest-to-closure",
+        "practice.human-in-the-loop"
+      ],
+      "cka-w4-backup": [
+        "practice.architecture-decision-records",
+        "practice.risk-scoring"
+      ],
+      "cka-w4-handover": [
+        "practice.build-record",
+        "practice.evidence-by-design"
+      ],
+      "cka-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "cka-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "cka-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "cka-w4-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "cka-local-llm-serving-w1-serve": [
+        "practice.least-privilege"
+      ],
+      "cka-local-llm-serving-w1-size": [
+        "practice.right-sizing"
+      ],
+      "cka-ai-agents-mcp-w1-tools": [
+        "practice.agent-least-privilege"
+      ],
+      "cka-ai-agents-mcp-w1-leash": [
+        "practice.human-in-the-loop"
+      ],
+      "cka-ai-agents-mcp-w2-mcp": [
+        "practice.agent-least-privilege"
+      ],
+      "cka-ai-agents-mcp-w2-audit": [
+        "practice.human-in-the-loop"
+      ]
+    },
     "ai-foundations": {
       "aif-w1-workloads": [
         "practice.component-inventory",

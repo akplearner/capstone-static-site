@@ -215,6 +215,8 @@ export const COURSE_TOOLS: Record<string, string> = {
     'Ollama · Azure AI Foundry · Azure CLI · Python · Azure AI Language · Azure AI Vision · sha256sum',
   'docker-dca':
     'Docker · Docker Compose · docker build · docker swarm · docker service · docker scout · sha256sum',
+  'kubernetes-cka':
+    'kubectl · helm · kind · kubectl describe · kubectl logs · kubectl rollout · etcdctl · sha256sum',
   'aws-ai-practitioner':
     'Ollama · Amazon Bedrock · AWS CLI · Python · Amazon Comprehend · Amazon Textract · sha256sum',
   'network-plus':

@@ -185,6 +185,41 @@
       "courseId": "docker-dca"
     },
     {
+      "id": "CKA.d1",
+      "code": "CKA",
+      "name": "Troubleshooting",
+      "weight": 30,
+      "courseId": "kubernetes-cka"
+    },
+    {
+      "id": "CKA.d2",
+      "code": "CKA",
+      "name": "Cluster Architecture, Installation and Configuration",
+      "weight": 25,
+      "courseId": "kubernetes-cka"
+    },
+    {
+      "id": "CKA.d3",
+      "code": "CKA",
+      "name": "Services and Networking",
+      "weight": 20,
+      "courseId": "kubernetes-cka"
+    },
+    {
+      "id": "CKA.d4",
+      "code": "CKA",
+      "name": "Workloads and Scheduling",
+      "weight": 15,
+      "courseId": "kubernetes-cka"
+    },
+    {
+      "id": "CKA.d5",
+      "code": "CKA",
+      "name": "Storage",
+      "weight": 10,
+      "courseId": "kubernetes-cka"
+    },
+    {
       "id": "AIF-C01.d1",
       "code": "AIF-C01",
       "name": "Fundamentals of AI and ML",

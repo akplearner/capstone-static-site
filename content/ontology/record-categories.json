@@ -542,6 +542,32 @@
       "communication",
       "projects"
     ],
+    "cka_setup": [
+      "configurations"
+    ],
+    "cka_cluster": [
+      "architectures",
+      "configurations"
+    ],
+    "cka_workloads": [
+      "configurations",
+      "architectures"
+    ],
+    "cka_network": [
+      "configurations"
+    ],
+    "cka_troubleshoot": [
+      "troubleshooting",
+      "investigations"
+    ],
+    "cka_backup": [
+      "decisions",
+      "configurations"
+    ],
+    "cka_handover": [
+      "communication",
+      "projects"
+    ],
     "np_lab": [
       "configurations"
     ],
@@ -717,6 +743,12 @@
     },
     {
       "form": "dca_troubleshoot",
+      "group": "attempts",
+      "outcome": "result",
+      "resolved": "Fixed it"
+    },
+    {
+      "form": "cka_troubleshoot",
       "group": "attempts",
       "outcome": "result",
       "resolved": "Fixed it"
@@ -928,6 +960,11 @@
     },
     {
       "form": "dca_orchestration",
+      "group": "changes",
+      "rollback": "rollback"
+    },
+    {
+      "form": "cka_workloads",
       "group": "changes",
       "rollback": "rollback"
     },

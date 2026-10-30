@@ -279,6 +279,7 @@ const LAB_PROFILES: Record<string, LabProfile> = {
   cissp: { fields: [], checks: [] },
   'ai-foundations': { fields: [], checks: [] },
   'docker-dca': { fields: [], checks: [] },
+  'kubernetes-cka': { fields: [], checks: [] },
   'aws-ai-practitioner': { fields: [], checks: [] },
   // The bench: the machine's name and, from Week 3, its address.
   'a-plus': {

@@ -1274,6 +1274,24 @@
       ]
     },
     {
+      "id": "tool.kubernetes",
+      "label": "Kubernetes",
+      "kind": "cli",
+      "aliases": [
+        "Kubernetes",
+        "kubectl",
+        "Helm",
+        "kind",
+        "K8s"
+      ],
+      "commands": [
+        "kubectl",
+        "helm",
+        "kind",
+        "etcdctl"
+      ]
+    },
+    {
       "id": "tool.python",
       "label": "Python",
       "kind": "language",
@@ -2223,6 +2241,9 @@
     ],
     "docker-dca": [
       "tool.docker"
+    ],
+    "kubernetes-cka": [
+      "tool.kubernetes"
     ],
     "aws-ai-practitioner": [
       "tool.ollama",
