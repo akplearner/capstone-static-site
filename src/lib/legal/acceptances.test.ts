@@ -15,6 +15,9 @@ const db = vi.hoisted(() => ({
   logged: [] as Record<string, unknown>[],
   writes: [] as Record<string, unknown>[][],
   reads: [] as string[],
+  eqs: [] as [string, string][],
+  readError: null as null | { code: string; message: string },
+  emptyRead: false,
 }));
 
 const MISSING = { code: 'PGRST204', message: "Could not find the 'text_sha256' column of 'agreement_acceptances' in the schema cache" };
@@ -33,13 +36,23 @@ vi.mock('../supabase/client', () => ({
         if (!db.hasHashColumn && rows.some((r) => 'text_sha256' in r)) return { error: MISSING };
         return { error: null };
       },
-      select: (cols: string) => ({
-        order: async () => {
+      select: (cols: string) => {
+        // R149: both reads filter by user_id (`.eq`) and the fold read awaits the chain directly, so the
+        // chain is thenable and `eq` is recorded.
+        const answer = async () => {
           db.reads.push(cols);
+          if (db.readError) return { data: null, error: db.readError };
           if (!db.hasHashColumn && cols.includes('text_sha256')) return { data: null, error: MISSING };
+          if (db.emptyRead) return { data: [], error: null };
           return { data: [{ agreement_id: 'aup', version: 2, accepted_at: '2026-10-14T09:00:00Z', ...(db.hasHashColumn ? { text_sha256: 'a'.repeat(64) } : {}) }], error: null };
-        },
-      }),
+        };
+        const chain = {
+          eq: (col: string, val: string) => { db.eqs.push([col, val]); return chain; },
+          order: answer,
+          then: (res: (v: unknown) => unknown, rej?: (e: unknown) => unknown) => answer().then(res, rej),
+        };
+        return chain;
+      },
     }),
   }),
 }));
@@ -59,6 +72,9 @@ beforeEach(() => {
   db.logged = [];
   db.writes = [];
   db.reads = [];
+  db.eqs = [];
+  db.readError = null;
+  db.emptyRead = false;
 });
 
 describe('the acceptance log survives a database that predates 0013', () => {
@@ -92,11 +108,11 @@ describe('the acceptance log survives a database that predates 0013', () => {
 
   it('reads the log back without the hash column too', async () => {
     const { fetchCloudAcceptanceLog } = await load();
-    expect(await fetchCloudAcceptanceLog()).toEqual([{ agreementId: 'aup', version: 2, acceptedAt: '2026-10-14T09:00:00Z', textSha256: null }]);
+    expect(await fetchCloudAcceptanceLog('user-1')).toEqual([{ agreementId: 'aup', version: 2, acceptedAt: '2026-10-14T09:00:00Z', textSha256: null }]);
     expect(db.reads).toEqual(['agreement_id, version, accepted_at, text_sha256', 'agreement_id, version, accepted_at']);
     db.hasHashColumn = true;
     const fresh = await load();
-    expect((await fresh.fetchCloudAcceptanceLog())?.[0].textSha256).toBe('a'.repeat(64));
+    expect((await fresh.fetchCloudAcceptanceLog('user-1'))?.[0].textSha256).toBe('a'.repeat(64));
   });
 });
 
@@ -169,5 +185,44 @@ describe('R129 — the student gets a code and a time; the detail goes to our lo
     await acceptInCloudDetailed('user-1', AGREEMENTS);
     for (const spy of spies) expect(spy).not.toHaveBeenCalled();
     spies.forEach((spy) => spy.mockRestore());
+  });
+});
+
+
+describe('R149 — the reads are the account\'s own, and a failed read is not "accepted nothing"', () => {
+  it('filters both reads by the signed-in user id', async () => {
+    const { fetchCloudAcceptances, fetchCloudAcceptanceLog } = await load();
+    await fetchCloudAcceptances('user-1');
+    await fetchCloudAcceptanceLog('user-1');
+    // The log read asks for the hash first and retries without it on a pre-0013 project, so it may filter twice.
+    expect(db.eqs.length).toBeGreaterThanOrEqual(2);
+    expect(db.eqs.every(([col, val]) => col === 'user_id' && val === 'user-1')).toBe(true);
+  });
+
+  it('folds the rows to the highest version, returns {} on an empty log and null on an error', async () => {
+    const { fetchCloudAcceptances } = await load();
+    expect(await fetchCloudAcceptances('user-1')).toEqual({ aup: 2 });
+    db.emptyRead = true;
+    expect(await fetchCloudAcceptances('user-1')).toEqual({});
+    db.readError = { code: 'PGRST301', message: 'JWT expired' };
+    expect(await fetchCloudAcceptances('user-1')).toBeNull();
+    expect(db.logged.some((r) => (r.area ?? (r as { data?: { area?: string } }).data?.area) !== undefined || JSON.stringify(r).includes('agreements-read'))).toBe(true);
+  });
+
+  it('tells a live session for this account from none or another account', async () => {
+    const { sessionMatches } = await load();
+    expect(await sessionMatches('user-1')).toBe('ok');
+    expect(await sessionMatches('user-2')).toBe('other');
+  });
+
+  it('queues an acceptance the log could not take and flushes it later, per account', async () => {
+    const { queuePendingAcceptances, pendingAcceptances, flushPendingAcceptances } = await load();
+    localStorage.clear();
+    queuePendingAcceptances('user-1', AGREEMENTS.slice(0, 2));
+    expect(pendingAcceptances('user-1')).toEqual({ [AGREEMENTS[0].id]: AGREEMENTS[0].version, [AGREEMENTS[1].id]: AGREEMENTS[1].version });
+    expect(pendingAcceptances('user-2')).toEqual({});
+    await flushPendingAcceptances('user-1');
+    expect(db.writes.at(-1)?.map((r) => r.agreement_id)).toEqual(AGREEMENTS.slice(0, 2).map((a) => a.id));
+    expect(pendingAcceptances('user-1')).toEqual({});
   });
 });

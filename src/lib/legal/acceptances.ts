@@ -74,11 +74,16 @@ export function acceptLocally(agreements: Agreement[]): void {
   notifyStore();
 }
 
-/** The signed-in user's own log, folded to the highest version per agreement. */
-export async function fetchCloudAcceptances(): Promise<AcceptedVersions | null> {
+/**
+ * The signed-in user's OWN log, folded to the highest version per agreement — filtered by `user_id`
+ * (R149): the instructor policy reads everyone's rows, so without the filter an instructor passed the
+ * gate on other people's acceptances. `null` means "could not read" and is never "accepted nothing";
+ * the gate keeps the two apart (an empty result is checked against the session before it is believed).
+ */
+export async function fetchCloudAcceptances(userId: string): Promise<AcceptedVersions | null> {
   const supabase = getBrowserClient();
   if (!supabase) return null;
-  const { data, error } = await supabase.from('agreement_acceptances').select('agreement_id, version');
+  const { data, error } = await supabase.from('agreement_acceptances').select('agreement_id, version').eq('user_id', userId);
   if (error) {
     void reportError({ area: 'agreements-read', reason: classifyAcceptError(error), dbCode: error.code, message: error.message });
     return null;
@@ -108,13 +113,14 @@ function missingHashColumn(error: { code?: string; message?: string } | null): b
 }
 
 /** The signed-in user's whole log, one row per (agreement, version), for the account export. */
-export async function fetchCloudAcceptanceLog(): Promise<AcceptanceRow[] | null> {
+export async function fetchCloudAcceptanceLog(userId: string): Promise<AcceptanceRow[] | null> {
   const supabase = getBrowserClient();
   if (!supabase) return null;
   const read = (withHash: boolean) =>
     supabase
       .from('agreement_acceptances')
       .select(withHash ? 'agreement_id, version, accepted_at, text_sha256' : 'agreement_id, version, accepted_at')
+      .eq('user_id', userId)
       .order('accepted_at');
   let { data, error } = await read(hashColumn !== false);
   if (error && hashColumn !== false && missingHashColumn(error)) {
@@ -200,6 +206,54 @@ export async function acceptInCloudDetailed(userId: string, agreements: Agreemen
 
 export async function acceptInCloud(userId: string, agreements: Agreement[]): Promise<boolean> {
   return (await acceptInCloudDetailed(userId, agreements)).ok;
+}
+
+/**
+ * R149: is there a live session for THIS account? An expired token makes the client fall back to the
+ * anon key, and row-level security then answers an honest-looking empty list with no error — the one
+ * case a read cannot tell from a brand-new account. The gate asks this before believing "nothing".
+ */
+export async function sessionMatches(userId: string): Promise<'ok' | 'none' | 'other'> {
+  const supabase = getBrowserClient();
+  if (!supabase) return 'none';
+  const { data } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
+  const id = data?.session?.user?.id;
+  if (!id) return 'none';
+  return id === userId ? 'ok' : 'other';
+}
+
+/** Refresh the session once; a failure is left for the caller to read on the next request. */
+export async function refreshSession(): Promise<void> {
+  const supabase = getBrowserClient();
+  if (!supabase) return;
+  await supabase.auth.refreshSession().catch(() => undefined);
+}
+
+/** R149: acceptances this account gave that the log could not take yet (a network fault), per account. */
+export function pendingAcceptances(userId: string): AcceptedVersions {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem(KEYS.pendingAcceptances(userId));
+    return raw ? (JSON.parse(raw) as AcceptedVersions) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function queuePendingAcceptances(userId: string, agreements: Agreement[]): void {
+  if (typeof window === 'undefined') return;
+  const next = { ...pendingAcceptances(userId) };
+  for (const a of agreements) next[a.id] = Math.max(next[a.id] ?? 0, a.version);
+  safeSetItem(KEYS.pendingAcceptances(userId), JSON.stringify(next));
+}
+
+/** Write whatever is still queued into the log; the queue empties only once the log has it. */
+export async function flushPendingAcceptances(userId: string): Promise<void> {
+  const pending = pendingAcceptances(userId);
+  const due = AGREEMENTS.filter((a) => pending[a.id] === a.version);
+  if (due.length === 0) return;
+  const result = await acceptInCloudDetailed(userId, due);
+  if (result.ok && typeof window !== 'undefined') localStorage.removeItem(KEYS.pendingAcceptances(userId));
 }
 
 export function isCloudMode(): boolean {

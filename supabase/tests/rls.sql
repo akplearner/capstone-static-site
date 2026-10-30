@@ -1723,6 +1723,48 @@ begin
   end loop;
 end $$;
 
+-- ── R149: the state blob is merged on the server, one key at a time ─────────
+-- Two devices each patch only the keys they own; neither erases the other's. A null removes a key.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+do $$
+declare d jsonb;
+begin
+  perform public.merge_user_course_state('security-plus', '{"homeBuildAck": true}'::jsonb);
+  perform public.merge_user_course_state('security-plus', '{"resume": {"week": 1, "taskId": "t1", "stepId": "s1", "at": 1}}'::jsonb);
+  select data into d from public.user_course_state where course_id = 'security-plus';
+  assert d ? 'homeBuildAck' and d ? 'resume' and d ? 'mineSeen', 'ada: merge keeps every key the devices wrote: ' || d::text;
+  perform public.merge_user_course_state('security-plus', '{"resume": null}'::jsonb);
+  select data into d from public.user_course_state where course_id = 'security-plus';
+  assert not (d ? 'resume') and (d ? 'homeBuildAck'), 'ada: a null patch removes only that key: ' || d::text;
+  -- A merge into a course she has no row for creates her own row, never anyone else's.
+  perform public.merge_user_course_state('cysa-plus', '{"mineSeen": 3}'::jsonb);
+  assert (select count(*) from public.user_course_state where course_id = 'cysa-plus' and user_id = '00000000-0000-4000-8000-00000000000a') = 1, 'ada: merge creates her own row';
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000b';
+do $$ begin
+  perform public.merge_user_course_state('security-plus', '{"mineSeen": 9}'::jsonb);
+  -- Bob's merge landed in Bob's row; Ada's row is untouched (RLS scopes the function's writes to the caller).
+  assert (select data->>'mineSeen' from public.user_course_state where user_id = '00000000-0000-4000-8000-00000000000b' and course_id = 'security-plus') = '9', 'bob: merged his own row';
+  assert (select count(*) from public.user_course_state where user_id = '00000000-0000-4000-8000-00000000000a') = 0, 'bob: never reads ada''s state';
+end $$;
+reset role;
+-- Bob's extra row goes, so the later counts hold.
+delete from public.user_course_state where user_id = '00000000-0000-4000-8000-00000000000b';
+delete from public.user_course_state where course_id = 'cysa-plus';
+-- Signed out: no claim, so `auth.uid()` is null and the function refuses (and anon may not execute it).
+set local role anon;
+set local request.jwt.claim.sub = '';
+do $$ begin
+  begin
+    perform public.merge_user_course_state('security-plus', '{"x": 1}'::jsonb);
+    raise exception 'merge ran with no session';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+
 -- ── The realtime publication carries every stream the app subscribes to ────
 -- (Run as the table owner — RLS does not apply to this catalog view.)
 do $$

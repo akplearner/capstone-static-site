@@ -153,8 +153,7 @@ export function HomeTab({
   });
   const markPlayed = (i: number) => {
     if (!member) return;
-    const existing = userStateRepo.get(course.id, member.memberId) ?? {};
-    userStateRepo.save(course.id, member.memberId, { ...existing, mineSeen: i + 1 });
+    userStateRepo.patch(course.id, member.memberId, { mineSeen: i + 1 });
   };
   const stoneDef = stoneStage(crew.stage);
   const packSlots = [

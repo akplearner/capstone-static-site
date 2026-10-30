@@ -9,10 +9,11 @@
  * (undefined table); PostgREST says it with PGRST204 and PGRST205 when its schema
  * cache has not seen the change.
  */
-const MISSING = new Set(['42703', 'PGRST204', '42P01', 'PGRST205']);
+// 42883 / PGRST202: a function the app calls is not in the project yet (R149: `merge_user_course_state`, 0027).
+const MISSING = new Set(['42703', 'PGRST204', '42P01', 'PGRST205', '42883', 'PGRST202']);
 
 export function isMissingSchema(error: { code?: string | null; message?: string | null } | null | undefined): boolean {
   if (!error) return false;
   if (error.code && MISSING.has(error.code)) return true;
-  return /(column|relation|table).*(does not exist|schema cache)|could not find the .* (column|table)/i.test(error.message ?? '');
+  return /(column|relation|table|function).*(does not exist|schema cache)|could not find the .* (column|table|function)/i.test(error.message ?? '');
 }

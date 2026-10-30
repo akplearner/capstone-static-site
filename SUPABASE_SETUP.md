@@ -608,7 +608,7 @@ Still worth ten minutes on the live site before real students:
 | Deliverables, gate status | your team |
 | Form history (every replaced version, 0025) | your team and staff; written only by the database as forms change, never by hand |
 | Validation answers (0026) | you write your own; your team and staff read them; nobody rewrites or deletes |
-| Personal state (where you left off, the mine), evidence files, chosen path | **you only** |
+| Personal state (where you left off, the mine, the Week-0 acknowledgement), evidence files, chosen path | **you only**; saved one key at a time through `merge_user_course_state` (0027), so two devices never erase each other's |
 | Lab access notes | **you only** — not teammates, not instructors |
 | Step notes | **you only** |
 | "I'm stuck" flags | you, your teammates, and the instructor |
@@ -616,7 +616,7 @@ Still worth ten minutes on the live site before real students:
 | Frozen submissions | your team and the instructor; **nobody** can edit one — a fix is a new version |
 | Peer-review assignments | only the assigned reviewer (and the instructor) — the submitting team never learns who |
 | Peer reviews (the verdict rows) | the reviewer, the submitting team (no reviewer name on the row), the instructor |
-| Agreement acknowledgements | your own log (with the hash of the text accepted); staff read everyone's — nobody edits or deletes a row |
+| Agreement acknowledgements | your own log (with the hash of the text accepted); staff read everyone's — nobody edits or deletes a row. The gate reads **only your own rows** and shows Retry, never the first-time welcome, when the read fails (R149) |
 | Consent grants (`consent_grants`) | **you only**; append-only (a change of mind is a new row); the platform's own functions read the current answer through `has_consent()` |
 | Learner outcomes (`learner_outcomes`) | **you only**; append-only; instructors get `outcome_counts(course)` — counts per status, and no rows at all below five members |
 | Verification stamps (`verification_stamps`) | **nobody but the platform**: the `stamp` and `receipt` functions read and write them as the service role; you see your own live stamp in the app |

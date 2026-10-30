@@ -44,7 +44,7 @@ export default function AccountPage() {
   useEffect(() => {
     if (!user) return;
     let on = true;
-    void fetchCloudAcceptanceLog().then((rows) => {
+    void fetchCloudAcceptanceLog(user.id).then((rows) => {
       if (on && rows) setAgreements(rows);
     });
     return () => {

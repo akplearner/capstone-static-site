@@ -50,6 +50,11 @@ export interface TaskTimer {
 export interface UserStateRepository {
   get(courseId: string, memberId: string): UserCourseState | null;
   save(courseId: string, memberId: string, state: UserCourseState): void;
+  /** R149: merge a few keys into the state without rewriting the rest. Five writers (the resume pointer,
+   *  the task timers, the mine counter, the Week-0 acknowledgement, the import) used to each upsert the
+   *  WHOLE blob from their own cache, so one device's save erased another's acknowledgement. A key set
+   *  to `undefined` or `null` is removed. The cloud repo merges on the server (`merge_user_course_state`). */
+  patch(courseId: string, memberId: string, partial: Partial<UserCourseState>): void;
 }
 
 /** The student's own lab IPs, credentials and reachability checklist.

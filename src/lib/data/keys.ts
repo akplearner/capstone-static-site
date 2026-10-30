@@ -95,4 +95,7 @@ export const KEYS = {
   // R108: an environment profile imported on this device for the Skill board's
   // "measured against" picker; a UI preference, never synced.
   importedProfile: `${STORAGE_PREFIX}imported_profile`,
+  // R149: acceptances the cloud log could not take yet (network fault), kept per account until the next
+  // load records them — so "you can continue" is a promise the platform keeps, not a one-shot retry.
+  pendingAcceptances: (userId: string) => `${STORAGE_PREFIX}pending_acceptances_${userId}`,
 };

@@ -5,6 +5,8 @@ import { notifyStore } from '../useClientStore';
 import { LabAccessData, LabAccessRepository, UserCourseState, UserStateRepository } from './types';
 import { cache, getCurrentUserId } from './supabaseCache';
 import { toast } from '@/lib/toastBus';
+import { isMissingSchema } from './schemaErrors';
+import { mergeUserState } from './localStorageUserStateRepo';
 
 // The two single-user tables: `user_course_state` (resume pointer + the Week-0
 // acknowledgement) and `lab_access` (the student's own IPs, credentials and
@@ -62,6 +64,28 @@ export const supabaseUserStateRepo: UserStateRepository = {
     // Deliberately quiet on failure beyond the toast: this is a UI convenience
     // pointer, and losing it costs the student one extra click, not any work.
     upsert('user_course_state', courseId, state, 'Couldn’t save your place — you may reopen at the top of the week.');
+  },
+
+  // R149: a few keys, merged on the SERVER (`merge_user_course_state`, 0027), so two devices writing
+  // different keys never erase each other. A project that has not run 0027 answers "function not
+  // found"; then the merged blob is upserted whole, which is exactly what `save` did before.
+  patch(courseId: string, _memberId: string, partial: Partial<UserCourseState>): void {
+    const next = mergeUserState(cache.userState(courseId) ?? {}, partial);
+    cache.setUserState(courseId, next);
+    notifyStore();
+    const supabase = getBrowserClient();
+    if (!supabase || !getCurrentUserId()) return;
+    // JSON drops `undefined`; the server removes a key whose patch value is null.
+    const p_patch = Object.fromEntries(Object.entries(partial).map(([k, v]) => [k, v === undefined ? null : v]));
+    void supabase.rpc('merge_user_course_state', { p_course_id: courseId, p_patch }).then(({ error }) => {
+      if (!error) return;
+      if (isMissingSchema(error)) {
+        upsert('user_course_state', courseId, next, 'Couldn’t save your place — you may reopen at the top of the week.');
+        return;
+      }
+      console.error('user_course_state patch failed', error.message);
+      toast({ message: 'Couldn’t save your place — you may reopen at the top of the week.', variant: 'warning', duration: 6000 });
+    });
   },
 };
 

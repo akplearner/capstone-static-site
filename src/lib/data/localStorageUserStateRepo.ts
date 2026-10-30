@@ -58,7 +58,22 @@ export const localStorageUserStateRepo: UserStateRepository = {
     if (state.timers || state.paused !== undefined) safeSetItem(KEYS.timers(courseId, memberId), JSON.stringify({ timers: state.timers ?? {}, paused: state.paused ?? null }));
     else localStorage.removeItem(KEYS.timers(courseId, memberId));
   },
+
+  patch(courseId: string, memberId: string, partial: Partial<UserCourseState>): void {
+    if (!hasWindow()) return;
+    this.save(courseId, memberId, mergeUserState(this.get(courseId, memberId) ?? {}, partial));
+  },
 };
+
+/** R149: the one merge rule both repos follow — a key set to `undefined` or `null` is removed. */
+export function mergeUserState(existing: UserCourseState, partial: Partial<UserCourseState>): UserCourseState {
+  const next: Record<string, unknown> = { ...existing };
+  for (const [k, v] of Object.entries(partial)) {
+    if (v === undefined || v === null) delete next[k];
+    else next[k] = v;
+  }
+  return next as UserCourseState;
+}
 
 export const localStorageLabAccessRepo: LabAccessRepository = {
   get(courseId: string): LabAccessData | null {

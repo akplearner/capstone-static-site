@@ -23,8 +23,8 @@ export function useTaskTimer(courseId: string, memberId: string | null, openTask
   const write = useCallback(
     (next: Partial<UserCourseState>) => {
       if (!memberId) return;
-      const existing = userStateRepo.get(courseId, memberId) ?? {};
-      userStateRepo.save(courseId, memberId, { ...existing, ...next });
+      // R149: the timers and the paused task are this hook's keys; nothing else in the blob is touched.
+      userStateRepo.patch(courseId, memberId, next);
       notifyStore();
     },
     [courseId, memberId]

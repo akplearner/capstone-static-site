@@ -43,8 +43,8 @@ export function recordResume(
   point: Omit<ResumePoint, 'at'>
 ): void {
   if (!hasWindow()) return;
-  const existing = userStateRepo.get(courseId, memberId) ?? {};
-  userStateRepo.save(courseId, memberId, { ...existing, resume: { ...point, at: Date.now() } });
+  // R149: only the pointer travels; the timers, the mine and the Week-0 acknowledgement stay as they are.
+  userStateRepo.patch(courseId, memberId, { resume: { ...point, at: Date.now() } });
 }
 
 /** Read the stored pointer, discarding anything that no longer resolves against
@@ -68,9 +68,8 @@ export function readResume(course: Course, memberId: string): ResumePoint | null
 
 export function clearResume(courseId: string, memberId: string): void {
   if (!hasWindow()) return;
-  const existing = userStateRepo.get(courseId, memberId);
-  if (!existing) return;
-  userStateRepo.save(courseId, memberId, { ...existing, resume: undefined });
+  if (!userStateRepo.get(courseId, memberId)?.resume) return;
+  userStateRepo.patch(courseId, memberId, { resume: undefined });
 }
 
 /**

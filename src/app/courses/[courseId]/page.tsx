@@ -270,10 +270,8 @@ export default function CoursePage() {
   };
 
   const confirmHomeBuild = () => {
-    if (member) {
-      const existing = userStateRepo.get(course.id, member.memberId) ?? {};
-      userStateRepo.save(course.id, member.memberId, { ...existing, homeBuildAck: true });
-    }
+    // R149: one key, merged on the server — another device's timer tick can no longer erase it.
+    if (member) userStateRepo.patch(course.id, member.memberId, { homeBuildAck: true });
     notifyStore();
     setHomeBuildDialog(false);
     if (pendingHomeBuild) {
