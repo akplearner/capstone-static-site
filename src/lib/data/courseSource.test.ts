@@ -14,6 +14,7 @@ import { CCNA } from './seed/ccna';
 import { A_PLUS } from './seed/aPlus';
 import { AI_FOUNDATIONS } from './seed/aiFoundations';
 import { AWS_AI_PRACTITIONER } from './seed/awsAiPractitioner';
+import { AWS_SECURITY_SPECIALTY } from './seed/awsSecuritySpecialty';
 import { DOCKER_DCA } from './seed/dockerDca';
 import { KUBERNETES_CKA } from './seed/kubernetesCka';
 import { NVIDIA_AI_INFRASTRUCTURE } from './seed/nvidiaAiInfrastructure';
@@ -32,7 +33,7 @@ import serverPlusDoc from '../../../content/courses/server-plus.json';
  * two rounds while the flag that would have used the documents was off.
  */
 describe('the built-in courses load from content/courses', () => {
-  const MODULES = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA, KUBERNETES_CKA, NVIDIA_AI_INFRASTRUCTURE];
+  const MODULES = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA, KUBERNETES_CKA, NVIDIA_AI_INFRASTRUCTURE, AWS_SECURITY_SPECIALTY];
 
   it('every seed course is there', () => {
     const ids = localStorageCourseRepo.list().map((c) => c.id);

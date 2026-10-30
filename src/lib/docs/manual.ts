@@ -221,6 +221,8 @@ export const COURSE_TOOLS: Record<string, string> = {
     'nvidia-smi · dcgmi · Python · Ollama · sha256sum',
   'aws-ai-practitioner':
     'Ollama · Amazon Bedrock · AWS CLI · Python · Amazon Comprehend · Amazon Textract · sha256sum',
+  'aws-security-specialty':
+    'AWS CLI · AWS console · jq · sha256sum',
   'network-plus':
     'Packet Tracer · Cisco IOS · ping · traceroute · nslookup · draw.io · spreadsheet · sha256sum',
   ccna:

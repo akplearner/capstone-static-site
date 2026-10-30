@@ -33,6 +33,7 @@ export const COURSE_TINT: Record<string, CourseTint> = {
   'kubernetes-cka': { name: 'CKA', acc: '#326ce5', lt: '#bfd4f7', dk: '#1a3a7a', cut: 'quad' },
   'nvidia-ai-infrastructure': { name: 'NCA-AIIO', acc: '#76b900', lt: '#d4eca8', dk: '#3a5a00', cut: 'quad' },
   'aws-ai-practitioner': { name: 'AIF-C01', acc: '#b45309', lt: '#fed7aa', dk: '#7c2d12', cut: 'quad' },
+  'aws-security-specialty': { name: 'SCS-C03', acc: '#7c3aed', lt: '#ddd6fe', dk: '#4c1d95', cut: 'quad' },
   'network-plus': { name: 'Network+', acc: '#0e7c86', lt: '#9fe0e6', dk: '#064b52', cut: 'bar' },
   'azure-fundamentals': { name: 'AZ-900', acc: '#2f74c0', lt: '#a8d0ff', dk: '#123e6e', cut: 'cloud' },
   'azure-administrator': { name: 'AZ-104', acc: '#2f74c0', lt: '#a8d0ff', dk: '#123e6e', cut: 'cloud' },

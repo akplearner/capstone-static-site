@@ -286,6 +286,7 @@ export const MODULE_PLAN: Record<string, { prefix: string; modules: string[] }> 
   'kubernetes-cka': { prefix: 'cka', modules: ['local-llm-serving', 'ai-agents-mcp'] },
   'nvidia-ai-infrastructure': { prefix: 'nca', modules: ['local-llm-serving', 'rag-engineering'] },
   'aws-ai-practitioner': { prefix: 'awsai', modules: ['rag-engineering', 'ai-agents-mcp'] },
+  'aws-security-specialty': { prefix: 'scs', modules: ['ai-security-validation', 'local-llm-serving'] },
   ccna: { prefix: 'ccna', modules: ['local-llm-serving'] },
   'azure-fundamentals': { prefix: 'azf', modules: ['local-llm-serving', 'rag-engineering'] },
   'azure-administrator': { prefix: 'aza', modules: ['local-llm-serving', 'rag-engineering'] },

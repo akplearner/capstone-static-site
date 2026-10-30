@@ -111,6 +111,7 @@ const COURSE_REGION: Record<string, { region: string; seam: string }> = {
   'kubernetes-cka': { region: 'linux', seam: 'cloud' },
   'nvidia-ai-infrastructure': { region: 'linux', seam: 'cloud' },
   'aws-ai-practitioner': { region: 'aws', seam: 'cloud' },
+  'aws-security-specialty': { region: 'aws', seam: 'cloud' },
   'network-plus': { region: 'comptia', seam: 'network-plus' },
   'secai-plus': { region: 'comptia', seam: 'secai' },
   cissp: { region: 'isc2', seam: 'cissp' },

@@ -895,6 +895,61 @@
       "label": "Dependency"
     },
     {
+      "form": "scs_setup",
+      "field": "workload",
+      "kind": "host",
+      "label": "Workload",
+      "declares": true
+    },
+    {
+      "form": "scs_identity",
+      "group": "matrix",
+      "column": "role",
+      "kind": "resource",
+      "label": "Assumed role"
+    },
+    {
+      "form": "scs_baseline",
+      "group": "controls",
+      "column": "control",
+      "kind": "resource",
+      "label": "Control"
+    },
+    {
+      "form": "scs_network",
+      "group": "rules",
+      "column": "port",
+      "kind": "resource",
+      "label": "Open port"
+    },
+    {
+      "form": "scs_data",
+      "field": "key_manager",
+      "kind": "resource",
+      "label": "Key manager"
+    },
+    {
+      "form": "scs_detect",
+      "group": "findings",
+      "column": "type",
+      "kind": "incident",
+      "label": "Finding"
+    },
+    {
+      "form": "scs_incident",
+      "group": "actions",
+      "column": "theory",
+      "kind": "incident",
+      "label": "Containment attempt"
+    },
+    {
+      "form": "scs_handover",
+      "group": "risks",
+      "column": "risk",
+      "kind": "risk",
+      "label": "Open risk"
+    },
+    {
       "form": "np_design",
       "group": "vlans",
       "column": "vlan",
@@ -1477,6 +1532,12 @@
     },
     {
       "form": "awsai_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "scs_portfolio",
       "field": "repo_url",
       "kind": "resource",
       "label": "Repository"

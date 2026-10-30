@@ -146,11 +146,12 @@ describe('lookup helpers', () => {
     const docker = deliverablesForCourse('docker-dca');
     const k8s = deliverablesForCourse('kubernetes-cka');
     const nvidia = deliverablesForCourse('nvidia-ai-infrastructure');
+    const scs = deliverablesForCourse('aws-security-specialty');
     const netplus = deliverablesForCourse('network-plus');
     const secai = deliverablesForCourse('secai-plus');
     const cissp = deliverablesForCourse('cissp');
     const cloud = ['azure-fundamentals', 'azure-administrator', 'azure-devops', 'aws-cloud-practitioner', 'aws-solutions-architect', 'aws-devops'].map(deliverablesForCourse);
-    const sets = [sp, mssp, cysa, server, ccna, aplus, aif, awsai, docker, k8s, nvidia, netplus, secai, cissp, ...cloud];
+    const sets = [sp, mssp, cysa, server, ccna, aplus, aif, awsai, docker, k8s, nvidia, scs, netplus, secai, cissp, ...cloud];
     sets.forEach((s) => expect(s.length).toBeGreaterThan(0));
     // No form appears in more than one course's set.
     sets.forEach((a, i) =>

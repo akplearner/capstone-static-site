@@ -355,6 +355,7 @@ export const COURSE_TOOL_DEFAULTS: Record<string, string[]> = {
   'kubernetes-cka': ['tool.kubernetes'],
   'nvidia-ai-infrastructure': ['tool.nvidia-smi', 'tool.python', 'tool.ollama'],
   'aws-ai-practitioner': ['tool.ollama', 'tool.aws-cli', 'tool.bedrock', 'tool.python'],
+  'aws-security-specialty': ['tool.aws-cli', 'tool.aws-console', 'tool.linux-shell'],
   'network-plus': ['tool.network-simulator'],
   'azure-fundamentals': ['tool.azure-portal', 'tool.azure-cloud-shell'],
   'azure-administrator': ['tool.azure-portal', 'tool.azure-cloud-shell'],

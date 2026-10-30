@@ -107,6 +107,7 @@ export const FORM_CATEGORY: Record<string, Cat[]> = {
   aif_setup: [C], aif_capabilities: [A], aif_responsible: [D, I], aif_eval: [T, I], aif_build: [C], aif_services: [C], aif_governance: [I, M], aif_handover: [M, P],
   dca_setup: [C], dca_image: [C], dca_orchestration: [C, A], dca_network: [C], dca_troubleshoot: [T, I], dca_security: [D, I, M], dca_handover: [M, P],
   awsai_setup: [C], awsai_capabilities: [A], awsai_responsible: [D, I], awsai_eval: [T, I], awsai_build: [C], awsai_services: [C], awsai_governance: [I, M], awsai_handover: [M, P],
+  scs_setup: [C], scs_identity: [A, C], scs_baseline: [C], scs_network: [A, C], scs_data: [D, C], scs_detect: [I], scs_incident: [T, I], scs_handover: [M, P],
   cka_setup: [C], cka_cluster: [A, C], cka_workloads: [C, A], cka_network: [C], cka_troubleshoot: [T, I], cka_backup: [D, C], cka_handover: [M, P],
   nca_setup: [C], nca_knowledge: [A, C], nca_hardware: [A, D], nca_datacenter: [A, C], nca_operations: [T], nca_troubleshoot: [T, I], nca_handover: [M, P],
   // network-plus
@@ -150,6 +151,7 @@ export const TROUBLE_GROUPS: TroubleGroup[] = [
   { form: 'cka_troubleshoot', group: 'attempts', outcome: 'result', resolved: 'Fixed it' },
   { form: 'nca_troubleshoot', group: 'attempts', outcome: 'result', resolved: 'Fixed it' },
   { form: 'awsai_eval', group: 'attempts', outcome: 'result', resolved: 'Grounded' },
+  { form: 'scs_incident', group: 'actions', outcome: 'result', resolved: 'Contained it' },
   { form: 'incident_report', group: 'iocs', outcome: 'attack_type', resolved: '.' },
   { form: 'pentest_report', group: 'findings', outcome: 'remediation', resolved: '.' },
   { form: 'risk_register', group: 'risks', outcome: 'status', resolved: 'closed' },
@@ -198,6 +200,7 @@ export const CHANGE_GROUPS: ChangeGroup[] = [
   { form: 'cka_workloads', group: 'changes', rollback: 'rollback' },
   { form: 'nca_datacenter', group: 'changes', rollback: 'rollback' },
   { form: 'awsai_build', group: 'changes', rollback: 'rollback' },
+  { form: 'scs_network', group: 'changes', rollback: 'rollback' },
   { form: 'change_log', group: 'changes', rollback: 'rollback' },
   { form: 'mssp_control_matrix', group: 'changes', rollback: 'rollback' },
   { form: 'cysa_soc_monitoring', group: 'changes', rollback: 'rollback' },

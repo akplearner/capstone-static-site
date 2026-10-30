@@ -276,6 +276,48 @@
       "courseId": "aws-ai-practitioner"
     },
     {
+      "id": "SCS-C03.d1",
+      "code": "SCS-C03",
+      "name": "Identity and Access Management",
+      "weight": 20,
+      "courseId": "aws-security-specialty"
+    },
+    {
+      "id": "SCS-C03.d2",
+      "code": "SCS-C03",
+      "name": "Infrastructure Security",
+      "weight": 18,
+      "courseId": "aws-security-specialty"
+    },
+    {
+      "id": "SCS-C03.d3",
+      "code": "SCS-C03",
+      "name": "Data Protection",
+      "weight": 18,
+      "courseId": "aws-security-specialty"
+    },
+    {
+      "id": "SCS-C03.d4",
+      "code": "SCS-C03",
+      "name": "Threat Detection",
+      "weight": 16,
+      "courseId": "aws-security-specialty"
+    },
+    {
+      "id": "SCS-C03.d5",
+      "code": "SCS-C03",
+      "name": "Incident Response",
+      "weight": 14,
+      "courseId": "aws-security-specialty"
+    },
+    {
+      "id": "SCS-C03.d6",
+      "code": "SCS-C03",
+      "name": "Security Foundations and Governance",
+      "weight": 14,
+      "courseId": "aws-security-specialty"
+    },
+    {
       "id": "N10-009.d1",
       "code": "N10-009",
       "name": "Networking Concepts",

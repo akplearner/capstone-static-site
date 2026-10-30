@@ -542,6 +542,35 @@
       "communication",
       "projects"
     ],
+    "scs_setup": [
+      "configurations"
+    ],
+    "scs_identity": [
+      "architectures",
+      "configurations"
+    ],
+    "scs_baseline": [
+      "configurations"
+    ],
+    "scs_network": [
+      "architectures",
+      "configurations"
+    ],
+    "scs_data": [
+      "decisions",
+      "configurations"
+    ],
+    "scs_detect": [
+      "investigations"
+    ],
+    "scs_incident": [
+      "troubleshooting",
+      "investigations"
+    ],
+    "scs_handover": [
+      "communication",
+      "projects"
+    ],
     "cka_setup": [
       "configurations"
     ],
@@ -792,6 +821,12 @@
       "resolved": "Grounded"
     },
     {
+      "form": "scs_incident",
+      "group": "actions",
+      "outcome": "result",
+      "resolved": "Contained it"
+    },
+    {
       "form": "incident_report",
       "group": "iocs",
       "outcome": "attack_type",
@@ -1007,6 +1042,11 @@
     },
     {
       "form": "awsai_build",
+      "group": "changes",
+      "rollback": "rollback"
+    },
+    {
+      "form": "scs_network",
       "group": "changes",
       "rollback": "rollback"
     },

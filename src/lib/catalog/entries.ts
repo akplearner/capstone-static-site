@@ -218,6 +218,15 @@ export const CATALOG: CatalogEntry[] = [
     blurb: 'Stand up a small generative-AI assistant on Amazon Bedrock and a free local model: workloads, grounding, agents, responsible AI, security.',
   },
   {
+    id: 'aws-scs-c03',
+    vendorId: 'aws',
+    certName: 'SCS-C03',
+    level: 'professional',
+    status: 'available',
+    courseId: 'aws-security-specialty',
+    blurb: 'Secure one small AWS workload end to end: least-privilege identity proved on a denial, a fenced network, data under its own keys, detection that pages, and an incident worked one change per row.',
+  },
+  {
     id: 'ms-sc-900',
     vendorId: 'microsoft',
     certName: 'SC-900',

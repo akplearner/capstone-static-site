@@ -135,6 +135,19 @@ export const CERTS: Record<string, CertDef> = {
       d('d5', 'Security, Compliance, and Governance for AI Solutions', 14),
     ],
   },
+  'aws-security-specialty': {
+    courseId: 'aws-security-specialty', vendorId: 'aws', vendor: 'AWS', code: 'SCS-C03', name: 'Security – Specialty', level: 'professional', vendorLevel: 'Specialty', exam: true, examFeeUsd: 300, feeCheckedYear: 2026,
+    // SCS-C02 retired 2025-12-01; authored against the live SCS-C03. Six domains,
+    // weights verified against the official SCS-C03 exam guide.
+    domains: [
+      d('d1', 'Identity and Access Management', 20),
+      d('d2', 'Infrastructure Security', 18),
+      d('d3', 'Data Protection', 18),
+      d('d4', 'Threat Detection', 16),
+      d('d5', 'Incident Response', 14),
+      d('d6', 'Security Foundations and Governance', 14),
+    ],
+  },
   'network-plus': {
     courseId: 'network-plus', vendorId: 'comptia', vendor: 'CompTIA', code: 'N10-009', name: 'Network+', level: 'entry', exam: true, examFeeUsd: 369, feeCheckedYear: 2026,
     prerequisite: 'a-plus', next: 'security-plus',
@@ -293,6 +306,12 @@ export const TASK_DOMAINS: Record<string, Record<string, string>> = {
   'aws-ai-practitioner': {
     'awsai-w1-workloads': 'd1', 'awsai-w1-components': 'd2', 'awsai-w1-local': 'd2', 'awsai-w2-responsible': 'd4', 'awsai-w2-ml': 'd1', 'awsai-w2-eval': 'd2',
     'awsai-w3-deploy': 'd3', 'awsai-w3-app': 'd3', 'awsai-w3-services': 'd3', 'awsai-w4-agent': 'd3', 'awsai-w4-govern': 'd5', 'awsai-w4-handover': 'd5',
+  },
+  'aws-security-specialty': {
+    'scs-w1-identity': 'd1', 'scs-w1-leastpriv': 'd1', 'scs-w1-governance': 'd6',
+    'scs-w2-vpc': 'd2', 'scs-w2-sg': 'd2', 'scs-w2-edge': 'd2',
+    'scs-w3-kms': 'd3', 'scs-w3-s3': 'd3', 'scs-w3-detect': 'd4',
+    'scs-w4-incident': 'd5', 'scs-w4-detect': 'd4', 'scs-w4-handover': 'd6',
   },
   'network-plus': {
     'np-w1-requirements': 'd1', 'np-w1-plan': 'd1', 'np-w1-topology': 'd2', 'np-w2-switches': 'd2', 'np-w2-routing': 'd2', 'np-w2-services': 'd2',

@@ -88,6 +88,12 @@
         "feeds": "awsai_handover"
       },
       {
+        "courseId": "aws-security-specialty",
+        "id": "scs_portfolio",
+        "week": 4,
+        "feeds": "scs_handover"
+      },
+      {
         "courseId": "network-plus",
         "id": "np_portfolio",
         "week": 4,

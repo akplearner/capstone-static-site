@@ -165,6 +165,16 @@ const AI_FOUNDATIONS: RoleContent = {
   ],
 };
 
+const AWS_SECURITY_SPECIALTY: RoleContent = {
+  MOTION: DEFAULT_MOTION,
+  PROFILES: [
+    p('iam', 'commands', 'Leads the identity record: users, roles, least-privilege policies and the proof of every denial.', ['A scoped role assumed with MFA', 'Least privilege proved on a denial', 'The access matrix', 'Reviews the handover'], 'Week 0 the MFA identity; Week 1 the roles, least privilege and the denial; Week 4 reviews the handover.'),
+    p('infra', 'commands', 'Leads the infrastructure record: the network, the segments, the security groups and the exposure.', ['A segmented network', 'Least-exposure security groups', 'The host reached without SSH', 'The detection alarm'], 'Week 2 the network, the groups and SSM; Week 4 wires the alarm; approves the handover.'),
+    p('data', 'commands', 'Leads the data record: the keys, the encryption, the bucket policies and what must never be public.', ['A customer-managed key', 'A locked, encrypted bucket', 'The key-management decision', 'An unencrypted put refused'], 'Week 3 the key, the bucket and the key decision; reviews the network and the handover.'),
+    p('records', 'documents', 'Leads the records that outlive the build: detection, the incident log, the control baseline and handover.', ['The governance baseline', 'The findings triaged', 'An incident worked to contained', 'The handover with custody'], 'Week 1 the baseline; Week 3 the findings; Week 4 the incident, the baseline and the handover.'),
+  ],
+};
+
 const AWS_AI_PRACTITIONER: RoleContent = {
   MOTION: DEFAULT_MOTION,
   PROFILES: [
@@ -226,6 +236,7 @@ export const ROLE_CONTENT: Record<string, RoleContent> = {
   'a-plus': A_PLUS,
   'ai-foundations': AI_FOUNDATIONS,
   'aws-ai-practitioner': AWS_AI_PRACTITIONER,
+  'aws-security-specialty': AWS_SECURITY_SPECIALTY,
   'docker-dca': DOCKER_DCA,
   'kubernetes-cka': KUBERNETES_CKA,
   'nvidia-ai-infrastructure': NVIDIA_AI_INFRASTRUCTURE,

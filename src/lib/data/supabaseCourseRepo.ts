@@ -23,6 +23,7 @@ import { DOCKER_DCA } from './seed/dockerDca';
 import { KUBERNETES_CKA } from './seed/kubernetesCka';
 import { NVIDIA_AI_INFRASTRUCTURE } from './seed/nvidiaAiInfrastructure';
 import { AWS_AI_PRACTITIONER } from './seed/awsAiPractitioner';
+import { AWS_SECURITY_SPECIALTY } from './seed/awsSecuritySpecialty';
 import { NETWORK_PLUS } from './seed/networkPlus';
 import { AZURE_COURSES } from './seed/azureCloud';
 import { AWS_COURSES } from './seed/awsCloud';
@@ -43,7 +44,7 @@ import { AWS_COURSES } from './seed/awsCloud';
  * seed's forms and manual beside the edited tasks, and a duplicate carries its
  * parent's content into the cloud with it.
  */
-const SEED_MODULES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA, KUBERNETES_CKA, NVIDIA_AI_INFRASTRUCTURE];
+const SEED_MODULES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA, KUBERNETES_CKA, NVIDIA_AI_INFRASTRUCTURE, AWS_SECURITY_SPECIALTY];
 
 function report(what: string, message: string) {
   return ({ error }: { error: { message: string } | null }) => {

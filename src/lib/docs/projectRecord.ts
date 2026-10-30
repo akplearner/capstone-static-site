@@ -220,6 +220,15 @@ export const RECORD_FIELDS: RecordField[] = [
   fld('awsai_build', 'answer', 'change', 'Grounded answer'),
   inf('awsai_governance', 'risks', 'risk', 'risk', 'AI risk'),
   fld('awsai_handover', 'depends', 'resource', 'Dependency'),
+  // aws-security-specialty — at least half the forms feed the record.
+  fld('scs_setup', 'workload', 'host', 'Workload', { declares: true }),
+  inf('scs_identity', 'matrix', 'role', 'resource', 'Assumed role'),
+  inf('scs_baseline', 'controls', 'control', 'resource', 'Control'),
+  inf('scs_network', 'rules', 'port', 'resource', 'Open port'),
+  fld('scs_data', 'key_manager', 'resource', 'Key manager'),
+  inf('scs_detect', 'findings', 'type', 'incident', 'Finding'),
+  inf('scs_incident', 'actions', 'theory', 'incident', 'Containment attempt'),
+  inf('scs_handover', 'risks', 'risk', 'risk', 'Open risk'),
   // network-plus
   inf('np_design', 'vlans', 'vlan', 'vlan', 'VLAN', { unique: true }),
   inf('np_design', 'vlans', 'prefix', 'cidr', 'Prefix', { unique: true }),

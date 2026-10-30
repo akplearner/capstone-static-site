@@ -726,6 +726,42 @@
           "rag-engineering"
         ]
       }
+    },
+    {
+      "id": "aws-security-specialty",
+      "title": "AWS Security Specialty — the Secure Workload",
+      "version": 1,
+      "file": "aws-security-specialty.json",
+      "weeks": 8,
+      "tasks": 25,
+      "steps": 53,
+      "deliverables": 9,
+      "procedures": 0,
+      "vendor": "AWS",
+      "certification": "Security – Specialty (SCS-C03)",
+      "level": "professional",
+      "examFeeUsd": 300,
+      "coveredWeight": 100,
+      "costOnceUsd": 0,
+      "costMonthlyUsd": 0,
+      "costTasksUsd": 0,
+      "skills": 33,
+      "tools": 9,
+      "standards": 7,
+      "controls": 11,
+      "sops": 12,
+      "tactics": 0,
+      "practices": 23,
+      "premium": {
+        "aiWeeks": 1,
+        "cyberWeeks": 2,
+        "otherWeeks": 0,
+        "aiTasks": 4,
+        "modules": [
+          "ai-security-validation",
+          "local-llm-serving"
+        ]
+      }
     }
   ]
 }

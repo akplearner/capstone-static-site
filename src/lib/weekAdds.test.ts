@@ -8,7 +8,7 @@ import { weekAdds } from './weekAdds';
  * that glows in a week has a row with a purpose, and every row that names a
  * form points at a form of the course. Week 0 lists the starting parts.
  */
-const SELF_DRAWN = ['security-plus', 'cysa-plus', 'mssp', 'secai-plus', 'cissp', 'server-plus', 'ccna', 'a-plus', 'network-plus', 'ai-foundations', 'aws-ai-practitioner', 'docker-dca', 'kubernetes-cka', 'nvidia-ai-infrastructure'];
+const SELF_DRAWN = ['security-plus', 'cysa-plus', 'mssp', 'secai-plus', 'cissp', 'server-plus', 'ccna', 'a-plus', 'network-plus', 'ai-foundations', 'aws-ai-practitioner', 'docker-dca', 'kubernetes-cka', 'nvidia-ai-infrastructure', 'aws-security-specialty'];
 const CLOUD = ['azure-fundamentals', 'azure-administrator', 'azure-devops', 'aws-cloud-practitioner', 'aws-solutions-architect', 'aws-devops'];
 const ARCH_COURSES = [...SELF_DRAWN, ...CLOUD];
 

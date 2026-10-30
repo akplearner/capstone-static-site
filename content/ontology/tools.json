@@ -2271,6 +2271,11 @@
       "tool.bedrock",
       "tool.python"
     ],
+    "aws-security-specialty": [
+      "tool.aws-cli",
+      "tool.aws-console",
+      "tool.linux-shell"
+    ],
     "network-plus": [
       "tool.network-simulator"
     ],

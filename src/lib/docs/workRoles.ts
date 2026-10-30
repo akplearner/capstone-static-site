@@ -147,6 +147,12 @@ export const WORK_ROLE_OF: Record<string, Record<string, string[]>> = {
     language: ['role.software-developer'],
     records: ['role.cyber-policy-planner'],
   },
+  'aws-security-specialty': {
+    iam: ['role.cyber-policy-planner'],
+    infra: ['role.network-operations-specialist'],
+    data: ['role.cyber-policy-planner'],
+    records: ['role.incident-responder', 'role.cyber-policy-planner'],
+  },
   'network-plus': {
     design: ['role.network-operations-specialist', 'role.security-architect'],
     sw: ['role.network-operations-specialist'],

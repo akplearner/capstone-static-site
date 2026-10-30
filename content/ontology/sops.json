@@ -636,6 +636,38 @@
         "sop.portfolio"
       ]
     },
+    "aws-security-specialty": {
+      "scs_setup": [
+        "sop.asset-inventory"
+      ],
+      "scs_identity": [
+        "sop.identity-standard",
+        "sop.access-review"
+      ],
+      "scs_baseline": [
+        "sop.control-mapping"
+      ],
+      "scs_network": [
+        "sop.network-design",
+        "sop.hardening-baseline"
+      ],
+      "scs_data": [
+        "sop.data-handling"
+      ],
+      "scs_detect": [
+        "sop.detection-rules"
+      ],
+      "scs_incident": [
+        "sop.incident-response-plan"
+      ],
+      "scs_handover": [
+        "sop.handover",
+        "sop.chain-of-custody"
+      ],
+      "scs_portfolio": [
+        "sop.portfolio"
+      ]
+    },
     "aws-ai-practitioner": {
       "awsai_setup": [
         "sop.asset-inventory"
@@ -1209,6 +1241,33 @@
         "sop.test-and-acceptance"
       ],
       "nca-w4-handover": [
+        "sop.handover",
+        "sop.chain-of-custody"
+      ]
+    },
+    "aws-security-specialty": {
+      "scs-w1-identity": [
+        "sop.identity-standard"
+      ],
+      "scs-w1-leastpriv": [
+        "sop.access-review"
+      ],
+      "scs-w1-governance": [
+        "sop.control-mapping"
+      ],
+      "scs-w2-sg": [
+        "sop.hardening-baseline"
+      ],
+      "scs-w3-kms": [
+        "sop.data-handling"
+      ],
+      "scs-w3-detect": [
+        "sop.detection-rules"
+      ],
+      "scs-w4-incident": [
+        "sop.incident-response-plan"
+      ],
+      "scs-w4-handover": [
         "sop.handover",
         "sop.chain-of-custody"
       ]

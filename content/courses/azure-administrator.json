@@ -6444,6 +6444,7 @@
         "kubernetes-cka": "kubectl · helm · kind · kubectl describe · kubectl logs · kubectl rollout · etcdctl · sha256sum",
         "nvidia-ai-infrastructure": "nvidia-smi · dcgmi · Python · Ollama · sha256sum",
         "aws-ai-practitioner": "Ollama · Amazon Bedrock · AWS CLI · Python · Amazon Comprehend · Amazon Textract · sha256sum",
+        "aws-security-specialty": "AWS CLI · AWS console · jq · sha256sum",
         "network-plus": "Packet Tracer · Cisco IOS · ping · traceroute · nslookup · draw.io · spreadsheet · sha256sum",
         "ccna": "show version · show vlan brief · show interfaces trunk · show spanning-tree · show etherchannel summary · show ip route · show ip ospf neighbor · show ip nat translations · show access-lists · ping · traceroute · Wireshark · NetBox · LibreNMS · Oxidized · Ansible",
         "secai-plus": "Ollama · LiteLLM · OpenBao · Chroma · garak · LLM Guard · Microsoft Presidio · Semgrep · Trivy · Gitleaks · ModelScan · Prowler · Wazuh · Git · sha256sum",

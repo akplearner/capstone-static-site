@@ -36,6 +36,7 @@ import { DOCKER_DCA } from '@/lib/data/seed/dockerDca';
 import { KUBERNETES_CKA } from '@/lib/data/seed/kubernetesCka';
 import { NVIDIA_AI_INFRASTRUCTURE } from '@/lib/data/seed/nvidiaAiInfrastructure';
 import { AWS_AI_PRACTITIONER } from '@/lib/data/seed/awsAiPractitioner';
+import { AWS_SECURITY_SPECIALTY } from '@/lib/data/seed/awsSecuritySpecialty';
 import { NETWORK_PLUS } from '@/lib/data/seed/networkPlus';
 import { AZURE_BLOCKS, AZURE_COURSES } from '@/lib/data/seed/azureCloud';
 import { AWS_BLOCKS, AWS_COURSES } from '@/lib/data/seed/awsCloud';
@@ -74,6 +75,7 @@ import * as dockerDcaContent from '@/lib/docs/dockerDcaContent';
 import * as kubernetesCkaContent from '@/lib/docs/kubernetesCkaContent';
 import * as nvidiaAiInfrastructureContent from '@/lib/docs/nvidiaAiInfrastructureContent';
 import * as awsAiPractitionerContent from '@/lib/docs/awsAiPractitionerContent';
+import * as awsSecuritySpecialtyContent from '@/lib/docs/awsSecuritySpecialtyContent';
 import * as networkPlusContent from '@/lib/docs/networkPlusContent';
 import * as networkPlusTopology from '@/lib/networkPlusTopology';
 import { weekVisualsFor } from '@/lib/docs/weekVisuals';
@@ -90,7 +92,7 @@ export { DTO_SCHEMA } from './schema';
 import { DTO_SCHEMA } from './schema';
 
 /** The seed courses, in the order the catalogue lists them. */
-export const SEED_COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA, KUBERNETES_CKA, NVIDIA_AI_INFRASTRUCTURE];
+export const SEED_COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA, KUBERNETES_CKA, NVIDIA_AI_INFRASTRUCTURE, AWS_SECURITY_SPECIALTY];
 
 /** A function replaced on the way to JSON: the name says what was there. */
 export type FnMarker = { $fn: string };
@@ -196,6 +198,7 @@ const SEED_FILE: Record<string, string> = {
   'kubernetes-cka': 'src/lib/data/seed/kubernetesCka.ts',
   'nvidia-ai-infrastructure': 'src/lib/data/seed/nvidiaAiInfrastructure.ts',
   'aws-ai-practitioner': 'src/lib/data/seed/awsAiPractitioner.ts',
+  'aws-security-specialty': 'src/lib/data/seed/awsSecuritySpecialty.ts',
   'network-plus': 'src/lib/data/seed/networkPlus.ts',
   'secai-plus': 'src/lib/data/seed/secaiPlus.ts',
   cissp: 'src/lib/data/seed/cissp.ts',
@@ -219,6 +222,7 @@ const FORM_FILE: Record<string, string> = {
   'kubernetes-cka': 'src/lib/docs/kubernetesCkaDeliverables.ts',
   'nvidia-ai-infrastructure': 'src/lib/docs/nvidiaAiInfrastructureDeliverables.ts',
   'aws-ai-practitioner': 'src/lib/docs/awsAiPractitionerDeliverables.ts',
+  'aws-security-specialty': 'src/lib/docs/awsSecuritySpecialtyDeliverables.ts',
   'network-plus': 'src/lib/docs/networkPlusDeliverables.ts',
   'secai-plus': 'src/lib/docs/secaiDeliverables.ts',
   cissp: 'src/lib/docs/cisspDeliverables.ts',
@@ -281,6 +285,7 @@ const ARCH_CONTENT: Record<string, { file: string; mod: { ARCH: ArchPicture; ARC
   'kubernetes-cka': { file: 'src/lib/docs/kubernetesCkaContent.ts', mod: kubernetesCkaContent },
   'nvidia-ai-infrastructure': { file: 'src/lib/docs/nvidiaAiInfrastructureContent.ts', mod: nvidiaAiInfrastructureContent },
   'aws-ai-practitioner': { file: 'src/lib/docs/awsAiPractitionerContent.ts', mod: awsAiPractitionerContent },
+  'aws-security-specialty': { file: 'src/lib/docs/awsSecuritySpecialtyContent.ts', mod: awsSecuritySpecialtyContent },
   'network-plus': { file: 'src/lib/docs/networkPlusContent.ts', mod: networkPlusContent },
 };
 

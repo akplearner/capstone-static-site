@@ -10,6 +10,7 @@ import { CCNA } from '../data/seed/ccna';
 import { A_PLUS } from '../data/seed/aPlus';
 import { AI_FOUNDATIONS } from '../data/seed/aiFoundations';
 import { AWS_AI_PRACTITIONER } from '../data/seed/awsAiPractitioner';
+import { AWS_SECURITY_SPECIALTY } from '../data/seed/awsSecuritySpecialty';
 import { DOCKER_DCA } from '../data/seed/dockerDca';
 import { KUBERNETES_CKA } from '../data/seed/kubernetesCka';
 import { NVIDIA_AI_INFRASTRUCTURE } from '../data/seed/nvidiaAiInfrastructure';
@@ -22,7 +23,7 @@ import { seedDeliverablesForCourse } from './definitions';
 import { emptyData } from './types';
 import type { StepEvidence } from '../data/types';
 
-const COURSES = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA, KUBERNETES_CKA, NVIDIA_AI_INFRASTRUCTURE];
+const COURSES = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA, KUBERNETES_CKA, NVIDIA_AI_INFRASTRUCTURE, AWS_SECURITY_SPECIALTY];
 
 const ctx = (over: Partial<BundleContext> = {}): BundleContext => ({
   evidence: {},

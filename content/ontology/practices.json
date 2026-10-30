@@ -1037,6 +1037,81 @@
         "practice.human-in-the-loop"
       ]
     },
+    "aws-security-specialty": {
+      "scs-w1-identity": [
+        "practice.access-reviews"
+      ],
+      "scs-w1-leastpriv": [
+        "practice.default-deny"
+      ],
+      "scs-w1-governance": [
+        "practice.centralised-logging",
+        "practice.control-mapping"
+      ],
+      "scs-w2-vpc": [
+        "practice.defence-in-depth"
+      ],
+      "scs-w2-sg": [
+        "practice.default-deny"
+      ],
+      "scs-w2-edge": [
+        "practice.hardening-baseline"
+      ],
+      "scs-w3-kms": [
+        "practice.encryption-at-rest"
+      ],
+      "scs-w3-s3": [
+        "practice.data-classification",
+        "practice.encryption-at-rest"
+      ],
+      "scs-w3-detect": [
+        "practice.alert-to-ticket"
+      ],
+      "scs-w4-incident": [
+        "practice.containment-first"
+      ],
+      "scs-w4-detect": [
+        "practice.detection-as-code"
+      ],
+      "scs-w4-handover": [
+        "practice.as-built-documentation",
+        "practice.evidence-hashing"
+      ],
+      "scs-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "scs-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "scs-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "scs-w4-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "scs-ai-security-validation-w1-inject": [
+        "practice.authorised-testing",
+        "practice.evidence-hashing"
+      ],
+      "scs-ai-security-validation-w1-leak": [
+        "practice.input-guardrails",
+        "practice.retest-to-closure"
+      ],
+      "scs-ai-security-validation-w2-suite": [
+        "practice.pass-line-suites",
+        "practice.regression-tests-for-guardrails"
+      ],
+      "scs-ai-security-validation-w2-report": [
+        "practice.customer-assurance",
+        "practice.corrective-action"
+      ],
+      "scs-local-llm-serving-w1-serve": [
+        "practice.least-privilege"
+      ],
+      "scs-local-llm-serving-w1-size": [
+        "practice.right-sizing"
+      ]
+    },
     "a-plus": {
       "ap-w1-inventory": [
         "practice.asset-inventory",

@@ -10,6 +10,7 @@ import { ARCH as AWSAI } from './awsAiPractitionerContent';
 import { ARCH as DOCKERDCA } from './dockerDcaContent';
 import { ARCH as KUBERNETESCKA } from './kubernetesCkaContent';
 import { ARCH as NVIDIAAIINFRA } from './nvidiaAiInfrastructureContent';
+import { ARCH as AWSSEC } from './awsSecuritySpecialtyContent';
 import { ARCH as NETPLUS } from './networkPlusContent';
 import { deliverablesForCourse } from './definitions';
 import { LAB_HOSTS } from '../labTopology';
@@ -34,6 +35,7 @@ const PICTURES: [string, ArchPicture][] = [
   ['docker-dca', DOCKERDCA],
   ['kubernetes-cka', KUBERNETESCKA],
   ['nvidia-ai-infrastructure', NVIDIAAIINFRA],
+  ['aws-security-specialty', AWSSEC],
   ['network-plus', NETPLUS],
 ];
 const words = (t: string) => t.split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;

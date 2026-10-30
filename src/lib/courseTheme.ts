@@ -99,6 +99,11 @@ const SEED_THEMES: Record<string, CourseTheme> = {
     vendor: 'AWS',
     certification: 'AI Practitioner (AIF-C01)',
   },
+  'aws-security-specialty': {
+    key: 'aws-security-specialty',
+    vendor: 'AWS',
+    certification: 'Security – Specialty (SCS-C03)',
+  },
   'network-plus': {
     key: 'network-plus',
     vendor: 'CompTIA',

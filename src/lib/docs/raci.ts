@@ -129,6 +129,15 @@ export const RACI: Record<string, Raci> = {
   nca_troubleshoot: r('records', 'datacenter', 'infra'),
   nca_handover: r('records', 'datacenter', 'infra', ['knowledge']),
 
+  // aws-security-specialty — iam · infra · data · records.
+  scs_setup: r('records', 'iam', 'infra'),
+  scs_identity: r('iam', 'records', 'infra'),
+  scs_baseline: r('records', 'iam', 'infra'),
+  scs_network: r('infra', 'data', 'records'),
+  scs_data: r('data', 'records', 'iam'),
+  scs_detect: r('records', 'infra', 'data'),
+  scs_incident: r('records', 'infra', 'iam'),
+  scs_handover: r('records', 'iam', 'infra'),
   // aws-ai-practitioner — concepts · build · language · records.
   awsai_setup: r('records', 'build', 'concepts'),
   awsai_capabilities: r('concepts', 'language', 'records'),

@@ -31,6 +31,7 @@ export const COURSE_DEFAULT_VISUAL: Record<string, DeliverableVisual> = {
   'kubernetes-cka': { kit: 'week' },
   'nvidia-ai-infrastructure': { kit: 'week' },
   'aws-ai-practitioner': { kit: 'week' },
+  'aws-security-specialty': { kit: 'week' },
   'network-plus': { kit: 'week' },
   'cysa-plus': { kit: 'week' },
   'security-plus': { kit: 'week' },

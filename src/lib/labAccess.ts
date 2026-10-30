@@ -282,6 +282,7 @@ const LAB_PROFILES: Record<string, LabProfile> = {
   'kubernetes-cka': { fields: [], checks: [] },
   'nvidia-ai-infrastructure': { fields: [], checks: [] },
   'aws-ai-practitioner': { fields: [], checks: [] },
+  'aws-security-specialty': { fields: [], checks: [] },
   // The bench: the machine's name and, from Week 3, its address.
   'a-plus': {
     fields: A_PLUS_FIELDS,

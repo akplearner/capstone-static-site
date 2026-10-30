@@ -8,6 +8,7 @@ import { CCNA } from '../data/seed/ccna';
 import { A_PLUS } from '../data/seed/aPlus';
 import { AI_FOUNDATIONS } from '../data/seed/aiFoundations';
 import { AWS_AI_PRACTITIONER } from '../data/seed/awsAiPractitioner';
+import { AWS_SECURITY_SPECIALTY } from '../data/seed/awsSecuritySpecialty';
 import { DOCKER_DCA } from '../data/seed/dockerDca';
 import { KUBERNETES_CKA } from '../data/seed/kubernetesCka';
 import { NVIDIA_AI_INFRASTRUCTURE } from '../data/seed/nvidiaAiInfrastructure';
@@ -18,7 +19,7 @@ import { AZURE_COURSES } from '../data/seed/azureCloud';
 import { AWS_COURSES } from '../data/seed/awsCloud';
 import type { Course } from '../types';
 
-const COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA, KUBERNETES_CKA, NVIDIA_AI_INFRASTRUCTURE];
+const COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA, KUBERNETES_CKA, NVIDIA_AI_INFRASTRUCTURE, AWS_SECURITY_SPECIALTY];
 
 /**
  * The manual's sections used to be gated on `course.id === 'server-plus'` and
@@ -46,7 +47,7 @@ describe('manual sections', () => {
     // after it was replaced (CCNA) never went through that rule, so asserting it
     // against a reconstruction of the rule would only be asserting the
     // reconstruction. It is checked on its own terms below.
-    for (const c of COURSES.filter((x) => x.id !== 'ccna' && x.id !== 'a-plus' && x.id !== 'network-plus' && x.id !== 'ai-foundations' && x.id !== 'aws-ai-practitioner' && x.id !== 'docker-dca' && x.id !== 'kubernetes-cka' && x.id !== 'nvidia-ai-infrastructure' && x.manualSections?.includes('cloud-iac') !== true)) {
+    for (const c of COURSES.filter((x) => x.id !== 'ccna' && x.id !== 'a-plus' && x.id !== 'network-plus' && x.id !== 'ai-foundations' && x.id !== 'aws-ai-practitioner' && x.id !== 'docker-dca' && x.id !== 'kubernetes-cka' && x.id !== 'nvidia-ai-infrastructure' && x.id !== 'aws-security-specialty' && x.manualSections?.includes('cloud-iac') !== true)) {
       expect(manualSectionsFor(c).map((s) => s.id), c.id).toEqual(oldGating(c));
     }
   });

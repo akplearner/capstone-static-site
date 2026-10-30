@@ -95,6 +95,10 @@ export const COURSE_COSTS: Record<string, CostLine[]> = {
     line('bedrock', 'cloud', 'Amazon Bedrock, Comprehend and Textract, on-demand', 0, 'month', 'On-demand calls kept tiny; a cent or two at most, torn down at the end so nothing bills.'),
     line('local', 'software', 'Ollama and a small local model', 0, 'once', 'Free download; runs on the student machine with no account.'),
   ],
+  'aws-security-specialty': [
+    line('aws', 'cloud', 'AWS free tier (IAM, VPC, KMS, S3, CloudTrail, CloudWatch)', 0, 'month', 'Every proof runs on the free tier, with --dry-run where a change would cost, and resources are removed at the end.'),
+    line('findings', 'software', 'The sample GuardDuty/CloudTrail findings shipped with the course', 0, 'once', 'Detection is read from a provided JSON file with jq; no paid detection service is stood up.'),
+  ],
   'a-plus': [
     line('pc', 'hardware', 'A used desktop PC per team (the one the course rebuilds)', 100, 'once', 'Order of magnitude; donated or second-hand, any make that opens with a screwdriver.', { approx: true }),
     line('drive', 'hardware', 'A spare SATA or NVMe drive', 40, 'once', 'For the rebuild if the SMART check fails the fitted one.', { approx: true }),
