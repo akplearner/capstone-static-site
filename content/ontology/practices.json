@@ -798,6 +798,79 @@
         "practice.human-in-the-loop"
       ]
     },
+    "nvidia-ai-infrastructure": {
+      "nca-w1-concepts": [
+        "practice.configuration-record"
+      ],
+      "nca-w1-arch": [
+        "practice.configuration-record"
+      ],
+      "nca-w1-stack": [
+        "practice.configuration-record",
+        "practice.evidence-by-design"
+      ],
+      "nca-w2-smi": [
+        "practice.build-record"
+      ],
+      "nca-w2-sizing": [
+        "practice.architecture-decision-records",
+        "practice.build-record"
+      ],
+      "nca-w2-dpu": [
+        "practice.configuration-record"
+      ],
+      "nca-w3-network": [
+        "practice.build-record"
+      ],
+      "nca-w3-power": [
+        "practice.architecture-decision-records",
+        "practice.risk-scoring"
+      ],
+      "nca-w3-scale": [
+        "practice.build-record"
+      ],
+      "nca-w4-monitor": [
+        "practice.evidence-by-design"
+      ],
+      "nca-w4-troubleshoot": [
+        "practice.retest-to-closure",
+        "practice.human-in-the-loop"
+      ],
+      "nca-w4-handover": [
+        "practice.build-record",
+        "practice.evidence-by-design"
+      ],
+      "nca-w1-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "nca-w2-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "nca-w3-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "nca-w4-ai": [
+        "practice.human-in-the-loop"
+      ],
+      "nca-local-llm-serving-w1-serve": [
+        "practice.least-privilege"
+      ],
+      "nca-local-llm-serving-w1-size": [
+        "practice.right-sizing"
+      ],
+      "nca-rag-engineering-w1-index": [
+        "practice.redaction-before-write"
+      ],
+      "nca-rag-engineering-w1-retrieve": [
+        "practice.human-in-the-loop"
+      ],
+      "nca-rag-engineering-w2-evalset": [
+        "practice.pass-line-suites"
+      ],
+      "nca-rag-engineering-w2-passline": [
+        "practice.pass-line-suites"
+      ]
+    },
     "ai-foundations": {
       "aif-w1-workloads": [
         "practice.component-inventory",

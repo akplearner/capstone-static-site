@@ -220,6 +220,27 @@
       "courseId": "kubernetes-cka"
     },
     {
+      "id": "NCA-AIIO.d1",
+      "code": "NCA-AIIO",
+      "name": "AI Infrastructure",
+      "weight": 40,
+      "courseId": "nvidia-ai-infrastructure"
+    },
+    {
+      "id": "NCA-AIIO.d2",
+      "code": "NCA-AIIO",
+      "name": "Essential AI Knowledge",
+      "weight": 38,
+      "courseId": "nvidia-ai-infrastructure"
+    },
+    {
+      "id": "NCA-AIIO.d3",
+      "code": "NCA-AIIO",
+      "name": "AI Operations",
+      "weight": 22,
+      "courseId": "nvidia-ai-infrastructure"
+    },
+    {
       "id": "AIF-C01.d1",
       "code": "AIF-C01",
       "name": "Fundamentals of AI and ML",

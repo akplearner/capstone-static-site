@@ -27,6 +27,7 @@ import { A_PLUS_DELIVERABLES } from './aPlusDeliverables';
 import { AI_FOUNDATIONS_DELIVERABLES } from './aiFoundationsDeliverables';
 import { DOCKER_DCA_DELIVERABLES } from './dockerDcaDeliverables';
 import { KUBERNETES_CKA_DELIVERABLES } from './kubernetesCkaDeliverables';
+import { NVIDIA_AI_INFRASTRUCTURE_DELIVERABLES } from './nvidiaAiInfrastructureDeliverables';
 import { AWS_AI_PRACTITIONER_DELIVERABLES } from './awsAiPractitionerDeliverables';
 import { NETWORK_PLUS_DELIVERABLES } from './networkPlusDeliverables';
 import { SECAI_DELIVERABLES } from './secaiDeliverables';
@@ -793,6 +794,7 @@ export const DELIVERABLES: DeliverableDef[] = [
   ...AI_FOUNDATIONS_DELIVERABLES,
   ...DOCKER_DCA_DELIVERABLES,
   ...KUBERNETES_CKA_DELIVERABLES,
+  ...NVIDIA_AI_INFRASTRUCTURE_DELIVERABLES,
   ...AWS_AI_PRACTITIONER_DELIVERABLES,
   ...NETWORK_PLUS_DELIVERABLES,
   ...SECAI_DELIVERABLES,

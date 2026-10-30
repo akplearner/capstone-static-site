@@ -89,6 +89,11 @@ const SEED_THEMES: Record<string, CourseTheme> = {
     vendor: 'CNCF',
     certification: 'Certified Kubernetes Administrator (CKA)',
   },
+  'nvidia-ai-infrastructure': {
+    key: 'nvidia-ai-infrastructure',
+    vendor: 'NVIDIA',
+    certification: 'AI Infrastructure and Operations (NCA-AIIO)',
+  },
   'aws-ai-practitioner': {
     key: 'aws-ai-practitioner',
     vendor: 'AWS',

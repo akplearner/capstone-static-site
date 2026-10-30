@@ -609,6 +609,33 @@
         "sop.portfolio"
       ]
     },
+    "nvidia-ai-infrastructure": {
+      "nca_setup": [
+        "sop.asset-inventory"
+      ],
+      "nca_knowledge": [
+        "sop.build-record"
+      ],
+      "nca_hardware": [
+        "sop.build-record"
+      ],
+      "nca_datacenter": [
+        "sop.build-record"
+      ],
+      "nca_operations": [
+        "sop.test-and-acceptance"
+      ],
+      "nca_troubleshoot": [
+        "sop.test-and-acceptance"
+      ],
+      "nca_handover": [
+        "sop.handover",
+        "sop.chain-of-custody"
+      ],
+      "nca_portfolio": [
+        "sop.portfolio"
+      ]
+    },
     "aws-ai-practitioner": {
       "awsai_setup": [
         "sop.asset-inventory"
@@ -1167,6 +1194,21 @@
         "sop.risk-register"
       ],
       "cka-w4-handover": [
+        "sop.handover",
+        "sop.chain-of-custody"
+      ]
+    },
+    "nvidia-ai-infrastructure": {
+      "nca-w1-arch": [
+        "sop.build-record"
+      ],
+      "nca-w2-sizing": [
+        "sop.build-record"
+      ],
+      "nca-w4-troubleshoot": [
+        "sop.test-and-acceptance"
+      ],
+      "nca-w4-handover": [
         "sop.handover",
         "sop.chain-of-custody"
       ]

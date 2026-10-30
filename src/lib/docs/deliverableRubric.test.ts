@@ -12,6 +12,7 @@ import { AI_FOUNDATIONS } from '../data/seed/aiFoundations';
 import { AWS_AI_PRACTITIONER } from '../data/seed/awsAiPractitioner';
 import { DOCKER_DCA } from '../data/seed/dockerDca';
 import { KUBERNETES_CKA } from '../data/seed/kubernetesCka';
+import { NVIDIA_AI_INFRASTRUCTURE } from '../data/seed/nvidiaAiInfrastructure';
 import { NETWORK_PLUS } from '../data/seed/networkPlus';
 import { SECAI_PLUS } from '../data/seed/secaiPlus';
 import { CISSP } from '../data/seed/cissp';
@@ -21,7 +22,7 @@ import { seedDeliverablesForCourse } from './definitions';
 import { emptyData } from './types';
 import type { StepEvidence } from '../data/types';
 
-const COURSES = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA, KUBERNETES_CKA];
+const COURSES = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA, KUBERNETES_CKA, NVIDIA_AI_INFRASTRUCTURE];
 
 const ctx = (over: Partial<BundleContext> = {}): BundleContext => ({
   evidence: {},

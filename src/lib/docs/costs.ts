@@ -87,6 +87,10 @@ export const COURSE_COSTS: Record<string, CostLine[]> = {
     line('kind', 'software', 'kind, kubectl and helm', 0, 'once', 'Free; a whole cluster runs in Docker on the student machine, no paid cloud needed.'),
     line('cluster', 'software', 'A local kind cluster', 0, 'once', 'Runs locally; the cluster is deleted at the end so nothing lingers.'),
   ],
+  'nvidia-ai-infrastructure': [
+    line('tools', 'software', 'Python, awk and a shell', 0, 'once', 'Free; every GPU number is computed on a laptop from the spec table, no GPU needed.'),
+    line('local', 'software', 'Ollama and a small local model', 0, 'once', 'Free download; runs on the student CPU to show inference, with no account.'),
+  ],
   'aws-ai-practitioner': [
     line('bedrock', 'cloud', 'Amazon Bedrock, Comprehend and Textract, on-demand', 0, 'month', 'On-demand calls kept tiny; a cent or two at most, torn down at the end so nothing bills.'),
     line('local', 'software', 'Ollama and a small local model', 0, 'once', 'Free download; runs on the student machine with no account.'),

@@ -25,6 +25,7 @@ import { AI_FOUNDATIONS } from '../data/seed/aiFoundations';
 import { AWS_AI_PRACTITIONER } from '../data/seed/awsAiPractitioner';
 import { DOCKER_DCA } from '../data/seed/dockerDca';
 import { KUBERNETES_CKA } from '../data/seed/kubernetesCka';
+import { NVIDIA_AI_INFRASTRUCTURE } from '../data/seed/nvidiaAiInfrastructure';
 import { NETWORK_PLUS } from '../data/seed/networkPlus';
 import { SECAI_PLUS } from '../data/seed/secaiPlus';
 import { CISSP } from '../data/seed/cissp';
@@ -32,7 +33,7 @@ import { AZURE_COURSES } from '../data/seed/azureCloud';
 import { AWS_COURSES } from '../data/seed/awsCloud';
 import type { Course, Level } from '../types';
 
-const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA, KUBERNETES_CKA];
+const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA, KUBERNETES_CKA, NVIDIA_AI_INFRASTRUCTURE];
 const COURSE_BY_ID = new Map(COURSES.map((c) => [c.id, c]));
 const LEVEL_IDS = new Set<Level>(LEVELS.map((l) => l.id));
 

@@ -37,20 +37,20 @@
   },
   "counts": {
     "competencies": 303,
-    "tools": 139,
+    "tools": 140,
     "standards": 39,
     "controls": 230,
     "sops": 44,
     "tactics": 28,
     "practices": 96,
     "metrics": 116,
-    "domains": 95,
+    "domains": 98,
     "kpis": 48,
     "workRoles": 13,
     "skillDomains": 8,
     "recordCategories": 14,
     "scores": 7,
-    "recordFields": 198,
+    "recordFields": 208,
     "tracks": 2
   },
   "idStyle": {

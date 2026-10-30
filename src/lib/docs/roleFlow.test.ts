@@ -11,6 +11,7 @@ import { AI_FOUNDATIONS } from '../data/seed/aiFoundations';
 import { AWS_AI_PRACTITIONER } from '../data/seed/awsAiPractitioner';
 import { DOCKER_DCA } from '../data/seed/dockerDca';
 import { KUBERNETES_CKA } from '../data/seed/kubernetesCka';
+import { NVIDIA_AI_INFRASTRUCTURE } from '../data/seed/nvidiaAiInfrastructure';
 import { NETWORK_PLUS } from '../data/seed/networkPlus';
 import { SECAI_PLUS } from '../data/seed/secaiPlus';
 import { CISSP } from '../data/seed/cissp';
@@ -24,7 +25,7 @@ import type { RoleDef } from '../types';
  * the chain, never typed. Every role in every course drafts something, hands
  * its drafts to another role, and the picture's arrows add up to the table.
  */
-const COURSES = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA, KUBERNETES_CKA];
+const COURSES = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, A_PLUS, NETWORK_PLUS, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES, AI_FOUNDATIONS, AWS_AI_PRACTITIONER, DOCKER_DCA, KUBERNETES_CKA, NVIDIA_AI_INFRASTRUCTURE];
 
 const roles: RoleDef[] = [
   { id: 'a', name: 'A', mission: '', color: 'var(--x)', icon: 'Shield' },

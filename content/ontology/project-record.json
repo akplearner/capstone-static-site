@@ -785,6 +785,68 @@
       "label": "Dependency"
     },
     {
+      "form": "nca_setup",
+      "field": "plan",
+      "kind": "host",
+      "label": "Plan",
+      "declares": true
+    },
+    {
+      "form": "nca_hardware",
+      "field": "chosen",
+      "kind": "resource",
+      "label": "GPU chosen"
+    },
+    {
+      "form": "nca_datacenter",
+      "field": "nodes",
+      "kind": "resource",
+      "label": "Node count"
+    },
+    {
+      "form": "nca_datacenter",
+      "group": "changes",
+      "column": "change",
+      "kind": "change",
+      "label": "Capacity change"
+    },
+    {
+      "form": "nca_operations",
+      "group": "telemetry",
+      "column": "gpu",
+      "kind": "resource",
+      "label": "GPU telemetry"
+    },
+    {
+      "form": "nca_operations",
+      "group": "telemetry",
+      "column": "power",
+      "kind": "size",
+      "label": "GPU power",
+      "of": "power",
+      "unit": "W"
+    },
+    {
+      "form": "nca_operations",
+      "group": "rules",
+      "column": "metric",
+      "kind": "rule",
+      "label": "Alert rule"
+    },
+    {
+      "form": "nca_troubleshoot",
+      "group": "attempts",
+      "column": "theory",
+      "kind": "incident",
+      "label": "Scheduling attempt"
+    },
+    {
+      "form": "nca_handover",
+      "field": "capacity",
+      "kind": "resource",
+      "label": "Capacity plan"
+    },
+    {
       "form": "awsai_setup",
       "field": "assistant",
       "kind": "host",
@@ -1403,6 +1465,12 @@
     },
     {
       "form": "cka_portfolio",
+      "field": "repo_url",
+      "kind": "resource",
+      "label": "Repository"
+    },
+    {
+      "form": "nca_portfolio",
       "field": "repo_url",
       "kind": "resource",
       "label": "Repository"

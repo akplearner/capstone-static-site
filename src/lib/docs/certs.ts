@@ -115,6 +115,15 @@ export const CERTS: Record<string, CertDef> = {
       d('d5', 'Storage', 10),
     ],
   },
+  'nvidia-ai-infrastructure': {
+    courseId: 'nvidia-ai-infrastructure', vendorId: 'nvidia', vendor: 'NVIDIA', code: 'NCA-AIIO', name: 'AI Infrastructure and Operations', level: 'associate', vendorLevel: 'Associate', exam: true, examFeeUsd: 135, feeCheckedYear: 2026,
+    // Three domains; weights verified against the official NCA-AIIO exam guide.
+    domains: [
+      d('d1', 'AI Infrastructure', 40),
+      d('d2', 'Essential AI Knowledge', 38),
+      d('d3', 'AI Operations', 22),
+    ],
+  },
   'aws-ai-practitioner': {
     courseId: 'aws-ai-practitioner', vendorId: 'aws', vendor: 'AWS', code: 'AIF-C01', name: 'AI Practitioner', level: 'entry', vendorLevel: 'Foundational', exam: true, examFeeUsd: 100, feeCheckedYear: 2026,
     // Five domains; weights verified against the official AIF-C01 exam guide.
@@ -274,6 +283,12 @@ export const TASK_DOMAINS: Record<string, Record<string, string>> = {
     'cka-w2-deploy': 'd4', 'cka-w2-resources': 'd4', 'cka-w2-schedule': 'd4',
     'cka-w3-services': 'd3', 'cka-w3-networkpolicy': 'd3', 'cka-w3-storage': 'd5',
     'cka-w4-troubleshoot': 'd1', 'cka-w4-backup': 'd2', 'cka-w4-handover': 'd1',
+  },
+  'nvidia-ai-infrastructure': {
+    'nca-w1-concepts': 'd2', 'nca-w1-arch': 'd2', 'nca-w1-stack': 'd2',
+    'nca-w2-smi': 'd1', 'nca-w2-sizing': 'd1', 'nca-w2-dpu': 'd1',
+    'nca-w3-network': 'd1', 'nca-w3-power': 'd1', 'nca-w3-scale': 'd1',
+    'nca-w4-monitor': 'd3', 'nca-w4-troubleshoot': 'd3', 'nca-w4-handover': 'd3',
   },
   'aws-ai-practitioner': {
     'awsai-w1-workloads': 'd1', 'awsai-w1-components': 'd2', 'awsai-w1-local': 'd2', 'awsai-w2-responsible': 'd4', 'awsai-w2-ml': 'd1', 'awsai-w2-eval': 'd2',

@@ -195,6 +195,16 @@ const KUBERNETES_CKA: RoleContent = {
   ],
 };
 
+const NVIDIA_AI_INFRASTRUCTURE: RoleContent = {
+  MOTION: DEFAULT_MOTION,
+  PROFILES: [
+    p('knowledge', 'documents', 'Leads the knowledge record: AI/ML/DL, GPU architecture, training vs inference and the NVIDIA stack.', ['Inference run and timed', 'The architecture read', 'The stack named in order', 'The concepts defined'], 'Week 1 runs inference, reads the architecture and maps the stack; reviews the sizing and the handover.'),
+    p('infra', 'commands', 'Leads the hardware record: reading a GPU, sizing it, and the data path.', ['A GPU read from nvidia-smi', 'Memory sized from the model', 'A GPU chosen to fit', 'The scaling computed'], 'Week 2 reads and sizes the GPU and decides which one; Week 3 scales the job; reviews the capacity plan.'),
+    p('datacenter', 'commands', 'Leads the capacity record: the network fabric, the power and cooling, and how the cluster scales.', ['The fabric bandwidth', 'The rack power', 'The cooling load', 'The node count'], 'Week 2 checks the data path; Week 3 sizes the fabric, the power, the cooling and the rack density.'),
+    p('records', 'documents', 'Leads the records that outlive the plan: monitoring, the scheduling fault, custody and handover.', ['The telemetry monitored', 'A scheduling fault worked', 'The runbook', 'The handover with custody'], 'Week 0 the spec pack and folder; Week 4 the monitoring, the troubleshooting log and the handover.'),
+  ],
+};
+
 const CLOUD: RoleContent = {
   MOTION: DEFAULT_MOTION,
   PROFILES: [
@@ -218,6 +228,7 @@ export const ROLE_CONTENT: Record<string, RoleContent> = {
   'aws-ai-practitioner': AWS_AI_PRACTITIONER,
   'docker-dca': DOCKER_DCA,
   'kubernetes-cka': KUBERNETES_CKA,
+  'nvidia-ai-infrastructure': NVIDIA_AI_INFRASTRUCTURE,
   'network-plus': NETWORK_PLUS,
   'secai-plus': SECAI_PLUS,
   cissp: CISSP,

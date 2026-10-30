@@ -76,6 +76,12 @@
         "feeds": "cka_handover"
       },
       {
+        "courseId": "nvidia-ai-infrastructure",
+        "id": "nca_portfolio",
+        "week": 4,
+        "feeds": "nca_handover"
+      },
+      {
         "courseId": "aws-ai-practitioner",
         "id": "awsai_portfolio",
         "week": 4,

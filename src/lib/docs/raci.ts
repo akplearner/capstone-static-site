@@ -120,6 +120,14 @@ export const RACI: Record<string, Raci> = {
   cka_troubleshoot: r('records', 'net', 'cluster'),
   cka_backup: r('cluster', 'records', 'workloads'),
   cka_handover: r('records', 'workloads', 'cluster', ['net']),
+  // nvidia-ai-infrastructure — knowledge · infra · datacenter · records.
+  nca_setup: r('records', 'infra', 'knowledge'),
+  nca_knowledge: r('knowledge', 'records', 'infra'),
+  nca_hardware: r('infra', 'knowledge', 'datacenter'),
+  nca_datacenter: r('datacenter', 'infra', 'records'),
+  nca_operations: r('records', 'datacenter', 'infra'),
+  nca_troubleshoot: r('records', 'datacenter', 'infra'),
+  nca_handover: r('records', 'datacenter', 'infra', ['knowledge']),
 
   // aws-ai-practitioner — concepts · build · language · records.
   awsai_setup: r('records', 'build', 'concepts'),

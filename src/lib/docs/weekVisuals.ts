@@ -24,6 +24,7 @@ import { ARCH_BUILD as A_PLUS_BUILD } from './aPlusContent';
 import { ARCH_BUILD as AI_FOUNDATIONS_BUILD } from './aiFoundationsContent';
 import { ARCH_BUILD as DOCKER_DCA_BUILD } from './dockerDcaContent';
 import { ARCH_BUILD as KUBERNETES_CKA_BUILD } from './kubernetesCkaContent';
+import { ARCH_BUILD as NVIDIA_AI_INFRASTRUCTURE_BUILD } from './nvidiaAiInfrastructureContent';
 import { ARCH_BUILD as AWS_AI_PRACTITIONER_BUILD } from './awsAiPractitionerContent';
 import { ARCH_BUILD as NETWORK_PLUS_BUILD } from './networkPlusContent';
 
@@ -38,6 +39,7 @@ export const BUILD_MODELS: Record<string, BuildModel> = {
   'ai-foundations': AI_FOUNDATIONS_BUILD,
   'docker-dca': DOCKER_DCA_BUILD,
   'kubernetes-cka': KUBERNETES_CKA_BUILD,
+  'nvidia-ai-infrastructure': NVIDIA_AI_INFRASTRUCTURE_BUILD,
   'aws-ai-practitioner': AWS_AI_PRACTITIONER_BUILD,
   'network-plus': NETWORK_PLUS_BUILD,
   'secai-plus': SECAI_BUILD,

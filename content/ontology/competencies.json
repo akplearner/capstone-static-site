@@ -3323,6 +3323,10 @@
         "taskId": "cka-w4-handover"
       },
       {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w4-handover"
+      },
+      {
         "courseId": "ai-foundations",
         "taskId": "aif-w4-handover"
       },
@@ -3377,6 +3381,14 @@
       {
         "courseId": "kubernetes-cka",
         "taskId": "cka-w1-ai"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w1-ai"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-rag-engineering-w2-passline"
       },
       {
         "courseId": "ai-foundations",
@@ -3539,6 +3551,30 @@
       {
         "courseId": "kubernetes-cka",
         "taskId": "cka-local-llm-serving-w1-serve"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w1-concepts"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w1-ai"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w2-ai"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w3-ai"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w4-ai"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-local-llm-serving-w1-serve"
       },
       {
         "courseId": "ai-foundations",
@@ -3909,6 +3945,34 @@
       {
         "courseId": "kubernetes-cka",
         "taskId": "cka-ai-agents-mcp-w2-audit"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w1-ai"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w2-ai"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w3-ai"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w4-ai"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-rag-engineering-w1-retrieve"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-rag-engineering-w2-evalset"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-rag-engineering-w2-passline"
       },
       {
         "courseId": "ai-foundations",
@@ -4365,6 +4429,18 @@
         "taskId": "cka-w4-ai"
       },
       {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w2-ai"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w3-ai"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w4-ai"
+      },
+      {
         "courseId": "ai-foundations",
         "taskId": "aif-w1-local"
       },
@@ -4711,6 +4787,14 @@
         "taskId": "cka-w3-networkpolicy"
       },
       {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w2-dpu"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w3-network"
+      },
+      {
         "courseId": "azure-fundamentals",
         "taskId": "az-w1-infra"
       },
@@ -4745,6 +4829,10 @@
       {
         "courseId": "kubernetes-cka",
         "taskId": "cka-w4-troubleshoot"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w4-troubleshoot"
       },
       {
         "courseId": "azure-devops",
@@ -4817,6 +4905,10 @@
         "taskId": "cka-w4-handover"
       },
       {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w4-handover"
+      },
+      {
         "courseId": "ai-foundations",
         "taskId": "aif-w4-handover"
       },
@@ -4849,6 +4941,18 @@
       {
         "courseId": "kubernetes-cka",
         "taskId": "cka-local-llm-serving-w1-size"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w1-stack"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-local-llm-serving-w1-serve"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-local-llm-serving-w1-size"
       },
       {
         "courseId": "cissp",
@@ -4917,6 +5021,18 @@
         "taskId": "cka-local-llm-serving-w1-size"
       },
       {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w1-arch"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w2-sizing"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-local-llm-serving-w1-size"
+      },
+      {
         "courseId": "server-plus",
         "taskId": "srv-local-llm-serving-w1-size"
       },
@@ -4945,6 +5061,10 @@
       {
         "courseId": "docker-dca",
         "taskId": "dca-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-rag-engineering-w1-index"
       },
       {
         "courseId": "ai-foundations",
@@ -4991,6 +5111,18 @@
       {
         "courseId": "docker-dca",
         "taskId": "dca-rag-engineering-w2-evalset"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-rag-engineering-w1-index"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-rag-engineering-w1-retrieve"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-rag-engineering-w2-evalset"
       },
       {
         "courseId": "ai-foundations",
@@ -5213,6 +5345,84 @@
         "taskId": "awsd-ai-agents-mcp-w2-mcp"
       }
     ],
+    "comp.ai.model-components": [
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w1-concepts"
+      },
+      {
+        "courseId": "ai-foundations",
+        "taskId": "aif-w1-components"
+      },
+      {
+        "courseId": "aws-ai-practitioner",
+        "taskId": "awsai-w1-components"
+      }
+    ],
+    "comp.cloud.read-logs": [
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w2-smi"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w4-monitor"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w4-dev"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w4-dev"
+      }
+    ],
+    "comp.cloud.cost-estimate": [
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w2-sizing"
+      },
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w3-power"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w2-arch"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w2-arch"
+      }
+    ],
+    "comp.cloud.scale-set": [
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w3-scale"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w6-infra"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w6-infra"
+      }
+    ],
+    "comp.cloud.error-alert": [
+      {
+        "courseId": "nvidia-ai-infrastructure",
+        "taskId": "nca-w4-monitor"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w4-infra"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w4-infra"
+      }
+    ],
     "comp.ai.identify-workload": [
       {
         "courseId": "ai-foundations",
@@ -5221,16 +5431,6 @@
       {
         "courseId": "aws-ai-practitioner",
         "taskId": "awsai-w1-workloads"
-      }
-    ],
-    "comp.ai.model-components": [
-      {
-        "courseId": "ai-foundations",
-        "taskId": "aif-w1-components"
-      },
-      {
-        "courseId": "aws-ai-practitioner",
-        "taskId": "awsai-w1-components"
       }
     ],
     "comp.ai.responsible-ai": [
@@ -7073,16 +7273,6 @@
         "taskId": "aws-w1-secops"
       }
     ],
-    "comp.cloud.cost-estimate": [
-      {
-        "courseId": "azure-fundamentals",
-        "taskId": "az-w2-arch"
-      },
-      {
-        "courseId": "aws-cloud-practitioner",
-        "taskId": "aws-w2-arch"
-      }
-    ],
     "comp.cloud.launch-vm": [
       {
         "courseId": "azure-fundamentals",
@@ -7163,26 +7353,6 @@
         "taskId": "aws-w4-arch"
       }
     ],
-    "comp.cloud.error-alert": [
-      {
-        "courseId": "azure-fundamentals",
-        "taskId": "az-w4-infra"
-      },
-      {
-        "courseId": "aws-cloud-practitioner",
-        "taskId": "aws-w4-infra"
-      }
-    ],
-    "comp.cloud.read-logs": [
-      {
-        "courseId": "azure-fundamentals",
-        "taskId": "az-w4-dev"
-      },
-      {
-        "courseId": "aws-cloud-practitioner",
-        "taskId": "aws-w4-dev"
-      }
-    ],
     "comp.cloud.audit-trail": [
       {
         "courseId": "azure-fundamentals",
@@ -7241,16 +7411,6 @@
       {
         "courseId": "aws-solutions-architect",
         "taskId": "aws-w6-arch"
-      }
-    ],
-    "comp.cloud.scale-set": [
-      {
-        "courseId": "azure-administrator",
-        "taskId": "az-w6-infra"
-      },
-      {
-        "courseId": "aws-solutions-architect",
-        "taskId": "aws-w6-infra"
       }
     ],
     "comp.cloud.load-balancer": [

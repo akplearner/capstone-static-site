@@ -159,6 +159,15 @@ export const DELIVERABLE_SOPS: Record<string, Record<string, string[]>> = {
     cka_backup: ['sop.risk-register', 'sop.governance-report'],
     cka_handover: ['sop.handover', 'sop.chain-of-custody'],
   },
+  'nvidia-ai-infrastructure': {
+    nca_setup: ['sop.asset-inventory'],
+    nca_knowledge: ['sop.build-record'],
+    nca_hardware: ['sop.build-record'],
+    nca_datacenter: ['sop.build-record'],
+    nca_operations: ['sop.test-and-acceptance'],
+    nca_troubleshoot: ['sop.test-and-acceptance'],
+    nca_handover: ['sop.handover', 'sop.chain-of-custody'],
+  },
   'aws-ai-practitioner': {
     awsai_setup: ['sop.asset-inventory'],
     awsai_capabilities: ['sop.ai-system-map'],
@@ -304,6 +313,12 @@ export const TASK_SOPS: Record<string, Record<string, string[]>> = {
     'cka-w4-troubleshoot': ['sop.test-and-acceptance'],
     'cka-w4-backup': ['sop.risk-register'],
     'cka-w4-handover': ['sop.handover', 'sop.chain-of-custody'],
+  },
+  'nvidia-ai-infrastructure': {
+    'nca-w1-arch': ['sop.build-record'],
+    'nca-w2-sizing': ['sop.build-record'],
+    'nca-w4-troubleshoot': ['sop.test-and-acceptance'],
+    'nca-w4-handover': ['sop.handover', 'sop.chain-of-custody'],
   },
   'aws-ai-practitioner': {
     'awsai-w1-workloads': ['sop.ai-system-map'],

@@ -200,6 +200,15 @@ export const CATALOG: CatalogEntry[] = [
     blurb: 'Stand up and operate a Kubernetes cluster: bootstrap with kind, lock access with RBAC, deploy and schedule, expose and fence, persist, back up etcd and troubleshoot.',
   },
   {
+    id: 'nvidia-nca-aiio',
+    vendorId: 'nvidia',
+    certName: 'NCA-AIIO',
+    level: 'associate',
+    status: 'available',
+    courseId: 'nvidia-ai-infrastructure',
+    blurb: 'Plan and operate AI infrastructure: the essentials and the stack, a GPU read and sized, the fabric, power and cooling, monitoring and a scheduling fault — no GPU required.',
+  },
+  {
     id: 'aws-aif-c01',
     vendorId: 'aws',
     certName: 'AIF-C01',

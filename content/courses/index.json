@@ -690,6 +690,42 @@
           "ai-agents-mcp"
         ]
       }
+    },
+    {
+      "id": "nvidia-ai-infrastructure",
+      "title": "NVIDIA AI Infrastructure & Operations — the GPU Yard",
+      "version": 1,
+      "file": "nvidia-ai-infrastructure.json",
+      "weeks": 8,
+      "tasks": 25,
+      "steps": 44,
+      "deliverables": 8,
+      "procedures": 0,
+      "vendor": "NVIDIA",
+      "certification": "AI Infrastructure and Operations (NCA-AIIO)",
+      "level": "associate",
+      "examFeeUsd": 135,
+      "coveredWeight": 100,
+      "costOnceUsd": 0,
+      "costMonthlyUsd": 0,
+      "costTasksUsd": 0,
+      "skills": 17,
+      "tools": 7,
+      "standards": 3,
+      "controls": 10,
+      "sops": 6,
+      "tactics": 0,
+      "practices": 11,
+      "premium": {
+        "aiWeeks": 3,
+        "cyberWeeks": 0,
+        "otherWeeks": 0,
+        "aiTasks": 4,
+        "modules": [
+          "local-llm-serving",
+          "rag-engineering"
+        ]
+      }
     }
   ]
 }

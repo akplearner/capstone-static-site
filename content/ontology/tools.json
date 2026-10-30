@@ -1292,6 +1292,21 @@
       ]
     },
     {
+      "id": "tool.nvidia-smi",
+      "label": "nvidia-smi / DCGM",
+      "kind": "cli",
+      "aliases": [
+        "nvidia-smi",
+        "dcgmi",
+        "DCGM"
+      ],
+      "vendor": "NVIDIA",
+      "commands": [
+        "nvidia-smi",
+        "dcgmi"
+      ]
+    },
+    {
       "id": "tool.python",
       "label": "Python",
       "kind": "language",
@@ -2244,6 +2259,11 @@
     ],
     "kubernetes-cka": [
       "tool.kubernetes"
+    ],
+    "nvidia-ai-infrastructure": [
+      "tool.nvidia-smi",
+      "tool.python",
+      "tool.ollama"
     ],
     "aws-ai-practitioner": [
       "tool.ollama",

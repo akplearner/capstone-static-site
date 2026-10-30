@@ -202,6 +202,16 @@ export const RECORD_FIELDS: RecordField[] = [
   inf('cka_troubleshoot', 'attempts', 'theory', 'incident', 'Fault attempt'),
   fld('cka_backup', 'snapshot', 'resource', 'Backup'),
   fld('cka_handover', 'exposure', 'resource', 'Dependency'),
+  // nvidia-ai-infrastructure — at least half the forms feed the record.
+  fld('nca_setup', 'plan', 'host', 'Plan', { declares: true }),
+  fld('nca_hardware', 'chosen', 'resource', 'GPU chosen'),
+  fld('nca_datacenter', 'nodes', 'resource', 'Node count'),
+  inf('nca_datacenter', 'changes', 'change', 'change', 'Capacity change'),
+  inf('nca_operations', 'telemetry', 'gpu', 'resource', 'GPU telemetry'),
+  inf('nca_operations', 'telemetry', 'power', 'size', 'GPU power', { of: 'power', unit: 'W' }),
+  inf('nca_operations', 'rules', 'metric', 'rule', 'Alert rule'),
+  inf('nca_troubleshoot', 'attempts', 'theory', 'incident', 'Scheduling attempt'),
+  fld('nca_handover', 'capacity', 'resource', 'Capacity plan'),
   // aws-ai-practitioner — at least half the forms feed the record.
   fld('awsai_setup', 'assistant', 'host', 'Assistant', { declares: true }),
   inf('awsai_capabilities', 'features', 'feature', 'resource', 'Feature', { labelFrom: 'workload' }),

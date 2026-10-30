@@ -280,6 +280,7 @@ const LAB_PROFILES: Record<string, LabProfile> = {
   'ai-foundations': { fields: [], checks: [] },
   'docker-dca': { fields: [], checks: [] },
   'kubernetes-cka': { fields: [], checks: [] },
+  'nvidia-ai-infrastructure': { fields: [], checks: [] },
   'aws-ai-practitioner': { fields: [], checks: [] },
   // The bench: the machine's name and, from Week 3, its address.
   'a-plus': {

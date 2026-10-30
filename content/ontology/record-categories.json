@@ -568,6 +568,32 @@
       "communication",
       "projects"
     ],
+    "nca_setup": [
+      "configurations"
+    ],
+    "nca_knowledge": [
+      "architectures",
+      "configurations"
+    ],
+    "nca_hardware": [
+      "architectures",
+      "decisions"
+    ],
+    "nca_datacenter": [
+      "architectures",
+      "configurations"
+    ],
+    "nca_operations": [
+      "troubleshooting"
+    ],
+    "nca_troubleshoot": [
+      "troubleshooting",
+      "investigations"
+    ],
+    "nca_handover": [
+      "communication",
+      "projects"
+    ],
     "np_lab": [
       "configurations"
     ],
@@ -749,6 +775,12 @@
     },
     {
       "form": "cka_troubleshoot",
+      "group": "attempts",
+      "outcome": "result",
+      "resolved": "Fixed it"
+    },
+    {
+      "form": "nca_troubleshoot",
       "group": "attempts",
       "outcome": "result",
       "resolved": "Fixed it"
@@ -965,6 +997,11 @@
     },
     {
       "form": "cka_workloads",
+      "group": "changes",
+      "rollback": "rollback"
+    },
+    {
+      "form": "nca_datacenter",
       "group": "changes",
       "rollback": "rollback"
     },
