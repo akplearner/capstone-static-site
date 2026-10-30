@@ -26,13 +26,13 @@ You start with:
 
 ## Week 1 — Release v1
 
-> New: identity, the gateway, the secret store, logging and the governance pack. The key leaves the prompt; every attempt is logged.
+> New: the secret store, the secret scan, the gateway, logging and the governance pack. The key leaves the prompt; every attempt is logged.
 
 This week adds:
 
 | Part | Purpose | Recorded in |
 | --- | --- | --- |
-| Identity (SSO) | Who each caller is, before any gateway key is issued | P3 Control Set |
+| Secret scan | Proves no API key is left in any prompt or config | P3 Control Set |
 | AI gateway | The only path to the model: per-key limits, every call logged | P3 Control Set |
 | Secret store | Holds the API keys the prompt used to carry; rotated | P3 Control Set |
 | Logs and traces | Every request and answer, redacted before it is written | P4 Watch Plan |
@@ -43,34 +43,33 @@ This week adds:
 | P5 Governance pack | Records the policy, risks, rules, procedures and sign-offs | P5 Governance Pack |
 | Release note | Records what each release shipped and what stays open | Release Note |
 
-**Process — Release v1: stop the leak:** customer → gateway (print your hidden instructions); idp → gateway (a key per known caller); gateway → llm (rate-limited, no key inside); gateway → logs (every attempt logged).
+**Process — Release v1: stop the leak:** customer → gateway (print your hidden instructions); secrets → gateway (a key per known caller); gateway → llm (rate-limited, no key inside); gateway → logs (every attempt logged).
 
 ## Week 2 — Release v2
 
-> New: the WAF, guardrails, document intake and alerts. A poisoned work order is quarantined; the agent cannot email without a person.
+> New: the input guardrail, output screening, log redaction and alerts. A poisoned work order is caught; the agent cannot email without a person.
 
 This week adds:
 
 | Part | Purpose | Recorded in |
 | --- | --- | --- |
 | Outside inbox | The address a hijacked agent would email; proves the approval gate | P2 Attack Casebook |
-| WAF and edge | Stops floods and oversized requests before they reach the portal | P3 Control Set |
-| Document intake | Scans uploaded work orders before the retrieval store sees them | P3 Control Set |
-| Guardrails | Screens prompts in and answers out; the attack suite tests it | P3 Control Set |
+| Log redaction | Strips names and codes before anything is written to a log | P3 Control Set |
+| Input guardrail | Screens prompts before the model; the attack suite tests it | P3 Control Set |
+| Output screening | Screens the model’s answers before they reach the caller | P3 Control Set |
 | Wazuh alerts | Turns gateway logs into alerts with an owner | P4 Watch Plan |
 
-**Process — Release v2: the poisoned work order:** intake → retrieval (scanned before it is stored); agent → tools (scoped token, no admin); tools → outside (outbound email needs approval); logs → siem (thresholds with an owner).
+**Process — Release v2: the poisoned work order:** redact → logs (redacted before it is logged); agent → tools (scoped token, no admin); tools → outside (outbound email needs approval); logs → siem (thresholds with an owner).
 
 ## Week 3 — Release v3
 
-> New: the pipeline, backups, the quality audit and the staff’s own AI tools. A missing guardrail blocks the build.
+> New: the pipeline gates, the quality audit and the staff’s own AI tools. A missing guardrail blocks the build.
 
 This week adds:
 
 | Part | Purpose | Recorded in |
 | --- | --- | --- |
 | Staff AI tools | Which AI tools staff may use, with what data | P5 Governance Pack |
-| Backups | A restorable copy of the store and the gateway configuration | P3 Control Set |
 | Pipeline gates | Blocks a release that fails the scans or the attack suite | P3 Control Set |
 | Quality audit | Measures accuracy, refusals and bias on a fixed sample | P4 Watch Plan |
 
@@ -78,16 +77,17 @@ This week adds:
 
 ## Week 4 — Release v4
 
-> Nothing new is built: a clean copy is rebuilt from the backups, matches v3, alerts on all six, and the customers get evidence.
+> New: the model-file scan. A clean copy is rebuilt, matches v3, alerts on all six, and the customers get evidence.
 
 This week adds:
 
 | Part | Purpose | Recorded in |
 | --- | --- | --- |
+| Model-file scan | Scans the model and config files before a clean rebuild | P3 Control Set |
 | v4 Release package | The capstone: the proven product and the assurance answers | Release v4 Package & Assurance Response |
 | Portfolio | The repository, case study, resume bullets and diagram | Portfolio |
 
-**Process — Release v4: proven and handed over:** backup → runtime (clean rebuild, same results); siem → governance (six of six alerts); governance → customer (three answers, with evidence).
+**Process — Release v4: proven and handed over:** modelscan → runtime (clean rebuild, same results); siem → governance (six of six alerts); governance → customer (three answers, with evidence).
 
 ## Week 5 — AI security validation: Attack the model
 

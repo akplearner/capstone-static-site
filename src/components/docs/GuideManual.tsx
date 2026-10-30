@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { CloudManualArchitecture, CloudOverview } from '@/components/cloud/CloudOverview';
 import { useCourseProgress } from '@/components/course/useCourseProgress';
 import { WeekBuildDiagram } from '@/components/diagrams/WeekBuildDiagram';
+import { useArchBuilt } from '@/components/course/useArchBuilt';
 import { WeekAddsList } from '@/components/course/WeekAddsList';
 import { CaseLifecycleChain } from '@/components/diagrams/CaseLifecycleChain';
 import { RoleFlowDiagram } from '@/components/diagrams/RoleFlowDiagram';
@@ -69,6 +70,7 @@ export function GuideManual({ course, member }: { course: Course; member: Member
   const picture = course.topologyPicture ?? 'arch';
   const [teamBusiness, setTeamBusiness] = useState<{ name?: string; industry?: string }>({});
   const progress = useCourseProgress(course, member);
+  const built = useArchBuilt(course, member);
   // R99: the lab picture opens on the student's week and carries the week pills.
   const [pictureWeek, setPictureWeek] = useState(progress.activeWeek);
 
@@ -113,7 +115,7 @@ export function GuideManual({ course, member }: { course: Course; member: Member
           ) : (
             <>
               {picture === 'rack' && <TeamBusinessPicker courseId={course.id} teamId={member.teamId} onBusiness={setTeamBusiness} />}
-              <WeekBuildDiagram course={course} week={pictureWeek} controls onWeekChange={setPictureWeek} business={teamBusiness} highlightRole={member.role} />
+              <WeekBuildDiagram course={course} week={pictureWeek} controls onWeekChange={setPictureWeek} business={teamBusiness} highlightRole={member.role} built={built} />
               <WeekAddsList courseId={course.id} week={pictureWeek} />
             </>
           )}

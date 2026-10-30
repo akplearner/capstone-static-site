@@ -71,6 +71,7 @@ export function ArchDiagram({
   process,
   highlightRole,
   validation,
+  built,
 }: {
   /** Parts that arrive after this week are faded and tagged. Omitted = the whole system. */
   builtThrough?: number;
@@ -82,12 +83,17 @@ export function ArchDiagram({
   highlightRole?: string;
   /** R141: the validation layer (record counts and conflicts per form); instructor surfaces only. */
   validation?: ArchValidationOverlay;
+  /**
+   * R151: how much of each part the team has built, 0..1 (`archBuiltMap`). A learner-surface prop only;
+   * when omitted the picture is exactly as it was — calendar only, nothing marked built.
+   */
+  built?: Record<string, number>;
 } = {}) {
   const { ARCH, ARCH_BUILD } = archOf(useCourseDocument());
   const mid = useId().replace(/:/g, '');
   if (!ARCH || !ARCH_BUILD) return null;
   const arrives = ARCH_BUILD.arrives as Record<string, number>;
-  const built = (id: string) => builtThrough == null || (arrives[id] ?? 0) <= builtThrough;
+  const inBuild = (id: string) => builtThrough == null || (arrives[id] ?? 0) <= builtThrough;
   const lit = new Set(glow);
   const at = new Map(ARCH.nodes.map((n) => [n.id, n]));
   const anchor = (id: string) => {
@@ -101,6 +107,7 @@ export function ArchDiagram({
       title={ARCH.copy.title}
       howToRead={ARCH.copy.howToRead}
       legend={[
+        ...(built ? [{ label: 'built', color: 'var(--color-accent)' }, { label: 'this week', dash: true as const }, { label: 'later', dashed: true }] : []),
         ...ARCH.zones.filter((z) => !z.lane).map((z) => ({ label: z.label, color: `var(--color-w${z.tone})`, dashed: true })),
         ...edgeKinds.filter((k) => k !== 'traffic').map((k) => ({ label: EDGE_LABEL[k], dashed: true })),
       ]}
@@ -145,7 +152,7 @@ export function ArchDiagram({
           ARCH.edges.map((e) => {
             const a = anchor(e.from);
             const b = anchor(e.to);
-            if (!a || !b || !built(e.from) || !built(e.to)) return null;
+            if (!a || !b || !inBuild(e.from) || !inBuild(e.to)) return null;
             const d = Math.hypot(b.x - a.x, b.y - a.y) || 1;
             const ux = (b.x - a.x) / d;
             const uy = (b.y - a.y) / d;
@@ -165,10 +172,14 @@ export function ArchDiagram({
 
         {ARCH.nodes.map((n) => {
           const color = KIND_COLOR[n.kind] ?? 'var(--color-muted)';
-          const later = !built(n.id);
+          const later = !inBuild(n.id);
           const dimmed = !!highlightRole && !!n.role && n.role !== highlightRole;
           const { w, h } = size(n);
           const pill = n.kind === 'record';
+          // R151: how much of this part the team has built (undefined when the prop isn't passed, or the
+          // part has no owning work). ≥1 is built; 0<v<1 shows a thin progress bar; the glyph is a ✓.
+          const b = built ? built[n.id] : undefined;
+          const builtState = b == null ? undefined : b >= 1 ? 'true' : b > 0 ? 'partial' : undefined;
           return (
             <g
               key={n.id}
@@ -177,6 +188,7 @@ export function ArchDiagram({
               data-kind={n.kind}
               data-later={later ? 'true' : undefined}
               data-glow={lit.has(n.id) ? 'true' : undefined}
+              data-built={builtState}
             >
               <title>{n.purpose}</title>
               {lit.has(n.id) && (
@@ -188,11 +200,17 @@ export function ArchDiagram({
                 width={w}
                 height={h}
                 rx={pill ? 12 : 8}
-                fill="var(--color-panel)"
+                fill={builtState === 'true' ? 'var(--color-accent-soft)' : 'var(--color-panel)'}
                 stroke={color}
-                strokeWidth={pill ? 1.1 : 1.4}
+                strokeWidth={builtState === 'true' ? 2 : pill ? 1.1 : 1.4}
                 strokeDasharray={n.external ? '5 3' : undefined}
               />
+              {builtState === 'partial' && b != null && (
+                <rect x={n.x - w / 2} y={n.y + h / 2 - 3} width={w * b} height={3} rx={1.5} fill="var(--color-accent)" opacity={0.9} />
+              )}
+              {builtState === 'true' && (
+                <path d={`M ${n.x + w / 2 - 15} ${n.y - h / 2 + 8} l 3 3 l 6 -7`} fill="none" stroke="var(--color-accent)" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+              )}
               {pill ? (
                 <text x={n.x} y={n.y + 3.5} textAnchor="middle" fontSize="9" fontWeight="700" style={{ fill: 'var(--color-ink)' }}>
                   {n.label}

@@ -82,6 +82,14 @@ export interface ArchNode {
   role?: Role;
   /** The course-local week it arrives in. 0 = there from the start. */
   arrives: number;
+  /**
+   * R151 — the task(s) or step(s) that BUILD this part, so the picture can light it up as the team
+   * finishes the work. Each entry is a task id (`red-w3-attacks`) or a step key (`task::step`, the
+   * `teamProgress.stepKey` shape). A node is "built" when EVERY entry is complete by ANY teammate.
+   * Omitted on a part that has no single owning step (the lab platform itself); such a part never
+   * carries a completion tick, only its arrival. Record pills light from their filed form, not this.
+   */
+  builtBy?: string[];
 }
 
 export interface ArchEdge {

@@ -2175,6 +2175,27 @@ describe('R103 — build sheets', () => {
 });
 
 /**
+ * R151 — the picture lights up as the team builds it. The learner surfaces pass a team-wide `built`
+ * map (never the instructor's `validation` overlay); the map is built from the team's completion.
+ */
+describe('R151 — the picture marks what the team has built', () => {
+  it('the learner surfaces thread built, from the one team-wide hook', () => {
+    expect(code('src/components/diagrams/WeekBuildDiagram.tsx'), 'the arch picture takes built').toContain('built={built}');
+    expect(code('src/components/course/WeekVisualPanel.tsx')).toContain('built={built}');
+    for (const f of ['src/components/course/TasksTab.tsx', 'src/components/docs/GuideManual.tsx']) {
+      expect(code(f), `${f} reads the team build`).toContain('useArchBuilt(course, member)');
+    }
+    // The instructor's validation overlay never leaks onto a learner surface.
+    for (const f of ['src/components/course/WeekVisualPanel.tsx', 'src/components/diagrams/WeekBuildDiagram.tsx', 'src/components/course/TasksTab.tsx']) {
+      expect(code(f), `${f}: no validation overlay`).not.toContain('validation={');
+    }
+    // A part lights from any teammate's completion; a pill from a filed form; the map is pure.
+    expect(code('src/lib/archBuilt.ts')).toContain('export function archBuiltMap(');
+    expect(code('src/components/course/useArchBuilt.ts')).toContain('teamStepCompletions(');
+  });
+});
+
+/**
  * R104 — the overview standard (`docs/ARCHITECTURE.md` §6). The roles and
  * the hand-offs are read off the RACI and the chain and shown as one table
  * and one flow picture; three or more parallel things are a table, a flow is

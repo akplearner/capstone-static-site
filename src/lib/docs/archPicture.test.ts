@@ -13,9 +13,11 @@ import { ARCH as NVIDIAAIINFRA } from './nvidiaAiInfrastructureContent';
 import { ARCH as AWSSEC } from './awsSecuritySpecialtyContent';
 import { ARCH as NETPLUS } from './networkPlusContent';
 import { deliverablesForCourse } from './definitions';
+import { SEED_COURSES } from '../content/dto';
 import { LAB_HOSTS } from '../labTopology';
 import { socTopology } from '../labTopology';
 import type { ArchPicture } from './archPicture';
+import { stepKey } from '../teamProgress';
 
 /**
  * R103 — every architecture picture is a real one: every part says what it
@@ -109,3 +111,32 @@ describe.each(PICTURES)('R103 — the architecture picture of %s', (courseId, ar
     for (const z of arch.zones) expect(z.x + z.w <= arch.view.w && z.y + z.h <= arch.view.h, `zone ${z.id} leaves the view`).toBe(true);
   });
 });
+
+/**
+ * R151 — a part that lights up as the team builds it must name real work: every `builtBy` entry is a
+ * task id or a `task::step` key of that very course, so a renamed step can never silently stop lighting.
+ */
+const BUILT_COURSES = ['security-plus', 'cysa-plus', 'mssp', 'secai-plus'] as const;
+
+describe.each(BUILT_COURSES)('R151 — builtBy resolves to real work · %s', (courseId) => {
+  const course = SEED_COURSES.find((c) => c.id === courseId)!;
+  const arch = PICTURES.find(([id]) => id === courseId)![1];
+  const taskIds = new Set(course.tasks.map((t) => t.id));
+  const stepKeys = new Set(course.tasks.flatMap((t) => t.steps.map((st) => stepKey(t.id, st.id))));
+
+  it('every builtBy entry is a task or a task::step of the course', () => {
+    const bad: string[] = [];
+    for (const n of arch.nodes) {
+      for (const entry of n.builtBy ?? []) {
+        const ok = entry.includes('::') ? stepKeys.has(entry) : taskIds.has(entry);
+        if (!ok) bad.push(`${n.id}: ${entry}`);
+      }
+    }
+    expect(bad, bad.join('; ')).toEqual([]);
+  });
+
+  it('at least one part names the work that builds it', () => {
+    expect(arch.nodes.some((n) => (n.builtBy ?? []).length > 0)).toBe(true);
+  });
+});
+

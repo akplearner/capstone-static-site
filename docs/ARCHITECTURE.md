@@ -982,6 +982,16 @@ facet is a lens over the same KPI board the scores read, by a published registry
 (`docs/competencyFacets.ts`): the scores answer how ready, the facets what kind of professional, and a
 fact may inform both. `ArchDiagram` takes a props-only `validation` overlay that only the console passes.
 
+
+### The live build overlay (R151)
+
+The same architecture picture the instructor overlays with validation badges also lights up for the
+learner as the **team** builds it. Each part of the picture names the task or step that builds it
+(`ArchNode.builtBy`); `archBuiltMap` (pure) turns the team's live completion and filed forms into a
+0-to-1 map per part, and `useArchBuilt` feeds it from `teamStepCompletions` so one teammate's tick
+lights the part on every teammate's screen. It is a learner-only `built` prop, distinct from the
+instructor's `validation` overlay — the two never mix, and the picture with neither is unchanged.
+
 ### Longitudinal validation, the task timer and the Understanding score (R140)
 
 Did the learner retain what the team built, understand the decisions, and apply them later? From the middle graded

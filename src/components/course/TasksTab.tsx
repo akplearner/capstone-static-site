@@ -21,6 +21,7 @@ import { tintFor } from '@/components/quarry/art/palette';
 import { weekRarity } from '@/lib/rarity';
 import { TaskAboutPanel } from './TaskAboutPanel';
 import { WeekVisualPanel } from './WeekVisualPanel';
+import { useArchBuilt } from './useArchBuilt';
 import { TasksLayout, useSplitView } from './TasksLayout';
 import { TaskPane } from './TaskPane';
 import { WeekGateNote } from './WeekGateNote';
@@ -153,6 +154,7 @@ export function TasksTab({
   const lab = useLabAccess(course.id);
   const rarityOf = useRarity(course, member, taskStats, cohortCal);
   const split = useSplitView();
+  const built = useArchBuilt(course, member);
   // R118: the member's own verified checks, for the opened task's header.
   const evidence = useClientStore<Record<string, StepEvidence>>(() => (member ? evidenceRepo.getSteps(course.id, member.memberId) : EMPTY_OBJECT), EMPTY_OBJECT);
   const cut = tintFor(course.id).cut;
@@ -396,7 +398,7 @@ export function TasksTab({
           behind a gate note, because it is what the week is about. In the
           split view it is a thumbnail here only while the pane holds a task;
           otherwise the pane draws it at full size. */}
-      {!focusMode && (!split || paneTask) && <WeekVisualPanel course={course} week={viewWeek} />}
+      {!focusMode && (!split || paneTask) && <WeekVisualPanel course={course} week={viewWeek} built={built} />}
 
       {/* R116: a gate is a note, never a lock. The week below is open. */}
       {viewNote && <WeekGateNote course={course} unit={unit} note={viewNote} onGo={openAndScrollWeek} onGoTask={goToTaskId} />}
@@ -469,7 +471,7 @@ export function TasksTab({
       Focus mode — pick a task from the list.
     </div>
   ) : (
-    <WeekVisualPanel course={course} week={viewWeek} fill />
+    <WeekVisualPanel course={course} week={viewWeek} fill built={built} />
   );
 
   return (

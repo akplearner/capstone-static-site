@@ -45,6 +45,20 @@ computed by the console from `projectRecord` and `recordConflicts`; a learner's 
 passes it, so the picture a learner sees is unchanged. The contract on the picture itself does
 not change: parts, zones, edges and the records lane are as above.
 
+## The live build overlay (R151)
+
+A learner surface passes `ArchDiagram` (through `WeekBuildDiagram` and `WeekVisualPanel`) a `built`
+map: for each part, how much of it the team has built, from 0 to 1. A part names the work that builds
+it on `ArchNode.builtBy` — a task id, or a `task::step` key in the `teamProgress` shape — and a record
+pill lights from its filed form. `archBuiltMap` (`src/lib/archBuilt.ts`, pure) turns the team's live
+completion into the map, and `useArchBuilt` (`src/components/course/useArchBuilt.ts`) feeds it from
+`teamStepCompletions`, the per-task team percent, and the team's filed forms, live over the store — so
+a part lights on the picture as **any** teammate finishes the work. A fully built part gets a ✓ and an
+accent fill; a partial part gets a thin progress bar; and `WeekBuildDiagram` reads "`N of M parts built
+this week`". The map is **separate from the instructor's `validation` overlay**: a learner surface
+never passes `validation`, and with no `built` prop the picture is exactly the calendar-only one above.
+`archPicture.test.ts` proves every `builtBy` id resolves to a real task or step of its course.
+
 ## The weekly breakdown
 
 `partsOf(doc)` (`src/lib/content/read.ts`) returns the catalogue of any

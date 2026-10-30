@@ -12,7 +12,7 @@ You start with:
 | --- | --- | --- |
 | Kali Linux | The attacker you drive: recon, exploit, brute force | Incident Response Report |
 | Proxmox host | The hypervisor every pod and the SOC run on | Coverage Validation Report |
-| Lab edge | Keeps the lab off the internet; only the dashboard is reachable | Coverage Validation Report |
+| Lab edge | Only the agent ports and the dashboard are open; nothing else | Coverage Validation Report |
 | Ubuntu + DVWA + Suricata | The web target the attack chain lands on | Sensor Deployment Record |
 | Windows 11 + Sysmon | The endpoint whose process tree Sysmon records | Sensor Deployment Record |
 | Wazuh SOC | Manager, indexer and dashboard: every event, scored by a rule | SOC Monitoring Report |

@@ -19,7 +19,7 @@ import { WeekAddsList } from './WeekAddsList';
  * Expand opens it at full size. `fill` (the split view's empty pane) draws it
  * full-size with no toggle.
  */
-export function WeekVisualPanel({ course, week, fill = false }: { course: WeekBuildCourse; week: number; fill?: boolean }) {
+export function WeekVisualPanel({ course, week, fill = false, built }: { course: WeekBuildCourse; week: number; fill?: boolean; /** R151: team-wide build state, threaded to the picture. */ built?: Record<string, number> }) {
   const [expanded, setExpanded] = useState(false);
   const open = fill || expanded;
   return (
@@ -32,7 +32,7 @@ export function WeekVisualPanel({ course, week, fill = false }: { course: WeekBu
           </Chip>
         )}
       </div>
-      <WeekBuildDiagram course={course} week={week} compact={!open} />
+      <WeekBuildDiagram course={course} week={week} compact={!open} built={built} />
       {/* R103: the weekly breakdown — what arrives, what it is for, where it is recorded. */}
       <WeekAddsList courseId={course.id} week={week} limit={open ? undefined : 3} />
     </section>

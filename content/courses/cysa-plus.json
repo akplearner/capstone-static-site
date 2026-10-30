@@ -8223,14 +8223,14 @@
           {
             "id": "edge",
             "label": "Lab edge",
-            "sub": "bridge · NAT · no inbound",
+            "sub": "ufw 22 · 443 · 1514 · 1515",
             "kind": "firewall",
             "zone": "mgmt",
             "x": 100,
             "y": 290,
             "arrives": 0,
             "records": "cysa_coverage_validation",
-            "purpose": "Keeps the lab off the internet; only the dashboard is reachable"
+            "purpose": "Only the agent ports and the dashboard are open; nothing else"
           },
           {
             "id": "ubuntu",
@@ -8271,7 +8271,10 @@
             "arrives": 1,
             "records": "cysa_sensor_deployment",
             "role": "blue",
-            "purpose": "Ships logs and file changes from the pod to the manager"
+            "purpose": "Ships logs and file changes from the pod to the manager",
+            "builtBy": [
+              "cb-w1"
+            ]
           },
           {
             "id": "sensor-sysmon",
@@ -8284,7 +8287,10 @@
             "arrives": 1,
             "records": "cysa_sensor_deployment",
             "role": "blue",
-            "purpose": "Records every process start and connection on Windows"
+            "purpose": "Records every process start and connection on Windows",
+            "builtBy": [
+              "cr-w1"
+            ]
           },
           {
             "id": "sensor-suricata",
@@ -8297,7 +8303,10 @@
             "arrives": 1,
             "records": "cysa_sensor_deployment",
             "role": "blue",
-            "purpose": "Sees the attack on the wire and names the signature"
+            "purpose": "Sees the attack on the wire and names the signature",
+            "builtBy": [
+              "cg-w1"
+            ]
           },
           {
             "id": "firewall",
@@ -8310,7 +8319,10 @@
             "arrives": 4,
             "records": "cysa_incident_response",
             "role": "red",
-            "purpose": "The rule that cuts the attacker off once the case is confirmed"
+            "purpose": "The rule that cuts the attacker off once the case is confirmed",
+            "builtBy": [
+              "cr-w4"
+            ]
           },
           {
             "id": "soc",
@@ -8337,7 +8349,10 @@
             "arrives": 3,
             "records": "cysa_vulnerability_assessment",
             "role": "grc",
-            "purpose": "What the pod exposes, ranked, from the inside"
+            "purpose": "What the pod exposes, ranked, from the inside",
+            "builtBy": [
+              "cg-w3"
+            ]
           },
           {
             "id": "ti",
@@ -8350,7 +8365,10 @@
             "arrives": 2,
             "records": "cysa_ioc_database",
             "role": "grc",
-            "purpose": "Enriches an indicator before it goes in the database"
+            "purpose": "Enriches an indicator before it goes in the database",
+            "builtBy": [
+              "cr-w2"
+            ]
           },
           {
             "id": "cases",
@@ -8363,7 +8381,10 @@
             "arrives": 2,
             "records": "cysa_alert_triage",
             "role": "blue",
-            "purpose": "Every alert worked to true, false or escalate"
+            "purpose": "Every alert worked to true, false or escalate",
+            "builtBy": [
+              "cb-w2"
+            ]
           },
           {
             "id": "evidence",
@@ -9462,14 +9483,14 @@
           {
             "id": "edge",
             "label": "Lab edge",
-            "sub": "bridge · NAT · no inbound",
+            "sub": "ufw 22 · 443 · 1514 · 1515",
             "kind": "firewall",
             "zone": "mgmt",
             "x": 100,
             "y": 290,
             "arrives": 0,
             "records": "cysa_coverage_validation",
-            "purpose": "Keeps the lab off the internet; only the dashboard is reachable"
+            "purpose": "Only the agent ports and the dashboard are open; nothing else"
           },
           {
             "id": "ubuntu",
@@ -9510,7 +9531,10 @@
             "arrives": 1,
             "records": "cysa_sensor_deployment",
             "role": "blue",
-            "purpose": "Ships logs and file changes from the pod to the manager"
+            "purpose": "Ships logs and file changes from the pod to the manager",
+            "builtBy": [
+              "cb-w1"
+            ]
           },
           {
             "id": "sensor-sysmon",
@@ -9523,7 +9547,10 @@
             "arrives": 1,
             "records": "cysa_sensor_deployment",
             "role": "blue",
-            "purpose": "Records every process start and connection on Windows"
+            "purpose": "Records every process start and connection on Windows",
+            "builtBy": [
+              "cr-w1"
+            ]
           },
           {
             "id": "sensor-suricata",
@@ -9536,7 +9563,10 @@
             "arrives": 1,
             "records": "cysa_sensor_deployment",
             "role": "blue",
-            "purpose": "Sees the attack on the wire and names the signature"
+            "purpose": "Sees the attack on the wire and names the signature",
+            "builtBy": [
+              "cg-w1"
+            ]
           },
           {
             "id": "firewall",
@@ -9549,7 +9579,10 @@
             "arrives": 4,
             "records": "cysa_incident_response",
             "role": "red",
-            "purpose": "The rule that cuts the attacker off once the case is confirmed"
+            "purpose": "The rule that cuts the attacker off once the case is confirmed",
+            "builtBy": [
+              "cr-w4"
+            ]
           },
           {
             "id": "soc",
@@ -9576,7 +9609,10 @@
             "arrives": 3,
             "records": "cysa_vulnerability_assessment",
             "role": "grc",
-            "purpose": "What the pod exposes, ranked, from the inside"
+            "purpose": "What the pod exposes, ranked, from the inside",
+            "builtBy": [
+              "cg-w3"
+            ]
           },
           {
             "id": "ti",
@@ -9589,7 +9625,10 @@
             "arrives": 2,
             "records": "cysa_ioc_database",
             "role": "grc",
-            "purpose": "Enriches an indicator before it goes in the database"
+            "purpose": "Enriches an indicator before it goes in the database",
+            "builtBy": [
+              "cr-w2"
+            ]
           },
           {
             "id": "cases",
@@ -9602,7 +9641,10 @@
             "arrives": 2,
             "records": "cysa_alert_triage",
             "role": "blue",
-            "purpose": "Every alert worked to true, false or escalate"
+            "purpose": "Every alert worked to true, false or escalate",
+            "builtBy": [
+              "cb-w2"
+            ]
           },
           {
             "id": "evidence",

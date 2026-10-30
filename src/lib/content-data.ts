@@ -38,7 +38,7 @@ export const WEEKS: Record<number, Week> = {
   2: {
     number: 2,
     title: 'Hard Target',
-    theme: 'Authorized vulnerability assessment + SOC detection engineering',
+    theme: 'Authorized vulnerability assessment + detection engineering',
     objective: 'Perform vulnerability discovery and detection engineering',
     runs: 'Run 02',
     stage: 2,
@@ -929,8 +929,8 @@ const BLUE_TASKS: Task[] = [
     frameworks: ['NIST_CSF', 'CIS'],
     deliverables: ['UFW_Status.txt', 'Lynis_Report.txt', 'Windows_Firewall.txt', 'Defender_Status.txt'],
     prerequisites: ["GRC's Hardening_Standard.md (what controls to apply)", 'SSH access to Ubuntu and RDP access to Windows (Week 0)'],
-    definitionOfDone: ['Ubuntu: firewall on, fail2ban running, Lynis audited', 'Windows: Firewall on, Defender updated & scanned, SMBv1 disabled', 'Hardening_Checklist.txt reflects both hosts'],
-    handoff: [{ to: 'grc', artifact: 'Hardening_Checklist.txt', note: 'Report what was hardened on both hosts for the policy baseline.' }],
+    definitionOfDone: ['Ubuntu: firewall on, fail2ban running, Lynis audited', 'Windows: Firewall on, Defender updated & scanned, SMBv1 disabled', 'The Hardening Baseline form reflects both hosts'],
+    handoff: [{ to: 'grc', artifact: 'Hardening Baseline form', note: 'Report what was hardened on both hosts for the policy baseline.' }],
     learn: ['Linux hardening: UFW, fail2ban, Lynis', 'Windows hardening: Windows Firewall, Defender, disabling SMBv1', 'Working across two operating systems'],
     tools: ['ufw', 'fail2ban', 'lynis', 'PowerShell', 'Microsoft Defender'],
     steps: [
@@ -1188,7 +1188,7 @@ Enabled                         : True`,
     prerequisites: ["GRC's VM_SOP.md (what to monitor and how)", 'Week 1 hardening complete on both hosts'],
     definitionOfDone: ['A clean baseline.pcap is captured', 'Detection filters written', 'Windows security/PowerShell logging is enabled and exported'],
     handoff: [{ to: 'grc', artifact: 'Detection_Rules.txt', note: 'Report the detections now in place for the VM SOP.' }],
-    learn: ['Packet capture & baselining with tcpdump/Wireshark', 'Writing detection filters', 'Enabling & reading Windows Event Logs (Sysmon/PowerShell)'],
+    learn: ['Packet capture & baselining with tcpdump/Wireshark', 'Writing detection filters', 'Enabling & reading Windows Event Logs (PowerShell)'],
     tools: ['tcpdump', 'Wireshark', 'Windows Event Viewer', 'PowerShell (Get-WinEvent)'],
     steps: [
       {
@@ -1346,7 +1346,7 @@ Enabled                         : True`,
     deliverables: ['Attack_Pcap.pcap', 'Attack_Logs.txt', 'Containment_Actions.txt', 'Win_Detection.txt'],
     prerequisites: ["GRC's IR_Runbook.md (follow it during the breach)", 'Capture/logging from Week 2 running on both hosts'],
     definitionOfDone: ['Attack traffic captured', 'SQL-injection attempt detected in Linux logs', 'Windows failed-logon spike detected', 'Attacker contained on both hosts'],
-    handoff: [{ to: 'grc', artifact: 'Incident_Response.txt', note: 'Submit IR notes and logs for chain of custody.' }],
+    handoff: [{ to: 'grc', artifact: 'Containment_Actions.txt + Attack_Logs.txt', note: 'Submit the containment actions and attack logs for chain of custody.' }],
     learn: ['Live triage from packets and logs', 'Detecting brute force on Windows (Event ID 4625)', 'Containment on Linux (UFW) and Windows (firewall rule)'],
     tools: ['tcpdump', 'tail/grep', 'PowerShell (Get-WinEvent)', 'Windows Firewall'],
     steps: [
@@ -1596,7 +1596,7 @@ const GRC_TASKS: Task[] = [
     objective: 'Log Week 1 artifacts into the chain-of-custody register, map them to NIST CSF + CIS, and issue a Hardening Standard to Blue.',
     frameworks: ['NIST_CSF', 'CIS', 'STRIDE'],
     deliverables: ['02_Asset_Inventory.csv', '09_Framework_Mapping.md', '10_Lab_Security_Policy.md', '11_Hardening_Standard.md'],
-    prerequisites: ["Red's Asset_List.md and Recon_Findings.md", "Blue's Hardening_Checklist.txt and UFW_Status.txt", 'Your Rules_of_Engagement.md from Week 0'],
+    prerequisites: ["Red's Asset_List.md and Recon_Findings.md", "Blue's Hardening Baseline form and UFW_Status.txt", 'Your Rules_of_Engagement.md from Week 0'],
     definitionOfDone: ['All four Week 1 files logged + hashed in Artifact_Register.md', 'Findings mapped to NIST CSF + CIS in Framework_Mapping.md', 'Lab_Security_Policy_v1.0.md drafted', 'Hardening_Standard.md handed to Blue'],
     handoff: [
       { to: 'blue', artifact: 'Hardening_Standard.md', note: 'The OS-specific controls Blue must implement on both hosts.' },
@@ -1911,6 +1911,7 @@ export const STEP_DELIVERABLES: Record<string, string> = {
   'blue-w3-s4': 'Containment_Actions.txt',
   'blue-w3-s5': 'Win_Detection.txt',
   'grc-w3-s2': 'Evidence_Hashes.txt',
+  'red-w3-msf': 'Metasploit_Proof.txt',
 };
 
 // All deliverable filenames expected from a role for a given week.

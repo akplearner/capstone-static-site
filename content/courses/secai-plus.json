@@ -6881,7 +6881,7 @@
         "copy": {
           "title": "The Service Hub’s AI — what you attack, defend, watch and govern",
           "howToRead": "Left: the people who use it. Middle: the edge, identity, app, gateway and agent your team controls. Right: the AI services, the retrieval store and the backups behind them. Bottom: the logs, alerts, pipeline and audit that prove it, and the records that document it. Every attack case and control row names one of these boxes.",
-          "footer": "Lab stand-in until the starter kit ships: a small open-weight model in Ollama, Chroma, LiteLLM as the gateway, Keycloak for identity, restic for backups."
+          "footer": "Lab stand-in until the starter kit ships: a small open-weight model in Ollama, Chroma for retrieval, LiteLLM as the gateway, OpenBao for secrets, LLM Guard and Presidio for the guardrails."
         },
         "view": {
           "w": 960,
@@ -6991,17 +6991,20 @@
             "purpose": "The address a hijacked agent would email; proves the approval gate"
           },
           {
-            "id": "waf",
-            "label": "WAF and edge",
-            "sub": "TLS · size and rate limits",
-            "kind": "firewall",
+            "id": "gitleaks",
+            "label": "Secret scan",
+            "sub": "Gitleaks",
+            "kind": "control",
             "zone": "app",
             "x": 275,
             "y": 100,
-            "arrives": 2,
+            "arrives": 1,
             "records": "secai_control_set",
             "role": "defender",
-            "purpose": "Stops floods and oversized requests before they reach the portal"
+            "purpose": "Proves no API key is left in any prompt or config",
+            "builtBy": [
+              "sa-w1-def"
+            ]
           },
           {
             "id": "portal",
@@ -7016,22 +7019,25 @@
             "purpose": "Where customers and technicians ask the assistant"
           },
           {
-            "id": "idp",
-            "label": "Identity (SSO)",
-            "sub": "Keycloak · MFA · key owner",
-            "kind": "idp",
+            "id": "modelscan",
+            "label": "Model-file scan",
+            "sub": "ModelScan · Prowler",
+            "kind": "control",
             "zone": "app",
             "x": 615,
             "y": 100,
-            "arrives": 1,
+            "arrives": 4,
             "records": "secai_control_set",
             "role": "defender",
-            "purpose": "Who each caller is, before any gateway key is issued"
+            "purpose": "Scans the model and config files before a clean rebuild",
+            "builtBy": [
+              "sa-w4-def"
+            ]
           },
           {
-            "id": "intake",
-            "label": "Document intake",
-            "sub": "scan · quarantine · label",
+            "id": "redact",
+            "label": "Log redaction",
+            "sub": "Microsoft Presidio",
             "kind": "control",
             "zone": "app",
             "x": 275,
@@ -7039,7 +7045,10 @@
             "arrives": 2,
             "records": "secai_control_set",
             "role": "defender",
-            "purpose": "Scans uploaded work orders before the retrieval store sees them"
+            "purpose": "Strips names and codes before anything is written to a log",
+            "builtBy": [
+              "sa-w2-def"
+            ]
           },
           {
             "id": "gateway",
@@ -7052,12 +7061,15 @@
             "arrives": 1,
             "records": "secai_control_set",
             "role": "defender",
-            "purpose": "The only path to the model: per-key limits, every call logged"
+            "purpose": "The only path to the model: per-key limits, every call logged",
+            "builtBy": [
+              "sa-w1-def"
+            ]
           },
           {
             "id": "guardrail",
-            "label": "Guardrails",
-            "sub": "input · output screening",
+            "label": "Input guardrail",
+            "sub": "LLM Guard",
             "kind": "control",
             "zone": "app",
             "x": 615,
@@ -7065,7 +7077,10 @@
             "arrives": 2,
             "records": "secai_control_set",
             "role": "defender",
-            "purpose": "Screens prompts in and answers out; the attack suite tests it"
+            "purpose": "Screens prompts before the model; the attack suite tests it",
+            "builtBy": [
+              "sa-w2-def"
+            ]
           },
           {
             "id": "agent",
@@ -7094,7 +7109,7 @@
           {
             "id": "secrets",
             "label": "Secret store",
-            "sub": "keys out of prompts",
+            "sub": "OpenBao · keys out of prompts",
             "kind": "identity",
             "zone": "app",
             "x": 615,
@@ -7102,7 +7117,10 @@
             "arrives": 1,
             "records": "secai_control_set",
             "role": "defender",
-            "purpose": "Holds the API keys the prompt used to carry; rotated"
+            "purpose": "Holds the API keys the prompt used to carry; rotated",
+            "builtBy": [
+              "sa-w1-def"
+            ]
           },
           {
             "id": "runtime",
@@ -7127,7 +7145,10 @@
             "arrives": 3,
             "records": "secai_governance_pack",
             "role": "governance",
-            "purpose": "Which AI tools staff may use, with what data"
+            "purpose": "Which AI tools staff may use, with what data",
+            "builtBy": [
+              "sa-w3-gov"
+            ]
           },
           {
             "id": "llm",
@@ -7166,17 +7187,20 @@
             "purpose": "Rates equipment failure; its training data is of unknown origin"
           },
           {
-            "id": "backup",
-            "label": "Backups",
-            "sub": "retrieval store · configs",
-            "kind": "backup",
+            "id": "outputguard",
+            "label": "Output screening",
+            "sub": "LLM Guard",
+            "kind": "control",
             "zone": "ai",
             "x": 835,
             "y": 310,
-            "arrives": 3,
+            "arrives": 2,
             "records": "secai_control_set",
             "role": "defender",
-            "purpose": "A restorable copy of the store and the gateway configuration"
+            "purpose": "Screens the model’s answers before they reach the caller",
+            "builtBy": [
+              "sa-w2-def"
+            ]
           },
           {
             "id": "logs",
@@ -7189,7 +7213,10 @@
             "arrives": 1,
             "records": "secai_watch_plan",
             "role": "defender",
-            "purpose": "Every request and answer, redacted before it is written"
+            "purpose": "Every request and answer, redacted before it is written",
+            "builtBy": [
+              "sa-w1-def"
+            ]
           },
           {
             "id": "siem",
@@ -7202,7 +7229,10 @@
             "arrives": 2,
             "records": "secai_watch_plan",
             "role": "defender",
-            "purpose": "Turns gateway logs into alerts with an owner"
+            "purpose": "Turns gateway logs into alerts with an owner",
+            "builtBy": [
+              "sa-w3-def"
+            ]
           },
           {
             "id": "pipeline",
@@ -7215,7 +7245,10 @@
             "arrives": 3,
             "records": "secai_control_set",
             "role": "defender",
-            "purpose": "Blocks a release that fails the scans or the attack suite"
+            "purpose": "Blocks a release that fails the scans or the attack suite",
+            "builtBy": [
+              "sa-w3-def"
+            ]
           },
           {
             "id": "audit",
@@ -7228,7 +7261,10 @@
             "arrives": 3,
             "records": "secai_watch_plan",
             "role": "governance",
-            "purpose": "Measures accuracy, refusals and bias on a fixed sample"
+            "purpose": "Measures accuracy, refusals and bias on a fixed sample",
+            "builtBy": [
+              "sa-w3-gov"
+            ]
           },
           {
             "id": "r_lab",
@@ -7370,9 +7406,9 @@
             "label": "reads"
           },
           {
-            "from": "idp",
+            "from": "secrets",
             "to": "gateway",
-            "label": "who the caller is",
+            "label": "keys, not in prompts",
             "kind": "trust"
           },
           {
@@ -7386,12 +7422,6 @@
             "to": "siem",
             "label": "alerts",
             "kind": "log"
-          },
-          {
-            "from": "retrieval",
-            "to": "backup",
-            "label": "nightly",
-            "kind": "backup"
           }
         ]
       },
@@ -7401,10 +7431,10 @@
           "technician": 0,
           "staff": 0,
           "outside": 2,
-          "waf": 2,
+          "gitleaks": 1,
           "portal": 0,
-          "idp": 1,
-          "intake": 2,
+          "modelscan": 4,
+          "redact": 2,
           "gateway": 1,
           "guardrail": 2,
           "agent": 0,
@@ -7415,7 +7445,7 @@
           "llm": 0,
           "retrieval": 0,
           "predictor": 0,
-          "backup": 3,
+          "outputguard": 2,
           "logs": 1,
           "siem": 2,
           "pipeline": 3,
@@ -7460,7 +7490,7 @@
                 "label": "print your hidden instructions"
               },
               {
-                "from": "idp",
+                "from": "secrets",
                 "to": "gateway",
                 "label": "a key per known caller"
               },
@@ -7480,9 +7510,9 @@
             "title": "Release v2: the poisoned work order",
             "steps": [
               {
-                "from": "intake",
-                "to": "retrieval",
-                "label": "scanned before it is stored"
+                "from": "redact",
+                "to": "logs",
+                "label": "redacted before it is logged"
               },
               {
                 "from": "agent",
@@ -7530,7 +7560,7 @@
             "title": "Release v4: proven and handed over",
             "steps": [
               {
-                "from": "backup",
+                "from": "modelscan",
                 "to": "runtime",
                 "label": "clean rebuild, same results"
               },
@@ -7549,10 +7579,10 @@
         },
         "captions": {
           "0": "The product as found: portal, agent and tools on one runtime, the models and the retrieval store, every planted weakness in place.",
-          "1": "New: identity, the gateway, the secret store, logging and the governance pack. The key leaves the prompt; every attempt is logged.",
-          "2": "New: the WAF, guardrails, document intake and alerts. A poisoned work order is quarantined; the agent cannot email without a person.",
-          "3": "New: the pipeline, backups, the quality audit and the staff’s own AI tools. A missing guardrail blocks the build.",
-          "4": "Nothing new is built: a clean copy is rebuilt from the backups, matches v3, alerts on all six, and the customers get evidence."
+          "1": "New: the secret store, the secret scan, the gateway, logging and the governance pack. The key leaves the prompt; every attempt is logged.",
+          "2": "New: the input guardrail, output screening, log redaction and alerts. A poisoned work order is caught; the agent cannot email without a person.",
+          "3": "New: the pipeline gates, the quality audit and the staff’s own AI tools. A missing guardrail blocks the build.",
+          "4": "New: the model-file scan. A clean copy is rebuilt, matches v3, alerts on all six, and the customers get evidence."
         }
       }
     },
@@ -7587,7 +7617,7 @@
         "week": 1,
         "builtThrough": 1,
         "highlight": [
-          "idp",
+          "gitleaks",
           "gateway",
           "secrets",
           "logs",
@@ -7607,7 +7637,7 @@
               "label": "print your hidden instructions"
             },
             {
-              "from": "idp",
+              "from": "secrets",
               "to": "gateway",
               "label": "a key per known caller"
             },
@@ -7623,25 +7653,25 @@
             }
           ]
         },
-        "caption": "New: identity, the gateway, the secret store, logging and the governance pack. The key leaves the prompt; every attempt is logged."
+        "caption": "New: the secret store, the secret scan, the gateway, logging and the governance pack. The key leaves the prompt; every attempt is logged."
       },
       {
         "week": 2,
         "builtThrough": 2,
         "highlight": [
           "outside",
-          "waf",
-          "intake",
+          "redact",
           "guardrail",
+          "outputguard",
           "siem"
         ],
         "process": {
           "title": "Release v2: the poisoned work order",
           "steps": [
             {
-              "from": "intake",
-              "to": "retrieval",
-              "label": "scanned before it is stored"
+              "from": "redact",
+              "to": "logs",
+              "label": "redacted before it is logged"
             },
             {
               "from": "agent",
@@ -7660,14 +7690,13 @@
             }
           ]
         },
-        "caption": "New: the WAF, guardrails, document intake and alerts. A poisoned work order is quarantined; the agent cannot email without a person."
+        "caption": "New: the input guardrail, output screening, log redaction and alerts. A poisoned work order is caught; the agent cannot email without a person."
       },
       {
         "week": 3,
         "builtThrough": 3,
         "highlight": [
           "aitools",
-          "backup",
           "pipeline",
           "audit"
         ],
@@ -7696,12 +7725,13 @@
             }
           ]
         },
-        "caption": "New: the pipeline, backups, the quality audit and the staff’s own AI tools. A missing guardrail blocks the build."
+        "caption": "New: the pipeline gates, the quality audit and the staff’s own AI tools. A missing guardrail blocks the build."
       },
       {
         "week": 4,
         "builtThrough": 4,
         "highlight": [
+          "modelscan",
           "r_package",
           "r_portfolio"
         ],
@@ -7709,7 +7739,7 @@
           "title": "Release v4: proven and handed over",
           "steps": [
             {
-              "from": "backup",
+              "from": "modelscan",
               "to": "runtime",
               "label": "clean rebuild, same results"
             },
@@ -7725,7 +7755,7 @@
             }
           ]
         },
-        "caption": "Nothing new is built: a clean copy is rebuilt from the backups, matches v3, alerts on all six, and the customers get evidence."
+        "caption": "New: the model-file scan. A clean copy is rebuilt, matches v3, alerts on all six, and the customers get evidence."
       },
       {
         "week": 5,

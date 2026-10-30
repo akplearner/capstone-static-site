@@ -28,6 +28,7 @@ the record. `src/lib/page-shape.test.ts` fails if an id is removed from the tabl
 | F19 | The hidden layer made visible to the instructor: the record console (record, history, conflicts, answers, per-member documents, the picture with its validation overlay) and four published documents (project architecture, project infrastructure, skill validation, competency facets), the member export carrying the last two | R141 | Done |
 | F20 | The acknowledgement gate never shows a returning account the first-time welcome: the reads filter by the account (an instructor no longer passes on other people's acceptances), a failed or session-less read is a Retry screen, a session fault refreshes instead of signing out, a network fault queues the acceptance for the next load, and the Week-0 acknowledgement and every other personal-state key are merged on the server (0027) so one device cannot erase another's | R149 | Done |
 | F21 | A student may leave a team (what they earned stays on the account, the course work starts over, the team's documents stay with the team) and may join this month's or next month's class session — never an earlier one, and never one behind a session they have already been in; the rule is the database's (0028: a floor table only triggers write, a guard on every join; instructors exempt) as well as the browser's | R150 | Done |
+| F22 | The Security+ lab picture draws what the tasks actually build (DVWA in Docker, ufw/fail2ban/Lynis, Defender/SMBv1, tcpdump/Wireshark, Windows 4625, the web-log watch and the ufw-deny containment, the snapshot and the hypervisor) with the correct arrival weeks, and it lights up as the team completes the work; the CySA+, MSSP and SecAI+ pictures name only real tools; Security+ task text no longer cites files nothing produces | R151 | Done |
 
 Order of the rounds: the field bug first (it blocks reporting and links), then the link size (the link
 fails today), then the earned-skills ledger (the record and the PDF both read it), then the live and
@@ -253,3 +254,33 @@ page-shape pins (`joinableCohorts(`, `switchCohortTeam(`, bank-before-reset) and
 (forward ok, backward refused, two months out refused, mismatched team id refused, floor outlives the delete, rejoin
 below the floor refused, a closed session still editable in place, Bob never reads Ada's floor nor writes the table,
 Ivy places anyone).
+
+## F22 — the SOC pictures match the build, and light up as it is done (R151, done)
+
+**What.** The owner's report: the Security+ diagram showed tools no task uses (a Wazuh SIEM, rsyslog
+forwarding, OpenVAS) and missed what the tasks really build, and nothing in any picture reflected
+progress. The Security+ `ARCH` (`src/lib/docs/securityContent.ts`) is redrawn in three builder zones —
+Red builds the attacker (Kali, OSINT, the nmap/nikto scan, the authorized attacks), Blue builds the
+targets (the Ubuntu web server and DVWA in Docker, ufw/fail2ban/Lynis, the Windows firewall, Defender
+and SMBv1, Windows logon auditing, the packet capture and detection filters, the web-log watch and the
+ufw-deny containment, the pre-hardening snapshot) and GRC keeps the proof (the workspace, the risk
+scoring, the evidence hashes, the final briefing) — with the arrival weeks fixed (the snapshot is Week
+0, the Linux hardening is a Week-1 host control). CySA+, MSSP and SecAI+ had the same kind of
+fictitious nodes replaced with the real stack (CySA+ edge ports; MSSP host controls, audit logging,
+access policy, nmap/testssl scanner and the Burp/sqlmap retest evidence; SecAI+ Gitleaks, OpenBao,
+LLM Guard, Presidio and ModelScan/Prowler). Security+ task text that cited files nothing produces was
+corrected (`src/lib/content-data.ts`).
+
+**Wired.** Live completion: `ArchNode.builtBy` names the work that builds a part; `archBuiltMap`
+(`src/lib/archBuilt.ts`, pure) turns the team's completion and filed forms into a 0-to-1 map;
+`useArchBuilt` (`src/components/course/useArchBuilt.ts`) feeds it live from `teamStepCompletions`, so a
+part lights on the picture as ANY teammate finishes it. `ArchDiagram` gains a `built` prop (a ✓ and an
+accent fill when built, a progress bar when partial, a built/this week/later legend) threaded through
+`WeekBuildDiagram` and `WeekVisualPanel` from `TasksTab` and `GuideManual`; the status reads "N of M
+parts built this week". It is a learner-only prop, never the instructor's `validation` overlay.
+
+**Verified.** `archBuilt.test.ts`; the `ArchDiagram` and `WeekBuildDiagram` built-overlay tests; the
+`archPicture.test.ts` contract that every `builtBy` id resolves to a real task or step; the redrawn
+pictures still pass the archPicture, weekVisuals and content-integrity suites; the regenerated
+`content/courses/{security-plus,cysa-plus,mssp,secai-plus}.json` and build sheets; page-shape pins for
+the threaded `built` and the absent `validation`.

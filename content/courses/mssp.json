@@ -4657,30 +4657,36 @@
             "purpose": "The systems the contract protects and the pentest targets"
           },
           {
-            "id": "idp",
-            "label": "Client identity",
-            "sub": "Entra ID · MFA",
-            "kind": "idp",
+            "id": "access",
+            "label": "Access policy",
+            "sub": "least privilege · review",
+            "kind": "identity",
             "zone": "client",
             "x": 445,
             "y": 100,
             "arrives": 2,
             "records": "mssp_control_matrix",
             "role": "blue",
-            "purpose": "One account per person; MFA is the first control implemented"
+            "purpose": "Who may log in to each system, with what rights",
+            "builtBy": [
+              "mb-w2"
+            ]
           },
           {
-            "id": "edr",
-            "label": "EDR agents",
-            "sub": "every endpoint and server",
-            "kind": "monitor",
+            "id": "hostctl",
+            "label": "Host controls",
+            "sub": "ufw · auditctl",
+            "kind": "control",
             "zone": "client",
             "x": 105,
             "y": 170,
             "arrives": 2,
             "records": "mssp_control_matrix",
             "role": "blue",
-            "purpose": "Sees process activity on every host and feeds the SIEM"
+            "purpose": "The baseline firewall and access rules on each host",
+            "builtBy": [
+              "mb-w2"
+            ]
           },
           {
             "id": "client-edge",
@@ -4696,22 +4702,25 @@
             "purpose": "The boundary, and the one path the client’s logs take out"
           },
           {
-            "id": "backup",
-            "label": "Backup target",
-            "sub": "offline copy · restore test",
-            "kind": "backup",
+            "id": "auditlog",
+            "label": "Audit logging",
+            "sub": "auditd · journalctl",
+            "kind": "monitor",
             "zone": "client",
             "x": 445,
             "y": 170,
-            "arrives": 2,
+            "arrives": 0,
             "records": "mssp_control_matrix",
             "role": "blue",
-            "purpose": "The copy the recovery promise in the contract rests on"
+            "purpose": "Every login and change logged and shipped to the SIEM",
+            "builtBy": [
+              "mb-w0"
+            ]
           },
           {
             "id": "scanner",
             "label": "Vulnerability scanner",
-            "sub": "CIS gap · monthly scan",
+            "sub": "nmap · testssl.sh · Lynis",
             "kind": "scanner",
             "zone": "client",
             "x": 105,
@@ -4719,7 +4728,11 @@
             "arrives": 1,
             "records": "mssp_gap_assessment",
             "role": "red",
-            "purpose": "Measures the estate against the baseline, scored"
+            "purpose": "Measures the estate against the baseline, scored",
+            "builtBy": [
+              "mr-w1",
+              "mb-w1"
+            ]
           },
           {
             "id": "siem",
@@ -4732,7 +4745,10 @@
             "arrives": 2,
             "records": "mssp_detection_rules",
             "role": "blue",
-            "purpose": "Collects the client’s logs and keeps them for the contract term"
+            "purpose": "Collects the client’s logs and keeps them for the contract term",
+            "builtBy": [
+              "mb-w0"
+            ]
           },
           {
             "id": "detections",
@@ -4745,7 +4761,10 @@
             "arrives": 3,
             "records": "mssp_detection_rules",
             "role": "blue",
-            "purpose": "Turns the client’s logs into alerts worth a ticket"
+            "purpose": "Turns the client’s logs into alerts worth a ticket",
+            "builtBy": [
+              "mb-w3"
+            ]
           },
           {
             "id": "analysts",
@@ -4770,7 +4789,10 @@
             "arrives": 3,
             "records": "mssp_metrics",
             "role": "blue",
-            "purpose": "Every alert timed from raise to close: MTTD and MTTR"
+            "purpose": "Every alert timed from raise to close: MTTD and MTTR",
+            "builtBy": [
+              "mb-w4"
+            ]
           },
           {
             "id": "evidence",
@@ -4783,20 +4805,26 @@
             "arrives": 4,
             "records": "mssp_evidence_packet",
             "role": "grc",
-            "purpose": "Hashed copies of every artefact the packet cites"
+            "purpose": "Hashed copies of every artefact the packet cites",
+            "builtBy": [
+              "mg-w4b"
+            ]
           },
           {
-            "id": "ti",
-            "label": "Threat-intel feeds",
-            "sub": "IOCs tuned to the client",
-            "kind": "data",
+            "id": "retest",
+            "label": "Retest evidence",
+            "sub": "Burp · sqlmap · hashed",
+            "kind": "evidence",
             "zone": "mssp",
             "x": 815,
             "y": 240,
             "arrives": 3,
-            "records": "mssp_detection_rules",
-            "role": "blue",
-            "purpose": "Indicators the rules match against"
+            "records": "mssp_retest",
+            "role": "red",
+            "purpose": "Each finding proved, fixed and proved again, hashed",
+            "builtBy": [
+              "mr-w3"
+            ]
           },
           {
             "id": "pentester",
@@ -4810,7 +4838,10 @@
             "arrives": 1,
             "records": "mssp_retest",
             "role": "red",
-            "purpose": "Proves the gaps, then proves the fixes on retest"
+            "purpose": "Proves the gaps, then proves the fixes on retest",
+            "builtBy": [
+              "mr-w1"
+            ]
           },
           {
             "id": "auditor",
@@ -4971,9 +5002,9 @@
             "kind": "log"
           },
           {
-            "from": "edr",
+            "from": "auditlog",
             "to": "siem",
-            "label": "endpoint events",
+            "label": "login + change events",
             "kind": "log"
           },
           {
@@ -4988,15 +5019,15 @@
             "label": "alerts → tickets → reports"
           },
           {
-            "from": "servers",
-            "to": "backup",
-            "label": "nightly",
-            "kind": "backup"
+            "from": "hostctl",
+            "to": "servers",
+            "label": "baseline",
+            "kind": "trust"
           },
           {
-            "from": "idp",
-            "to": "endpoints",
-            "label": "MFA",
+            "from": "access",
+            "to": "servers",
+            "label": "least privilege",
             "kind": "trust"
           }
         ]
@@ -5005,17 +5036,17 @@
         "arrives": {
           "endpoints": 0,
           "servers": 0,
-          "idp": 2,
-          "edr": 2,
+          "access": 2,
+          "hostctl": 2,
           "client-edge": 0,
-          "backup": 2,
+          "auditlog": 0,
           "scanner": 1,
           "siem": 2,
           "detections": 3,
           "analysts": 0,
           "tickets": 3,
           "evidence": 4,
-          "ti": 3,
+          "retest": 3,
           "pentester": 1,
           "auditor": 4,
           "r_engagement": 0,
@@ -5071,12 +5102,12 @@
               {
                 "from": "r_matrix",
                 "to": "servers",
-                "label": "hardening · MFA · logging"
+                "label": "hardening · access · logging"
               },
               {
-                "from": "idp",
-                "to": "endpoints",
-                "label": "MFA everywhere"
+                "from": "access",
+                "to": "servers",
+                "label": "least privilege"
               },
               {
                 "from": "client-edge",
@@ -5128,9 +5159,9 @@
         },
         "captions": {
           "0": "The engagement at signing: the client’s endpoints and servers, the edge that will forward their logs, your analysts and the signed scope.",
-          "1": "New: the pentester, the vulnerability scanner, the SoA and the gap assessment. The gap says what the client has and lacks.",
-          "2": "New: client identity with MFA, EDR, the backup target and the SIEM. The client’s logs reach your SOC; the control matrix is live.",
-          "3": "New: detection rules, the ticket queue and threat-intel feeds. The pentest proves the controls; every alert runs on an SLA clock.",
+          "1": "New: the pentester, the nmap/testssl scanner, the SoA and the gap assessment. The gap says what the client has and lacks.",
+          "2": "New: host controls, the access policy and the SIEM. The client’s audit logs reach your SOC; the control matrix is live.",
+          "3": "New: detection rules, the ticket queue and the retest evidence. The pentest proves the controls; every alert runs on an SLA clock.",
           "4": "New: the evidence vault and the auditor. MTTD and MTTR are measured and the audit packet is handed over."
         }
       }
@@ -5215,30 +5246,36 @@
             "purpose": "The systems the contract protects and the pentest targets"
           },
           {
-            "id": "idp",
-            "label": "Client identity",
-            "sub": "Entra ID · MFA",
-            "kind": "idp",
+            "id": "access",
+            "label": "Access policy",
+            "sub": "least privilege · review",
+            "kind": "identity",
             "zone": "client",
             "x": 445,
             "y": 100,
             "arrives": 2,
             "records": "mssp_control_matrix",
             "role": "blue",
-            "purpose": "One account per person; MFA is the first control implemented"
+            "purpose": "Who may log in to each system, with what rights",
+            "builtBy": [
+              "mb-w2"
+            ]
           },
           {
-            "id": "edr",
-            "label": "EDR agents",
-            "sub": "every endpoint and server",
-            "kind": "monitor",
+            "id": "hostctl",
+            "label": "Host controls",
+            "sub": "ufw · auditctl",
+            "kind": "control",
             "zone": "client",
             "x": 105,
             "y": 170,
             "arrives": 2,
             "records": "mssp_control_matrix",
             "role": "blue",
-            "purpose": "Sees process activity on every host and feeds the SIEM"
+            "purpose": "The baseline firewall and access rules on each host",
+            "builtBy": [
+              "mb-w2"
+            ]
           },
           {
             "id": "client-edge",
@@ -5254,22 +5291,25 @@
             "purpose": "The boundary, and the one path the client’s logs take out"
           },
           {
-            "id": "backup",
-            "label": "Backup target",
-            "sub": "offline copy · restore test",
-            "kind": "backup",
+            "id": "auditlog",
+            "label": "Audit logging",
+            "sub": "auditd · journalctl",
+            "kind": "monitor",
             "zone": "client",
             "x": 445,
             "y": 170,
-            "arrives": 2,
+            "arrives": 0,
             "records": "mssp_control_matrix",
             "role": "blue",
-            "purpose": "The copy the recovery promise in the contract rests on"
+            "purpose": "Every login and change logged and shipped to the SIEM",
+            "builtBy": [
+              "mb-w0"
+            ]
           },
           {
             "id": "scanner",
             "label": "Vulnerability scanner",
-            "sub": "CIS gap · monthly scan",
+            "sub": "nmap · testssl.sh · Lynis",
             "kind": "scanner",
             "zone": "client",
             "x": 105,
@@ -5277,7 +5317,11 @@
             "arrives": 1,
             "records": "mssp_gap_assessment",
             "role": "red",
-            "purpose": "Measures the estate against the baseline, scored"
+            "purpose": "Measures the estate against the baseline, scored",
+            "builtBy": [
+              "mr-w1",
+              "mb-w1"
+            ]
           },
           {
             "id": "siem",
@@ -5290,7 +5334,10 @@
             "arrives": 2,
             "records": "mssp_detection_rules",
             "role": "blue",
-            "purpose": "Collects the client’s logs and keeps them for the contract term"
+            "purpose": "Collects the client’s logs and keeps them for the contract term",
+            "builtBy": [
+              "mb-w0"
+            ]
           },
           {
             "id": "detections",
@@ -5303,7 +5350,10 @@
             "arrives": 3,
             "records": "mssp_detection_rules",
             "role": "blue",
-            "purpose": "Turns the client’s logs into alerts worth a ticket"
+            "purpose": "Turns the client’s logs into alerts worth a ticket",
+            "builtBy": [
+              "mb-w3"
+            ]
           },
           {
             "id": "analysts",
@@ -5328,7 +5378,10 @@
             "arrives": 3,
             "records": "mssp_metrics",
             "role": "blue",
-            "purpose": "Every alert timed from raise to close: MTTD and MTTR"
+            "purpose": "Every alert timed from raise to close: MTTD and MTTR",
+            "builtBy": [
+              "mb-w4"
+            ]
           },
           {
             "id": "evidence",
@@ -5341,20 +5394,26 @@
             "arrives": 4,
             "records": "mssp_evidence_packet",
             "role": "grc",
-            "purpose": "Hashed copies of every artefact the packet cites"
+            "purpose": "Hashed copies of every artefact the packet cites",
+            "builtBy": [
+              "mg-w4b"
+            ]
           },
           {
-            "id": "ti",
-            "label": "Threat-intel feeds",
-            "sub": "IOCs tuned to the client",
-            "kind": "data",
+            "id": "retest",
+            "label": "Retest evidence",
+            "sub": "Burp · sqlmap · hashed",
+            "kind": "evidence",
             "zone": "mssp",
             "x": 815,
             "y": 240,
             "arrives": 3,
-            "records": "mssp_detection_rules",
-            "role": "blue",
-            "purpose": "Indicators the rules match against"
+            "records": "mssp_retest",
+            "role": "red",
+            "purpose": "Each finding proved, fixed and proved again, hashed",
+            "builtBy": [
+              "mr-w3"
+            ]
           },
           {
             "id": "pentester",
@@ -5368,7 +5427,10 @@
             "arrives": 1,
             "records": "mssp_retest",
             "role": "red",
-            "purpose": "Proves the gaps, then proves the fixes on retest"
+            "purpose": "Proves the gaps, then proves the fixes on retest",
+            "builtBy": [
+              "mr-w1"
+            ]
           },
           {
             "id": "auditor",
@@ -5529,9 +5591,9 @@
             "kind": "log"
           },
           {
-            "from": "edr",
+            "from": "auditlog",
             "to": "siem",
-            "label": "endpoint events",
+            "label": "login + change events",
             "kind": "log"
           },
           {
@@ -5546,15 +5608,15 @@
             "label": "alerts → tickets → reports"
           },
           {
-            "from": "servers",
-            "to": "backup",
-            "label": "nightly",
-            "kind": "backup"
+            "from": "hostctl",
+            "to": "servers",
+            "label": "baseline",
+            "kind": "trust"
           },
           {
-            "from": "idp",
-            "to": "endpoints",
-            "label": "MFA",
+            "from": "access",
+            "to": "servers",
+            "label": "least privilege",
             "kind": "trust"
           }
         ]
@@ -5563,17 +5625,17 @@
         "arrives": {
           "endpoints": 0,
           "servers": 0,
-          "idp": 2,
-          "edr": 2,
+          "access": 2,
+          "hostctl": 2,
           "client-edge": 0,
-          "backup": 2,
+          "auditlog": 0,
           "scanner": 1,
           "siem": 2,
           "detections": 3,
           "analysts": 0,
           "tickets": 3,
           "evidence": 4,
-          "ti": 3,
+          "retest": 3,
           "pentester": 1,
           "auditor": 4,
           "r_engagement": 0,
@@ -5629,12 +5691,12 @@
               {
                 "from": "r_matrix",
                 "to": "servers",
-                "label": "hardening · MFA · logging"
+                "label": "hardening · access · logging"
               },
               {
-                "from": "idp",
-                "to": "endpoints",
-                "label": "MFA everywhere"
+                "from": "access",
+                "to": "servers",
+                "label": "least privilege"
               },
               {
                 "from": "client-edge",
@@ -5686,9 +5748,9 @@
         },
         "captions": {
           "0": "The engagement at signing: the client’s endpoints and servers, the edge that will forward their logs, your analysts and the signed scope.",
-          "1": "New: the pentester, the vulnerability scanner, the SoA and the gap assessment. The gap says what the client has and lacks.",
-          "2": "New: client identity with MFA, EDR, the backup target and the SIEM. The client’s logs reach your SOC; the control matrix is live.",
-          "3": "New: detection rules, the ticket queue and threat-intel feeds. The pentest proves the controls; every alert runs on an SLA clock.",
+          "1": "New: the pentester, the nmap/testssl scanner, the SoA and the gap assessment. The gap says what the client has and lacks.",
+          "2": "New: host controls, the access policy and the SIEM. The client’s audit logs reach your SOC; the control matrix is live.",
+          "3": "New: detection rules, the ticket queue and the retest evidence. The pentest proves the controls; every alert runs on an SLA clock.",
           "4": "New: the evidence vault and the auditor. MTTD and MTTR are measured and the audit packet is handed over."
         }
       }
@@ -5744,15 +5806,14 @@
             }
           ]
         },
-        "caption": "New: the pentester, the vulnerability scanner, the SoA and the gap assessment. The gap says what the client has and lacks."
+        "caption": "New: the pentester, the nmap/testssl scanner, the SoA and the gap assessment. The gap says what the client has and lacks."
       },
       {
         "week": 2,
         "builtThrough": 2,
         "highlight": [
-          "idp",
-          "edr",
-          "backup",
+          "access",
+          "hostctl",
           "siem",
           "r_matrix"
         ],
@@ -5762,12 +5823,12 @@
             {
               "from": "r_matrix",
               "to": "servers",
-              "label": "hardening · MFA · logging"
+              "label": "hardening · access · logging"
             },
             {
-              "from": "idp",
-              "to": "endpoints",
-              "label": "MFA everywhere"
+              "from": "access",
+              "to": "servers",
+              "label": "least privilege"
             },
             {
               "from": "client-edge",
@@ -5776,7 +5837,7 @@
             }
           ]
         },
-        "caption": "New: client identity with MFA, EDR, the backup target and the SIEM. The client’s logs reach your SOC; the control matrix is live."
+        "caption": "New: host controls, the access policy and the SIEM. The client’s audit logs reach your SOC; the control matrix is live."
       },
       {
         "week": 3,
@@ -5784,7 +5845,7 @@
         "highlight": [
           "detections",
           "tickets",
-          "ti",
+          "retest",
           "r_rules",
           "r_retest"
         ],
@@ -5808,7 +5869,7 @@
             }
           ]
         },
-        "caption": "New: detection rules, the ticket queue and threat-intel feeds. The pentest proves the controls; every alert runs on an SLA clock."
+        "caption": "New: detection rules, the ticket queue and the retest evidence. The pentest proves the controls; every alert runs on an SLA clock."
       },
       {
         "week": 4,

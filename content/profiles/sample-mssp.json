@@ -17,14 +17,14 @@
       "purpose": "The systems the contract protects and the pentest targets"
     },
     {
-      "id": "idp",
-      "label": "Client identity",
-      "purpose": "One account per person; MFA is the first control implemented"
+      "id": "access",
+      "label": "Access policy",
+      "purpose": "Who may log in to each system, with what rights"
     },
     {
-      "id": "edr",
-      "label": "EDR agents",
-      "purpose": "Sees process activity on every host and feeds the SIEM"
+      "id": "hostctl",
+      "label": "Host controls",
+      "purpose": "The baseline firewall and access rules on each host"
     },
     {
       "id": "client-edge",
@@ -32,9 +32,9 @@
       "purpose": "The boundary, and the one path the client’s logs take out"
     },
     {
-      "id": "backup",
-      "label": "Backup target",
-      "purpose": "The copy the recovery promise in the contract rests on"
+      "id": "auditlog",
+      "label": "Audit logging",
+      "purpose": "Every login and change logged and shipped to the SIEM"
     },
     {
       "id": "scanner",
@@ -62,9 +62,9 @@
       "purpose": "Hashed copies of every artefact the packet cites"
     },
     {
-      "id": "ti",
-      "label": "Threat-intel feeds",
-      "purpose": "Indicators the rules match against"
+      "id": "retest",
+      "label": "Retest evidence",
+      "purpose": "Each finding proved, fixed and proved again, hashed"
     }
   ],
   "tools": [

@@ -138,7 +138,7 @@
       {
         "number": 2,
         "title": "Hard Target",
-        "theme": "Authorized vulnerability assessment + SOC detection engineering",
+        "theme": "Authorized vulnerability assessment + detection engineering",
         "objective": "Perform vulnerability discovery and detection engineering",
         "runs": "Run 02",
         "stage": 2,
@@ -1863,12 +1863,12 @@
         "definitionOfDone": [
           "Ubuntu: firewall on, fail2ban running, Lynis audited",
           "Windows: Firewall on, Defender updated & scanned, SMBv1 disabled",
-          "Hardening_Checklist.txt reflects both hosts"
+          "The Hardening Baseline form reflects both hosts"
         ],
         "handoff": [
           {
             "to": "grc",
-            "artifact": "Hardening_Checklist.txt",
+            "artifact": "Hardening Baseline form",
             "note": "Report what was hardened on both hosts for the policy baseline.",
             "deliverable": "hardening_baseline"
           }
@@ -2348,7 +2348,7 @@
         "learn": [
           "Packet capture & baselining with tcpdump/Wireshark",
           "Writing detection filters",
-          "Enabling & reading Windows Event Logs (Sysmon/PowerShell)"
+          "Enabling & reading Windows Event Logs (PowerShell)"
         ],
         "tools": [
           "tcpdump",
@@ -2651,8 +2651,8 @@
         "handoff": [
           {
             "to": "grc",
-            "artifact": "Incident_Response.txt",
-            "note": "Submit IR notes and logs for chain of custody.",
+            "artifact": "Containment_Actions.txt + Attack_Logs.txt",
+            "note": "Submit the containment actions and attack logs for chain of custody.",
             "deliverable": "evidence_log"
           }
         ],
@@ -3116,7 +3116,7 @@
         ],
         "prerequisites": [
           "Red's Asset_List.md and Recon_Findings.md",
-          "Blue's Hardening_Checklist.txt and UFW_Status.txt",
+          "Blue's Hardening Baseline form and UFW_Status.txt",
           "Your Rules_of_Engagement.md from Week 0"
         ],
         "definitionOfDone": [
@@ -7100,52 +7100,52 @@
       "ARCH": {
         "copy": {
           "title": "Lab architecture — the company you attack, defend and govern",
-          "howToRead": "Left: the attacker’s side. Then the edge every packet crosses, the LAN with the two targets and the controls on them, and the SOC that watches. Along the bottom: the fourteen records. Solid lines carry traffic; dashed lines carry logs, backups or trust.",
-          "footer": "The addresses are the worked example; your Lab access panel substitutes your own into every command."
+          "howToRead": "One isolated Host-Only network. Left: Red builds the attacker. Centre: Blue builds the targets — the Ubuntu web server, the Windows host, the controls on them and the detection that watches them. Right: GRC keeps the proof. Along the bottom: the fourteen records and the Portfolio. Solid lines carry traffic; dashed lines carry logs, trust or backups. A part fills in as your team finishes the work that builds it.",
+          "footer": "The addresses are the worked example; your Lab access panel substitutes your own into every command. LAB_SUBNET is one Host-Only network with no route to the internet."
         },
         "view": {
           "w": 960,
-          "h": 474
+          "h": 560
         },
         "zones": [
           {
-            "id": "outside",
-            "label": "Outside",
-            "note": "the attacker’s side",
+            "id": "lab",
+            "label": "Your lab",
+            "note": "one isolated Host-Only network · 10.10.10.0/24",
             "x": 20,
             "y": 40,
-            "w": 160,
-            "h": 270,
-            "tone": 4
-          },
-          {
-            "id": "perimeter",
-            "label": "Perimeter",
-            "note": "what the LAN shows",
-            "x": 200,
-            "y": 40,
-            "w": 170,
-            "h": 270,
+            "w": 920,
+            "h": 60,
             "tone": 8
           },
           {
-            "id": "lan",
-            "label": "Lab LAN",
-            "note": "10.10.10.0/24",
-            "x": 390,
-            "y": 40,
-            "w": 340,
-            "h": 270,
+            "id": "attacker",
+            "label": "Red builds — the attacker",
+            "note": "outside the hosts",
+            "x": 20,
+            "y": 130,
+            "w": 180,
+            "h": 290,
+            "tone": 4
+          },
+          {
+            "id": "targets",
+            "label": "Blue builds — the targets",
+            "note": "Ubuntu 10.10.10.5 · Windows 10.10.10.6",
+            "x": 220,
+            "y": 130,
+            "w": 480,
+            "h": 290,
             "tone": 2
           },
           {
-            "id": "soc",
-            "label": "SOC and management",
-            "note": "Blue · GRC",
-            "x": 750,
-            "y": 40,
-            "w": 190,
-            "h": 270,
+            "id": "proof",
+            "label": "GRC keeps — the proof",
+            "note": "hashes · custody · reports",
+            "x": 720,
+            "y": 130,
+            "w": 220,
+            "h": 290,
             "tone": 3
           },
           {
@@ -7153,7 +7153,7 @@
             "label": "Records — the deliverables",
             "note": "14 forms and the Portfolio",
             "x": 20,
-            "y": 350,
+            "y": 440,
             "w": 920,
             "h": 104,
             "tone": 6,
@@ -7162,18 +7162,29 @@
         ],
         "nodes": [
           {
-            "id": "internet",
-            "label": "Internet",
-            "sub": "OSINT sources · DNS",
-            "kind": "outside",
-            "zone": "outside",
-            "x": 100,
-            "y": 100,
-            "external": true,
+            "id": "hypervisor",
+            "label": "Hypervisor",
+            "sub": "VirtualBox · VMware · UTM",
+            "kind": "network",
+            "zone": "lab",
+            "x": 110,
+            "y": 70,
             "arrives": 0,
             "records": "scope_roe",
-            "role": "red",
-            "purpose": "Where passive recon starts and the scope is checked first"
+            "purpose": "Runs every VM on one Host-Only network with no route out"
+          },
+          {
+            "id": "labaccess",
+            "label": "Lab access panel",
+            "sub": "your own addresses",
+            "kind": "data",
+            "zone": "lab",
+            "x": 830,
+            "y": 70,
+            "arrives": 0,
+            "records": "scope_roe",
+            "role": "grc",
+            "purpose": "Where your own hosts and addresses go, substituted into commands"
           },
           {
             "id": "kali",
@@ -7181,52 +7192,66 @@
             "sub": "recon → exploit",
             "addr": "10.10.10.10",
             "kind": "endpoint",
-            "zone": "outside",
-            "x": 100,
+            "zone": "attacker",
+            "x": 110,
             "y": 170,
             "arrives": 0,
             "records": "scope_roe",
             "role": "red",
-            "purpose": "The attacker’s box: recon, scanning and exploitation inside scope"
+            "purpose": "The attacker’s box, inside the authorized scope",
+            "builtBy": [
+              "red-w0-setup::red-w0-s1",
+              "red-w0-setup::red-w0-s2"
+            ]
+          },
+          {
+            "id": "osint",
+            "label": "OSINT recon",
+            "sub": "whois · dig · theHarvester",
+            "kind": "scanner",
+            "zone": "attacker",
+            "x": 110,
+            "y": 240,
+            "arrives": 1,
+            "records": "asset_inventory",
+            "role": "red",
+            "purpose": "Profiles the target quietly, before anything is loud",
+            "builtBy": [
+              "red-w1-osint"
+            ]
           },
           {
             "id": "scanner",
-            "label": "Vulnerability scanner",
-            "sub": "nmap · OpenVAS on Kali",
+            "label": "Vulnerability scan",
+            "sub": "nmap · nikto",
             "kind": "scanner",
-            "zone": "outside",
-            "x": 100,
-            "y": 240,
+            "zone": "attacker",
+            "x": 110,
+            "y": 310,
             "arrives": 2,
-            "records": "vm_sop",
+            "records": "pentest_report",
             "role": "red",
-            "purpose": "Finds the weaknesses the risk register ranks"
+            "purpose": "Finds and ranks the weaknesses the risk register scores",
+            "builtBy": [
+              "red-w2-enumeration"
+            ]
           },
           {
-            "id": "edge",
-            "label": "Edge firewall",
-            "sub": "ufw · default deny",
-            "kind": "firewall",
-            "zone": "perimeter",
-            "x": 285,
-            "y": 100,
-            "arrives": 0,
-            "records": "hardening_baseline",
-            "role": "blue",
-            "purpose": "The only path in: allowed ports, everything else dropped"
-          },
-          {
-            "id": "logpipe",
-            "label": "Log forwarding",
-            "sub": "rsyslog · agent → SOC",
-            "kind": "monitor",
-            "zone": "perimeter",
-            "x": 285,
-            "y": 170,
-            "arrives": 2,
-            "records": "hardening_baseline",
-            "role": "blue",
-            "purpose": "Sends host and web logs to the SOC as they happen"
+            "id": "exploits",
+            "label": "Authorized attacks",
+            "sub": "sqlmap · hydra · Metasploit",
+            "kind": "app",
+            "zone": "attacker",
+            "x": 110,
+            "y": 380,
+            "arrives": 3,
+            "records": "pentest_report",
+            "role": "red",
+            "purpose": "Proves each finding with evidence, inside scope",
+            "builtBy": [
+              "red-w3-attacks::red-w3-s1",
+              "red-w3-attacks::red-w3-msf"
+            ]
           },
           {
             "id": "ubuntu",
@@ -7234,13 +7259,67 @@
             "sub": "SSH · HTTP · DNS",
             "addr": "10.10.10.5",
             "kind": "server",
-            "zone": "lan",
-            "x": 475,
-            "y": 100,
+            "zone": "targets",
+            "x": 300,
+            "y": 170,
             "arrives": 0,
             "records": "asset_inventory",
             "role": "blue",
-            "purpose": "The target: the web application the company runs"
+            "purpose": "The web target the attack chain lands on",
+            "builtBy": [
+              "blue-w0-setup::blue-w0-s1"
+            ]
+          },
+          {
+            "id": "dvwa",
+            "label": "DVWA",
+            "sub": "Docker · :80",
+            "kind": "app",
+            "zone": "targets",
+            "x": 300,
+            "y": 240,
+            "arrives": 0,
+            "records": "asset_inventory",
+            "role": "blue",
+            "purpose": "The deliberately vulnerable app Red attacks",
+            "builtBy": [
+              "blue-w0-setup::blue-w0-s4",
+              "blue-w0-setup::blue-w0-s5"
+            ]
+          },
+          {
+            "id": "linhard",
+            "label": "Linux hardening",
+            "sub": "ufw · fail2ban · Lynis",
+            "kind": "control",
+            "zone": "targets",
+            "x": 300,
+            "y": 310,
+            "arrives": 1,
+            "records": "hardening_baseline",
+            "role": "blue",
+            "purpose": "The controls applied before the attack and checked after",
+            "builtBy": [
+              "blue-w1-hardening::blue-w1-s3",
+              "blue-w1-hardening::blue-w1-s4",
+              "blue-w1-hardening::blue-w1-s5"
+            ]
+          },
+          {
+            "id": "snapshot",
+            "label": "VM snapshot",
+            "sub": "pre-hardening restore point",
+            "kind": "backup",
+            "zone": "targets",
+            "x": 300,
+            "y": 380,
+            "arrives": 0,
+            "records": "ir_runbook",
+            "role": "blue",
+            "purpose": "The restore point the runbook falls back to",
+            "builtBy": [
+              "blue-w0-setup::blue-w0-s3"
+            ]
           },
           {
             "id": "windows",
@@ -7248,91 +7327,181 @@
             "sub": "Blue defends · optional",
             "addr": "10.10.10.6",
             "kind": "endpoint",
-            "zone": "lan",
-            "x": 645,
-            "y": 100,
+            "zone": "targets",
+            "x": 460,
+            "y": 170,
             "arrives": 0,
             "records": "asset_inventory",
             "role": "blue",
-            "purpose": "Optional second target: RDP and local accounts"
+            "purpose": "The second target: RDP and local accounts",
+            "builtBy": [
+              "blue-w0-setup::blue-w0-s2"
+            ]
           },
           {
-            "id": "hardening",
-            "label": "Hardening baseline",
-            "sub": "CIS · SSH · patching",
+            "id": "winhard",
+            "label": "Windows hardening",
+            "sub": "Firewall · Defender · SMBv1 off",
             "kind": "control",
-            "zone": "lan",
-            "x": 475,
-            "y": 170,
+            "zone": "targets",
+            "x": 460,
+            "y": 240,
             "arrives": 1,
             "records": "hardening_baseline",
             "role": "blue",
-            "purpose": "The settings applied before the attack and checked after it"
+            "purpose": "The same baseline reached on the Windows host",
+            "builtBy": [
+              "blue-w1-hardening::blue-w1-s6",
+              "blue-w1-hardening::blue-w1-s7"
+            ]
           },
           {
-            "id": "accounts",
-            "label": "Accounts and sudo",
-            "sub": "least privilege · policy",
-            "kind": "identity",
-            "zone": "lan",
-            "x": 645,
-            "y": 170,
-            "arrives": 1,
-            "records": "security_policy",
-            "role": "blue",
-            "purpose": "Who may log in to each host, with what rights"
-          },
-          {
-            "id": "backup",
-            "label": "VM snapshot",
-            "sub": "pre-exploit restore point",
-            "kind": "backup",
-            "zone": "lan",
-            "x": 475,
-            "y": 240,
-            "arrives": 3,
-            "records": "ir_runbook",
-            "role": "blue",
-            "purpose": "The restore point the runbook falls back to"
-          },
-          {
-            "id": "siem",
-            "label": "SIEM",
-            "sub": "Wazuh · alerts",
-            "kind": "siem",
-            "zone": "soc",
-            "x": 835,
-            "y": 100,
+            "id": "winlog",
+            "label": "Windows logging",
+            "sub": "audit logon 4624 · 4625",
+            "kind": "monitor",
+            "zone": "targets",
+            "x": 460,
+            "y": 310,
             "arrives": 2,
-            "records": "incident_report",
+            "records": "vm_sop",
             "role": "blue",
-            "purpose": "Turns forwarded logs into alerts Blue can act on"
+            "purpose": "Records every logon so a brute force is visible",
+            "builtBy": [
+              "blue-w2-baseline::blue-w2-s4"
+            ]
           },
           {
-            "id": "cases",
-            "label": "Case queue",
-            "sub": "triage · containment",
-            "kind": "ticket",
-            "zone": "soc",
-            "x": 835,
+            "id": "capture",
+            "label": "Packet capture",
+            "sub": "tcpdump · Wireshark pcaps",
+            "kind": "monitor",
+            "zone": "targets",
+            "x": 620,
             "y": 170,
+            "arrives": 2,
+            "records": "vm_sop",
+            "role": "blue",
+            "purpose": "The normal and attack traffic samples Blue reads",
+            "builtBy": [
+              "blue-w2-baseline::blue-w2-s1",
+              "blue-w2-baseline::blue-w2-s2"
+            ]
+          },
+          {
+            "id": "rules",
+            "label": "Detection filters",
+            "sub": "SYN-scan · SQLi",
+            "kind": "control",
+            "zone": "targets",
+            "x": 620,
+            "y": 240,
+            "arrives": 2,
+            "records": "vm_sop",
+            "role": "blue",
+            "purpose": "The filters that name the attack in the capture",
+            "builtBy": [
+              "blue-w2-baseline::blue-w2-s3"
+            ]
+          },
+          {
+            "id": "weblog",
+            "label": "Web-log watch",
+            "sub": "tail -f · grep access.log",
+            "kind": "monitor",
+            "zone": "targets",
+            "x": 620,
+            "y": 310,
             "arrives": 3,
             "records": "incident_report",
             "role": "blue",
-            "purpose": "Every alert worked to a decision and a containment step"
+            "purpose": "Catches the live SQL injection as it is tried",
+            "builtBy": [
+              "blue-w3-detection::blue-w3-s2",
+              "blue-w3-detection::blue-w3-s3"
+            ]
           },
           {
-            "id": "evidence",
-            "label": "Evidence vault",
-            "sub": "sha256 · custody log",
-            "kind": "evidence",
-            "zone": "soc",
-            "x": 835,
+            "id": "contain",
+            "label": "Containment",
+            "sub": "ufw deny · firewall rule",
+            "kind": "firewall",
+            "zone": "targets",
+            "x": 620,
+            "y": 380,
+            "arrives": 3,
+            "records": "incident_report",
+            "role": "blue",
+            "purpose": "Cuts the attacker off once the case is confirmed",
+            "builtBy": [
+              "blue-w3-detection::blue-w3-s4",
+              "blue-w3-detection::blue-w3-s5"
+            ]
+          },
+          {
+            "id": "workspace",
+            "label": "Team workspace",
+            "sub": "team-artifacts/",
+            "kind": "data",
+            "zone": "proof",
+            "x": 830,
+            "y": 170,
+            "arrives": 0,
+            "records": "scope_roe",
+            "role": "grc",
+            "purpose": "Where every artefact is filed, week by week",
+            "builtBy": [
+              "grc-w0-setup::grc-w0-s1"
+            ]
+          },
+          {
+            "id": "risk",
+            "label": "Risk scoring",
+            "sub": "likelihood × impact · CVSS",
+            "kind": "data",
+            "zone": "proof",
+            "x": 830,
             "y": 240,
+            "arrives": 2,
+            "records": "risk_register",
+            "role": "grc",
+            "purpose": "Scores each finding so the fix order is defensible",
+            "builtBy": [
+              "grc-w2-risk"
+            ]
+          },
+          {
+            "id": "hashes",
+            "label": "Evidence hashes",
+            "sub": "sha256sum · custody",
+            "kind": "evidence",
+            "zone": "proof",
+            "x": 830,
+            "y": 310,
             "arrives": 3,
             "records": "evidence_log",
             "role": "grc",
-            "purpose": "Hashed copies of what the findings rest on"
+            "purpose": "Hashes every file so the evidence cannot be altered",
+            "builtBy": [
+              "grc-w3-custody::grc-w3-s2",
+              "grc-w3-custody::grc-w3-s3"
+            ]
+          },
+          {
+            "id": "briefing",
+            "label": "Final briefing",
+            "sub": "report · slides",
+            "kind": "people",
+            "zone": "proof",
+            "x": 830,
+            "y": 380,
+            "arrives": 4,
+            "records": "final_report",
+            "role": "grc",
+            "purpose": "The capstone: findings, risks and recommendations",
+            "builtBy": [
+              "grc-w4-report"
+            ]
           },
           {
             "id": "r_scope",
@@ -7341,7 +7510,7 @@
             "kind": "record",
             "zone": "records",
             "x": 85,
-            "y": 368,
+            "y": 458,
             "arrives": 1,
             "records": "scope_roe",
             "role": "grc",
@@ -7354,7 +7523,7 @@
             "kind": "record",
             "zone": "records",
             "x": 216,
-            "y": 368,
+            "y": 458,
             "arrives": 1,
             "records": "asset_inventory",
             "role": "grc",
@@ -7367,7 +7536,7 @@
             "kind": "record",
             "zone": "records",
             "x": 347,
-            "y": 368,
+            "y": 458,
             "arrives": 1,
             "records": "framework_mapping",
             "role": "grc",
@@ -7380,7 +7549,7 @@
             "kind": "record",
             "zone": "records",
             "x": 478,
-            "y": 368,
+            "y": 458,
             "arrives": 1,
             "records": "security_policy",
             "role": "grc",
@@ -7393,7 +7562,7 @@
             "kind": "record",
             "zone": "records",
             "x": 609,
-            "y": 368,
+            "y": 458,
             "arrives": 1,
             "records": "hardening_standard",
             "role": "grc",
@@ -7406,7 +7575,7 @@
             "kind": "record",
             "zone": "records",
             "x": 740,
-            "y": 368,
+            "y": 458,
             "arrives": 1,
             "records": "hardening_baseline",
             "role": "blue",
@@ -7419,7 +7588,7 @@
             "kind": "record",
             "zone": "records",
             "x": 871,
-            "y": 368,
+            "y": 458,
             "arrives": 1,
             "records": "change_log",
             "role": "blue",
@@ -7432,7 +7601,7 @@
             "kind": "record",
             "zone": "records",
             "x": 85,
-            "y": 402,
+            "y": 492,
             "arrives": 2,
             "records": "risk_register",
             "role": "grc",
@@ -7445,7 +7614,7 @@
             "kind": "record",
             "zone": "records",
             "x": 216,
-            "y": 402,
+            "y": 492,
             "arrives": 2,
             "records": "vm_sop",
             "role": "grc",
@@ -7458,7 +7627,7 @@
             "kind": "record",
             "zone": "records",
             "x": 347,
-            "y": 402,
+            "y": 492,
             "arrives": 2,
             "records": "pentest_report",
             "role": "red",
@@ -7471,7 +7640,7 @@
             "kind": "record",
             "zone": "records",
             "x": 478,
-            "y": 402,
+            "y": 492,
             "arrives": 3,
             "records": "ir_runbook",
             "role": "grc",
@@ -7484,7 +7653,7 @@
             "kind": "record",
             "zone": "records",
             "x": 609,
-            "y": 402,
+            "y": 492,
             "arrives": 3,
             "records": "incident_report",
             "role": "blue",
@@ -7497,7 +7666,7 @@
             "kind": "record",
             "zone": "records",
             "x": 740,
-            "y": 402,
+            "y": 492,
             "arrives": 3,
             "records": "evidence_log",
             "role": "grc",
@@ -7510,7 +7679,7 @@
             "kind": "record",
             "zone": "records",
             "x": 871,
-            "y": 402,
+            "y": 492,
             "arrives": 4,
             "records": "final_report",
             "role": "grc",
@@ -7523,7 +7692,7 @@
             "kind": "record",
             "zone": "records",
             "x": 85,
-            "y": 436,
+            "y": 526,
             "arrives": 4,
             "records": "sec_portfolio",
             "role": "grc",
@@ -7533,61 +7702,121 @@
         "edges": [
           {
             "from": "kali",
-            "to": "edge",
+            "to": "ubuntu",
             "label": "recon · scans · exploits"
           },
           {
-            "from": "edge",
+            "from": "kali",
+            "to": "windows",
+            "label": "RDP · accounts"
+          },
+          {
+            "from": "linhard",
             "to": "ubuntu",
-            "label": "allowed ports only"
+            "label": "baseline",
+            "kind": "trust"
+          },
+          {
+            "from": "winhard",
+            "to": "windows",
+            "label": "baseline",
+            "kind": "trust"
           },
           {
             "from": "ubuntu",
-            "to": "logpipe",
-            "label": "syslog · web logs",
+            "to": "weblog",
+            "label": "access.log",
             "kind": "log"
           },
           {
-            "from": "logpipe",
-            "to": "siem",
-            "label": "forwarded",
+            "from": "windows",
+            "to": "winlog",
+            "label": "4624 · 4625",
             "kind": "log"
           },
           {
-            "from": "siem",
-            "to": "cases",
-            "label": "alerts",
-            "kind": "log"
-          },
-          {
-            "from": "ubuntu",
-            "to": "backup",
+            "from": "hypervisor",
+            "to": "snapshot",
             "label": "snapshot",
             "kind": "backup"
           },
           {
-            "from": "accounts",
-            "to": "ubuntu",
-            "label": "policy",
-            "kind": "trust"
+            "from": "capture",
+            "to": "hashes",
+            "label": "pcaps, hashed",
+            "kind": "log"
+          },
+          {
+            "from": "weblog",
+            "to": "contain",
+            "label": "detect → block",
+            "kind": "admin"
+          },
+          {
+            "from": "hashes",
+            "to": "briefing",
+            "label": "evidence",
+            "kind": "log"
           }
-        ]
+        ],
+        "spec": {
+          "columns": [
+            "Component",
+            "Address",
+            "Runs",
+            "Who"
+          ],
+          "rows": [
+            [
+              "Hypervisor",
+              "—",
+              "VirtualBox · VMware · UTM",
+              "Everyone"
+            ],
+            [
+              "Kali attacker",
+              "10.10.10.10",
+              "recon · scan · exploit",
+              "Red"
+            ],
+            [
+              "Ubuntu web server",
+              "10.10.10.5",
+              "DVWA in Docker · SSH",
+              "Blue"
+            ],
+            [
+              "Windows host",
+              "10.10.10.6",
+              "RDP · local accounts",
+              "Blue"
+            ]
+          ]
+        }
       },
       "ARCH_BUILD": {
         "arrives": {
-          "internet": 0,
+          "hypervisor": 0,
+          "labaccess": 0,
           "kali": 0,
+          "osint": 1,
           "scanner": 2,
-          "edge": 0,
-          "logpipe": 2,
+          "exploits": 3,
           "ubuntu": 0,
+          "dvwa": 0,
+          "linhard": 1,
+          "snapshot": 0,
           "windows": 0,
-          "hardening": 1,
-          "accounts": 1,
-          "backup": 3,
-          "siem": 2,
-          "cases": 3,
-          "evidence": 3,
+          "winhard": 1,
+          "winlog": 2,
+          "capture": 2,
+          "rules": 2,
+          "weblog": 3,
+          "contain": 3,
+          "workspace": 0,
+          "risk": 2,
+          "hashes": 3,
+          "briefing": 4,
           "r_scope": 1,
           "r_assets": 1,
           "r_framework": 1,
@@ -7610,18 +7839,23 @@
             "steps": [
               {
                 "from": "kali",
-                "to": "edge",
-                "label": "OSINT · passive recon"
+                "to": "ubuntu",
+                "label": "passive recon, nothing loud"
               },
               {
-                "from": "edge",
-                "to": "ubuntu",
-                "label": "map the target, quietly"
+                "from": "osint",
+                "to": "r_assets",
+                "label": "profile into the asset list"
               },
               {
                 "from": "r_standard",
-                "to": "hardening",
+                "to": "linhard",
                 "label": "hardening standard applied"
+              },
+              {
+                "from": "r_standard",
+                "to": "winhard",
+                "label": "same baseline on Windows"
               }
             ]
           },
@@ -7630,18 +7864,23 @@
             "steps": [
               {
                 "from": "scanner",
-                "to": "ubuntu",
-                "label": "port & web scanning"
+                "to": "dvwa",
+                "label": "port and web scanning"
               },
               {
-                "from": "logpipe",
-                "to": "siem",
-                "label": "baseline capture"
+                "from": "capture",
+                "to": "rules",
+                "label": "baseline becomes detection filters"
               },
               {
-                "from": "siem",
+                "from": "windows",
+                "to": "winlog",
+                "label": "turn on logon auditing"
+              },
+              {
+                "from": "scanner",
                 "to": "r_risks",
-                "label": "findings → risk register"
+                "label": "findings into the risk register"
               }
             ]
           },
@@ -7649,19 +7888,24 @@
             "title": "The Breach",
             "steps": [
               {
-                "from": "kali",
-                "to": "ubuntu",
-                "label": "live exploits"
+                "from": "exploits",
+                "to": "dvwa",
+                "label": "live exploits land"
               },
               {
-                "from": "siem",
-                "to": "cases",
-                "label": "detect and contain"
+                "from": "weblog",
+                "to": "contain",
+                "label": "detect, then cut it off"
               },
               {
-                "from": "cases",
-                "to": "evidence",
-                "label": "preserve the evidence"
+                "from": "winlog",
+                "to": "contain",
+                "label": "failed logons, then block"
+              },
+              {
+                "from": "capture",
+                "to": "hashes",
+                "label": "preserve the evidence, hashed"
               }
             ]
           },
@@ -7669,24 +7913,29 @@
             "title": "Payday",
             "steps": [
               {
-                "from": "evidence",
+                "from": "hashes",
                 "to": "r_final",
-                "label": "evidence → findings"
+                "label": "evidence into findings"
               },
               {
                 "from": "r_risks",
                 "to": "r_final",
-                "label": "final report & presentation"
+                "label": "risks into the final report"
+              },
+              {
+                "from": "r_final",
+                "to": "briefing",
+                "label": "brief it to the room"
               }
             ]
           }
         },
         "captions": {
-          "0": "The lab: a Kali attacker outside, the edge firewall, the Ubuntu web server and the optional Windows host. Nothing is hardened yet.",
-          "1": "New: the hardening baseline, the account policy and the first seven records. Red maps the target without making noise.",
-          "2": "New: the scanner, log forwarding and the SIEM. Red scans while Blue learns what normal looks like and GRC opens the risk register.",
-          "3": "New: the snapshot, the case queue and the evidence vault. Red attacks for real; Blue detects, contains and preserves what it found.",
-          "4": "New: the final report. No new traffic — the evidence becomes findings and recommendations."
+          "0": "The lab, built: one isolated Host-Only network with a Kali attacker, the Ubuntu and Windows targets, a snapshot and the GRC workspace.",
+          "1": "New: Red profiles the target with OSINT; Blue hardens both hosts with ufw, fail2ban, Lynis and Defender; GRC issues the hardening standard.",
+          "2": "New: the scanner, Windows logon auditing, packet capture and detection filters. Red scans while Blue learns normal traffic and GRC opens the risk register.",
+          "3": "New: live exploits, the web-log watch, the containment rule and the evidence hashes. Red attacks for real; Blue detects, contains and preserves.",
+          "4": "New: the final report and the briefing. No new traffic — the evidence becomes findings, the risks become recommendations, and the team briefs the room."
         }
       },
       "DOCS_REDUCTION": [
@@ -8015,52 +8264,52 @@
       "ARCH": {
         "copy": {
           "title": "Lab architecture — the company you attack, defend and govern",
-          "howToRead": "Left: the attacker’s side. Then the edge every packet crosses, the LAN with the two targets and the controls on them, and the SOC that watches. Along the bottom: the fourteen records. Solid lines carry traffic; dashed lines carry logs, backups or trust.",
-          "footer": "The addresses are the worked example; your Lab access panel substitutes your own into every command."
+          "howToRead": "One isolated Host-Only network. Left: Red builds the attacker. Centre: Blue builds the targets — the Ubuntu web server, the Windows host, the controls on them and the detection that watches them. Right: GRC keeps the proof. Along the bottom: the fourteen records and the Portfolio. Solid lines carry traffic; dashed lines carry logs, trust or backups. A part fills in as your team finishes the work that builds it.",
+          "footer": "The addresses are the worked example; your Lab access panel substitutes your own into every command. LAB_SUBNET is one Host-Only network with no route to the internet."
         },
         "view": {
           "w": 960,
-          "h": 474
+          "h": 560
         },
         "zones": [
           {
-            "id": "outside",
-            "label": "Outside",
-            "note": "the attacker’s side",
+            "id": "lab",
+            "label": "Your lab",
+            "note": "one isolated Host-Only network · 10.10.10.0/24",
             "x": 20,
             "y": 40,
-            "w": 160,
-            "h": 270,
-            "tone": 4
-          },
-          {
-            "id": "perimeter",
-            "label": "Perimeter",
-            "note": "what the LAN shows",
-            "x": 200,
-            "y": 40,
-            "w": 170,
-            "h": 270,
+            "w": 920,
+            "h": 60,
             "tone": 8
           },
           {
-            "id": "lan",
-            "label": "Lab LAN",
-            "note": "10.10.10.0/24",
-            "x": 390,
-            "y": 40,
-            "w": 340,
-            "h": 270,
+            "id": "attacker",
+            "label": "Red builds — the attacker",
+            "note": "outside the hosts",
+            "x": 20,
+            "y": 130,
+            "w": 180,
+            "h": 290,
+            "tone": 4
+          },
+          {
+            "id": "targets",
+            "label": "Blue builds — the targets",
+            "note": "Ubuntu 10.10.10.5 · Windows 10.10.10.6",
+            "x": 220,
+            "y": 130,
+            "w": 480,
+            "h": 290,
             "tone": 2
           },
           {
-            "id": "soc",
-            "label": "SOC and management",
-            "note": "Blue · GRC",
-            "x": 750,
-            "y": 40,
-            "w": 190,
-            "h": 270,
+            "id": "proof",
+            "label": "GRC keeps — the proof",
+            "note": "hashes · custody · reports",
+            "x": 720,
+            "y": 130,
+            "w": 220,
+            "h": 290,
             "tone": 3
           },
           {
@@ -8068,7 +8317,7 @@
             "label": "Records — the deliverables",
             "note": "14 forms and the Portfolio",
             "x": 20,
-            "y": 350,
+            "y": 440,
             "w": 920,
             "h": 104,
             "tone": 6,
@@ -8077,18 +8326,29 @@
         ],
         "nodes": [
           {
-            "id": "internet",
-            "label": "Internet",
-            "sub": "OSINT sources · DNS",
-            "kind": "outside",
-            "zone": "outside",
-            "x": 100,
-            "y": 100,
-            "external": true,
+            "id": "hypervisor",
+            "label": "Hypervisor",
+            "sub": "VirtualBox · VMware · UTM",
+            "kind": "network",
+            "zone": "lab",
+            "x": 110,
+            "y": 70,
             "arrives": 0,
             "records": "scope_roe",
-            "role": "red",
-            "purpose": "Where passive recon starts and the scope is checked first"
+            "purpose": "Runs every VM on one Host-Only network with no route out"
+          },
+          {
+            "id": "labaccess",
+            "label": "Lab access panel",
+            "sub": "your own addresses",
+            "kind": "data",
+            "zone": "lab",
+            "x": 830,
+            "y": 70,
+            "arrives": 0,
+            "records": "scope_roe",
+            "role": "grc",
+            "purpose": "Where your own hosts and addresses go, substituted into commands"
           },
           {
             "id": "kali",
@@ -8096,52 +8356,66 @@
             "sub": "recon → exploit",
             "addr": "10.10.10.10",
             "kind": "endpoint",
-            "zone": "outside",
-            "x": 100,
+            "zone": "attacker",
+            "x": 110,
             "y": 170,
             "arrives": 0,
             "records": "scope_roe",
             "role": "red",
-            "purpose": "The attacker’s box: recon, scanning and exploitation inside scope"
+            "purpose": "The attacker’s box, inside the authorized scope",
+            "builtBy": [
+              "red-w0-setup::red-w0-s1",
+              "red-w0-setup::red-w0-s2"
+            ]
+          },
+          {
+            "id": "osint",
+            "label": "OSINT recon",
+            "sub": "whois · dig · theHarvester",
+            "kind": "scanner",
+            "zone": "attacker",
+            "x": 110,
+            "y": 240,
+            "arrives": 1,
+            "records": "asset_inventory",
+            "role": "red",
+            "purpose": "Profiles the target quietly, before anything is loud",
+            "builtBy": [
+              "red-w1-osint"
+            ]
           },
           {
             "id": "scanner",
-            "label": "Vulnerability scanner",
-            "sub": "nmap · OpenVAS on Kali",
+            "label": "Vulnerability scan",
+            "sub": "nmap · nikto",
             "kind": "scanner",
-            "zone": "outside",
-            "x": 100,
-            "y": 240,
+            "zone": "attacker",
+            "x": 110,
+            "y": 310,
             "arrives": 2,
-            "records": "vm_sop",
+            "records": "pentest_report",
             "role": "red",
-            "purpose": "Finds the weaknesses the risk register ranks"
+            "purpose": "Finds and ranks the weaknesses the risk register scores",
+            "builtBy": [
+              "red-w2-enumeration"
+            ]
           },
           {
-            "id": "edge",
-            "label": "Edge firewall",
-            "sub": "ufw · default deny",
-            "kind": "firewall",
-            "zone": "perimeter",
-            "x": 285,
-            "y": 100,
-            "arrives": 0,
-            "records": "hardening_baseline",
-            "role": "blue",
-            "purpose": "The only path in: allowed ports, everything else dropped"
-          },
-          {
-            "id": "logpipe",
-            "label": "Log forwarding",
-            "sub": "rsyslog · agent → SOC",
-            "kind": "monitor",
-            "zone": "perimeter",
-            "x": 285,
-            "y": 170,
-            "arrives": 2,
-            "records": "hardening_baseline",
-            "role": "blue",
-            "purpose": "Sends host and web logs to the SOC as they happen"
+            "id": "exploits",
+            "label": "Authorized attacks",
+            "sub": "sqlmap · hydra · Metasploit",
+            "kind": "app",
+            "zone": "attacker",
+            "x": 110,
+            "y": 380,
+            "arrives": 3,
+            "records": "pentest_report",
+            "role": "red",
+            "purpose": "Proves each finding with evidence, inside scope",
+            "builtBy": [
+              "red-w3-attacks::red-w3-s1",
+              "red-w3-attacks::red-w3-msf"
+            ]
           },
           {
             "id": "ubuntu",
@@ -8149,13 +8423,67 @@
             "sub": "SSH · HTTP · DNS",
             "addr": "10.10.10.5",
             "kind": "server",
-            "zone": "lan",
-            "x": 475,
-            "y": 100,
+            "zone": "targets",
+            "x": 300,
+            "y": 170,
             "arrives": 0,
             "records": "asset_inventory",
             "role": "blue",
-            "purpose": "The target: the web application the company runs"
+            "purpose": "The web target the attack chain lands on",
+            "builtBy": [
+              "blue-w0-setup::blue-w0-s1"
+            ]
+          },
+          {
+            "id": "dvwa",
+            "label": "DVWA",
+            "sub": "Docker · :80",
+            "kind": "app",
+            "zone": "targets",
+            "x": 300,
+            "y": 240,
+            "arrives": 0,
+            "records": "asset_inventory",
+            "role": "blue",
+            "purpose": "The deliberately vulnerable app Red attacks",
+            "builtBy": [
+              "blue-w0-setup::blue-w0-s4",
+              "blue-w0-setup::blue-w0-s5"
+            ]
+          },
+          {
+            "id": "linhard",
+            "label": "Linux hardening",
+            "sub": "ufw · fail2ban · Lynis",
+            "kind": "control",
+            "zone": "targets",
+            "x": 300,
+            "y": 310,
+            "arrives": 1,
+            "records": "hardening_baseline",
+            "role": "blue",
+            "purpose": "The controls applied before the attack and checked after",
+            "builtBy": [
+              "blue-w1-hardening::blue-w1-s3",
+              "blue-w1-hardening::blue-w1-s4",
+              "blue-w1-hardening::blue-w1-s5"
+            ]
+          },
+          {
+            "id": "snapshot",
+            "label": "VM snapshot",
+            "sub": "pre-hardening restore point",
+            "kind": "backup",
+            "zone": "targets",
+            "x": 300,
+            "y": 380,
+            "arrives": 0,
+            "records": "ir_runbook",
+            "role": "blue",
+            "purpose": "The restore point the runbook falls back to",
+            "builtBy": [
+              "blue-w0-setup::blue-w0-s3"
+            ]
           },
           {
             "id": "windows",
@@ -8163,91 +8491,181 @@
             "sub": "Blue defends · optional",
             "addr": "10.10.10.6",
             "kind": "endpoint",
-            "zone": "lan",
-            "x": 645,
-            "y": 100,
+            "zone": "targets",
+            "x": 460,
+            "y": 170,
             "arrives": 0,
             "records": "asset_inventory",
             "role": "blue",
-            "purpose": "Optional second target: RDP and local accounts"
+            "purpose": "The second target: RDP and local accounts",
+            "builtBy": [
+              "blue-w0-setup::blue-w0-s2"
+            ]
           },
           {
-            "id": "hardening",
-            "label": "Hardening baseline",
-            "sub": "CIS · SSH · patching",
+            "id": "winhard",
+            "label": "Windows hardening",
+            "sub": "Firewall · Defender · SMBv1 off",
             "kind": "control",
-            "zone": "lan",
-            "x": 475,
-            "y": 170,
+            "zone": "targets",
+            "x": 460,
+            "y": 240,
             "arrives": 1,
             "records": "hardening_baseline",
             "role": "blue",
-            "purpose": "The settings applied before the attack and checked after it"
+            "purpose": "The same baseline reached on the Windows host",
+            "builtBy": [
+              "blue-w1-hardening::blue-w1-s6",
+              "blue-w1-hardening::blue-w1-s7"
+            ]
           },
           {
-            "id": "accounts",
-            "label": "Accounts and sudo",
-            "sub": "least privilege · policy",
-            "kind": "identity",
-            "zone": "lan",
-            "x": 645,
-            "y": 170,
-            "arrives": 1,
-            "records": "security_policy",
-            "role": "blue",
-            "purpose": "Who may log in to each host, with what rights"
-          },
-          {
-            "id": "backup",
-            "label": "VM snapshot",
-            "sub": "pre-exploit restore point",
-            "kind": "backup",
-            "zone": "lan",
-            "x": 475,
-            "y": 240,
-            "arrives": 3,
-            "records": "ir_runbook",
-            "role": "blue",
-            "purpose": "The restore point the runbook falls back to"
-          },
-          {
-            "id": "siem",
-            "label": "SIEM",
-            "sub": "Wazuh · alerts",
-            "kind": "siem",
-            "zone": "soc",
-            "x": 835,
-            "y": 100,
+            "id": "winlog",
+            "label": "Windows logging",
+            "sub": "audit logon 4624 · 4625",
+            "kind": "monitor",
+            "zone": "targets",
+            "x": 460,
+            "y": 310,
             "arrives": 2,
-            "records": "incident_report",
+            "records": "vm_sop",
             "role": "blue",
-            "purpose": "Turns forwarded logs into alerts Blue can act on"
+            "purpose": "Records every logon so a brute force is visible",
+            "builtBy": [
+              "blue-w2-baseline::blue-w2-s4"
+            ]
           },
           {
-            "id": "cases",
-            "label": "Case queue",
-            "sub": "triage · containment",
-            "kind": "ticket",
-            "zone": "soc",
-            "x": 835,
+            "id": "capture",
+            "label": "Packet capture",
+            "sub": "tcpdump · Wireshark pcaps",
+            "kind": "monitor",
+            "zone": "targets",
+            "x": 620,
             "y": 170,
+            "arrives": 2,
+            "records": "vm_sop",
+            "role": "blue",
+            "purpose": "The normal and attack traffic samples Blue reads",
+            "builtBy": [
+              "blue-w2-baseline::blue-w2-s1",
+              "blue-w2-baseline::blue-w2-s2"
+            ]
+          },
+          {
+            "id": "rules",
+            "label": "Detection filters",
+            "sub": "SYN-scan · SQLi",
+            "kind": "control",
+            "zone": "targets",
+            "x": 620,
+            "y": 240,
+            "arrives": 2,
+            "records": "vm_sop",
+            "role": "blue",
+            "purpose": "The filters that name the attack in the capture",
+            "builtBy": [
+              "blue-w2-baseline::blue-w2-s3"
+            ]
+          },
+          {
+            "id": "weblog",
+            "label": "Web-log watch",
+            "sub": "tail -f · grep access.log",
+            "kind": "monitor",
+            "zone": "targets",
+            "x": 620,
+            "y": 310,
             "arrives": 3,
             "records": "incident_report",
             "role": "blue",
-            "purpose": "Every alert worked to a decision and a containment step"
+            "purpose": "Catches the live SQL injection as it is tried",
+            "builtBy": [
+              "blue-w3-detection::blue-w3-s2",
+              "blue-w3-detection::blue-w3-s3"
+            ]
           },
           {
-            "id": "evidence",
-            "label": "Evidence vault",
-            "sub": "sha256 · custody log",
-            "kind": "evidence",
-            "zone": "soc",
-            "x": 835,
+            "id": "contain",
+            "label": "Containment",
+            "sub": "ufw deny · firewall rule",
+            "kind": "firewall",
+            "zone": "targets",
+            "x": 620,
+            "y": 380,
+            "arrives": 3,
+            "records": "incident_report",
+            "role": "blue",
+            "purpose": "Cuts the attacker off once the case is confirmed",
+            "builtBy": [
+              "blue-w3-detection::blue-w3-s4",
+              "blue-w3-detection::blue-w3-s5"
+            ]
+          },
+          {
+            "id": "workspace",
+            "label": "Team workspace",
+            "sub": "team-artifacts/",
+            "kind": "data",
+            "zone": "proof",
+            "x": 830,
+            "y": 170,
+            "arrives": 0,
+            "records": "scope_roe",
+            "role": "grc",
+            "purpose": "Where every artefact is filed, week by week",
+            "builtBy": [
+              "grc-w0-setup::grc-w0-s1"
+            ]
+          },
+          {
+            "id": "risk",
+            "label": "Risk scoring",
+            "sub": "likelihood × impact · CVSS",
+            "kind": "data",
+            "zone": "proof",
+            "x": 830,
             "y": 240,
+            "arrives": 2,
+            "records": "risk_register",
+            "role": "grc",
+            "purpose": "Scores each finding so the fix order is defensible",
+            "builtBy": [
+              "grc-w2-risk"
+            ]
+          },
+          {
+            "id": "hashes",
+            "label": "Evidence hashes",
+            "sub": "sha256sum · custody",
+            "kind": "evidence",
+            "zone": "proof",
+            "x": 830,
+            "y": 310,
             "arrives": 3,
             "records": "evidence_log",
             "role": "grc",
-            "purpose": "Hashed copies of what the findings rest on"
+            "purpose": "Hashes every file so the evidence cannot be altered",
+            "builtBy": [
+              "grc-w3-custody::grc-w3-s2",
+              "grc-w3-custody::grc-w3-s3"
+            ]
+          },
+          {
+            "id": "briefing",
+            "label": "Final briefing",
+            "sub": "report · slides",
+            "kind": "people",
+            "zone": "proof",
+            "x": 830,
+            "y": 380,
+            "arrives": 4,
+            "records": "final_report",
+            "role": "grc",
+            "purpose": "The capstone: findings, risks and recommendations",
+            "builtBy": [
+              "grc-w4-report"
+            ]
           },
           {
             "id": "r_scope",
@@ -8256,7 +8674,7 @@
             "kind": "record",
             "zone": "records",
             "x": 85,
-            "y": 368,
+            "y": 458,
             "arrives": 1,
             "records": "scope_roe",
             "role": "grc",
@@ -8269,7 +8687,7 @@
             "kind": "record",
             "zone": "records",
             "x": 216,
-            "y": 368,
+            "y": 458,
             "arrives": 1,
             "records": "asset_inventory",
             "role": "grc",
@@ -8282,7 +8700,7 @@
             "kind": "record",
             "zone": "records",
             "x": 347,
-            "y": 368,
+            "y": 458,
             "arrives": 1,
             "records": "framework_mapping",
             "role": "grc",
@@ -8295,7 +8713,7 @@
             "kind": "record",
             "zone": "records",
             "x": 478,
-            "y": 368,
+            "y": 458,
             "arrives": 1,
             "records": "security_policy",
             "role": "grc",
@@ -8308,7 +8726,7 @@
             "kind": "record",
             "zone": "records",
             "x": 609,
-            "y": 368,
+            "y": 458,
             "arrives": 1,
             "records": "hardening_standard",
             "role": "grc",
@@ -8321,7 +8739,7 @@
             "kind": "record",
             "zone": "records",
             "x": 740,
-            "y": 368,
+            "y": 458,
             "arrives": 1,
             "records": "hardening_baseline",
             "role": "blue",
@@ -8334,7 +8752,7 @@
             "kind": "record",
             "zone": "records",
             "x": 871,
-            "y": 368,
+            "y": 458,
             "arrives": 1,
             "records": "change_log",
             "role": "blue",
@@ -8347,7 +8765,7 @@
             "kind": "record",
             "zone": "records",
             "x": 85,
-            "y": 402,
+            "y": 492,
             "arrives": 2,
             "records": "risk_register",
             "role": "grc",
@@ -8360,7 +8778,7 @@
             "kind": "record",
             "zone": "records",
             "x": 216,
-            "y": 402,
+            "y": 492,
             "arrives": 2,
             "records": "vm_sop",
             "role": "grc",
@@ -8373,7 +8791,7 @@
             "kind": "record",
             "zone": "records",
             "x": 347,
-            "y": 402,
+            "y": 492,
             "arrives": 2,
             "records": "pentest_report",
             "role": "red",
@@ -8386,7 +8804,7 @@
             "kind": "record",
             "zone": "records",
             "x": 478,
-            "y": 402,
+            "y": 492,
             "arrives": 3,
             "records": "ir_runbook",
             "role": "grc",
@@ -8399,7 +8817,7 @@
             "kind": "record",
             "zone": "records",
             "x": 609,
-            "y": 402,
+            "y": 492,
             "arrives": 3,
             "records": "incident_report",
             "role": "blue",
@@ -8412,7 +8830,7 @@
             "kind": "record",
             "zone": "records",
             "x": 740,
-            "y": 402,
+            "y": 492,
             "arrives": 3,
             "records": "evidence_log",
             "role": "grc",
@@ -8425,7 +8843,7 @@
             "kind": "record",
             "zone": "records",
             "x": 871,
-            "y": 402,
+            "y": 492,
             "arrives": 4,
             "records": "final_report",
             "role": "grc",
@@ -8438,7 +8856,7 @@
             "kind": "record",
             "zone": "records",
             "x": 85,
-            "y": 436,
+            "y": 526,
             "arrives": 4,
             "records": "sec_portfolio",
             "role": "grc",
@@ -8448,61 +8866,121 @@
         "edges": [
           {
             "from": "kali",
-            "to": "edge",
+            "to": "ubuntu",
             "label": "recon · scans · exploits"
           },
           {
-            "from": "edge",
+            "from": "kali",
+            "to": "windows",
+            "label": "RDP · accounts"
+          },
+          {
+            "from": "linhard",
             "to": "ubuntu",
-            "label": "allowed ports only"
+            "label": "baseline",
+            "kind": "trust"
+          },
+          {
+            "from": "winhard",
+            "to": "windows",
+            "label": "baseline",
+            "kind": "trust"
           },
           {
             "from": "ubuntu",
-            "to": "logpipe",
-            "label": "syslog · web logs",
+            "to": "weblog",
+            "label": "access.log",
             "kind": "log"
           },
           {
-            "from": "logpipe",
-            "to": "siem",
-            "label": "forwarded",
+            "from": "windows",
+            "to": "winlog",
+            "label": "4624 · 4625",
             "kind": "log"
           },
           {
-            "from": "siem",
-            "to": "cases",
-            "label": "alerts",
-            "kind": "log"
-          },
-          {
-            "from": "ubuntu",
-            "to": "backup",
+            "from": "hypervisor",
+            "to": "snapshot",
             "label": "snapshot",
             "kind": "backup"
           },
           {
-            "from": "accounts",
-            "to": "ubuntu",
-            "label": "policy",
-            "kind": "trust"
+            "from": "capture",
+            "to": "hashes",
+            "label": "pcaps, hashed",
+            "kind": "log"
+          },
+          {
+            "from": "weblog",
+            "to": "contain",
+            "label": "detect → block",
+            "kind": "admin"
+          },
+          {
+            "from": "hashes",
+            "to": "briefing",
+            "label": "evidence",
+            "kind": "log"
           }
-        ]
+        ],
+        "spec": {
+          "columns": [
+            "Component",
+            "Address",
+            "Runs",
+            "Who"
+          ],
+          "rows": [
+            [
+              "Hypervisor",
+              "—",
+              "VirtualBox · VMware · UTM",
+              "Everyone"
+            ],
+            [
+              "Kali attacker",
+              "10.10.10.10",
+              "recon · scan · exploit",
+              "Red"
+            ],
+            [
+              "Ubuntu web server",
+              "10.10.10.5",
+              "DVWA in Docker · SSH",
+              "Blue"
+            ],
+            [
+              "Windows host",
+              "10.10.10.6",
+              "RDP · local accounts",
+              "Blue"
+            ]
+          ]
+        }
       },
       "ARCH_BUILD": {
         "arrives": {
-          "internet": 0,
+          "hypervisor": 0,
+          "labaccess": 0,
           "kali": 0,
+          "osint": 1,
           "scanner": 2,
-          "edge": 0,
-          "logpipe": 2,
+          "exploits": 3,
           "ubuntu": 0,
+          "dvwa": 0,
+          "linhard": 1,
+          "snapshot": 0,
           "windows": 0,
-          "hardening": 1,
-          "accounts": 1,
-          "backup": 3,
-          "siem": 2,
-          "cases": 3,
-          "evidence": 3,
+          "winhard": 1,
+          "winlog": 2,
+          "capture": 2,
+          "rules": 2,
+          "weblog": 3,
+          "contain": 3,
+          "workspace": 0,
+          "risk": 2,
+          "hashes": 3,
+          "briefing": 4,
           "r_scope": 1,
           "r_assets": 1,
           "r_framework": 1,
@@ -8525,18 +9003,23 @@
             "steps": [
               {
                 "from": "kali",
-                "to": "edge",
-                "label": "OSINT · passive recon"
+                "to": "ubuntu",
+                "label": "passive recon, nothing loud"
               },
               {
-                "from": "edge",
-                "to": "ubuntu",
-                "label": "map the target, quietly"
+                "from": "osint",
+                "to": "r_assets",
+                "label": "profile into the asset list"
               },
               {
                 "from": "r_standard",
-                "to": "hardening",
+                "to": "linhard",
                 "label": "hardening standard applied"
+              },
+              {
+                "from": "r_standard",
+                "to": "winhard",
+                "label": "same baseline on Windows"
               }
             ]
           },
@@ -8545,18 +9028,23 @@
             "steps": [
               {
                 "from": "scanner",
-                "to": "ubuntu",
-                "label": "port & web scanning"
+                "to": "dvwa",
+                "label": "port and web scanning"
               },
               {
-                "from": "logpipe",
-                "to": "siem",
-                "label": "baseline capture"
+                "from": "capture",
+                "to": "rules",
+                "label": "baseline becomes detection filters"
               },
               {
-                "from": "siem",
+                "from": "windows",
+                "to": "winlog",
+                "label": "turn on logon auditing"
+              },
+              {
+                "from": "scanner",
                 "to": "r_risks",
-                "label": "findings → risk register"
+                "label": "findings into the risk register"
               }
             ]
           },
@@ -8564,19 +9052,24 @@
             "title": "The Breach",
             "steps": [
               {
-                "from": "kali",
-                "to": "ubuntu",
-                "label": "live exploits"
+                "from": "exploits",
+                "to": "dvwa",
+                "label": "live exploits land"
               },
               {
-                "from": "siem",
-                "to": "cases",
-                "label": "detect and contain"
+                "from": "weblog",
+                "to": "contain",
+                "label": "detect, then cut it off"
               },
               {
-                "from": "cases",
-                "to": "evidence",
-                "label": "preserve the evidence"
+                "from": "winlog",
+                "to": "contain",
+                "label": "failed logons, then block"
+              },
+              {
+                "from": "capture",
+                "to": "hashes",
+                "label": "preserve the evidence, hashed"
               }
             ]
           },
@@ -8584,24 +9077,29 @@
             "title": "Payday",
             "steps": [
               {
-                "from": "evidence",
+                "from": "hashes",
                 "to": "r_final",
-                "label": "evidence → findings"
+                "label": "evidence into findings"
               },
               {
                 "from": "r_risks",
                 "to": "r_final",
-                "label": "final report & presentation"
+                "label": "risks into the final report"
+              },
+              {
+                "from": "r_final",
+                "to": "briefing",
+                "label": "brief it to the room"
               }
             ]
           }
         },
         "captions": {
-          "0": "The lab: a Kali attacker outside, the edge firewall, the Ubuntu web server and the optional Windows host. Nothing is hardened yet.",
-          "1": "New: the hardening baseline, the account policy and the first seven records. Red maps the target without making noise.",
-          "2": "New: the scanner, log forwarding and the SIEM. Red scans while Blue learns what normal looks like and GRC opens the risk register.",
-          "3": "New: the snapshot, the case queue and the evidence vault. Red attacks for real; Blue detects, contains and preserves what it found.",
-          "4": "New: the final report. No new traffic — the evidence becomes findings and recommendations."
+          "0": "The lab, built: one isolated Host-Only network with a Kali attacker, the Ubuntu and Windows targets, a snapshot and the GRC workspace.",
+          "1": "New: Red profiles the target with OSINT; Blue hardens both hosts with ufw, fail2ban, Lynis and Defender; GRC issues the hardening standard.",
+          "2": "New: the scanner, Windows logon auditing, packet capture and detection filters. Red scans while Blue learns normal traffic and GRC opens the risk register.",
+          "3": "New: live exploits, the web-log watch, the containment rule and the evidence hashes. Red attacks for real; Blue detects, contains and preserves.",
+          "4": "New: the final report and the briefing. No new traffic — the evidence becomes findings, the risks become recommendations, and the team briefs the room."
         }
       }
     },
@@ -8610,14 +9108,15 @@
         "week": 0,
         "builtThrough": 0,
         "highlight": [],
-        "caption": "The lab: a Kali attacker outside, the edge firewall, the Ubuntu web server and the optional Windows host. Nothing is hardened yet."
+        "caption": "The lab, built: one isolated Host-Only network with a Kali attacker, the Ubuntu and Windows targets, a snapshot and the GRC workspace."
       },
       {
         "week": 1,
         "builtThrough": 1,
         "highlight": [
-          "hardening",
-          "accounts",
+          "osint",
+          "linhard",
+          "winhard",
           "r_scope",
           "r_assets",
           "r_framework",
@@ -8631,30 +9130,37 @@
           "steps": [
             {
               "from": "kali",
-              "to": "edge",
-              "label": "OSINT · passive recon"
+              "to": "ubuntu",
+              "label": "passive recon, nothing loud"
             },
             {
-              "from": "edge",
-              "to": "ubuntu",
-              "label": "map the target, quietly"
+              "from": "osint",
+              "to": "r_assets",
+              "label": "profile into the asset list"
             },
             {
               "from": "r_standard",
-              "to": "hardening",
+              "to": "linhard",
               "label": "hardening standard applied"
+            },
+            {
+              "from": "r_standard",
+              "to": "winhard",
+              "label": "same baseline on Windows"
             }
           ]
         },
-        "caption": "New: the hardening baseline, the account policy and the first seven records. Red maps the target without making noise."
+        "caption": "New: Red profiles the target with OSINT; Blue hardens both hosts with ufw, fail2ban, Lynis and Defender; GRC issues the hardening standard."
       },
       {
         "week": 2,
         "builtThrough": 2,
         "highlight": [
           "scanner",
-          "logpipe",
-          "siem",
+          "winlog",
+          "capture",
+          "rules",
+          "risk",
           "r_risks",
           "r_vmsop",
           "r_pentest"
@@ -8664,30 +9170,36 @@
           "steps": [
             {
               "from": "scanner",
-              "to": "ubuntu",
-              "label": "port & web scanning"
+              "to": "dvwa",
+              "label": "port and web scanning"
             },
             {
-              "from": "logpipe",
-              "to": "siem",
-              "label": "baseline capture"
+              "from": "capture",
+              "to": "rules",
+              "label": "baseline becomes detection filters"
             },
             {
-              "from": "siem",
+              "from": "windows",
+              "to": "winlog",
+              "label": "turn on logon auditing"
+            },
+            {
+              "from": "scanner",
               "to": "r_risks",
-              "label": "findings → risk register"
+              "label": "findings into the risk register"
             }
           ]
         },
-        "caption": "New: the scanner, log forwarding and the SIEM. Red scans while Blue learns what normal looks like and GRC opens the risk register."
+        "caption": "New: the scanner, Windows logon auditing, packet capture and detection filters. Red scans while Blue learns normal traffic and GRC opens the risk register."
       },
       {
         "week": 3,
         "builtThrough": 3,
         "highlight": [
-          "backup",
-          "cases",
-          "evidence",
+          "exploits",
+          "weblog",
+          "contain",
+          "hashes",
           "r_runbook",
           "r_incident",
           "r_evidence"
@@ -8696,28 +9208,34 @@
           "title": "The Breach",
           "steps": [
             {
-              "from": "kali",
-              "to": "ubuntu",
-              "label": "live exploits"
+              "from": "exploits",
+              "to": "dvwa",
+              "label": "live exploits land"
             },
             {
-              "from": "siem",
-              "to": "cases",
-              "label": "detect and contain"
+              "from": "weblog",
+              "to": "contain",
+              "label": "detect, then cut it off"
             },
             {
-              "from": "cases",
-              "to": "evidence",
-              "label": "preserve the evidence"
+              "from": "winlog",
+              "to": "contain",
+              "label": "failed logons, then block"
+            },
+            {
+              "from": "capture",
+              "to": "hashes",
+              "label": "preserve the evidence, hashed"
             }
           ]
         },
-        "caption": "New: the snapshot, the case queue and the evidence vault. Red attacks for real; Blue detects, contains and preserves what it found."
+        "caption": "New: live exploits, the web-log watch, the containment rule and the evidence hashes. Red attacks for real; Blue detects, contains and preserves."
       },
       {
         "week": 4,
         "builtThrough": 4,
         "highlight": [
+          "briefing",
           "r_final",
           "r_portfolio"
         ],
@@ -8725,18 +9243,23 @@
           "title": "Payday",
           "steps": [
             {
-              "from": "evidence",
+              "from": "hashes",
               "to": "r_final",
-              "label": "evidence → findings"
+              "label": "evidence into findings"
             },
             {
               "from": "r_risks",
               "to": "r_final",
-              "label": "final report & presentation"
+              "label": "risks into the final report"
+            },
+            {
+              "from": "r_final",
+              "to": "briefing",
+              "label": "brief it to the room"
             }
           ]
         },
-        "caption": "New: the final report. No new traffic — the evidence becomes findings and recommendations."
+        "caption": "New: the final report and the briefing. No new traffic — the evidence becomes findings, the risks become recommendations, and the team briefs the room."
       },
       {
         "week": 5,

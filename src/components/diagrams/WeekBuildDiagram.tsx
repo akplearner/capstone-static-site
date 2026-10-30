@@ -30,6 +30,7 @@ export function WeekBuildDiagram({
   business,
   highlightRole,
   compact = false,
+  built,
 }: {
   course: WeekBuildCourse;
   /** The course's own week number. */
@@ -44,6 +45,8 @@ export function WeekBuildDiagram({
   /** R100: a thumbnail — the drawing scaled or cropped to a short band, the
    *  caption still under it; the panel's Expand shows it at full size. */
   compact?: boolean;
+  /** R151: how much of each part the team has built, 0..1. Threaded into the arch picture only. */
+  built?: Record<string, number>;
 }) {
   const doc = useCourseDocument();
   const visuals = weekVisualsOf(useCourseDocument());
@@ -53,7 +56,15 @@ export function WeekBuildDiagram({
   const v = visuals.find((x) => x.week === current) ?? visuals.find((x) => x.week === week);
   if (!v) return null;
   const weeks = visuals.map((x) => x.week);
-  const status = v.week === 0 ? 'the starting point' : v.highlight.length > 0 ? `${v.highlight.length} new this week` : 'nothing new · the process is drawn';
+  const builtThisWeek = built ? v.highlight.filter((id) => (built[id] ?? 0) >= 1).length : 0;
+  const status =
+    built && v.highlight.length > 0
+      ? `${builtThisWeek} of ${v.highlight.length} parts built this week`
+      : v.week === 0
+        ? 'the starting point'
+        : v.highlight.length > 0
+          ? `${v.highlight.length} new this week`
+          : 'nothing new · the process is drawn';
   const picture = course.topologyPicture ?? 'arch';
 
   let drawing: React.ReactNode = null;
@@ -67,7 +78,7 @@ export function WeekBuildDiagram({
   } else if (picture === 'campus') {
     drawing = <CcnaTopologyDiagram builtThrough={v.builtThrough} glow={v.highlight} process={v.process} />;
   } else {
-    drawing = <ArchDiagram builtThrough={v.builtThrough} glow={v.highlight} process={v.process} highlightRole={highlightRole} />;
+    drawing = <ArchDiagram builtThrough={v.builtThrough} glow={v.highlight} process={v.process} highlightRole={highlightRole} built={built} />;
   }
 
   return (

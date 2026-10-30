@@ -4,28 +4,32 @@ What the architecture gains each week, what each part is for, which form records
 
 ## Week 0 — Lab Setup & Rules of Engagement
 
-> The lab: a Kali attacker outside, the edge firewall, the Ubuntu web server and the optional Windows host. Nothing is hardened yet.
+> The lab, built: one isolated Host-Only network with a Kali attacker, the Ubuntu and Windows targets, a snapshot and the GRC workspace.
 
 You start with:
 
 | Part | Purpose | Recorded in |
 | --- | --- | --- |
-| Internet | Where passive recon starts and the scope is checked first | Scope & Rules of Engagement |
-| Kali attacker | The attacker’s box: recon, scanning and exploitation inside scope | Scope & Rules of Engagement |
-| Edge firewall | The only path in: allowed ports, everything else dropped | Hardening Baseline |
-| Ubuntu web server | The target: the web application the company runs | Asset Inventory |
-| Windows host | Optional second target: RDP and local accounts | Asset Inventory |
+| Hypervisor | Runs every VM on one Host-Only network with no route out | Scope & Rules of Engagement |
+| Lab access panel | Where your own hosts and addresses go, substituted into commands | Scope & Rules of Engagement |
+| Kali attacker | The attacker’s box, inside the authorized scope | Scope & Rules of Engagement |
+| Ubuntu web server | The web target the attack chain lands on | Asset Inventory |
+| DVWA | The deliberately vulnerable app Red attacks | Asset Inventory |
+| VM snapshot | The restore point the runbook falls back to | Incident-Response Runbook |
+| Windows host | The second target: RDP and local accounts | Asset Inventory |
+| Team workspace | Where every artefact is filed, week by week | Scope & Rules of Engagement |
 
 ## Week 1 — Cold Recon
 
-> New: the hardening baseline, the account policy and the first seven records. Red maps the target without making noise.
+> New: Red profiles the target with OSINT; Blue hardens both hosts with ufw, fail2ban, Lynis and Defender; GRC issues the hardening standard.
 
 This week adds:
 
 | Part | Purpose | Recorded in |
 | --- | --- | --- |
-| Hardening baseline | The settings applied before the attack and checked after it | Hardening Baseline |
-| Accounts and sudo | Who may log in to each host, with what rights | Lab Security Policy |
+| OSINT recon | Profiles the target quietly, before anything is loud | Asset Inventory |
+| Linux hardening | The controls applied before the attack and checked after | Hardening Baseline |
+| Windows hardening | The same baseline reached on the Windows host | Hardening Baseline |
 | Scope & RoE | Records what may be tested, when, and who authorized it | Scope & Rules of Engagement |
 | Asset inventory | Records every host, owner and classification | Asset Inventory |
 | Framework map | Records which control each task satisfies | Framework Mapping |
@@ -34,54 +38,58 @@ This week adds:
 | Hardening baseline | Records what Blue applied and the evidence | Hardening Baseline |
 | Change log | Records every change Blue made, when and why | Change Log |
 
-**Process — Cold Recon:** kali → edge (OSINT · passive recon); edge → ubuntu (map the target, quietly); r_standard → hardening (hardening standard applied).
+**Process — Cold Recon:** kali → ubuntu (passive recon, nothing loud); osint → r_assets (profile into the asset list); r_standard → linhard (hardening standard applied); r_standard → winhard (same baseline on Windows).
 
 ## Week 2 — Hard Target
 
-> New: the scanner, log forwarding and the SIEM. Red scans while Blue learns what normal looks like and GRC opens the risk register.
+> New: the scanner, Windows logon auditing, packet capture and detection filters. Red scans while Blue learns normal traffic and GRC opens the risk register.
 
 This week adds:
 
 | Part | Purpose | Recorded in |
 | --- | --- | --- |
-| Vulnerability scanner | Finds the weaknesses the risk register ranks | Vulnerability-Management SOP |
-| Log forwarding | Sends host and web logs to the SOC as they happen | Hardening Baseline |
-| SIEM | Turns forwarded logs into alerts Blue can act on | Incident Report |
+| Vulnerability scan | Finds and ranks the weaknesses the risk register scores | Penetration Test Report |
+| Windows logging | Records every logon so a brute force is visible | Vulnerability-Management SOP |
+| Packet capture | The normal and attack traffic samples Blue reads | Vulnerability-Management SOP |
+| Detection filters | The filters that name the attack in the capture | Vulnerability-Management SOP |
+| Risk scoring | Scores each finding so the fix order is defensible | Risk Register |
 | Risk register | Records each risk, scored, with its owner and treatment | Risk Register |
 | VM SOP | Records how scans run and how findings are handled | Vulnerability-Management SOP |
 | Pentest report | Records what Red found, proved and recommends | Penetration Test Report |
 
-**Process — Hard Target:** scanner → ubuntu (port & web scanning); logpipe → siem (baseline capture); siem → r_risks (findings → risk register).
+**Process — Hard Target:** scanner → dvwa (port and web scanning); capture → rules (baseline becomes detection filters); windows → winlog (turn on logon auditing); scanner → r_risks (findings into the risk register).
 
 ## Week 3 — The Breach
 
-> New: the snapshot, the case queue and the evidence vault. Red attacks for real; Blue detects, contains and preserves what it found.
+> New: live exploits, the web-log watch, the containment rule and the evidence hashes. Red attacks for real; Blue detects, contains and preserves.
 
 This week adds:
 
 | Part | Purpose | Recorded in |
 | --- | --- | --- |
-| VM snapshot | The restore point the runbook falls back to | Incident-Response Runbook |
-| Case queue | Every alert worked to a decision and a containment step | Incident Report |
-| Evidence vault | Hashed copies of what the findings rest on | Evidence Log |
+| Authorized attacks | Proves each finding with evidence, inside scope | Penetration Test Report |
+| Web-log watch | Catches the live SQL injection as it is tried | Incident Report |
+| Containment | Cuts the attacker off once the case is confirmed | Incident Report |
+| Evidence hashes | Hashes every file so the evidence cannot be altered | Evidence Log |
 | IR runbook | Records the steps Blue follows when an alert fires | Incident-Response Runbook |
 | Incident report | Records what happened, when it was seen, and the containment | Incident Report |
 | Evidence log | Records every file, its hash and its custody | Evidence Log |
 
-**Process — The Breach:** kali → ubuntu (live exploits); siem → cases (detect and contain); cases → evidence (preserve the evidence).
+**Process — The Breach:** exploits → dvwa (live exploits land); weblog → contain (detect, then cut it off); winlog → contain (failed logons, then block); capture → hashes (preserve the evidence, hashed).
 
 ## Week 4 — Payday
 
-> New: the final report. No new traffic — the evidence becomes findings and recommendations.
+> New: the final report and the briefing. No new traffic — the evidence becomes findings, the risks become recommendations, and the team briefs the room.
 
 This week adds:
 
 | Part | Purpose | Recorded in |
 | --- | --- | --- |
+| Final briefing | The capstone: findings, risks and recommendations | Final Report & Briefing |
 | Final report | The capstone: findings, risks and recommendations | Final Report & Briefing |
 | Portfolio | The repository, case study, resume bullets and diagram | Portfolio |
 
-**Process — Payday:** evidence → r_final (evidence → findings); r_risks → r_final (final report & presentation).
+**Process — Payday:** hashes → r_final (evidence into findings); r_risks → r_final (risks into the final report); r_final → briefing (brief it to the room).
 
 ## Week 5 — AI security validation: Attack the model
 
