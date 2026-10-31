@@ -223,7 +223,7 @@ export interface DeliverableVersion {
 
 export interface JoinResult {
   ok: boolean;
-  reason?: 'team-full' | 'network';
+  reason?: 'team-full' | 'network' | 'role-taken' | 'role-full';
 }
 
 // Courses: built-in seeds merged with instructor-authored courses. The only
@@ -308,6 +308,10 @@ export interface ProgressRepository {
   leaveTeam(courseId: string, memberId: string): boolean | Promise<boolean>;
   /** R150: the latest session this student has belonged to on the course, or null if never. */
   getCohortFloor(courseId: string): string | null;
+  /** R154: whether each role on a team welcomes a co-work peer, keyed `${teamId}::${role}` (true = a
+   *  second member may join that role). A role's current holder (or an instructor) sets it. */
+  getRolePeering(courseId: string): Record<string, boolean>;
+  setRolePeering(courseId: string, teamId: string, role: string, allowed: boolean): void | Promise<void>;
 
   getCompletionKeySet(courseId: string, memberId: string): Set<string>;
   isStepComplete(courseId: string, memberId: string, taskId: string, stepId: string, keySet?: Set<string>): boolean;

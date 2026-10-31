@@ -59,6 +59,8 @@ const labAccessByCourse = new Map<string, LabAccessData>();
 const userStateByCourse = new Map<string, UserCourseState>();
 // R150: the latest class session the signed-in member has belonged to, per course (membership_cohort_floor).
 const cohortFloorByCourse = new Map<string, string>();
+// R154: which roles on a team welcome a co-work peer, per course, keyed `${teamId}::${role}`.
+const rolePeeringByCourse = new Map<string, Record<string, boolean>>();
 // The evidence ledger. Step records are keyed
 // `${userId}::${courseId}::${taskId}::${stepId}` so one flat map serves every
 // course (the cross-course dashboard and portfolio) AND every teammate: since
@@ -177,6 +179,7 @@ export function setCurrentUserId(id: string | null) {
     labAccessByCourse.clear();
     userStateByCourse.clear();
     cohortFloorByCourse.clear();
+    rolePeeringByCourse.clear();
     // The ledger holds one student's proof of work. Failing to clear it here
     // would show the next student on a shared classroom machine the previous
     // one's verified steps and evidence hashes.
@@ -267,6 +270,18 @@ export const cache = {
   setCohortFloor(courseId: string, cohort: string) {
     const cur = cohortFloorByCourse.get(courseId);
     if (!cur || cohort > cur) cohortFloorByCourse.set(courseId, cohort);
+  },
+  rolePeering(courseId: string): Record<string, boolean> {
+    return rolePeeringByCourse.get(courseId) ?? {};
+  },
+  setRolePeeringMap(courseId: string, map: Record<string, boolean>) {
+    rolePeeringByCourse.set(courseId, map);
+  },
+  setRolePeeringOne(courseId: string, teamId: string, role: string, allowed: boolean) {
+    const map = { ...(rolePeeringByCourse.get(courseId) ?? {}) };
+    if (allowed) map[`${teamId}::${role}`] = true;
+    else delete map[`${teamId}::${role}`];
+    rolePeeringByCourse.set(courseId, map);
   },
   setUserState(courseId: string, data: UserCourseState) {
     userStateByCourse.set(courseId, data);
@@ -743,6 +758,20 @@ export async function hydrateCourse(courseId: string): Promise<void> {
         cohortFloorByCourse.set(courseId, String(data.cohort));
         notifyStore();
       }
+    });
+
+  // R154: which roles on this course's teams welcome a peer (coursemate-readable by RLS); a project that
+  // has not run 0029 has no table — ignore.
+  void supabase
+    .from('role_peering')
+    .select('team_id, role, allowed')
+    .eq('course_id', courseId)
+    .then(({ data, error }) => {
+      if (error || !data) return;
+      const map: Record<string, boolean> = {};
+      for (const r of data as { team_id: string; role: string; allowed: boolean }[]) if (r.allowed) map[`${r.team_id}::${r.role}`] = true;
+      rolePeeringByCourse.set(courseId, map);
+      notifyStore();
     });
 
   if (completions.data) {

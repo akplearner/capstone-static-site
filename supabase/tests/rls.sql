@@ -492,11 +492,11 @@ end $$;
 reset role;
 
 -- ── R85: the roster can be fixed — by staff, and only staff ────────────────
--- Zed finally joins (his own write, 0001), on the wrong team by mistake.
+-- Zed finally joins (his own write, 0001), on the wrong team by mistake (a free role, R154).
 set local role authenticated;
 set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000e';
 insert into public.memberships (user_id, course_id, team_id, role, display_name, cohort)
-  values ('00000000-0000-4000-8000-00000000000e', 'security-plus', '2026-01-T01', 'net', 'Zed', '2026-01');
+  values ('00000000-0000-4000-8000-00000000000e', 'security-plus', '2026-01-T01', 'grc', 'Zed', '2026-01');
 reset role;
 
 -- A student cannot manage anyone else's membership: the update touches nothing.
@@ -1810,6 +1810,59 @@ do $$ begin
 end $$;
 reset role;
 rollback to savepoint cohort_rules;
+
+-- ── R154: a role is led by one; a second joins only as a permitted peer ──
+savepoint role_rules;
+set local app.cohort_today = '2026-01-15';
+-- Fixtures here: Ada 'net' on 2026-01-T01, Bob 'sec' on the same team, Cy 'net' on 2026-01-T02.
+-- 1) Bob cannot take Ada's role while peering is closed, nor open peering on a role he does not hold.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000b';
+do $$ begin
+  begin
+    update public.memberships set role = 'net' where user_id = '00000000-0000-4000-8000-00000000000b' and course_id = 'security-plus';
+    raise exception 'bob took a taken role without permission';
+  exception when check_violation then null; end;
+  begin
+    insert into public.role_peering (course_id, team_id, role, allowed) values ('security-plus', '2026-01-T01', 'net', true);
+    raise exception 'bob opened peering on a role he does not hold';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+-- 2) Ada, the net holder, opens peering; Bob may then join net as the co-work peer.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+insert into public.role_peering (course_id, team_id, role, allowed) values ('security-plus', '2026-01-T01', 'net', true)
+  on conflict (course_id, team_id, role) do update set allowed = true;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000b';
+do $$ begin
+  update public.memberships set role = 'net' where user_id = '00000000-0000-4000-8000-00000000000b' and course_id = 'security-plus';
+  assert (select role from public.memberships where user_id = '00000000-0000-4000-8000-00000000000b' and course_id = 'security-plus') = 'net', 'bob joined net as a permitted peer';
+end $$;
+reset role;
+-- A coursemate reads which roles allow a peer.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000c';
+do $$ begin
+  assert (select allowed from public.role_peering where course_id = 'security-plus' and team_id = '2026-01-T01' and role = 'net'), 'a coursemate reads the peering flag';
+end $$;
+reset role;
+-- 3) The cap holds even for an instructor: net on T01 already has two, so no one else may join it.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000d';
+do $$ begin
+  begin
+    update public.memberships set team_id = '2026-01-T01', role = 'net' where user_id = '00000000-0000-4000-8000-00000000000c' and course_id = 'security-plus';
+    raise exception 'ivy put a third member on the net role';
+  exception when check_violation then null; end;
+  -- 4) But an instructor may place a peer WITHOUT the flag: Bob joins Cy on net at T02 (peering closed there).
+  update public.memberships set team_id = '2026-01-T02', role = 'net' where user_id = '00000000-0000-4000-8000-00000000000b' and course_id = 'security-plus';
+  assert (select count(*) from public.memberships where team_id = '2026-01-T02' and role = 'net') = 2, 'ivy placed a net peer without the flag';
+end $$;
+reset role;
+rollback to savepoint role_rules;
 
 -- ── R149: the state blob is merged on the server, one key at a time ─────────
 -- Two devices each patch only the keys they own; neither erases the other's. A null removes a key.

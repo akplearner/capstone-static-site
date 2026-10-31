@@ -450,6 +450,18 @@ student's local time: the browser shows the exact window, the database is the ba
 the SQL Editor and **Run** (safe to repeat) to apply it. Students who left a team before this was applied have no floor
 yet; floors begin with the first join or leave after it.
 
+### A role is led by one; a second joins only as a permitted peer (R154)
+
+**Migration 0029** (in `supabase/setup.sql`) makes the team's role rule the database's. A team keeps its
+seats and its roles. Each role is **led by one** member; a **second** may join that same role as a
+**co-work peer**, but only if the role's current holder has allowed it, and **never a third**.
+`role_peering` holds, per (course, team, role), whether a peer is welcome — written only by a current
+holder of that role (an instructor too), read by anyone on the course. `membership_role_guard`, a trigger
+on `memberships`, refuses a join onto a role that already has two, and refuses the second unless peering is
+open there (instructors are exempt from the permission, never from the cap). Changing your name, or
+keeping your own role, is not a "join" and is never refused. Paste `supabase/setup.sql` into the SQL
+Editor and **Run** (safe to repeat) to apply it.
+
 ## Let students delete their account
 
 The privacy policy promises account deletion. Removing the login itself needs the
@@ -620,6 +632,7 @@ Still worth ten minutes on the live site before real students:
 | Profiles | you, teammates and staff (name and picture); only you may change them, never the staff flags |
 | Team membership | anyone on the same course; staff may also move/re-role/remove (students still join themselves). A student joins **this month's or next month's** class session and, once in one, only ever moves forward (0028, below) |
 | Session floor (`membership_cohort_floor`) | **you** and staff read; **nobody** writes it by hand — the database raises it as you join or leave, and it outlives the membership so leaving never opens an earlier session |
+| Role peering (`role_peering`) | anyone on the course reads it; written only by the role's current holder (or staff) — it says whether a second member may join a role as a co-work peer (R154) |
 | Step completions | you and your teammates |
 | Evidence ledger (what earns each gem) | you and your teammates — hashes and counts, never pasted output |
 | Deliverables, gate status | your team |

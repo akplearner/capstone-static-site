@@ -103,4 +103,5 @@ export const KEYS = {
   // `membership_cohort_floor`). And the id they left under, so an offline rejoin keeps their progress.
   cohortFloor: (courseId: string) => `${STORAGE_PREFIX}${courseId}_cohort_floor`,
   leftMemberId: (courseId: string) => `${STORAGE_PREFIX}${courseId}_left_member`,
+  rolePeering: (courseId: string) => `${STORAGE_PREFIX}${courseId}_role_peering`,
 };

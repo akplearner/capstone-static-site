@@ -180,6 +180,11 @@ export const localStorageProgressRepo: ProgressRepository = {
       const onTeam = others.filter((e) => e.teamId === member.teamId).length;
       if (onTeam >= cap) return { ok: false, reason: 'team-full' };
     }
+    // R154: a role is led by one; a second joins only as a permitted peer, and never a third. A member
+    // keeping or returning to their own role on the team they are on is never refused.
+    const onRole = others.filter((e) => e.teamId === member.teamId && e.role === member.role).length;
+    if (onRole >= 2) return { ok: false, reason: 'role-full' };
+    if (onRole === 1 && !this.getRolePeering(course.id)[`${member.teamId}::${member.role}`]) return { ok: false, reason: 'role-taken' };
     const entry: RosterEntry = {
       memberId: member.memberId,
       teamId: member.teamId,
@@ -212,6 +217,24 @@ export const localStorageProgressRepo: ProgressRepository = {
   getCohortFloor(courseId: string): string | null {
     if (!hasWindow()) return null;
     return localStorage.getItem(KEYS.cohortFloor(courseId));
+  },
+
+  getRolePeering(courseId: string): Record<string, boolean> {
+    if (!hasWindow()) return {};
+    try {
+      return JSON.parse(localStorage.getItem(KEYS.rolePeering(courseId)) ?? '{}') as Record<string, boolean>;
+    } catch {
+      return {};
+    }
+  },
+
+  setRolePeering(courseId: string, teamId: string, role: string, allowed: boolean): void {
+    if (!hasWindow()) return;
+    const map = this.getRolePeering(courseId);
+    if (allowed) map[`${teamId}::${role}`] = true;
+    else delete map[`${teamId}::${role}`];
+    safeSetItem(KEYS.rolePeering(courseId), JSON.stringify(map));
+    notifyStore();
   },
 
   getCompletionKeySet(courseId: string, memberId: string): Set<string> {

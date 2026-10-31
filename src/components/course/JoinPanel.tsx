@@ -108,6 +108,21 @@ export function JoinPanel({
   const isFull = (t: string, m: TeamMode = mode) =>
     cap > 0 && usedOf(t, m) >= cap && !(member && member.teamId === composeTeamId(cohort, t, m));
 
+  // R154: within a team each role is led by one member; a second joins only as a co-work peer, and only
+  // if the role's holder has allowed it. The chosen team is the scoped id; holders come from the roster.
+  const rolePeering = useClientStore<Record<string, boolean>>(() => progressRepo.getRolePeering(course.id), EMPTY_OBJECT);
+  const scopedTeam = composeTeamId(cohort, team, mode);
+  const roleHolders = (roleId: string) => roster.filter((e) => e.teamId === scopedTeam && e.role === roleId && !(member && e.memberId === member.memberId));
+  const peerAllowed = (teamId: string, roleId: string) => !!rolePeering[`${teamId}::${roleId}`];
+  type RoleState = 'mine' | 'open' | 'peer' | 'taken' | 'full';
+  const roleState = (roleId: string): RoleState => {
+    if (member && member.role === roleId && member.teamId === scopedTeam) return 'mine';
+    const n = roleHolders(roleId).length;
+    if (n === 0) return 'open';
+    if (n === 1) return peerAllowed(scopedTeam, roleId) ? 'peer' : 'taken';
+    return 'full';
+  };
+
   // The online lobbies that exist right now in this cohort, from the roster —
   // a lobby IS its members, so an empty one disappears on its own. (First
   // lobby slice, R83: join or create with live member counts; presence, chat
@@ -139,7 +154,11 @@ export function JoinPanel({
       setError(
         res.reason === 'team-full'
           ? 'That team is full — pick another team.'
-          : 'Couldn’t reach the server to join — check your connection and try again.'
+          : res.reason === 'role-full'
+            ? 'That role already has two members — pick another role.'
+            : res.reason === 'role-taken'
+              ? 'That role is taken — ask its member to allow a co-work peer, or pick another role.'
+              : 'Couldn’t reach the server to join — check your connection and try again.'
       );
       notifyStore();
       return;
@@ -229,6 +248,15 @@ export function JoinPanel({
             {joining ? 'Leaving…' : 'Leave team'}
           </Button>
         </div>
+        {/* R154: the role's leader decides whether a co-work peer may join their role. */}
+        <label className="flex w-full items-center gap-2 text-sm text-body" data-allow-peer>
+          <input
+            type="checkbox"
+            checked={peerAllowed(member.teamId, member.role)}
+            onChange={(e) => void Promise.resolve(progressRepo.setRolePeering(course.id, member.teamId, member.role, e.target.checked))}
+          />
+          Allow a co-work peer to join my role ({rd?.name ?? member.role})
+        </label>
         {error && <p className="w-full text-sm text-danger">{error}</p>}
         <ConfirmDialog
           open={confirming === 'leave'}
@@ -446,19 +474,34 @@ export function JoinPanel({
       {course.roles.length > 0 && (
         <div>
           <span className="block text-sm font-medium text-body">Role</span>
+          {/* R154: a fixed set of roles; each is led by one, a second joins as a permitted co-work peer. */}
+          <p className="mt-1 text-xs text-muted" data-role-note>
+            This team has {course.roles.length} roles. Each is led by one member; a second may join a role as a co-work peer only if its first member allows it.
+          </p>
           <div className="mt-2 space-y-2">
             {course.roles.map((r, i) => {
               const profile = profileOf(roles.PROFILES, r.id);
               const { fn, tag } = splitRoleName(r.name);
+              const st = roleState(r.id);
+              const blocked = st === 'taken' || st === 'full';
+              const holder = roleHolders(r.id)[0]?.displayName;
+              const status =
+                st === 'mine' ? 'your role'
+                : st === 'peer' ? `${holder ?? 'A member'} leads this — you’d join as a co-work peer`
+                : st === 'taken' ? `${holder ?? 'A member'} leads this — ask them to allow a peer`
+                : st === 'full' ? 'two members — full'
+                : null;
               return (
                 <motion.button
                   key={r.id}
                   type="button"
                   data-role-pick={r.id}
-                  onClick={() => setRole(r.id)}
+                  data-role-state={st}
+                  disabled={blocked}
+                  onClick={() => { if (!blocked) setRole(r.id); }}
                   aria-pressed={role === r.id}
                   className={`flex w-full items-start gap-3 rounded-[var(--radius-control)] px-4 py-3 text-left transition-colors ${
-                    role === r.id ? 'depth-lift bg-accent-soft' : 'depth-edge depth-hover bg-panel'
+                    blocked ? 'depth-sunk cursor-not-allowed bg-panel-2 opacity-60' : role === r.id ? 'depth-lift bg-accent-soft' : 'depth-edge depth-hover bg-panel'
                   }`}
                   initial={roleMotion.on ? { opacity: 0, y: 4 } : false}
                   animate={{ opacity: 1, y: 0 }}
@@ -469,6 +512,7 @@ export function JoinPanel({
                     <span className="block font-medium text-ink">
                       {fn}
                       {tag && <span className="ml-1.5 text-xs font-normal text-muted">{tag}</span>}
+                      {status && <span className="ml-1.5 text-2xs font-normal text-muted" data-role-status>· {status}</span>}
                     </span>
                     {/* The lines that tell the roles APART: the profile where the
                         document carries one, else the role's mission. */}
@@ -488,6 +532,12 @@ export function JoinPanel({
             })}
           </div>
         </div>
+      )}
+
+      {roleState(role) === 'peer' && (
+        <p className="text-sm text-accent-ink" data-peer-notice>
+          You’ll join {roleHolders(role)[0]?.displayName ?? 'the current member'}’s role as a co-work peer.
+        </p>
       )}
 
       {error && <p className="text-sm text-danger">{error}</p>}

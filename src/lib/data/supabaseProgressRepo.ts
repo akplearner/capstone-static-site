@@ -86,6 +86,11 @@ export const supabaseProgressRepo: ProgressRepository = {
     if (cap > 0 && !staying && others.filter((e) => e.teamId === member.teamId).length >= cap) {
       return { ok: false, reason: 'team-full' };
     }
+    // R154: a role is led by one; a second joins only as a permitted peer, never a third. The DB guard
+    // (0029) is the authority; this pre-check gives the precise reason without a round trip.
+    const onRole = others.filter((e) => e.teamId === member.teamId && e.role === member.role).length;
+    if (onRole >= 2) return { ok: false, reason: 'role-full' };
+    if (onRole === 1 && !cache.rolePeering(course.id)[`${member.teamId}::${member.role}`]) return { ok: false, reason: 'role-taken' };
 
     // Remember what to restore: the membership row is the key every team-scoped
     // RLS policy turns on, so if it does not land, the student must not LOOK
@@ -128,6 +133,10 @@ export const supabaseProgressRepo: ProgressRepository = {
         if (prevContext) cache.setContext(prevContext, course.id);
         else cache.setContext(null, course.id);
         notifyStore();
+        // R154: the database guard raises a check violation for a role that is taken or full.
+        const m = error.message.toLowerCase();
+        if (m.includes('two members')) return { ok: false, reason: 'role-full' };
+        if (m.includes('role is taken')) return { ok: false, reason: 'role-taken' };
         return { ok: false, reason: 'network' };
       }
       // The display name on the profile is what teammates see; not worth
@@ -170,6 +179,23 @@ export const supabaseProgressRepo: ProgressRepository = {
 
   getCohortFloor(courseId: string): string | null {
     return cache.cohortFloor(courseId);
+  },
+
+  getRolePeering(courseId: string): Record<string, boolean> {
+    return cache.rolePeering(courseId);
+  },
+
+  // R154: a role's current holder (or an instructor) opens or closes its peer seat. Optimistic, then the
+  // row is upserted; RLS refuses anyone who is not a holder. A project without the table (0029) no-ops.
+  async setRolePeering(courseId: string, teamId: string, role: string, allowed: boolean): Promise<void> {
+    cache.setRolePeeringOne(courseId, teamId, role, allowed);
+    notifyStore();
+    const supabase = db();
+    if (!supabase) return;
+    const { error } = await supabase
+      .from('role_peering')
+      .upsert({ course_id: courseId, team_id: teamId, role, allowed, set_by: cache.context(courseId)?.memberId ?? null }, { onConflict: 'course_id,team_id,role' });
+    if (error) onWriteError('role peering', error, false);
   },
 
   getCompletionKeySet(courseId: string, memberId: string): Set<string> {

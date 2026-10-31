@@ -31,6 +31,7 @@ the record. `src/lib/page-shape.test.ts` fails if an id is removed from the tabl
 | F22 | The Security+ lab picture draws what the tasks actually build (DVWA in Docker, ufw/fail2ban/Lynis, Defender/SMBv1, tcpdump/Wireshark, Windows 4625, the web-log watch and the ufw-deny containment, the snapshot and the hypervisor) with the correct arrival weeks, and it lights up as the team completes the work; the CySA+, MSSP and SecAI+ pictures name only real tools; Security+ task text no longer cites files nothing produces | R151 | Done |
 | F23 | Students asked for a network picture they can reference: Security+ now draws a lab network (hosts, addresses, open ports, Blue's controls) behind a Build | Network switch, with a Before | After toggle and a numbered attack step-through in exam vocabulary; DVWA is on :8080 everywhere, Blue's Week-3 log watch reads the DVWA container's log, and the Windows 4625 case is shown honestly as Blue's own test logons | R152 | Done |
 | F24 | The Security+ lab-network picture is now the primary week picture (the task-flow build picture is the secondary option on an always-visible switch), and every attack, host, open port and Blue control carries a one-line description — the attack's shown in the step-through, a component's revealed on click | R153 | Done |
+| F25 | Joining a team no longer lets duplicate roles pile up: each role is led by one member, a second may join it as a co-work peer only if the first member allows it, and never a third; the join panel shows each role's state (open, peer welcome, taken, full) and the leader gets an allow-a-peer control; enforced in the browser and the database (0029: role_peering + a membership guard trigger) | R154 | Done |
 
 Order of the rounds: the field bug first (it blocks reporting and links), then the link size (the link
 fails today), then the earned-skills ledger (the record and the PDF both read it), then the live and
@@ -334,3 +335,27 @@ authored descriptions), not the component.
 `findComponent` resolves); `LabNetworkPanel.test.tsx` (the attack description updates on Next; clicking a
 host and a control reveals its description); `WeekVisualPanel.test.tsx` (Security+ opens on Network with
 Build secondary, one h3; azure shows no switch); page-shape pins; regenerated `security-plus.json`.
+
+## F25 — a role is led by one, a peer only by permission (R154, done)
+
+**What.** Nothing stopped two people taking the same role in a team (no browser check, no database
+constraint). The owner's rule: keep the six seats and the three roles, but each role is led by one
+member; a second may join that role as a **co-work peer** only if the first member has allowed it, and
+never a third. The join panel now shows each role's state — open, "peer welcome", "taken — ask to allow
+a peer", or full — disables the ones that are closed, and gives the role's leader an **allow-a-peer**
+control; a peer sees a notice before joining.
+
+**Wired.** `JoinResult.reason` gains `role-taken` and `role-full`; both progress repos check the role
+seat in `joinTeam` and expose `getRolePeering`/`setRolePeering`. Migration 0029 adds `role_peering`
+(course-readable; written only by a current holder of the role, or staff, via the `holds_role` SECURITY
+DEFINER helper so no policy subqueries memberships) and `membership_role_guard`, a BEFORE INSERT OR
+UPDATE trigger on `memberships` that refuses a third on any role and a second unless peering is open
+(instructors exempt from the permission, never from the cap). The browser pre-checks for a precise
+message; the database is the authority.
+
+**Verified.** `rolePeering.test.ts` (first leads, second refused then allowed, third refused, free role
+open, own role never refused); `JoinPanel.test.tsx` (taken role disabled with its note, peer-welcome
+selectable with the notice, the leader's allow-a-peer control); the R154 block in `supabase/tests/rls.sql`
+(second refused until allowed, cap holds even for an instructor, a non-holder cannot open peering, a
+coursemate reads the flag, an instructor may place a permitted-free peer); page-shape pins and the
+`setupSql` equality contract.

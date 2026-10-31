@@ -4436,3 +4436,24 @@ describe('R141 — the four documents, the two-lane diagram and the record conso
     expect(read('content/schemas/README.md')).toContain('`competency.schema.json`');
   });
 });
+
+describe('R154 — a role is led by one, a peer only by permission', () => {
+  it('the rule lives in the repos, the DB and the join panel', () => {
+    // The browser pre-check and the precise reasons.
+    const jp = code('src/components/course/JoinPanel.tsx');
+    expect(jp).toContain('getRolePeering');
+    expect(jp).toContain('data-allow-peer');
+    expect(jp).toContain('setRolePeering(');
+    expect(jp, 'the taken-role message').toContain('role-taken');
+    expect(code('src/lib/data/types.ts')).toContain('getRolePeering');
+    for (const f of ['src/lib/data/localStorageProgressRepo.ts', 'src/lib/data/supabaseProgressRepo.ts']) {
+      expect(code(f), `${f}: joins check the role seat`).toContain("reason: 'role-full'");
+      expect(code(f)).toContain("reason: 'role-taken'");
+    }
+    // The database is the authority: a guard trigger and the peering table.
+    const sql = read('supabase/migrations/0029_role_peering.sql');
+    expect(sql).toContain('create table if not exists public.role_peering');
+    expect(sql).toContain('function public.membership_role_guard()');
+    expect(read('supabase/setup.sql'), 'the migration is flattened in').toContain('public.membership_role_guard()');
+  });
+});

@@ -142,3 +142,37 @@ describe('JoinPanel — R150 class sessions', () => {
     expect(progressRepo.getCohortFloor(C.id)).toBe(COHORT);
   });
 });
+
+/**
+ * R154 — within a team each role is led by one; a second may take an occupied role only as a co-work
+ * peer the first member allowed. The picker shows the state and the enrolled member can open the seat.
+ */
+describe('JoinPanel — R154 role peering', () => {
+  const ROLE = C.roles[0].id;
+  const seatTaken = () => localStorage.setItem(KEYS.roster(C.id), JSON.stringify([{ ...member(ROLE), memberId: 'other', displayName: 'Dana', teamId: composeTeamId(COHORT, '1', 'local'), joinedAt: 1 }]));
+
+  it('a taken role is disabled with a "taken" note until a peer is allowed', () => {
+    seatTaken();
+    const { container } = mount(C, null);
+    const chip = container.querySelector(`[data-role-pick="${ROLE}"]`)!;
+    expect(chip.getAttribute('data-role-state')).toBe('taken');
+    expect(chip).toBeDisabled();
+    expect(container.querySelector('[data-role-note]')!.textContent).toMatch(/co-work peer/);
+  });
+
+  it('once the role allows a peer, it is selectable and shows the peer notice', () => {
+    seatTaken();
+    localStorage.setItem(KEYS.rolePeering(C.id), JSON.stringify({ [`${composeTeamId(COHORT, '1', 'local')}::${ROLE}`]: true }));
+    const { container } = mount(C, null);
+    const chip = container.querySelector(`[data-role-pick="${ROLE}"]`)!;
+    expect(chip.getAttribute('data-role-state')).toBe('peer');
+    expect(chip).not.toBeDisabled();
+    fireEvent.click(chip);
+    expect(container.querySelector('[data-peer-notice]')!.textContent).toMatch(/co-work peer/);
+  });
+
+  it('the enrolled role leader sees an allow-a-peer control', () => {
+    const { container } = mount(C, member(ROLE));
+    expect(container.querySelector('[data-allow-peer]')).not.toBeNull();
+  });
+});
