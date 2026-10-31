@@ -45,6 +45,11 @@ import { PAGE_ROWS } from './selectAll';
 // shape, so every progress-math helper is reused verbatim with userId in the
 // memberId slot. The cache holds the current user's data AND teammates' (RLS lets
 // teammates read each other), which powers team visibility.
+//
+// R155: the ROSTER (memberships) and the peer flags (role_peering) are readable by any signed-in
+// user, member or not — the join panel shows every team's seats, each role's state and the lobbies
+// BEFORE you join, and keeps them live. That pre-join visibility is intentional (0030); do not
+// narrow it back to teammates. Everything a team works on stays team-scoped.
 
 let currentUserId: string | null = null;
 const completionKeys = new Set<string>(); // KEYS.completion(...) for self + teammates
@@ -760,8 +765,8 @@ export async function hydrateCourse(courseId: string): Promise<void> {
       }
     });
 
-  // R154: which roles on this course's teams welcome a peer (coursemate-readable by RLS); a project that
-  // has not run 0029 has no table — ignore.
+  // R154: which roles on this course's teams welcome a peer (readable by any signed-in user since 0030,
+  // so the join panel shows them before you join); a project that has not run 0029 has no table — ignore.
   void supabase
     .from('role_peering')
     .select('team_id, role, allowed')
@@ -1304,7 +1309,9 @@ function subscribeRealtime(courseId: string) {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'deliverable_status', filter: `course_id=eq.${courseId}` }, rehydrate)
     // R136: an instructor's marks and a teammate's flag history arrive live (published by 0024).
     .on('postgres_changes', { event: '*', schema: 'public', table: 'deliverable_review_marks', filter: `course_id=eq.${courseId}` }, rehydrate)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'step_flag_events', filter: `course_id=eq.${courseId}` }, rehydrate);
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'step_flag_events', filter: `course_id=eq.${courseId}` }, rehydrate)
+    // R155: a leader opening (or closing) a peer seat reaches every open join panel (published by 0030).
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'role_peering', filter: `course_id=eq.${courseId}` }, rehydrate);
 
   // Supabase does not deliver DELETE events to filtered listeners, so un-ticks,
   // leaves and resets never reached teammates (their % stayed up forever). One

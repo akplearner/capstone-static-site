@@ -23,7 +23,15 @@ const query = (result: unknown) => {
   );
   return q;
 };
-const channel = { on: () => channel, subscribe: () => channel, unsubscribe: () => {} };
+const listened: string[] = [];
+const channel = {
+  on: (_kind: string, spec: { table?: string }) => {
+    if (spec.table) listened.push(spec.table);
+    return channel;
+  },
+  subscribe: () => channel,
+  unsubscribe: () => {},
+};
 const asked: string[] = [];
 const client = {
   from: (table: string) => {
@@ -109,5 +117,15 @@ describe('hydrateCourse — R117 a failed first load is a failure, not "not enro
     await hydrateCourse(course);
     setCurrentUserId(null);
     expect(courseHydrateFailed(course)).toBe(false);
+  });
+});
+
+describe('subscribeRealtime — R155 the join panel stays live before you join', () => {
+  it('listens on the roster and on the peer flags, so a join or an opened peer seat reaches every open panel', async () => {
+    state.memberships = { data: [], error: null };
+    await hydrateCourse(course);
+    expect(listened, 'the roster').toContain('memberships');
+    expect(listened, 'the peer flags (published by 0030)').toContain('role_peering');
+    expect(listened, 'credentials never ride the channel').not.toContain('lab_access');
   });
 });

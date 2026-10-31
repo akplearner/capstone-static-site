@@ -32,6 +32,7 @@ the record. `src/lib/page-shape.test.ts` fails if an id is removed from the tabl
 | F23 | Students asked for a network picture they can reference: Security+ now draws a lab network (hosts, addresses, open ports, Blue's controls) behind a Build | Network switch, with a Before | After toggle and a numbered attack step-through in exam vocabulary; DVWA is on :8080 everywhere, Blue's Week-3 log watch reads the DVWA container's log, and the Windows 4625 case is shown honestly as Blue's own test logons | R152 | Done |
 | F24 | The Security+ lab-network picture is now the primary week picture (the task-flow build picture is the secondary option on an always-visible switch), and every attack, host, open port and Blue control carries a one-line description — the attack's shown in the step-through, a component's revealed on click | R153 | Done |
 | F25 | Joining a team no longer lets duplicate roles pile up: each role is led by one member, a second may join it as a co-work peer only if the first member allows it, and never a third; the join panel shows each role's state (open, peer welcome, taken, full) and the leader gets an allow-a-peer control; enforced in the browser and the database (0029: role_peering + a membership guard trigger) | R154 | Done |
+| F26 | A student who has not yet joined saw every team as 0/6, every role open and every lobby empty, with no live change: the roster and the peer flags were readable only by someone already on the course. Both are now readable by any signed-in user (never anonymous), `role_peering` is published for Realtime and the browser listens to it, so the join panel shows the real seats and role states before you join and updates live (0030) | R155 | Done |
 
 Order of the rounds: the field bug first (it blocks reporting and links), then the link size (the link
 fails today), then the earned-skills ledger (the record and the PDF both read it), then the live and
@@ -359,3 +360,31 @@ selectable with the notice, the leader's allow-a-peer control); the R154 block i
 (second refused until allowed, cap holds even for an instructor, a non-holder cannot open peering, a
 coursemate reads the flag, an instructor may place a permitted-free peer); page-shape pins and the
 `setupSql` equality contract.
+
+## F26 — the join panel sees the roster before you join, and it stays live (R155, done)
+
+**What.** On the live site a signed-in student who had not yet joined saw every team as **0/6**, every
+role as open and every lobby empty, and nothing changed while they watched — although others had joined
+and the deploy was current. The join panel exists to be read *before* joining; the facts it shows were
+hidden exactly then.
+
+**Why.** `memberships` was readable only via `shares_course(course_id)`, which is true only for a caller
+who *already* has a membership on the course (0006). A non-member's hydrate read an empty roster, so the
+seat counts fell back to 0 and every role looked open. `role_peering` (R154) had the same rule, so
+"taken" and "peer welcome" were invisible pre-join. Realtime was already wired for `memberships`, but
+Supabase delivers `postgres_changes` only for rows the reader may select — so no live change either.
+`role_peering` was not published at all, so an opened peer seat never reached other open panels.
+
+**Wired.** Migration 0030 recreates `"memberships course read"` and `"role peering read"` as
+`for select using (auth.uid() is not null)` — any signed-in user, never anonymous visitors, no subquery
+(the 0006 recursion cannot return) — and adds `role_peering` to the Realtime publication (guarded, like
+0024). `subscribeRealtime` listens on `role_peering` alongside `memberships`; the existing debounced
+hydrate refills the roster and the peer flags and the join panel re-renders from the store. Everything a
+team *works on* keeps its team-only rule; `shares_course` itself is unchanged.
+
+**Verified.** `rls.sql`: Zed (signed in, joined nothing) reads the three fixture memberships and the
+peer flags, anon reads neither; the hydrate test asserts the channel listens on `memberships` and
+`role_peering` and never on `lab_access`; page-shape pins the two policies' bodies, the publication
+line, the listener and the two rls assertions; the `setupSql` equality contract. Out of scope, by design:
+lobby avatars before joining stay as initials (profiles remain teammate-scoped), and members of another
+class session or a legacy team id stay off this month's chips.

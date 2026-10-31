@@ -434,15 +434,27 @@ reset role;
 
 
 -- ── What Zed sees (signed in, joined nothing) ───────────────────────────────
+-- R155: the roster and the peer flags are readable BEFORE joining — the join panel shows every
+-- team's seats, each role's state and the lobbies to a student about to join (0030). Anonymous
+-- visitors still read neither. Everything a team works on stays team-scoped (asserted below).
 set local role authenticated;
 set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000e';
 do $$ begin
-  assert (select count(*) from public.memberships) = 0, 'zed: no roster before joining';
+  assert (select count(*) from public.memberships) = 3, 'zed: reads the whole roster before joining (R155)';
+  assert (select count(*) from public.memberships where team_id = '2026-01-T01') = 2, 'zed: sees who is on each team';
+  assert (select count(*) from public.role_peering) = 0, 'zed: may read the peer flags (none set yet)';
   assert (select count(*) from public.step_completions) = 0, 'zed: nothing';
   assert (select count(*) from public.profiles) = 1, 'zed: his own profile only';
   assert (select count(*) from public.course_documents) = 1, 'zed: may read the course';
   assert (select count(*) from public.deliverable_submissions) = 0, 'zed: no submissions';
   assert (select count(*) from public.get_review_queue()) = 0, 'zed: an empty review queue';
+end $$;
+reset role;
+set local role anon;
+set local request.jwt.claim.sub = '';
+do $$ begin
+  assert (select count(*) from public.memberships) = 0, 'anon: no roster (R155 widens to signed-in only)';
+  assert (select count(*) from public.role_peering) = 0, 'anon: no peer flags';
 end $$;
 reset role;
 

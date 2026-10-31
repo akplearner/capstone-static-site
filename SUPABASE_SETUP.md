@@ -462,6 +462,19 @@ open there (instructors are exempt from the permission, never from the cap). Cha
 keeping your own role, is not a "join" and is never refused. Paste `supabase/setup.sql` into the SQL
 Editor and **Run** (safe to repeat) to apply it.
 
+### The join panel shows the real seats before you join, and keeps them live (R155)
+
+**Migration 0030** (in `supabase/setup.sql`) fixes a live-site symptom: a signed-in student who had not
+yet joined saw every team as **0/6**, every role open and every lobby empty, and nothing changed while
+they watched — even though others had joined. The roster and the peer flags were readable only by
+someone *already* on the course, so the join panel, which exists to be read *before* joining, read an
+empty table (and Realtime, which only delivers rows the reader may select, delivered nothing). Now
+`memberships` and `role_peering` are readable by **any signed-in user**; anonymous visitors still read
+neither, and everything a team works on (forms, gates, evidence, flags, receipts) keeps its team-only
+rule. `role_peering` joins the Realtime publication so a leader opening a peer seat reaches every open
+join panel. Paste `supabase/setup.sql` into the SQL Editor and **Run** (safe to repeat) to apply it —
+until it is applied, students who have not joined keep seeing 0/6.
+
 ## Let students delete their account
 
 The privacy policy promises account deletion. Removing the login itself needs the
@@ -630,9 +643,9 @@ Still worth ten minutes on the live site before real students:
 | Data | Who can read it |
 |---|---|
 | Profiles | you, teammates and staff (name and picture); only you may change them, never the staff flags |
-| Team membership | anyone on the same course; staff may also move/re-role/remove (students still join themselves). A student joins **this month's or next month's** class session and, once in one, only ever moves forward (0028, below) |
+| Team membership | **any signed-in student**, member or not — the join panel shows every team's seats, each role's state and the lobbies *before* you join, and keeps them live (0030, below); never anonymous visitors. Staff may also move/re-role/remove (students still join themselves). A student joins **this month's or next month's** class session and, once in one, only ever moves forward (0028, below) |
 | Session floor (`membership_cohort_floor`) | **you** and staff read; **nobody** writes it by hand — the database raises it as you join or leave, and it outlives the membership so leaving never opens an earlier session |
-| Role peering (`role_peering`) | anyone on the course reads it; written only by the role's current holder (or staff) — it says whether a second member may join a role as a co-work peer (R154) |
+| Role peering (`role_peering`) | any signed-in student reads it (0030 — the join panel shows "peer welcome" before you join); written only by the role's current holder (or staff) — it says whether a second member may join a role as a co-work peer (R154) |
 | Step completions | you and your teammates |
 | Evidence ledger (what earns each gem) | you and your teammates — hashes and counts, never pasted output |
 | Deliverables, gate status | your team |

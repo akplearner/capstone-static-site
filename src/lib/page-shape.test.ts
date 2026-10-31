@@ -4457,3 +4457,28 @@ describe('R154 — a role is led by one, a peer only by permission', () => {
     expect(read('supabase/setup.sql'), 'the migration is flattened in').toContain('public.membership_role_guard()');
   });
 });
+
+describe('R155 — the join panel sees the roster before you join, and it stays live', () => {
+  it('the roster and the peer flags are readable to any signed-in user, and the peer flags are published', () => {
+    const sql = read('supabase/migrations/0030_roster_visible.sql');
+    for (const policy of ['"memberships course read"', '"role peering read"']) {
+      const i = sql.indexOf(`create policy ${policy}`);
+      expect(i, `${policy} is recreated`).toBeGreaterThan(-1);
+      expect(sql.slice(i, i + 200), `${policy}: any signed-in user, no subquery`).toMatch(/for select using \(auth\.uid\(\) is not null\)/);
+    }
+    expect(sql).toContain("tablename = 'role_peering'");
+    expect(sql).toContain('alter publication supabase_realtime add table public.role_peering');
+    const setup = read('supabase/setup.sql');
+    expect(setup, 'flattened in').toContain('0030_roster_visible.sql');
+    // The LAST definition of the roster read policy in the flattened file is the open one.
+    expect(setup.lastIndexOf('create policy "memberships course read" on public.memberships\n  for select using (auth.uid() is not null)')).toBeGreaterThan(setup.lastIndexOf('for select using (public.shares_course(course_id));\ncreate policy "instructor reads memberships"'));
+    // The browser listens for peer-flag changes alongside the roster.
+    const cache = code('src/lib/data/supabaseCache.ts');
+    expect(cache).toContain("table: 'role_peering', filter: `course_id=eq.${courseId}`");
+    expect(cache).toContain("table: 'memberships', filter: `course_id=eq.${courseId}`");
+    // The rls suite asserts the new rule in both directions.
+    const rls = read('supabase/tests/rls.sql');
+    expect(rls).toContain('zed: reads the whole roster before joining (R155)');
+    expect(rls).toContain('anon: no roster (R155 widens to signed-in only)');
+  });
+});
