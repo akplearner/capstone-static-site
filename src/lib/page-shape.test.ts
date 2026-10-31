@@ -1196,7 +1196,7 @@ describe('R78-C2 — fold the duplicates', () => {
  */
 describe('R78-D3 — components read the document', () => {
   const CONTENT_MODULES =
-    /from '@\/lib\/docs\/(securityContent|cysaContent|manual|serverDiagrams|ccnaDiagrams|ccnaKit|troubleshooting|serverProcedures|custodyTemplate|msspContent|secaiContent|cisspContent|securityNetwork|weekVisuals|roles|certs|costs|skills|tools|standards|sops|tactics|metricCatalogue|skillsCopy|skillCoverage|skillSheet|skillsSection|kpis|workRoles|environmentProfile|kpiSheet)'/;
+    /from '@\/lib\/docs\/(securityContent|cysaContent|manual|serverDiagrams|ccnaDiagrams|ccnaKit|troubleshooting|serverProcedures|custodyTemplate|msspContent|secaiContent|cisspContent|securityNetwork|networkFrom|weekVisuals|roles|certs|costs|skills|tools|standards|sops|tactics|metricCatalogue|skillsCopy|skillCoverage|skillSheet|skillsSection|kpis|workRoles|environmentProfile|kpiSheet)'/;
   const renderers = [...collectSourceFiles('src/components'), ...collectSourceFiles('src/app')];
 
   it('no component or page imports a table from a content module', () => {
@@ -4508,5 +4508,28 @@ describe('R156 — the Network tab is the full LAN reference', () => {
     expect(data, 'no typed address').not.toMatch(/'\d+\.\d+\.\d+\.\d+'/);
     expect(read('src/lib/labTopology.ts')).toContain('LAB_GATEWAY');
     expect(read('src/lib/labTopology.ts')).toContain('LAB_DOCKER');
+  });
+});
+
+describe('R157 — every course carries its network, derived from what it already has', () => {
+  it('the deriver is pure and address-free, the shape carries segments/links/publishes, the diagram draws from data', () => {
+    const d = read('src/lib/docs/networkFrom.ts');
+    expect(d, 'no typed address in the deriver').not.toMatch(/'\d+\.\d+\.\d+\.\d+/);
+    for (const fn of ['networkFromServer', 'networkFromCcna', 'networkFromNetworkPlus', 'networkFromCloud', 'networkFromSoc', 'networkFromArch', 'actionsFromTasks', 'weeksFrom', 'withCourseWeeks']) expect(d, fn).toMatch(new RegExp(`export function ${fn}[<(]`));
+    expect(d, 'imports only types and the leaf model').not.toMatch(/from '\.\.\/(serverTopology|ccnaTopology|networkPlusTopology|labTopology)'/);
+    const model = read('src/lib/docs/labNetwork.ts');
+    for (const t of ['interface NetSegment', 'interface NetPublish', 'interface NetLink', 'export function layoutNetwork(', 'export const hasPicture', 'export const allHosts', 'export function segmentTree(']) expect(model, t).toContain(t);
+    const diagram = code('src/components/diagrams/LabNetworkDiagram.tsx');
+    expect(diagram).toContain('net.fabric.segments.map(');
+    expect(diagram, 'the platform line is data, not a literal').not.toContain('VirtualBox');
+    expect(diagram, 'the self-test badge is the attack’s tool').toContain('{selfTest.tool}');
+    expect(diagram).toContain('hasPicture(net)');
+    expect(existsSync(root('src/components/docs/LanMap.tsx'))).toBe(true);
+    expect(code('src/components/docs/LabNetworkReference.tsx')).toContain('hasAttacks(net)');
+    // The DTO builder names a source for every course and never leaves the section out.
+    const dto = read('src/lib/content/dto.ts');
+    expect(dto).toContain('function networkSource(');
+    expect(dto).toContain('content.network = { NETWORK: net }');
+    expect(dto).toContain("throw new Error(`no network source for '${courseId}'`)");
   });
 });

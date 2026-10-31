@@ -6,6 +6,7 @@
     "src/lib/docs/portfolioForm.ts",
     "src/lib/docs/manual.ts",
     "src/lib/docs/aPlusContent.ts",
+    "src/lib/docs/networkFrom.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
     "src/lib/docs/certs.ts",
@@ -5936,6 +5937,862 @@
           "2": "New: the as-received image, Windows installed clean, accounts and a hashed baseline, and a restore proved and timed.",
           "3": "New: the network, the user, the printer and displays, remote help, and three injected faults worked as tickets.",
           "4": "New: encryption, Defender, the baseline diff, the handover image restored inside the target, and the as-built issued."
+        }
+      }
+    },
+    "network": {
+      "NETWORK": {
+        "copy": {
+          "title": "The A+ Capstone Bench network — what you build and where",
+          "howToRead": "9 components on 4 segments. Each card shows its address, what it runs and exposes, and the controls on it. Pick a week to see what has arrived.",
+          "footer": "One second-hand desktop per team. The image drive is the way back; the records lane is what the client receives.",
+          "reference": {
+            "lede": "Every component of the system you work on, its address where it has one, what it runs and exposes, the tools on it, and what each task does to it, week by week.",
+            "lan": "4 segments: The bench, The PC — what the team rebuilds, The desk it joins, The way back and the proof.",
+            "ports": "What answers on the network, and what stays inside a host or a single segment.",
+            "tools": "What is installed where, and the task that uses it.",
+            "attacks": "The attack types in exam vocabulary, where this lab uses each, and the control that answers it.",
+            "actions": "What each task of the week does on the network: the work placed on the components it touches.",
+            "links": "Every cable, port to port, with what it carries."
+          }
+        },
+        "view": {
+          "w": 1000,
+          "h": 627
+        },
+        "fabric": {
+          "segments": [
+            {
+              "id": "bench",
+              "label": "The bench",
+              "note": "tools · media",
+              "kind": "zone",
+              "arrives": 0,
+              "y": 46
+            },
+            {
+              "id": "pc",
+              "label": "The PC — what the team rebuilds",
+              "note": "parts · firmware · system",
+              "kind": "zone",
+              "arrives": 1,
+              "y": 90
+            },
+            {
+              "id": "desk",
+              "label": "The desk it joins",
+              "note": "network · help desk",
+              "kind": "zone",
+              "arrives": 3,
+              "y": 448
+            },
+            {
+              "id": "proof",
+              "label": "The way back and the proof",
+              "note": "images · baseline · custody",
+              "kind": "zone",
+              "arrives": 2,
+              "y": 581
+            }
+          ]
+        },
+        "hosts": [
+          {
+            "id": "board",
+            "label": "Board, CPU, memory",
+            "description": "The parts, identified by sight and proved from the live system",
+            "segment": "pc",
+            "kind": "server",
+            "role": "hw",
+            "arrives": 1,
+            "apps": [
+              "read from dmidecode"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:strap",
+                "label": "Strap and tools",
+                "description": "The bench made safe before the case opens",
+                "kind": "harden",
+                "arrives": 0,
+                "role": "records"
+              },
+              {
+                "id": "ctl:firmware",
+                "label": "Firmware",
+                "description": "The first security control, set and recorded with menu paths",
+                "kind": "harden",
+                "arrives": 1,
+                "role": "os"
+              },
+              {
+                "id": "ctl:bitlocker",
+                "label": "Encryption",
+                "description": "The disk encrypted, the recovery key stored off the machine",
+                "kind": "harden",
+                "arrives": 4,
+                "role": "os"
+              },
+              {
+                "id": "ctl:defender",
+                "label": "Defender and firewall",
+                "description": "Real-time protection, three profiles on, a clean full scan",
+                "kind": "detect",
+                "arrives": 4,
+                "role": "os"
+              },
+              {
+                "id": "ctl:diff",
+                "label": "Baseline diff",
+                "description": "Every service that changed is on purpose or a finding",
+                "kind": "detect",
+                "arrives": 4,
+                "role": "os"
+              },
+              {
+                "id": "ctl:image_received",
+                "label": "As-received image",
+                "description": "The way back, hashed, taken before the installer runs",
+                "kind": "recover",
+                "arrives": 2,
+                "role": "records"
+              },
+              {
+                "id": "ctl:image_post",
+                "label": "Post-install image",
+                "description": "The clean build, proved by a restore and a matching hash",
+                "kind": "recover",
+                "arrives": 2,
+                "role": "records"
+              },
+              {
+                "id": "ctl:image_handover",
+                "label": "Handover image",
+                "description": "Restored over a deliberate break inside the written target",
+                "kind": "recover",
+                "arrives": 4,
+                "role": "records"
+              }
+            ],
+            "x": 140,
+            "y": 102
+          },
+          {
+            "id": "disk",
+            "label": "Disk",
+            "description": "Imaged before any change; replaced if SMART fails it",
+            "segment": "pc",
+            "kind": "storage",
+            "role": "hw",
+            "arrives": 1,
+            "apps": [
+              "SMART checked"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:images",
+                "label": "IMAGES drive",
+                "description": "Holds every image, hash and the recovery key",
+                "kind": "recover",
+                "arrives": 0,
+                "role": "records"
+              }
+            ],
+            "x": 380,
+            "y": 102
+          },
+          {
+            "id": "windows",
+            "label": "Windows",
+            "description": "Installed from checked media, drivers clean, updates current",
+            "segment": "pc",
+            "kind": "service",
+            "role": "os",
+            "arrives": 2,
+            "apps": [
+              "clean install",
+              "updated"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 620,
+            "y": 102
+          },
+          {
+            "id": "accounts",
+            "label": "Accounts",
+            "description": "A named admin, a standard user, the built-in Administrator off",
+            "segment": "pc",
+            "kind": "identity",
+            "role": "os",
+            "arrives": 2,
+            "apps": [
+              "named admin",
+              "standard user"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 860,
+            "y": 102
+          },
+          {
+            "id": "peripherals",
+            "label": "Printer and displays",
+            "description": "Added and proved as the standard user, not the admin",
+            "segment": "pc",
+            "kind": "endpoint",
+            "role": "support",
+            "arrives": 3,
+            "apps": [
+              "set up as the user"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 320
+          },
+          {
+            "id": "switch",
+            "label": "Bench switch",
+            "description": "Gives the PC its address; the known-good picture is recorded",
+            "segment": "desk",
+            "kind": "switch",
+            "role": "support",
+            "arrives": 3,
+            "apps": [
+              "DHCP",
+              "DNS",
+              "gateway"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 460
+          },
+          {
+            "id": "internet",
+            "label": "Outside",
+            "description": "Gateway, name, route: three tests in order prove the path",
+            "segment": "desk",
+            "kind": "external",
+            "role": "support",
+            "arrives": 3,
+            "external": true,
+            "apps": [
+              "the path out"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 460
+          },
+          {
+            "id": "user",
+            "label": "The user",
+            "description": "Signs in as a standard user and raises the tickets",
+            "segment": "desk",
+            "kind": "client",
+            "role": "support",
+            "arrives": 3,
+            "external": true,
+            "apps": [
+              "bench.user"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 620,
+            "y": 460,
+            "tools": [
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "ap-w0-bench",
+                  "ap-w0-orient",
+                  "ap-w1-inventory",
+                  "ap-w1-fault",
+                  "ap-w1-firmware",
+                  "ap-w2-image",
+                  "ap-w2-install",
+                  "ap-w2-restore",
+                  "ap-w3-connect",
+                  "ap-w3-user",
+                  "ap-w3-tickets",
+                  "ap-w4-secure",
+                  "ap-w4-restore",
+                  "ap-w4-handover"
+                ]
+              },
+              {
+                "name": "The server",
+                "purpose": "Physical equipment the task handles.",
+                "usedIn": [
+                  "ap-w0-bench"
+                ]
+              },
+              {
+                "name": "Hand tools",
+                "purpose": "Physical equipment the task handles.",
+                "usedIn": [
+                  "ap-w0-bench",
+                  "ap-w1-inventory",
+                  "ap-w1-fault",
+                  "ap-w3-tickets"
+                ]
+              },
+              {
+                "name": "The bench PC",
+                "purpose": "Physical equipment the task handles.",
+                "usedIn": [
+                  "ap-w0-bench",
+                  "ap-w0-media",
+                  "ap-w1-inventory",
+                  "ap-w1-fault",
+                  "ap-w1-firmware",
+                  "ap-w2-image",
+                  "ap-w2-install",
+                  "ap-w2-restore",
+                  "ap-w3-connect",
+                  "ap-w3-user",
+                  "ap-w3-tickets",
+                  "ap-w4-secure",
+                  "ap-w4-restore",
+                  "ap-w4-handover"
+                ]
+              },
+              {
+                "name": "sha256sum",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ap-w0-media",
+                  "ap-w2-image",
+                  "ap-w2-install",
+                  "ap-w2-restore",
+                  "ap-w4-secure",
+                  "ap-w4-handover"
+                ]
+              },
+              {
+                "name": "USB install media",
+                "purpose": "Physical equipment the task handles.",
+                "usedIn": [
+                  "ap-w0-media",
+                  "ap-w0-orient",
+                  "ap-w1-inventory",
+                  "ap-w1-fault",
+                  "ap-w1-firmware",
+                  "ap-w2-image",
+                  "ap-w2-install",
+                  "ap-w4-handover"
+                ]
+              },
+              {
+                "name": "Clonezilla",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "ap-w0-media",
+                  "ap-w2-image",
+                  "ap-w2-restore",
+                  "ap-w4-restore"
+                ]
+              },
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ap-w0-orient",
+                  "ap-w1-inventory",
+                  "ap-w1-fault",
+                  "ap-w1-firmware",
+                  "ap-w2-image",
+                  "ap-w3-user",
+                  "ap-w4-handover"
+                ]
+              },
+              {
+                "name": "Notes",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "ap-w0-orient"
+                ]
+              },
+              {
+                "name": "smartctl",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ap-w1-inventory"
+                ]
+              },
+              {
+                "name": "MemTest86+",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "ap-w1-fault"
+                ]
+              },
+              {
+                "name": "Vendor documentation",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "ap-w1-firmware",
+                  "ap-w2-install"
+                ]
+              },
+              {
+                "name": "PowerShell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ap-w2-install",
+                  "ap-w2-restore",
+                  "ap-w3-connect",
+                  "ap-w3-user",
+                  "ap-w3-tickets",
+                  "ap-w4-secure",
+                  "ap-w4-restore"
+                ]
+              },
+              {
+                "name": "Windows",
+                "purpose": "The platform the task builds on.",
+                "usedIn": [
+                  "ap-w2-install",
+                  "ap-w3-connect",
+                  "ap-w3-user",
+                  "ap-w3-tickets",
+                  "ap-w4-secure"
+                ]
+              },
+              {
+                "name": "ping / traceroute",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ap-w3-connect",
+                  "ap-w3-tickets"
+                ]
+              },
+              {
+                "name": "nslookup",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ap-w3-connect",
+                  "ap-w3-tickets"
+                ]
+              },
+              {
+                "name": "Remote Desktop",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "ap-w3-user"
+                ]
+              },
+              {
+                "name": "Quick Assist",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "ap-w3-user"
+                ]
+              },
+              {
+                "name": "Windows Event Viewer",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "ap-w3-tickets"
+                ]
+              },
+              {
+                "name": "Windows Firewall",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "ap-w4-secure"
+                ]
+              },
+              {
+                "name": "Microsoft Defender",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "ap-w4-secure"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "helpdesk",
+            "label": "Help desk",
+            "description": "Helps remotely and works the tickets by the method",
+            "segment": "desk",
+            "kind": "client",
+            "role": "support",
+            "arrives": 3,
+            "external": true,
+            "apps": [
+              "a teammate, remote"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:remote",
+                "label": "Remote help",
+                "description": "A teammate takes control and the session is a ticket",
+                "kind": "harden",
+                "arrives": 3,
+                "role": "support"
+              }
+            ],
+            "x": 860,
+            "y": 460
+          }
+        ],
+        "weeks": [
+          {
+            "week": 0,
+            "wire": "Preparation",
+            "focus": "Set the bench up safely, gather tools and media, register the PC as received, and pick your focus.",
+            "before": "Nothing built yet.",
+            "after": "The bench made safe, the media built and hash-checked, the IMAGES drive ready, and the machine recorded as received.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ap-w0-bench",
+                "step": "ap-w0-bench-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Lay the bench out and put the strap on"
+              },
+              {
+                "taskId": "ap-w0-bench",
+                "step": "ap-w0-bench-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record the machine as received"
+              },
+              {
+                "taskId": "ap-w0-media",
+                "step": "ap-w0-media-s1",
+                "role": "os",
+                "kind": "governance",
+                "at": [],
+                "text": "Check the downloads before you write them"
+              },
+              {
+                "taskId": "ap-w0-orient",
+                "step": "ap-w0-orient-s2",
+                "role": "support",
+                "kind": "setup",
+                "at": [
+                  "user"
+                ],
+                "text": "Make the team folder"
+              },
+              {
+                "taskId": "ap-w0-orient",
+                "step": "ap-w0-orient-s1",
+                "role": "support",
+                "kind": "governance",
+                "at": [],
+                "text": "Pick the focus and name the machine"
+              }
+            ]
+          },
+          {
+            "week": 1,
+            "wire": "Bench",
+            "focus": "Inventory the machine from a live USB, work its fault with the six-step method, and set the firmware baseline.",
+            "before": "Built so far: Strap and tools, LIVE stick, INSTALL stick and 2 more.",
+            "after": "New: the parts read from the live system, the fault worked with the method, and the firmware baseline set.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ap-w1-inventory",
+                "step": "ap-w1-inventory-s1",
+                "role": "hw",
+                "kind": "governance",
+                "at": [],
+                "text": "Open the case and walk the board"
+              },
+              {
+                "taskId": "ap-w1-inventory",
+                "step": "ap-w1-inventory-s3",
+                "role": "hw",
+                "kind": "evidence",
+                "at": [],
+                "text": "Read the disk health before you trust it"
+              },
+              {
+                "taskId": "ap-w1-fault",
+                "step": "ap-w1-fault-s1",
+                "role": "hw",
+                "kind": "governance",
+                "at": [],
+                "text": "Identify the problem: write the symptom exactly"
+              },
+              {
+                "taskId": "ap-w1-fault",
+                "step": "ap-w1-fault-s3",
+                "role": "hw",
+                "kind": "evidence",
+                "at": [],
+                "text": "Verify the fix and document it"
+              },
+              {
+                "taskId": "ap-w1-firmware",
+                "step": "ap-w1-firmware-s1",
+                "role": "os",
+                "kind": "governance",
+                "at": [],
+                "text": "Read the firmware version and the TPM state"
+              },
+              {
+                "taskId": "ap-w1-firmware",
+                "step": "ap-w1-firmware-s2",
+                "role": "os",
+                "kind": "evidence",
+                "at": [],
+                "text": "Set the baseline in firmware setup"
+              }
+            ]
+          },
+          {
+            "week": 2,
+            "wire": "Systems",
+            "focus": "Image the disk before any change, install and update Windows, set accounts, and prove the image restores.",
+            "before": "Built so far: Strap and tools, LIVE stick, INSTALL stick and 9 more.",
+            "after": "New: the as-received image, Windows installed clean, accounts and a hashed baseline, and a restore proved and timed.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ap-w2-image",
+                "step": "ap-w2-image-s1",
+                "role": "os",
+                "kind": "governance",
+                "at": [],
+                "text": "Take the as-received image with Clonezilla"
+              },
+              {
+                "taskId": "ap-w2-image",
+                "step": "ap-w2-image-s2",
+                "role": "os",
+                "kind": "evidence",
+                "at": [],
+                "text": "Hash the image and record it"
+              },
+              {
+                "taskId": "ap-w2-install",
+                "step": "ap-w2-install-s1",
+                "role": "os",
+                "kind": "governance",
+                "at": [],
+                "text": "Install Windows clean onto the internal disk"
+              },
+              {
+                "taskId": "ap-w2-install",
+                "step": "ap-w2-install-s3",
+                "role": "os",
+                "kind": "evidence",
+                "at": [],
+                "text": "Accounts, and the baseline captured"
+              },
+              {
+                "taskId": "ap-w2-restore",
+                "step": "ap-w2-restore-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Take the post-install image"
+              },
+              {
+                "taskId": "ap-w2-restore",
+                "step": "ap-w2-restore-s3",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Restore post-install and confirm the baseline"
+              }
+            ]
+          },
+          {
+            "week": 3,
+            "wire": "Support",
+            "focus": "Connect the PC, set up the user and peripherals, then work three injected faults as tickets.",
+            "before": "Built so far: Strap and tools, LIVE stick, INSTALL stick and 15 more.",
+            "after": "New: the network, the user, the printer and displays, remote help, and three injected faults worked as tickets.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ap-w3-connect",
+                "step": "ap-w3-connect-s1",
+                "role": "support",
+                "kind": "governance",
+                "at": [],
+                "text": "Cable it and read the address"
+              },
+              {
+                "taskId": "ap-w3-connect",
+                "step": "ap-w3-connect-s2",
+                "role": "support",
+                "kind": "evidence",
+                "at": [],
+                "text": "Prove the path: gateway, name, outside"
+              },
+              {
+                "taskId": "ap-w3-user",
+                "step": "ap-w3-user-s1",
+                "role": "support",
+                "kind": "governance",
+                "at": [],
+                "text": "Sign in as the user and prove the limit"
+              },
+              {
+                "taskId": "ap-w3-user",
+                "step": "ap-w3-user-s3",
+                "role": "support",
+                "kind": "evidence",
+                "at": [],
+                "text": "Help the user remotely"
+              },
+              {
+                "taskId": "ap-w3-tickets",
+                "step": "ap-w3-tickets-s1",
+                "role": "support",
+                "kind": "governance",
+                "at": [],
+                "text": "Receive the faults and open the tickets"
+              },
+              {
+                "taskId": "ap-w3-tickets",
+                "step": "ap-w3-tickets-s4",
+                "role": "support",
+                "kind": "evidence",
+                "at": [],
+                "text": "Work the software ticket and close all three"
+              }
+            ]
+          },
+          {
+            "week": 4,
+            "wire": "Hand over",
+            "focus": "Secure the machine, take the final image, time a real restore, and hand over the as-built with custody.",
+            "before": "Built so far: Strap and tools, LIVE stick, INSTALL stick and 23 more.",
+            "after": "New: encryption, Defender, the baseline diff, the handover image restored inside the target, and the as-built issued.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ap-w4-secure",
+                "step": "ap-w4-secure-s1",
+                "role": "os",
+                "kind": "governance",
+                "at": [],
+                "text": "Turn BitLocker on and keep the recovery key off the machine"
+              },
+              {
+                "taskId": "ap-w4-secure",
+                "step": "ap-w4-secure-s3",
+                "role": "os",
+                "kind": "evidence",
+                "at": [],
+                "text": "Compare the services with Week 2"
+              },
+              {
+                "taskId": "ap-w4-restore",
+                "step": "ap-w4-restore-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the target, then take the handover image"
+              },
+              {
+                "taskId": "ap-w4-restore",
+                "step": "ap-w4-restore-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Break it on purpose, restore it, and time it"
+              },
+              {
+                "taskId": "ap-w4-handover",
+                "step": "ap-w4-handover-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Hash every artifact and fill the custody log"
+              },
+              {
+                "taskId": "ap-w4-handover",
+                "step": "ap-w4-handover-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Write the as-built and the first-day check"
+              }
+            ]
+          }
+        ],
+        "spec": {
+          "columns": [
+            "Component",
+            "Address",
+            "Runs",
+            "Who"
+          ],
+          "rows": [
+            [
+              "Board, CPU, memory",
+              "—",
+              "read from dmidecode",
+              "hw"
+            ],
+            [
+              "Disk",
+              "—",
+              "SMART checked",
+              "hw"
+            ],
+            [
+              "Windows",
+              "—",
+              "clean install · updated",
+              "os"
+            ],
+            [
+              "Accounts",
+              "—",
+              "named admin · standard user",
+              "os"
+            ],
+            [
+              "Printer and displays",
+              "—",
+              "set up as the user",
+              "support"
+            ],
+            [
+              "Bench switch",
+              "—",
+              "DHCP · DNS · gateway",
+              "support"
+            ],
+            [
+              "Outside",
+              "—",
+              "the path out",
+              "Outside"
+            ],
+            [
+              "The user",
+              "—",
+              "bench.user",
+              "Outside"
+            ],
+            [
+              "Help desk",
+              "—",
+              "a teammate, remote",
+              "Outside"
+            ]
+          ]
         }
       }
     },

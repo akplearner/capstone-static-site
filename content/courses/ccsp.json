@@ -6,6 +6,7 @@
     "src/lib/docs/portfolioForm.ts",
     "src/lib/docs/manual.ts",
     "src/lib/docs/ccspContent.ts",
+    "src/lib/docs/networkFrom.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
     "src/lib/docs/certs.ts",
@@ -5730,6 +5731,792 @@
           "2": "New: every data set classified, the store locked, and a customer-owned key with rotation and retention.",
           "3": "New: the platform baseline passing, the network segmented, and the application clean of secrets and critical CVEs.",
           "4": "New: monitoring that pages, the incident contained one change per row, and every control mapped to its evidence."
+        }
+      }
+    },
+    "network": {
+      "NETWORK": {
+        "copy": {
+          "title": "The CCSP — the Cloud Assurance network — what you build and where",
+          "howToRead": "5 components on 5 segments. Each card shows its address, what it runs and exposes, and the controls on it. Pick a week to see what has arrived.",
+          "footer": "No paid resources required: every proof runs against sample artifacts shipped with the course and read with awk, jq and grep.",
+          "reference": {
+            "lede": "Every component of the system you work on, its address where it has one, what it runs and exposes, the tools on it, and what each task does to it, week by week.",
+            "lan": "5 segments: Scope & architecture, Platform & application, The data, protected, Operations and 1 more.",
+            "ports": "What answers on the network, and what stays inside a host or a single segment.",
+            "tools": "What is installed where, and the task that uses it.",
+            "attacks": "The attack types in exam vocabulary, where this lab uses each, and the control that answers it.",
+            "actions": "What each task of the week does on the network: the work placed on the components it touches.",
+            "links": "Every cable, port to port, with what it carries."
+          }
+        },
+        "view": {
+          "w": 520,
+          "h": 740
+        },
+        "fabric": {
+          "segments": [
+            {
+              "id": "scope",
+              "label": "Scope & architecture",
+              "note": "responsibility · components",
+              "kind": "zone",
+              "arrives": 0,
+              "y": 46
+            },
+            {
+              "id": "platform",
+              "label": "Platform & application",
+              "note": "baseline · network · build",
+              "kind": "zone",
+              "arrives": 1,
+              "y": 196
+            },
+            {
+              "id": "data",
+              "label": "The data, protected",
+              "note": "classify · key",
+              "kind": "zone",
+              "arrives": 2,
+              "y": 363
+            },
+            {
+              "id": "ops",
+              "label": "Operations",
+              "note": "monitoring · incident",
+              "kind": "zone",
+              "arrives": 4,
+              "y": 496
+            },
+            {
+              "id": "proof",
+              "label": "The proof it holds",
+              "note": "compliance · incident · custody",
+              "kind": "zone",
+              "arrives": 1,
+              "y": 612
+            }
+          ]
+        },
+        "hosts": [
+          {
+            "id": "arch",
+            "label": "Architecture",
+            "description": "Every component and its trust boundary",
+            "segment": "scope",
+            "kind": "server",
+            "role": "platform",
+            "arrives": 1,
+            "apps": [
+              "components",
+              "boundaries"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:resp",
+                "label": "Responsibility",
+                "description": "Who secures each layer, provider or customer, for this model",
+                "kind": "harden",
+                "arrives": 1,
+                "role": "platform"
+              },
+              {
+                "id": "ctl:custody",
+                "label": "Custody",
+                "description": "A hash for every control evidence the course produced",
+                "kind": "recover",
+                "arrives": 4,
+                "role": "grc"
+              }
+            ],
+            "x": 140,
+            "y": 58
+          },
+          {
+            "id": "network",
+            "label": "Network",
+            "description": "Segmented so the private tier has no public route",
+            "segment": "platform",
+            "kind": "switch",
+            "role": "platform",
+            "arrives": 3,
+            "apps": [
+              "segmented"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:baseline",
+                "label": "Platform baseline",
+                "description": "The platform baseline, scanned, every failing control owned",
+                "kind": "detect",
+                "arrives": 3,
+                "role": "platform"
+              },
+              {
+                "id": "ctl:gate",
+                "label": "Lifecycle gate",
+                "description": "The lifecycle gate that blocks a failing build",
+                "kind": "harden",
+                "arrives": 3,
+                "role": "appsec"
+              },
+              {
+                "id": "ctl:legalmap",
+                "label": "Control mapping",
+                "description": "Obligations mapped to controls, with the residency rule",
+                "kind": "harden",
+                "arrives": 1,
+                "role": "grc"
+              }
+            ],
+            "x": 140,
+            "y": 208
+          },
+          {
+            "id": "appcode",
+            "label": "The application",
+            "description": "The application, scanned for secrets and vulnerable dependencies",
+            "segment": "platform",
+            "kind": "service",
+            "role": "appsec",
+            "arrives": 3,
+            "apps": [
+              "secrets",
+              "deps"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:monitor",
+                "label": "Monitoring",
+                "description": "Monitoring and alerts that route to a human",
+                "kind": "detect",
+                "arrives": 4,
+                "role": "grc"
+              }
+            ],
+            "x": 380,
+            "y": 208
+          },
+          {
+            "id": "classify",
+            "label": "Classified data",
+            "description": "Every data set classified so the rules can apply",
+            "segment": "data",
+            "kind": "storage",
+            "role": "data",
+            "arrives": 2,
+            "apps": [
+              "every set labelled"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:key",
+                "label": "Customer key",
+                "description": "A customer-owned key with rotation and retention",
+                "kind": "harden",
+                "arrives": 2,
+                "role": "data"
+              }
+            ],
+            "x": 140,
+            "y": 375
+          },
+          {
+            "id": "actor",
+            "label": "The actor",
+            "description": "The actor the incident is worked against",
+            "segment": "ops",
+            "kind": "external",
+            "role": "grc",
+            "arrives": 4,
+            "external": true,
+            "apps": [
+              "the incident"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 508
+          },
+          {
+            "id": "operator",
+            "label": "Your own machine",
+            "description": "Where you work from in this course.",
+            "kind": "client",
+            "external": true,
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 634,
+            "tools": [
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ccsp-w0-account",
+                  "ccsp-w0-identity",
+                  "ccsp-w0-orient",
+                  "ccsp-w1-concepts",
+                  "ccsp-w1-architecture",
+                  "ccsp-w1-legal",
+                  "ccsp-w2-classify",
+                  "ccsp-w2-protect",
+                  "ccsp-w2-keys",
+                  "ccsp-w3-platform",
+                  "ccsp-w3-network",
+                  "ccsp-w3-appsec",
+                  "ccsp-w4-operations",
+                  "ccsp-w4-incident",
+                  "ccsp-w4-handover",
+                  "ccsp-ai-security-validation-w1-inject",
+                  "ccsp-ai-security-validation-w1-leak",
+                  "ccsp-ai-security-validation-w2-suite",
+                  "ccsp-ai-security-validation-w2-report",
+                  "ccsp-enterprise-ai-architect-w1-gateway",
+                  "ccsp-enterprise-ai-architect-w1-layers",
+                  "ccsp-enterprise-ai-architect-w2-govern",
+                  "ccsp-enterprise-ai-architect-w2-handover"
+                ]
+              },
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "ccsp-w0-account",
+                  "ccsp-w0-identity",
+                  "ccsp-w0-orient",
+                  "ccsp-w1-concepts",
+                  "ccsp-w1-architecture",
+                  "ccsp-w1-legal",
+                  "ccsp-w2-classify",
+                  "ccsp-w2-protect",
+                  "ccsp-w2-keys",
+                  "ccsp-w3-platform",
+                  "ccsp-w3-network",
+                  "ccsp-w3-appsec",
+                  "ccsp-w4-operations",
+                  "ccsp-w4-incident",
+                  "ccsp-w4-handover",
+                  "ccsp-ai-security-validation-w1-inject",
+                  "ccsp-ai-security-validation-w1-leak",
+                  "ccsp-ai-security-validation-w2-suite",
+                  "ccsp-ai-security-validation-w2-report",
+                  "ccsp-enterprise-ai-architect-w1-gateway",
+                  "ccsp-enterprise-ai-architect-w1-layers",
+                  "ccsp-enterprise-ai-architect-w2-govern",
+                  "ccsp-enterprise-ai-architect-w2-handover"
+                ]
+              },
+              {
+                "name": "garak",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ccsp-ai-security-validation-w1-inject"
+                ]
+              },
+              {
+                "name": "Python",
+                "purpose": "A language the task writes or reads.",
+                "usedIn": [
+                  "ccsp-ai-security-validation-w1-inject",
+                  "ccsp-ai-security-validation-w1-leak",
+                  "ccsp-ai-security-validation-w2-suite",
+                  "ccsp-ai-security-validation-w2-report",
+                  "ccsp-enterprise-ai-architect-w1-gateway",
+                  "ccsp-enterprise-ai-architect-w1-layers",
+                  "ccsp-enterprise-ai-architect-w2-govern",
+                  "ccsp-enterprise-ai-architect-w2-handover"
+                ]
+              },
+              {
+                "name": "LLM Guard",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "ccsp-ai-security-validation-w1-leak"
+                ]
+              },
+              {
+                "name": "Git",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ccsp-ai-security-validation-w2-suite"
+                ]
+              },
+              {
+                "name": "curl",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ccsp-enterprise-ai-architect-w1-gateway",
+                  "ccsp-enterprise-ai-architect-w2-govern"
+                ]
+              },
+              {
+                "name": "LiteLLM",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "ccsp-enterprise-ai-architect-w1-gateway",
+                  "ccsp-enterprise-ai-architect-w2-govern"
+                ]
+              }
+            ]
+          }
+        ],
+        "weeks": [
+          {
+            "week": 0,
+            "wire": "Set up the engagement",
+            "focus": "Open the cloud account, make an MFA identity, agree the scope, and make the evidence folder.",
+            "before": "Nothing built yet.",
+            "after": "The account with a budget guard, an MFA identity, and the scope written: the app, its data and the obligation.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccsp-w0-account",
+                "step": "ccsp-w0-account-s1",
+                "role": "grc",
+                "kind": "governance",
+                "at": [],
+                "text": "Open the account and turn owner MFA on"
+              },
+              {
+                "taskId": "ccsp-w0-account",
+                "step": "ccsp-w0-account-s2",
+                "role": "grc",
+                "kind": "evidence",
+                "at": [],
+                "text": "Write the engagement scope file"
+              },
+              {
+                "taskId": "ccsp-w0-identity",
+                "step": "ccsp-w0-identity-s1",
+                "role": "platform",
+                "kind": "evidence",
+                "at": [],
+                "text": "Confirm the CLI identity is scoped, not the owner"
+              },
+              {
+                "taskId": "ccsp-w0-orient",
+                "step": "ccsp-w0-orient-s1",
+                "role": "data",
+                "kind": "governance",
+                "at": [],
+                "text": "Pick the focus and name the application"
+              },
+              {
+                "taskId": "ccsp-w0-orient",
+                "step": "ccsp-w0-orient-s2",
+                "role": "data",
+                "kind": "evidence",
+                "at": [],
+                "text": "Make the evidence folder"
+              }
+            ]
+          },
+          {
+            "week": 1,
+            "wire": "Architecture and the law",
+            "focus": "Draw the shared-responsibility line and the reference architecture, then scope the legal and compliance obligations.",
+            "before": "Built so far: Scope, 1 Engagement & scope.",
+            "after": "New: the shared-responsibility line, the reference architecture, and the obligations mapped to controls.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccsp-w1-concepts",
+                "step": "ccsp-w1-concepts-s1",
+                "role": "platform",
+                "kind": "evidence",
+                "at": [],
+                "text": "Build the responsibility matrix"
+              },
+              {
+                "taskId": "ccsp-w1-concepts",
+                "step": "ccsp-w1-concepts-s2",
+                "role": "platform",
+                "kind": "governance",
+                "at": [],
+                "text": "Show a layer moving between service models"
+              },
+              {
+                "taskId": "ccsp-w1-architecture",
+                "step": "ccsp-w1-architecture-s1",
+                "role": "platform",
+                "kind": "evidence",
+                "at": [],
+                "text": "List the components and their trust zones"
+              },
+              {
+                "taskId": "ccsp-w1-legal",
+                "step": "ccsp-w1-legal-s1",
+                "role": "grc",
+                "kind": "evidence",
+                "at": [],
+                "text": "Map each obligation to a control"
+              },
+              {
+                "taskId": "ccsp-w1-legal",
+                "step": "ccsp-w1-legal-s2",
+                "role": "grc",
+                "kind": "governance",
+                "at": [],
+                "text": "State the data-residency rule"
+              }
+            ]
+          },
+          {
+            "week": 2,
+            "wire": "Cloud data security",
+            "focus": "Classify the data, protect it with encryption and its own key, and set a retention and deletion rule.",
+            "before": "Built so far: Scope, 1 Engagement & scope, Responsibility and 5 more.",
+            "after": "New: every data set classified, the store locked, and a customer-owned key with rotation and retention.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccsp-w2-classify",
+                "step": "ccsp-w2-classify-s1",
+                "role": "data",
+                "kind": "evidence",
+                "at": [],
+                "text": "Confirm nothing is unclassified"
+              },
+              {
+                "taskId": "ccsp-w2-protect",
+                "step": "ccsp-w2-protect-s1",
+                "role": "data",
+                "kind": "evidence",
+                "at": [],
+                "text": "Confirm encryption and no public access"
+              },
+              {
+                "taskId": "ccsp-w2-keys",
+                "step": "ccsp-w2-keys-s1",
+                "role": "data",
+                "kind": "evidence",
+                "at": [],
+                "text": "Confirm the key is customer-owned and rotates"
+              },
+              {
+                "taskId": "ccsp-w2-keys",
+                "step": "ccsp-w2-keys-s2",
+                "role": "data",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the key-ownership decision"
+              }
+            ]
+          },
+          {
+            "week": 3,
+            "wire": "Platform and application security",
+            "focus": "Secure the platform and network, then secure the application: its secrets, its dependencies and its pipeline.",
+            "before": "Built so far: Scope, 1 Engagement & scope, Responsibility and 8 more.",
+            "after": "New: the platform baseline passing, the network segmented, and the application clean of secrets and critical CVEs.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccsp-w3-platform",
+                "step": "ccsp-w3-platform-s1",
+                "role": "platform",
+                "kind": "evidence",
+                "at": [],
+                "text": "Find the failing baseline controls"
+              },
+              {
+                "taskId": "ccsp-w3-network",
+                "step": "ccsp-w3-network-s1",
+                "role": "platform",
+                "kind": "evidence",
+                "at": [],
+                "text": "Prove the private tier has no public route"
+              },
+              {
+                "taskId": "ccsp-w3-appsec",
+                "step": "ccsp-w3-appsec-s1",
+                "role": "appsec",
+                "kind": "evidence",
+                "at": [],
+                "text": "Scan the source for hard-coded secrets"
+              }
+            ]
+          },
+          {
+            "week": 4,
+            "wire": "Operations and compliance",
+            "focus": "Stand operations up, work an incident one change per row, and hand the control baseline over with custody.",
+            "before": "Built so far: Scope, 1 Engagement & scope, Responsibility and 14 more.",
+            "after": "New: monitoring that pages, the incident contained one change per row, and every control mapped to its evidence.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccsp-w4-operations",
+                "step": "ccsp-w4-operations-s1",
+                "role": "grc",
+                "kind": "evidence",
+                "at": [],
+                "text": "Confirm monitoring is on and alerts route"
+              },
+              {
+                "taskId": "ccsp-w4-incident",
+                "step": "ccsp-w4-incident-s1",
+                "role": "grc",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the incident exactly"
+              },
+              {
+                "taskId": "ccsp-w4-incident",
+                "step": "ccsp-w4-incident-s2",
+                "role": "grc",
+                "kind": "evidence",
+                "at": [],
+                "text": "Read the alert, then contain it one action per row"
+              },
+              {
+                "taskId": "ccsp-w4-handover",
+                "step": "ccsp-w4-handover-s1",
+                "role": "grc",
+                "kind": "governance",
+                "at": [],
+                "text": "Map every control to its evidence"
+              },
+              {
+                "taskId": "ccsp-w4-handover",
+                "step": "ccsp-w4-handover-s2",
+                "role": "grc",
+                "kind": "evidence",
+                "at": [],
+                "text": "Hash every artifact for custody"
+              }
+            ]
+          },
+          {
+            "week": 5,
+            "wire": "AI security validation: Attack the model",
+            "focus": "Prove a prompt injection and a data leak against a model, with evidence.",
+            "before": "Built so far: Scope, 1 Engagement & scope, Responsibility and 21 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccsp-ai-security-validation-w1-inject",
+                "step": "ccsp-ai-security-validation-w1-inject-s1",
+                "role": "data",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Prove a prompt injection"
+              },
+              {
+                "taskId": "ccsp-ai-security-validation-w1-inject",
+                "step": "ccsp-ai-security-validation-w1-inject-s2",
+                "role": "data",
+                "kind": "governance",
+                "at": [],
+                "text": "Map it to OWASP."
+              },
+              {
+                "taskId": "ccsp-ai-security-validation-w1-leak",
+                "step": "ccsp-ai-security-validation-w1-leak-s1",
+                "role": "data",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Prove a data leak"
+              },
+              {
+                "taskId": "ccsp-ai-security-validation-w1-leak",
+                "step": "ccsp-ai-security-validation-w1-leak-s2",
+                "role": "data",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the finding."
+              }
+            ]
+          },
+          {
+            "week": 6,
+            "wire": "AI security validation: A suite that holds",
+            "focus": "Turn every proven attack into a test the pipeline runs, so a removed guardrail fails the build.",
+            "before": "Built so far: Scope, 1 Engagement & scope, Responsibility and 21 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccsp-ai-security-validation-w2-suite",
+                "step": "ccsp-ai-security-validation-w2-suite-s1",
+                "role": "data",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Automate the attack suite"
+              },
+              {
+                "taskId": "ccsp-ai-security-validation-w2-suite",
+                "step": "ccsp-ai-security-validation-w2-suite-s2",
+                "role": "data",
+                "kind": "governance",
+                "at": [],
+                "text": "Prove the regression catch."
+              },
+              {
+                "taskId": "ccsp-ai-security-validation-w2-report",
+                "step": "ccsp-ai-security-validation-w2-report-s1",
+                "role": "data",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Report the validation"
+              },
+              {
+                "taskId": "ccsp-ai-security-validation-w2-report",
+                "step": "ccsp-ai-security-validation-w2-report-s2",
+                "role": "data",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the residual risk."
+              }
+            ]
+          },
+          {
+            "week": 7,
+            "wire": "Enterprise AI architect: Design the hybrid platform",
+            "focus": "Draw a hybrid AI platform: a gateway in front of local and cloud models, with a fallback.",
+            "before": "Built so far: Scope, 1 Engagement & scope, Responsibility and 21 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccsp-enterprise-ai-architect-w1-gateway",
+                "step": "ccsp-enterprise-ai-architect-w1-gateway-s1",
+                "role": "data",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Put a gateway in front"
+              },
+              {
+                "taskId": "ccsp-enterprise-ai-architect-w1-gateway",
+                "step": "ccsp-enterprise-ai-architect-w1-gateway-s2",
+                "role": "data",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the routing."
+              },
+              {
+                "taskId": "ccsp-enterprise-ai-architect-w1-layers",
+                "step": "ccsp-enterprise-ai-architect-w1-layers-s1",
+                "role": "data",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Layer the platform"
+              },
+              {
+                "taskId": "ccsp-enterprise-ai-architect-w1-layers",
+                "step": "ccsp-enterprise-ai-architect-w1-layers-s2",
+                "role": "data",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the architecture."
+              }
+            ]
+          },
+          {
+            "week": 8,
+            "wire": "Enterprise AI architect: Govern the platform",
+            "focus": "Put the controls on the platform: identity at the gateway, an audit log and a cost ceiling.",
+            "before": "Built so far: Scope, 1 Engagement & scope, Responsibility and 21 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccsp-enterprise-ai-architect-w2-govern",
+                "step": "ccsp-enterprise-ai-architect-w2-govern-s1",
+                "role": "data",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Govern access and cost"
+              },
+              {
+                "taskId": "ccsp-enterprise-ai-architect-w2-govern",
+                "step": "ccsp-enterprise-ai-architect-w2-govern-s2",
+                "role": "data",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the controls."
+              },
+              {
+                "taskId": "ccsp-enterprise-ai-architect-w2-handover",
+                "step": "ccsp-enterprise-ai-architect-w2-handover-s1",
+                "role": "data",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Hand the platform over"
+              },
+              {
+                "taskId": "ccsp-enterprise-ai-architect-w2-handover",
+                "step": "ccsp-enterprise-ai-architect-w2-handover-s2",
+                "role": "data",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the handover."
+              }
+            ]
+          }
+        ],
+        "spec": {
+          "columns": [
+            "Component",
+            "Address",
+            "Runs",
+            "Who"
+          ],
+          "rows": [
+            [
+              "Architecture",
+              "—",
+              "components · boundaries",
+              "platform"
+            ],
+            [
+              "Network",
+              "—",
+              "segmented",
+              "platform"
+            ],
+            [
+              "The application",
+              "—",
+              "secrets · deps",
+              "appsec"
+            ],
+            [
+              "Classified data",
+              "—",
+              "every set labelled",
+              "data"
+            ],
+            [
+              "The actor",
+              "—",
+              "the incident",
+              "Outside"
+            ]
+          ]
         }
       }
     },

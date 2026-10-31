@@ -6,6 +6,7 @@
     "src/lib/docs/portfolioForm.ts",
     "src/lib/docs/manual.ts",
     "src/lib/docs/awsAiPractitionerContent.ts",
+    "src/lib/docs/networkFrom.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
     "src/lib/docs/certs.ts",
@@ -6075,6 +6076,885 @@
           "2": "New: the responsible-AI guidelines assessed, a model scored, and a wrong answer worked to grounded.",
           "3": "New: a model invoked on Bedrock, a grounded chat app, and the language and document senses.",
           "4": "New: an agent that extracts JSON, least-privilege IAM and a guardrail, the custody log, and the solution torn down."
+        }
+      }
+    },
+    "network": {
+      "NETWORK": {
+        "copy": {
+          "title": "The AWS Certified AI Practitioner — the Bedrock Studio network — what you build and where",
+          "howToRead": "4 components on 4 segments. Each card shows its address, what it runs and exposes, and the controls on it. Pick a week to see what has arrived.",
+          "footer": "No paid resources required: the hands-on model runs locally, the Bedrock calls are kept tiny and the solution is torn down at the end.",
+          "reference": {
+            "lede": "Every component of the system you work on, its address where it has one, what it runs and exposes, the tools on it, and what each task does to it, week by week.",
+            "lan": "4 segments: The local model, Amazon Bedrock — the solution, The senses it grows, The evidence it is grounded.",
+            "ports": "What answers on the network, and what stays inside a host or a single segment.",
+            "tools": "What is installed where, and the task that uses it.",
+            "attacks": "The attack types in exam vocabulary, where this lab uses each, and the control that answers it.",
+            "actions": "What each task of the week does on the network: the work placed on the components it touches.",
+            "links": "Every cable, port to port, with what it carries."
+          }
+        },
+        "view": {
+          "w": 520,
+          "h": 586
+        },
+        "fabric": {
+          "segments": [
+            {
+              "id": "local",
+              "label": "The local model",
+              "note": "Ollama · notes",
+              "kind": "zone",
+              "arrives": 0,
+              "y": 46
+            },
+            {
+              "id": "foundry",
+              "label": "Amazon Bedrock — the solution",
+              "note": "model · app",
+              "kind": "zone",
+              "arrives": 1,
+              "y": 264
+            },
+            {
+              "id": "senses",
+              "label": "The senses it grows",
+              "note": "language · documents · agent",
+              "kind": "zone",
+              "arrives": 3,
+              "y": 414
+            },
+            {
+              "id": "proof",
+              "label": "The evidence it is grounded",
+              "note": "responsible AI · evaluation · custody",
+              "kind": "zone",
+              "arrives": 2,
+              "y": 458
+            }
+          ]
+        },
+        "hosts": [
+          {
+            "id": "ollama",
+            "label": "Local model",
+            "description": "A model small enough for a laptop, to learn grounding offline",
+            "segment": "local",
+            "kind": "service",
+            "role": "build",
+            "arrives": 0,
+            "apps": [
+              "Ollama",
+              "offline"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:folder",
+                "label": "Studio folder",
+                "description": "Every prompt, transcript and output, under the week it belongs to",
+                "kind": "recover",
+                "arrives": 0,
+                "role": "records"
+              },
+              {
+                "id": "ctl:vision",
+                "label": "Textract",
+                "description": "Reads the text out of a scanned document",
+                "kind": "detect",
+                "arrives": 3,
+                "role": "language"
+              },
+              {
+                "id": "ctl:agent",
+                "label": "Extraction agent",
+                "description": "Reads a document into structured JSON, a missing field left null",
+                "kind": "harden",
+                "arrives": 4,
+                "role": "build"
+              },
+              {
+                "id": "ctl:responsible",
+                "label": "Responsible AI",
+                "description": "A finding and a mitigation per guideline, and the deployment decision",
+                "kind": "harden",
+                "arrives": 2,
+                "role": "concepts"
+              },
+              {
+                "id": "ctl:govern",
+                "label": "IAM & risks",
+                "description": "Least-privilege IAM, a guardrail, and each risk with an owner",
+                "kind": "harden",
+                "arrives": 4,
+                "role": "records"
+              },
+              {
+                "id": "ctl:custody",
+                "label": "Custody",
+                "description": "A hash for every artifact the course produced",
+                "kind": "recover",
+                "arrives": 4,
+                "role": "records"
+              }
+            ],
+            "x": 140,
+            "y": 58
+          },
+          {
+            "id": "notes",
+            "label": "Studio notes",
+            "description": "The text the assistant is made to answer from, and cite",
+            "segment": "local",
+            "kind": "storage",
+            "role": "language",
+            "arrives": 1,
+            "apps": [
+              "the grounding source"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 58
+          },
+          {
+            "id": "model",
+            "label": "Bedrock model",
+            "description": "A foundation model answered through the Bedrock runtime",
+            "segment": "foundry",
+            "kind": "service",
+            "role": "build",
+            "arrives": 3,
+            "apps": [
+              "InvokeModel"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:project",
+                "label": "Model access",
+                "description": "Access to one foundation model, requested in the Bedrock console",
+                "kind": "harden",
+                "arrives": 3,
+                "role": "build"
+              },
+              {
+                "id": "ctl:ml",
+                "label": "Training and metrics",
+                "description": "A model scored against a labelled set, so accuracy means a number",
+                "kind": "detect",
+                "arrives": 2,
+                "role": "build"
+              }
+            ],
+            "x": 140,
+            "y": 276
+          },
+          {
+            "id": "app",
+            "label": "Grounded app",
+            "description": "Answers only from the studio documents, and says when they are silent",
+            "segment": "foundry",
+            "kind": "service",
+            "role": "build",
+            "arrives": 3,
+            "apps": [
+              "answers from the notes"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:language",
+                "label": "Comprehend",
+                "description": "Reads sentiment and key phrases out of text",
+                "kind": "detect",
+                "arrives": 3,
+                "role": "language"
+              },
+              {
+                "id": "ctl:eval",
+                "label": "Grounding log",
+                "description": "A wrong answer worked to grounded, the failed theories kept",
+                "kind": "detect",
+                "arrives": 2,
+                "role": "records"
+              }
+            ],
+            "x": 380,
+            "y": 276
+          },
+          {
+            "id": "operator",
+            "label": "Your own machine",
+            "description": "Where you work from in this course.",
+            "kind": "client",
+            "external": true,
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 480,
+            "tools": [
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "awsai-w0-accounts",
+                  "awsai-w0-local",
+                  "awsai-w0-orient",
+                  "awsai-w1-components",
+                  "awsai-w1-local",
+                  "awsai-w2-ml",
+                  "awsai-w2-eval",
+                  "awsai-w3-deploy",
+                  "awsai-w3-services",
+                  "awsai-w4-agent",
+                  "awsai-w4-govern",
+                  "awsai-w4-handover",
+                  "awsai-rag-engineering-w1-retrieve",
+                  "awsai-rag-engineering-w2-evalset",
+                  "awsai-rag-engineering-w2-passline",
+                  "awsai-ai-agents-mcp-w1-tools",
+                  "awsai-ai-agents-mcp-w1-leash",
+                  "awsai-ai-agents-mcp-w2-audit"
+                ]
+              },
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "awsai-w0-accounts",
+                  "awsai-w0-local",
+                  "awsai-w0-orient",
+                  "awsai-w1-workloads",
+                  "awsai-w1-components",
+                  "awsai-w1-local",
+                  "awsai-w2-responsible",
+                  "awsai-w2-ml",
+                  "awsai-w2-eval",
+                  "awsai-w3-deploy",
+                  "awsai-w3-app",
+                  "awsai-w3-services",
+                  "awsai-w4-agent",
+                  "awsai-w4-govern",
+                  "awsai-w4-handover",
+                  "awsai-rag-engineering-w1-index",
+                  "awsai-rag-engineering-w1-retrieve",
+                  "awsai-rag-engineering-w2-evalset",
+                  "awsai-rag-engineering-w2-passline",
+                  "awsai-ai-agents-mcp-w1-tools",
+                  "awsai-ai-agents-mcp-w1-leash",
+                  "awsai-ai-agents-mcp-w2-mcp",
+                  "awsai-ai-agents-mcp-w2-audit"
+                ]
+              },
+              {
+                "name": "AWS console",
+                "purpose": "A management console the task configures things in.",
+                "usedIn": [
+                  "awsai-w0-accounts",
+                  "awsai-w1-workloads",
+                  "awsai-w3-deploy",
+                  "awsai-w3-services",
+                  "awsai-w4-govern",
+                  "awsai-w4-handover"
+                ]
+              },
+              {
+                "name": "AWS CloudShell",
+                "purpose": "A management console the task configures things in.",
+                "usedIn": [
+                  "awsai-w0-accounts",
+                  "awsai-w1-workloads",
+                  "awsai-w3-deploy",
+                  "awsai-w3-services",
+                  "awsai-w4-handover"
+                ]
+              },
+              {
+                "name": "AWS CLI",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "awsai-w0-accounts",
+                  "awsai-w1-workloads",
+                  "awsai-w3-deploy",
+                  "awsai-w3-services",
+                  "awsai-w4-handover"
+                ]
+              },
+              {
+                "name": "Ollama",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "awsai-w0-local",
+                  "awsai-w1-components",
+                  "awsai-w1-local",
+                  "awsai-w2-eval",
+                  "awsai-w3-app",
+                  "awsai-rag-engineering-w1-retrieve",
+                  "awsai-ai-agents-mcp-w1-tools"
+                ]
+              },
+              {
+                "name": "Notes",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "awsai-w0-orient",
+                  "awsai-w1-workloads"
+                ]
+              },
+              {
+                "name": "Amazon Bedrock",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "awsai-w3-deploy",
+                  "awsai-w4-agent"
+                ]
+              },
+              {
+                "name": "Python",
+                "purpose": "A language the task writes or reads.",
+                "usedIn": [
+                  "awsai-w3-app",
+                  "awsai-w3-services",
+                  "awsai-w4-agent",
+                  "awsai-rag-engineering-w1-index",
+                  "awsai-rag-engineering-w1-retrieve",
+                  "awsai-rag-engineering-w2-evalset",
+                  "awsai-rag-engineering-w2-passline",
+                  "awsai-ai-agents-mcp-w1-tools",
+                  "awsai-ai-agents-mcp-w1-leash",
+                  "awsai-ai-agents-mcp-w2-mcp",
+                  "awsai-ai-agents-mcp-w2-audit"
+                ]
+              },
+              {
+                "name": "Amazon AI services",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "awsai-w3-services"
+                ]
+              },
+              {
+                "name": "Chroma",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "awsai-rag-engineering-w1-index"
+                ]
+              }
+            ]
+          }
+        ],
+        "weeks": [
+          {
+            "week": 0,
+            "wire": "Set up the studio",
+            "focus": "Open the AWS free account, get a local model running, pick your focus and make the studio folder.",
+            "before": "Nothing built yet.",
+            "after": "The account with a budget guard, a local model running offline, and the studio folder ready.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "awsai-w0-accounts",
+                "step": "awsai-w0-accounts-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Open the free account and turn MFA on"
+              },
+              {
+                "taskId": "awsai-w0-accounts",
+                "step": "awsai-w0-accounts-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Set a $1 budget alert from the shell"
+              },
+              {
+                "taskId": "awsai-w0-local",
+                "step": "awsai-w0-local-s1",
+                "role": "build",
+                "kind": "governance",
+                "at": [],
+                "text": "Install Ollama and pull a small model"
+              },
+              {
+                "taskId": "awsai-w0-local",
+                "step": "awsai-w0-local-s2",
+                "role": "build",
+                "kind": "evidence",
+                "at": [],
+                "text": "Prove it answers offline"
+              },
+              {
+                "taskId": "awsai-w0-orient",
+                "step": "awsai-w0-orient-s1",
+                "role": "concepts",
+                "kind": "governance",
+                "at": [],
+                "text": "Pick the focus and name the assistant"
+              },
+              {
+                "taskId": "awsai-w0-orient",
+                "step": "awsai-w0-orient-s2",
+                "role": "concepts",
+                "kind": "evidence",
+                "at": [],
+                "text": "Make the studio folder"
+              }
+            ]
+          },
+          {
+            "week": 1,
+            "wire": "Identify the AI",
+            "focus": "Name the workloads behind features, read what a foundation model is made of, and ground a local model.",
+            "before": "Built so far: Local model, Studio folder, 1 Setup & access.",
+            "after": "New: the workloads named, the model read from its own output, and a local answer grounded in the notes.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "awsai-w1-workloads",
+                "step": "awsai-w1-workloads-s1",
+                "role": "concepts",
+                "kind": "governance",
+                "at": [],
+                "text": "Tag ten features with their workload"
+              },
+              {
+                "taskId": "awsai-w1-workloads",
+                "step": "awsai-w1-workloads-s3",
+                "role": "concepts",
+                "kind": "evidence",
+                "at": [],
+                "text": "Confirm the Bedrock models for each workload"
+              },
+              {
+                "taskId": "awsai-w1-components",
+                "step": "awsai-w1-components-s1",
+                "role": "build",
+                "kind": "governance",
+                "at": [],
+                "text": "Show the model details and its sizes"
+              },
+              {
+                "taskId": "awsai-w1-components",
+                "step": "awsai-w1-components-s2",
+                "role": "build",
+                "kind": "evidence",
+                "at": [],
+                "text": "Run the same prompt hot and cold"
+              },
+              {
+                "taskId": "awsai-w1-local",
+                "step": "awsai-w1-local-s1",
+                "role": "language",
+                "kind": "governance",
+                "at": [],
+                "text": "Answer from the note, not from memory"
+              },
+              {
+                "taskId": "awsai-w1-local",
+                "step": "awsai-w1-local-s2",
+                "role": "language",
+                "kind": "evidence",
+                "at": [],
+                "text": "Catch it when the note does not cover the question"
+              }
+            ]
+          },
+          {
+            "week": 2,
+            "wire": "Weigh the AI",
+            "focus": "Assess the assistant against the responsible-AI guidelines, read how a model is trained, and ground a wrong answer.",
+            "before": "Built so far: Local model, Studio folder, 1 Setup & access and 3 more.",
+            "after": "New: the responsible-AI guidelines assessed, a model scored, and a wrong answer worked to grounded.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "awsai-w2-responsible",
+                "step": "awsai-w2-responsible-s1",
+                "role": "concepts",
+                "kind": "governance",
+                "at": [],
+                "text": "Write a finding for each of the six guidelines"
+              },
+              {
+                "taskId": "awsai-w2-responsible",
+                "step": "awsai-w2-responsible-s3",
+                "role": "concepts",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record the deployment decision"
+              },
+              {
+                "taskId": "awsai-w2-ml",
+                "step": "awsai-w2-ml-s1",
+                "role": "build",
+                "kind": "governance",
+                "at": [],
+                "text": "Write a tiny labelled test set"
+              },
+              {
+                "taskId": "awsai-w2-ml",
+                "step": "awsai-w2-ml-s2",
+                "role": "build",
+                "kind": "evidence",
+                "at": [],
+                "text": "Score the model and read a miss"
+              },
+              {
+                "taskId": "awsai-w2-eval",
+                "step": "awsai-w2-eval-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the wrong answer exactly"
+              },
+              {
+                "taskId": "awsai-w2-eval",
+                "step": "awsai-w2-eval-s3",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record the grounded answer and the failed theories"
+              }
+            ]
+          },
+          {
+            "week": 3,
+            "wire": "Build on Bedrock",
+            "focus": "Invoke a model on Amazon Bedrock, build a grounded chat app on it, and add language and document services.",
+            "before": "Built so far: Local model, Studio folder, 1 Setup & access and 8 more.",
+            "after": "New: a model invoked on Bedrock, a grounded chat app, and the language and document senses.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "awsai-w3-deploy",
+                "step": "awsai-w3-deploy-s1",
+                "role": "build",
+                "kind": "governance",
+                "at": [],
+                "text": "Request access to a foundation model"
+              },
+              {
+                "taskId": "awsai-w3-deploy",
+                "step": "awsai-w3-deploy-s2",
+                "role": "build",
+                "kind": "evidence",
+                "at": [],
+                "text": "Invoke the model once"
+              },
+              {
+                "taskId": "awsai-w3-app",
+                "step": "awsai-w3-app-s1",
+                "role": "build",
+                "kind": "governance",
+                "at": [],
+                "text": "Answer from the documents"
+              },
+              {
+                "taskId": "awsai-w3-app",
+                "step": "awsai-w3-app-s2",
+                "role": "build",
+                "kind": "evidence",
+                "at": [],
+                "text": "Refuse when the documents are silent"
+              },
+              {
+                "taskId": "awsai-w3-services",
+                "step": "awsai-w3-services-s1",
+                "role": "language",
+                "kind": "governance",
+                "at": [],
+                "text": "Read sentiment from a sentence"
+              },
+              {
+                "taskId": "awsai-w3-services",
+                "step": "awsai-w3-services-s2",
+                "role": "language",
+                "kind": "evidence",
+                "at": [],
+                "text": "Read text out of a document"
+              }
+            ]
+          },
+          {
+            "week": 4,
+            "wire": "Secure and hand over",
+            "focus": "Build an agent that extracts data, lock it down with IAM and a guardrail, and hand it over.",
+            "before": "Built so far: Local model, Studio folder, 1 Setup & access and 15 more.",
+            "after": "New: an agent that extracts JSON, least-privilege IAM and a guardrail, the custody log, and the solution torn down.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "awsai-w4-agent",
+                "step": "awsai-w4-agent-s1",
+                "role": "build",
+                "kind": "governance",
+                "at": [],
+                "text": "Extract the fields as JSON"
+              },
+              {
+                "taskId": "awsai-w4-agent",
+                "step": "awsai-w4-agent-s2",
+                "role": "build",
+                "kind": "evidence",
+                "at": [],
+                "text": "Make a missing field null, not invented"
+              },
+              {
+                "taskId": "awsai-w4-govern",
+                "step": "awsai-w4-govern-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the least-privilege IAM and the guardrail"
+              },
+              {
+                "taskId": "awsai-w4-govern",
+                "step": "awsai-w4-govern-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Score the solution one last time"
+              },
+              {
+                "taskId": "awsai-w4-handover",
+                "step": "awsai-w4-handover-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Write what was built and how to run it"
+              },
+              {
+                "taskId": "awsai-w4-handover",
+                "step": "awsai-w4-handover-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Hash every artifact for custody"
+              }
+            ]
+          },
+          {
+            "week": 5,
+            "wire": "RAG engineering: Index your documents",
+            "focus": "Load a folder of records into a vector store and query it for the right passage.",
+            "before": "Built so far: Local model, Studio folder, 1 Setup & access and 21 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "awsai-rag-engineering-w1-index",
+                "step": "awsai-rag-engineering-w1-index-s1",
+                "role": "concepts",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Index a document set"
+              },
+              {
+                "taskId": "awsai-rag-engineering-w1-index",
+                "step": "awsai-rag-engineering-w1-index-s2",
+                "role": "concepts",
+                "kind": "governance",
+                "at": [],
+                "text": "Query the store and read the top passage."
+              },
+              {
+                "taskId": "awsai-rag-engineering-w1-retrieve",
+                "step": "awsai-rag-engineering-w1-retrieve-s1",
+                "role": "concepts",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Answer from the passages"
+              },
+              {
+                "taskId": "awsai-rag-engineering-w1-retrieve",
+                "step": "awsai-rag-engineering-w1-retrieve-s2",
+                "role": "concepts",
+                "kind": "governance",
+                "at": [],
+                "text": "Compare the answer to the record."
+              }
+            ]
+          },
+          {
+            "week": 6,
+            "wire": "RAG engineering: Evaluate the answers",
+            "focus": "Measure the pipeline against a question set and set a pass line before you trust it.",
+            "before": "Built so far: Local model, Studio folder, 1 Setup & access and 21 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "awsai-rag-engineering-w2-evalset",
+                "step": "awsai-rag-engineering-w2-evalset-s1",
+                "role": "concepts",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Build a question set"
+              },
+              {
+                "taskId": "awsai-rag-engineering-w2-evalset",
+                "step": "awsai-rag-engineering-w2-evalset-s2",
+                "role": "concepts",
+                "kind": "governance",
+                "at": [],
+                "text": "Read the misses and fix the cause."
+              },
+              {
+                "taskId": "awsai-rag-engineering-w2-passline",
+                "step": "awsai-rag-engineering-w2-passline-s1",
+                "role": "concepts",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Set the pass line"
+              },
+              {
+                "taskId": "awsai-rag-engineering-w2-passline",
+                "step": "awsai-rag-engineering-w2-passline-s2",
+                "role": "concepts",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the decision."
+              }
+            ]
+          },
+          {
+            "week": 7,
+            "wire": "AI agents and MCP: An agent with tools",
+            "focus": "Give a model two tools it can call, and log every call it makes.",
+            "before": "Built so far: Local model, Studio folder, 1 Setup & access and 21 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "awsai-ai-agents-mcp-w1-tools",
+                "step": "awsai-ai-agents-mcp-w1-tools-s1",
+                "role": "concepts",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Give the agent tools"
+              },
+              {
+                "taskId": "awsai-ai-agents-mcp-w1-tools",
+                "step": "awsai-ai-agents-mcp-w1-tools-s2",
+                "role": "concepts",
+                "kind": "governance",
+                "at": [],
+                "text": "Read the call log."
+              },
+              {
+                "taskId": "awsai-ai-agents-mcp-w1-leash",
+                "step": "awsai-ai-agents-mcp-w1-leash-s1",
+                "role": "concepts",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Keep it on a leash"
+              },
+              {
+                "taskId": "awsai-ai-agents-mcp-w1-leash",
+                "step": "awsai-ai-agents-mcp-w1-leash-s2",
+                "role": "concepts",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the guardrail."
+              }
+            ]
+          },
+          {
+            "week": 8,
+            "wire": "AI agents and MCP: Expose a tool over MCP",
+            "focus": "Serve one tool over MCP so any client can call it the same way.",
+            "before": "Built so far: Local model, Studio folder, 1 Setup & access and 21 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "awsai-ai-agents-mcp-w2-mcp",
+                "step": "awsai-ai-agents-mcp-w2-mcp-s1",
+                "role": "concepts",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Serve a tool over MCP"
+              },
+              {
+                "taskId": "awsai-ai-agents-mcp-w2-mcp",
+                "step": "awsai-ai-agents-mcp-w2-mcp-s2",
+                "role": "concepts",
+                "kind": "governance",
+                "at": [],
+                "text": "Call the tool from the client."
+              },
+              {
+                "taskId": "awsai-ai-agents-mcp-w2-audit",
+                "step": "awsai-ai-agents-mcp-w2-audit-s1",
+                "role": "concepts",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Audit the agent"
+              },
+              {
+                "taskId": "awsai-ai-agents-mcp-w2-audit",
+                "step": "awsai-ai-agents-mcp-w2-audit-s2",
+                "role": "concepts",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the audit."
+              }
+            ]
+          }
+        ],
+        "spec": {
+          "columns": [
+            "Component",
+            "Address",
+            "Runs",
+            "Who"
+          ],
+          "rows": [
+            [
+              "Local model",
+              "—",
+              "Ollama · offline",
+              "build"
+            ],
+            [
+              "Studio notes",
+              "—",
+              "the grounding source",
+              "language"
+            ],
+            [
+              "Bedrock model",
+              "—",
+              "InvokeModel",
+              "build"
+            ],
+            [
+              "Grounded app",
+              "—",
+              "answers from the notes",
+              "build"
+            ]
+          ]
         }
       }
     },

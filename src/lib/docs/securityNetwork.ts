@@ -18,6 +18,7 @@ const windows = labHost('windows');
 const HOSTS: NetHost[] = [
   {
     id: 'kali',
+    segment: 'hostonly',
     label: 'Kali attacker',
     description: 'The attacker’s machine — where Red runs recon, scanning and exploitation inside the authorised scope.',
     addr: kali.ip,
@@ -44,6 +45,7 @@ const HOSTS: NetHost[] = [
   },
   {
     id: 'ubuntu',
+    segment: 'hostonly',
     label: 'Ubuntu web server',
     description: 'The target web server; it runs DVWA in Docker and is where most attacks land.',
     addr: ubuntu.ip,
@@ -99,6 +101,7 @@ const HOSTS: NetHost[] = [
   },
   {
     id: 'windows',
+    segment: 'hostonly',
     label: 'Windows host',
     description: 'The optional second target: a Windows endpoint reached over RDP, with local accounts to defend.',
     addr: windows.ip,
@@ -158,7 +161,7 @@ export const NETWORK: LabNetwork = {
         { name: 'sha256sum', purpose: 'Hashes every evidence file for the chain of custody.', usedIn: ['grc-w3-custody'] },
       ],
     },
-    segment: { id: 'hostonly', label: 'Host-Only network', note: LAB_SUBNET, y: 150 },
+    segments: [{ id: 'hostonly', label: 'Host-Only network', note: LAB_SUBNET, kind: 'lan', y: 150 }],
     adapter: { id: 'adapter', label: 'Host-Only adapter', addr: LAB_GATEWAY, description: 'The hypervisor’s own interface on the lab network — the .1 the VMs see as their gateway; no route to the internet.' },
   },
   hosts: HOSTS,

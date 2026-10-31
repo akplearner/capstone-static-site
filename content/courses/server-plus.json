@@ -8,6 +8,7 @@
     "src/lib/serverTopology.ts",
     "src/lib/docs/manual.ts",
     "src/lib/docs/serverDiagrams.ts",
+    "src/lib/docs/networkFrom.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
     "src/lib/docs/certs.ts",
@@ -15881,6 +15882,2475 @@
         "directoryChip": "AD DS · DNS · DHCP",
         "backupStoreChip": "PBS datastore · local",
         "footer": "The Windows / Linux / website VMs are the base build — every team the same. Zone subnets are worked examples; record yours in the IP Plan & Connectivity Proof."
+      }
+    },
+    "network": {
+      "NETWORK": {
+        "copy": {
+          "title": "The Server+ Build & Handover network — what you build and where",
+          "howToRead": "11 components on 4 segments, under Proxmox host (pve-host). Each card shows its address, what it runs and exposes, and the controls on it. Pick a week to see what has arrived.",
+          "footer": "The addresses are Team 1’s worked example; T is your team number.",
+          "reference": {
+            "lede": "Every component of the rack, its address where it has one, what it runs and exposes, the tools on it, and what each task does to it, week by week.",
+            "lan": "4 segments: Management (vmbr0), DMZ (vmbr1), Private (vmbr2), Operations network (VLAN 20).",
+            "ports": "What answers on the network, and what stays inside a host or a single segment.",
+            "tools": "What is installed where, and the task that uses it.",
+            "attacks": "The attack types in exam vocabulary, where this lab uses each, and the control that answers it.",
+            "actions": "What each task of the week does on the network: the work placed on the components it touches.",
+            "links": "Every cable, port to port, with what it carries."
+          }
+        },
+        "view": {
+          "w": 1000,
+          "h": 879
+        },
+        "subnet": "10.10.0.0/16",
+        "fabric": {
+          "hypervisor": {
+            "id": "host",
+            "label": "Proxmox host (pve-host)",
+            "description": "A shell on the hypervisor: the Proxmox console, or ssh as root over the tailnet.",
+            "addr": "10.10.30.T",
+            "segment": "vmbr0",
+            "kind": "hypervisor",
+            "arrives": 1,
+            "services": [
+              {
+                "port": 8006,
+                "proto": "tcp",
+                "name": "web console",
+                "description": "A browser at https://10.10.30.T:8006 — the point-and-click side of the host.",
+                "from": 1
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:host-forward-drop",
+                "label": "FORWARD policy DROP · logged",
+                "description": "Everything the host is asked to forward and no rule allows is dropped and logged.",
+                "kind": "harden",
+                "arrives": 2
+              },
+              {
+                "id": "ctl:host-tailnet",
+                "label": "Tailnet",
+                "description": "Administration from off campus, into both zones Routes advertised: 172.16.0.0/24, 192.168.0.0/24.",
+                "kind": "harden",
+                "arrives": 3
+              },
+              {
+                "id": "ctl:host-backup",
+                "label": "Snapshots and restore",
+                "description": "Every VM snapshotted; a restore timed and recorded",
+                "kind": "recover",
+                "arrives": 4
+              },
+              {
+                "id": "ctl:host-backupstore",
+                "label": "Backup datastore",
+                "description": "Where the snapshots live until the fleet’s PBS takes over",
+                "kind": "recover",
+                "arrives": 4
+              }
+            ],
+            "publishes": [
+              {
+                "host": 80,
+                "to": "websrv",
+                "port": 80,
+                "proto": "tcp",
+                "purpose": "The website — the site your team builds and uploads",
+                "from": 3
+              },
+              {
+                "host": 443,
+                "to": "websrv",
+                "port": 443,
+                "proto": "tcp",
+                "purpose": "The website over TLS — published now, served from Week 4",
+                "from": 3
+              },
+              {
+                "host": 2200,
+                "to": "websrv",
+                "port": 22,
+                "proto": "tcp",
+                "purpose": "Upload the site — scp straight to the DMZ host",
+                "from": 3
+              }
+            ],
+            "x": 140,
+            "y": 813,
+            "tools": [
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w1-document",
+                  "sp-w2-install",
+                  "sp-w3-topology",
+                  "sp-w3-connect",
+                  "sp-w4-secure",
+                  "sp-w4-dr",
+                  "sp-w6-spine",
+                  "sp-w6-ops",
+                  "sp-w6-terraform",
+                  "sp-w6-ansible",
+                  "sp-w6-vault",
+                  "sp-w6-xdr",
+                  "sp-w6-rebuild",
+                  "sp-w2-net",
+                  "sp-w3-net",
+                  "sp-w4-net",
+                  "sp-w1-lnx",
+                  "sp-w2-lnx",
+                  "sp-w3-lnx"
+                ]
+              },
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "sp-w1-document",
+                  "sp-w2-install",
+                  "sp-w3-topology",
+                  "sp-w3-connect",
+                  "sp-w4-secure",
+                  "sp-w4-dr",
+                  "sp-w6-rebuild",
+                  "sp-w2-net",
+                  "sp-w3-net",
+                  "sp-w4-net",
+                  "sp-w1-lnx",
+                  "sp-w2-lnx",
+                  "sp-w3-lnx"
+                ]
+              },
+              {
+                "name": "Capstone guide",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "sp-w1-document",
+                  "sp-w2-install",
+                  "sp-w3-connect",
+                  "sp-w4-secure"
+                ]
+              },
+              {
+                "name": "Vendor documentation",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "sp-w1-document"
+                ]
+              },
+              {
+                "name": "The server",
+                "purpose": "Physical equipment the task handles.",
+                "usedIn": [
+                  "sp-w1-document"
+                ]
+              },
+              {
+                "name": "USB install media",
+                "purpose": "Physical equipment the task handles.",
+                "usedIn": [
+                  "sp-w1-document"
+                ]
+              },
+              {
+                "name": "PowerShell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w2-install",
+                  "sp-w3-connect",
+                  "sp-w4-secure",
+                  "sp-w6-spine"
+                ]
+              },
+              {
+                "name": "SSH",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w2-install",
+                  "sp-w3-connect",
+                  "sp-w4-secure",
+                  "sp-w6-ops",
+                  "sp-w6-terraform",
+                  "sp-w6-vault"
+                ]
+              },
+              {
+                "name": "ping / traceroute",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w2-install",
+                  "sp-w3-connect",
+                  "sp-w6-spine",
+                  "sp-w6-ops"
+                ]
+              },
+              {
+                "name": "iptables",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w2-install",
+                  "sp-w3-connect",
+                  "sp-w3-net"
+                ]
+              },
+              {
+                "name": "Proxmox VE",
+                "purpose": "The platform the task builds on.",
+                "usedIn": [
+                  "sp-w2-install",
+                  "sp-w3-connect",
+                  "sp-w4-secure",
+                  "sp-w4-dr",
+                  "sp-w5-terraform",
+                  "sp-w6-spine",
+                  "sp-w6-ops",
+                  "sp-w6-terraform",
+                  "sp-w6-ansible",
+                  "sp-w6-vault",
+                  "sp-w6-xdr",
+                  "sp-w6-rebuild",
+                  "sp-w2-lnx"
+                ]
+              },
+              {
+                "name": "curl",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w3-connect",
+                  "sp-w4-secure",
+                  "sp-w6-ops"
+                ]
+              },
+              {
+                "name": "nslookup",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w3-connect"
+                ]
+              },
+              {
+                "name": "netcat",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w3-connect"
+                ]
+              },
+              {
+                "name": "Windows Server",
+                "purpose": "The platform the task builds on.",
+                "usedIn": [
+                  "sp-w3-connect",
+                  "sp-w4-secure"
+                ]
+              },
+              {
+                "name": "netplan",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w3-connect",
+                  "sp-w6-spine",
+                  "sp-w3-lnx"
+                ]
+              },
+              {
+                "name": "Tailscale",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w3-connect"
+                ]
+              },
+              {
+                "name": "sha256sum",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w4-secure",
+                  "sp-w2-lnx"
+                ]
+              },
+              {
+                "name": "ufw",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w4-secure"
+                ]
+              },
+              {
+                "name": "OpenSSL",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w4-secure"
+                ]
+              },
+              {
+                "name": "Windows Firewall",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "sp-w4-secure"
+                ]
+              },
+              {
+                "name": "nginx",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w4-secure"
+                ]
+              },
+              {
+                "name": "MySQL / MariaDB",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w4-dr"
+                ]
+              },
+              {
+                "name": "Terraform",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w5-terraform",
+                  "sp-w6-ops",
+                  "sp-w6-terraform",
+                  "sp-w6-rebuild"
+                ]
+              },
+              {
+                "name": "OpenTofu",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w5-terraform",
+                  "sp-w6-ops",
+                  "sp-w6-terraform",
+                  "sp-w6-rebuild"
+                ]
+              },
+              {
+                "name": "cloud-init",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w5-terraform",
+                  "sp-w6-terraform"
+                ]
+              },
+              {
+                "name": "The Core (lab server)",
+                "purpose": "The platform the task builds on.",
+                "usedIn": [
+                  "sp-w6-spine",
+                  "sp-w6-ops"
+                ]
+              },
+              {
+                "name": "Git",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w6-ops",
+                  "sp-w6-ansible",
+                  "sp-w6-rebuild"
+                ]
+              },
+              {
+                "name": "Ansible",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w6-ops",
+                  "sp-w6-ansible",
+                  "sp-w6-xdr",
+                  "sp-w6-rebuild"
+                ]
+              },
+              {
+                "name": "Wazuh",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w6-ansible",
+                  "sp-w6-xdr"
+                ]
+              },
+              {
+                "name": "Grafana",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w6-ansible"
+                ]
+              },
+              {
+                "name": "Proxmox Backup Server",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w6-vault"
+                ]
+              }
+            ]
+          },
+          "segments": [
+            {
+              "id": "vmbr0",
+              "label": "Management (vmbr0)",
+              "note": "10.10.0.0/16 · gw 10.10.10.1 — The campus LAN. The host lives here and every other zone routes out through it.",
+              "kind": "bridge",
+              "arrives": 0,
+              "y": 46
+            },
+            {
+              "id": "vmbr1",
+              "label": "DMZ (vmbr1)",
+              "note": "172.16.0.0/24 · gw 172.16.0.1 — Public-facing only. The website answers here and nothing internal belongs in it.",
+              "kind": "bridge",
+              "arrives": 2,
+              "y": 162
+            },
+            {
+              "id": "vmbr2",
+              "label": "Private (vmbr2)",
+              "note": "192.168.0.0/24 · gw 192.168.0.1 — Internal systems. Later mapped to a physical NIC into the Cisco router and switch.",
+              "kind": "bridge",
+              "arrives": 2,
+              "y": 346
+            },
+            {
+              "id": "vmbr9",
+              "label": "Operations network (VLAN 20)",
+              "note": "10.20.0.0/16 · host 10.20.T.1 · eno2.20",
+              "kind": "vlan",
+              "arrives": 7,
+              "y": 629
+            }
+          ]
+        },
+        "hosts": [
+          {
+            "id": "workstation",
+            "label": "Your workstation",
+            "description": "The classroom PC at your desk, imaged and joined to the domain in Week 0.",
+            "segment": "vmbr0",
+            "kind": "client",
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 58,
+            "tools": [
+              {
+                "name": "PowerShell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w0-pxe",
+                  "sp-w1-install",
+                  "sp-w5-glpi",
+                  "sp-w5-win",
+                  "sp-w8-win"
+                ]
+              },
+              {
+                "name": "ping / traceroute",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w0-pxe",
+                  "sp-w1-install",
+                  "sp-w7-net"
+                ]
+              },
+              {
+                "name": "Capstone guide",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "sp-w0-pxe",
+                  "sp-w0-starter",
+                  "sp-w0-orient",
+                  "sp-w1-install"
+                ]
+              },
+              {
+                "name": "Vendor documentation",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "sp-w1-bringup"
+                ]
+              },
+              {
+                "name": "The server",
+                "purpose": "Physical equipment the task handles.",
+                "usedIn": [
+                  "sp-w1-bringup",
+                  "sp-w1-raid",
+                  "sp-w1-install",
+                  "sp-w2-rack"
+                ]
+              },
+              {
+                "name": "Hand tools",
+                "purpose": "Physical equipment the task handles.",
+                "usedIn": [
+                  "sp-w1-bringup",
+                  "sp-w2-rack"
+                ]
+              },
+              {
+                "name": "The bench PC",
+                "purpose": "Physical equipment the task handles.",
+                "usedIn": [
+                  "sp-w1-bringup"
+                ]
+              },
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "sp-w1-raid",
+                  "sp-w1-install",
+                  "sp-w2-business",
+                  "sp-w2-rackplan",
+                  "sp-w2-rack",
+                  "sp-w3-sops",
+                  "sp-w4-handover",
+                  "sp-w5-plan",
+                  "sp-w5-record",
+                  "sp-w1-net",
+                  "sp-w1-win",
+                  "sp-w1-mgmt",
+                  "sp-w2-mgmt",
+                  "sp-w3-mgmt",
+                  "sp-w4-mgmt",
+                  "sp-w6-net",
+                  "sp-w5-win",
+                  "sp-w5-lnx",
+                  "sp-w6-mgmt",
+                  "sp-w7-net",
+                  "sp-w8-win",
+                  "sp-w8-lnx",
+                  "sp-w8-mgmt",
+                  "srv-local-llm-serving-w1-serve",
+                  "srv-local-llm-serving-w1-size"
+                ]
+              },
+              {
+                "name": "RAID controller utility",
+                "purpose": "Physical equipment the task handles.",
+                "usedIn": [
+                  "sp-w1-raid"
+                ]
+              },
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w1-install",
+                  "sp-w5-pulse",
+                  "sp-w5-netbox",
+                  "sp-w5-glpi",
+                  "sp-w5-lnx",
+                  "sp-w7-net",
+                  "sp-w8-lnx",
+                  "srv-local-llm-serving-w1-size"
+                ]
+              },
+              {
+                "name": "SSH",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w1-install",
+                  "sp-w8-lnx"
+                ]
+              },
+              {
+                "name": "curl",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w1-install",
+                  "sp-w5-pulse",
+                  "srv-local-llm-serving-w1-serve"
+                ]
+              },
+              {
+                "name": "Windows",
+                "purpose": "The platform the task builds on.",
+                "usedIn": [
+                  "sp-w1-install"
+                ]
+              },
+              {
+                "name": "Proxmox VE",
+                "purpose": "The platform the task builds on.",
+                "usedIn": [
+                  "sp-w1-install",
+                  "sp-w5-pulse"
+                ]
+              },
+              {
+                "name": "Tailscale",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w1-install"
+                ]
+              },
+              {
+                "name": "USB install media",
+                "purpose": "Physical equipment the task handles.",
+                "usedIn": [
+                  "sp-w1-install"
+                ]
+              },
+              {
+                "name": "Patch panel",
+                "purpose": "Physical equipment the task handles.",
+                "usedIn": [
+                  "sp-w2-rack"
+                ]
+              },
+              {
+                "name": "Pulse",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w5-pulse"
+                ]
+              },
+              {
+                "name": "Git",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w5-netbox"
+                ]
+              },
+              {
+                "name": "Docker",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w5-netbox",
+                  "sp-w5-glpi"
+                ]
+              },
+              {
+                "name": "NetBox",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w5-netbox"
+                ]
+              },
+              {
+                "name": "GLPI",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w5-glpi"
+                ]
+              },
+              {
+                "name": "Windows Event Viewer",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "sp-w5-win"
+                ]
+              },
+              {
+                "name": "Terraform",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w5-lnx"
+                ]
+              },
+              {
+                "name": "Cisco IOS",
+                "purpose": "A network or security appliance the task configures.",
+                "usedIn": [
+                  "sp-w7-net"
+                ]
+              },
+              {
+                "name": "Windows Firewall",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "sp-w8-win"
+                ]
+              },
+              {
+                "name": "Ansible",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w8-win",
+                  "sp-w8-lnx"
+                ]
+              },
+              {
+                "name": "Proxmox Backup Server",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w8-lnx"
+                ]
+              },
+              {
+                "name": "Ollama",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "srv-local-llm-serving-w1-serve"
+                ]
+              },
+              {
+                "name": "Python",
+                "purpose": "A language the task writes or reads.",
+                "usedIn": [
+                  "srv-local-llm-serving-w1-serve",
+                  "srv-local-llm-serving-w1-size"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "edge",
+            "label": "Campus edge",
+            "description": "Router and firewall: the servers’ only path to the internet",
+            "addr": "10.10.10.1",
+            "segment": "vmbr0",
+            "kind": "router",
+            "arrives": 3,
+            "external": true,
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 58
+          },
+          {
+            "id": "websrv",
+            "label": "websrv",
+            "description": "The website — public-facing",
+            "addr": "172.16.0.10",
+            "segment": "vmbr1",
+            "nic": "vmbr1",
+            "os": "Ubuntu Server",
+            "kind": "server",
+            "arrives": 2,
+            "apps": [
+              "NGINX"
+            ],
+            "services": [
+              {
+                "port": 80,
+                "proto": "tcp",
+                "name": "The website",
+                "description": "The website — the site your team builds and uploads; the campus reaches it through the host's :80.",
+                "from": 3,
+                "scope": "segment",
+                "via": "vmbr1"
+              },
+              {
+                "port": 443,
+                "proto": "tcp",
+                "name": "The website over TLS",
+                "description": "The website over TLS — published now, served from Week 4; the campus reaches it through the host's :443.",
+                "from": 3,
+                "scope": "segment",
+                "via": "vmbr1"
+              },
+              {
+                "port": 22,
+                "proto": "tcp",
+                "name": "Upload the site",
+                "description": "Upload the site — scp straight to the DMZ host; the campus reaches it through the host's :2200.",
+                "from": 3,
+                "scope": "segment",
+                "via": "vmbr1"
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:hardened-websrv",
+                "label": "Hardening baseline",
+                "description": "The settings every VM must reach before handover",
+                "kind": "harden",
+                "arrives": 4
+              }
+            ],
+            "x": 140,
+            "y": 174,
+            "tools": [
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w2-deploy",
+                  "sp-w4-lnx"
+                ]
+              },
+              {
+                "name": "PowerShell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w2-deploy"
+                ]
+              },
+              {
+                "name": "curl",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w2-deploy"
+                ]
+              },
+              {
+                "name": "nslookup",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w2-deploy"
+                ]
+              },
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "sp-w2-deploy",
+                  "sp-w4-lnx"
+                ]
+              },
+              {
+                "name": "Capstone guide",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "sp-w2-deploy"
+                ]
+              },
+              {
+                "name": "Windows Server",
+                "purpose": "The platform the task builds on.",
+                "usedIn": [
+                  "sp-w2-deploy"
+                ]
+              },
+              {
+                "name": "MySQL / MariaDB",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w2-deploy"
+                ]
+              },
+              {
+                "name": "ufw",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w4-lnx"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "winserver",
+            "label": "winserver",
+            "description": "Windows Server — directory · DNS · DHCP",
+            "addr": "192.168.0.2",
+            "segment": "vmbr2",
+            "nic": "vmbr2",
+            "os": "Windows Server",
+            "kind": "server",
+            "arrives": 2,
+            "apps": [
+              "AD DS",
+              "DNS",
+              "DHCP"
+            ],
+            "services": [
+              {
+                "port": 53,
+                "proto": "udp",
+                "name": "DNS",
+                "description": "DNS — the one path the vmbr1 zone may open to it.",
+                "from": 3,
+                "scope": "segment",
+                "via": "vmbr1"
+              },
+              {
+                "port": 53,
+                "proto": "tcp",
+                "name": "DNS",
+                "description": "DNS — the one path the vmbr1 zone may open to it.",
+                "from": 3,
+                "scope": "segment",
+                "via": "vmbr1"
+              },
+              {
+                "port": 22,
+                "proto": "tcp",
+                "name": "SSH",
+                "description": "SSH to every VM, from the tailnet through the host.",
+                "from": 3,
+                "scope": "segment",
+                "via": "tailscale0"
+              },
+              {
+                "port": 3389,
+                "proto": "tcp",
+                "name": "RDP",
+                "description": "RDP to winserver, from the tailnet through the host.",
+                "from": 3,
+                "scope": "segment",
+                "via": "tailscale0"
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:hardened-winserver",
+                "label": "Hardening baseline",
+                "description": "The settings every VM must reach before handover",
+                "kind": "harden",
+                "arrives": 4
+              }
+            ],
+            "x": 140,
+            "y": 358,
+            "tools": [
+              {
+                "name": "PowerShell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w2-win",
+                  "sp-w3-win",
+                  "sp-w4-win"
+                ]
+              },
+              {
+                "name": "sha256sum",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w2-win"
+                ]
+              },
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "sp-w2-win",
+                  "sp-w3-win",
+                  "sp-w4-win"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "linuxsrv",
+            "label": "linuxsrv",
+            "description": "Ubuntu Server — the database",
+            "addr": "192.168.0.3",
+            "segment": "vmbr2",
+            "nic": "vmbr2",
+            "os": "Ubuntu Server",
+            "kind": "server",
+            "arrives": 2,
+            "apps": [
+              "MariaDB"
+            ],
+            "services": [
+              {
+                "port": 3306,
+                "proto": "tcp",
+                "name": "The database",
+                "description": "The database — the one path the vmbr1 zone may open to it.",
+                "from": 3,
+                "scope": "segment",
+                "via": "vmbr1"
+              },
+              {
+                "port": 22,
+                "proto": "tcp",
+                "name": "SSH",
+                "description": "SSH to every VM, from the tailnet through the host.",
+                "from": 3,
+                "scope": "segment",
+                "via": "tailscale0"
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:hardened-linuxsrv",
+                "label": "Hardening baseline",
+                "description": "The settings every VM must reach before handover",
+                "kind": "harden",
+                "arrives": 4
+              }
+            ],
+            "x": 380,
+            "y": 358
+          },
+          {
+            "id": "secmon",
+            "label": "secmon",
+            "description": "Monitoring — the advanced track",
+            "addr": "192.168.0.4",
+            "segment": "vmbr2",
+            "nic": "vmbr2",
+            "os": "Ubuntu Server",
+            "kind": "server",
+            "optional": true,
+            "arrives": 5,
+            "apps": [
+              "Prometheus",
+              "Grafana",
+              "Loki",
+              "Pulse"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 620,
+            "y": 358,
+            "tools": [
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w5-secmon"
+                ]
+              },
+              {
+                "name": "PowerShell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w5-secmon"
+                ]
+              },
+              {
+                "name": "curl",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w5-secmon"
+                ]
+              },
+              {
+                "name": "Prometheus",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w5-secmon"
+                ]
+              },
+              {
+                "name": "Grafana",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w5-secmon"
+                ]
+              },
+              {
+                "name": "Loki",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w5-secmon"
+                ]
+              },
+              {
+                "name": "Proxmox VE",
+                "purpose": "The platform the task builds on.",
+                "usedIn": [
+                  "sp-w5-secmon"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "wazuh",
+            "label": "wazuh",
+            "description": "Wazuh — your own SIEM",
+            "addr": "192.168.0.20",
+            "segment": "vmbr2",
+            "nic": "vmbr2",
+            "os": "Ubuntu Server",
+            "kind": "server",
+            "optional": true,
+            "arrives": 5,
+            "apps": [
+              "Wazuh manager",
+              "Wazuh indexer",
+              "Wazuh dashboard"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 860,
+            "y": 358,
+            "tools": [
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w5-wazuh"
+                ]
+              },
+              {
+                "name": "PowerShell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w5-wazuh"
+                ]
+              },
+              {
+                "name": "SSH",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w5-wazuh"
+                ]
+              },
+              {
+                "name": "curl",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w5-wazuh"
+                ]
+              },
+              {
+                "name": "Wazuh",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w5-wazuh"
+                ]
+              },
+              {
+                "name": "Proxmox VE",
+                "purpose": "The platform the task builds on.",
+                "usedIn": [
+                  "sp-w5-wazuh"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "tools",
+            "label": "tools",
+            "description": "NetBox and GLPI — the registers, as software",
+            "addr": "192.168.0.21",
+            "segment": "vmbr2",
+            "nic": "vmbr2",
+            "os": "Ubuntu Server",
+            "kind": "server",
+            "optional": true,
+            "arrives": 6,
+            "apps": [
+              "NetBox",
+              "GLPI",
+              "Docker"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 525
+          },
+          {
+            "id": "opsVm",
+            "label": "Ops VM",
+            "description": "Your seat in the fleet: playbooks, Git, the golden template",
+            "addr": "10.20.T.30",
+            "segment": "vmbr9",
+            "kind": "server",
+            "arrives": 7,
+            "optional": true,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 641,
+            "tools": [
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w6-git",
+                  "sp-w6-observe"
+                ]
+              },
+              {
+                "name": "Git",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sp-w6-git",
+                  "sp-w6-observe"
+                ]
+              },
+              {
+                "name": "Gitea",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w6-git",
+                  "sp-w6-observe"
+                ]
+              },
+              {
+                "name": "Prometheus",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w6-observe"
+                ]
+              },
+              {
+                "name": "Grafana",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w6-observe"
+                ]
+              },
+              {
+                "name": "Loki",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sp-w6-observe"
+                ]
+              },
+              {
+                "name": "The Core (lab server)",
+                "purpose": "The platform the task builds on.",
+                "usedIn": [
+                  "sp-w6-observe"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "core",
+            "label": "Core services",
+            "description": "Git, central metrics, XDR and backups for the whole fleet",
+            "segment": "vmbr9",
+            "kind": "service",
+            "arrives": 8,
+            "optional": true,
+            "apps": [
+              "git · 10.20.0.10",
+              "obs · 10.20.0.11",
+              "xdr · 10.20.0.12",
+              "pbs · 10.20.0.13",
+              "cache · 10.20.0.14"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 641
+          },
+          {
+            "id": "laptop",
+            "label": "Your laptop",
+            "description": "Your own machine, wherever you are.",
+            "kind": "client",
+            "external": true,
+            "arrives": 3,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 723
+          }
+        ],
+        "weeks": [
+          {
+            "week": 0,
+            "wire": "Preparation",
+            "focus": "Image your workstation over PXE, download the starter pack, and get your team, focus and numbers straight.",
+            "before": "Nothing built yet.",
+            "after": "Before the build: the campus LAN and an empty rack. Everything on the right is still to come.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "sp-w0-pxe",
+                "step": "sp-w0-pxe-s1",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "workstation"
+                ],
+                "text": "Work the six stages, top to bottom"
+              },
+              {
+                "taskId": "sp-w0-pxe",
+                "step": "sp-w0-pxe-s2",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "workstation"
+                ],
+                "text": "Prove the name, the domain and the controller"
+              },
+              {
+                "taskId": "sp-w0-starter",
+                "step": "sp-w0-starter-s1",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "workstation"
+                ],
+                "text": "Unzip the starter pack"
+              },
+              {
+                "taskId": "sp-w0-orient",
+                "step": "sp-w0-orient-s1",
+                "role": "mgmt",
+                "kind": "governance",
+                "at": [],
+                "text": "Get your bearings"
+              }
+            ]
+          },
+          {
+            "week": 1,
+            "wire": "Bring the Server Up",
+            "focus": "Receive and fit the server, get it through POST, document its firmware, build the RAID array, and install Proxmox.",
+            "before": "Built so far: Campus LAN.",
+            "after": "New: the rack and the Proxmox host. The one machine you build goes in and comes up.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "sp-w1-bringup",
+                "step": "sp-w1-bringup-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Check what arrived, then seat it the way the manual says"
+              },
+              {
+                "taskId": "sp-w1-document",
+                "step": "sp-w1-document-s3",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [
+                  "host"
+                ],
+                "text": "Boot Linux and record what it reports"
+              },
+              {
+                "taskId": "sp-w1-document",
+                "step": "sp-w1-document-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Read the inventory from System Setup"
+              },
+              {
+                "taskId": "sp-w1-raid",
+                "step": "sp-w1-raid-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Decide the level before you touch the utility"
+              },
+              {
+                "taskId": "sp-w1-install",
+                "step": "sp-w1-install-s1",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "workstation"
+                ],
+                "text": "Flash the installer and let the server boot it"
+              },
+              {
+                "taskId": "sp-w1-install",
+                "step": "sp-w1-install-s3",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [
+                  "host",
+                  "workstation"
+                ],
+                "text": "Prove the host is on the network and the console answers"
+              },
+              {
+                "taskId": "sp-w1-install",
+                "step": "sp-w1-install-s4",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [
+                  "laptop"
+                ],
+                "text": "Put the host on Tailscale so you can work from home"
+              },
+              {
+                "taskId": "sp-w1-install",
+                "step": "sp-w1-install-s5",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [
+                  "host"
+                ],
+                "text": "Give every teammate their own account"
+              },
+              {
+                "taskId": "sp-w1-install",
+                "step": "sp-w1-install-s2",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Install onto the array and set the management address"
+              },
+              {
+                "taskId": "sp-w1-net",
+                "step": "sp-w1-net-s1",
+                "role": "net",
+                "kind": "evidence",
+                "at": [],
+                "text": "Document the cabling and port plan"
+              },
+              {
+                "taskId": "sp-w1-win",
+                "step": "sp-w1-win-s1",
+                "role": "win",
+                "kind": "evidence",
+                "at": [],
+                "text": "Document what the Windows VM will need"
+              },
+              {
+                "taskId": "sp-w1-lnx",
+                "step": "sp-w1-lnx-s1",
+                "role": "lnx",
+                "kind": "evidence",
+                "at": [
+                  "host"
+                ],
+                "text": "Document firmware and virtualization flags"
+              },
+              {
+                "taskId": "sp-w1-mgmt",
+                "step": "sp-w1-mgmt-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Document compliance and SLA mapping"
+              }
+            ]
+          },
+          {
+            "week": 2,
+            "wire": "Design & Deploy",
+            "focus": "Draft the architecture, rack and cable the server, register every asset, then create the VMs and deploy their services.",
+            "before": "Built so far: Campus LAN, Rack A, Proxmox host.",
+            "after": "New: the DMZ and private zones with the three base VMs, and the directory role: AD DS, DNS and DHCP on the Windows server.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "sp-w2-business",
+                "step": "sp-w2-business-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Write down what the business needs"
+              },
+              {
+                "taskId": "sp-w2-rackplan",
+                "step": "sp-w2-rackplan-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Draft the rack elevation and strategies"
+              },
+              {
+                "taskId": "sp-w2-rack",
+                "step": "sp-w2-rack-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Mount, terminate, patch and power the server"
+              },
+              {
+                "taskId": "sp-w2-install",
+                "step": "sp-w2-install-s3",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "host"
+                ],
+                "text": "Prepare the host: the zone bridges and the OS images"
+              },
+              {
+                "taskId": "sp-w2-install",
+                "step": "sp-w2-install-s4",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "linuxsrv",
+                  "websrv",
+                  "winserver"
+                ],
+                "text": "Create the three core VMs"
+              },
+              {
+                "taskId": "sp-w2-install",
+                "step": "sp-w2-install-s5",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record the baseline for every system"
+              },
+              {
+                "taskId": "sp-w2-deploy",
+                "step": "sp-w2-deploy-s1",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "websrv",
+                  "host"
+                ],
+                "text": "Publish the website on websrv with NGINX"
+              },
+              {
+                "taskId": "sp-w2-deploy",
+                "step": "sp-w2-deploy-s2",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "winserver"
+                ],
+                "text": "Stand up the Windows roles: AD DS, DNS and DHCP"
+              },
+              {
+                "taskId": "sp-w2-deploy",
+                "step": "sp-w2-deploy-s3",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "websrv",
+                  "linuxsrv"
+                ],
+                "text": "Install MariaDB and create capstone_db"
+              },
+              {
+                "taskId": "sp-w2-deploy",
+                "step": "sp-w2-deploy-s4",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record the services and register the software"
+              },
+              {
+                "taskId": "sp-w2-net",
+                "step": "sp-w2-net-s1",
+                "role": "net",
+                "kind": "evidence",
+                "at": [
+                  "host"
+                ],
+                "text": "Document bridges and NIC mapping"
+              },
+              {
+                "taskId": "sp-w2-win",
+                "step": "sp-w2-win-s1",
+                "role": "win",
+                "kind": "evidence",
+                "at": [
+                  "winserver"
+                ],
+                "text": "Document the Windows baseline, captured"
+              },
+              {
+                "taskId": "sp-w2-lnx",
+                "step": "sp-w2-lnx-s1",
+                "role": "lnx",
+                "kind": "evidence",
+                "at": [
+                  "host"
+                ],
+                "text": "Document the hypervisor and Linux baseline"
+              },
+              {
+                "taskId": "sp-w2-mgmt",
+                "step": "sp-w2-mgmt-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Document the naming standard, applied"
+              }
+            ]
+          },
+          {
+            "week": 3,
+            "wire": "Network & Operate",
+            "focus": "Finalise the addressing, connect the server, prove every host reaches what it should, and start running it by written procedure.",
+            "before": "Built so far: Campus LAN, Rack A, Proxmox host and 5 more.",
+            "after": "New: the campus edge, the published ports, the DMZ-to-private rule and the tailnet. The campus reaches the site through the host.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "sp-w3-topology",
+                "step": "sp-w3-topology-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [
+                  "host"
+                ],
+                "text": "Read each host and write down what it really holds"
+              },
+              {
+                "taskId": "sp-w3-connect",
+                "step": "sp-w3-connect-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [
+                  "host",
+                  "websrv"
+                ],
+                "text": "Apply the plan on the host and the Ubuntu VMs"
+              },
+              {
+                "taskId": "sp-w3-connect",
+                "step": "sp-w3-connect-s2",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "winserver"
+                ],
+                "text": "Apply the plan on winserver"
+              },
+              {
+                "taskId": "sp-w3-connect",
+                "step": "sp-w3-connect-s3",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "host"
+                ],
+                "text": "Complete the ruleset: the published ports and the segmentation"
+              },
+              {
+                "taskId": "sp-w3-connect",
+                "step": "sp-w3-connect-s3b",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [
+                  "workstation",
+                  "websrv"
+                ],
+                "text": "Build your team's site and upload it through port 2200"
+              },
+              {
+                "taskId": "sp-w3-connect",
+                "step": "sp-w3-connect-s4",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "winserver",
+                  "linuxsrv",
+                  "websrv"
+                ],
+                "text": "Add the static routes for reverse connectivity"
+              },
+              {
+                "taskId": "sp-w3-connect",
+                "step": "sp-w3-connect-s5",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [
+                  "workstation",
+                  "host",
+                  "linuxsrv",
+                  "winserver",
+                  "websrv"
+                ],
+                "text": "Prove connectivity across all three zones — and the paths that must fail"
+              },
+              {
+                "taskId": "sp-w3-connect",
+                "step": "sp-w3-connect-s6",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [
+                  "host",
+                  "laptop",
+                  "winserver"
+                ],
+                "text": "Reach every zone from home: the host as a Tailscale subnet router"
+              },
+              {
+                "taskId": "sp-w3-connect",
+                "step": "sp-w3-connect-s7",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "host",
+                  "linuxsrv"
+                ],
+                "text": "Later phase (optional): map vmbr2 to a physical NIC"
+              },
+              {
+                "taskId": "sp-w3-sops",
+                "step": "sp-w3-sops-s1",
+                "role": "win",
+                "kind": "evidence",
+                "at": [],
+                "text": "Write the three procedures every small IT shop needs"
+              },
+              {
+                "taskId": "sp-w3-net",
+                "step": "sp-w3-net-s1",
+                "role": "net",
+                "kind": "evidence",
+                "at": [
+                  "host"
+                ],
+                "text": "Document routing and the published ports"
+              },
+              {
+                "taskId": "sp-w3-win",
+                "step": "sp-w3-win-s1",
+                "role": "win",
+                "kind": "evidence",
+                "at": [
+                  "winserver"
+                ],
+                "text": "Document password policy and the DHCP scope"
+              },
+              {
+                "taskId": "sp-w3-lnx",
+                "step": "sp-w3-lnx-s1",
+                "role": "lnx",
+                "kind": "evidence",
+                "at": [
+                  "host"
+                ],
+                "text": "Document netplan, persistence and resolution"
+              },
+              {
+                "taskId": "sp-w3-mgmt",
+                "step": "sp-w3-mgmt-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Document change control with an approver"
+              }
+            ]
+          },
+          {
+            "week": 4,
+            "wire": "Secure & Hand Over",
+            "focus": "Patch every system with a rollback, set recovery targets, prove a restore, then assemble and export the as-built handover package.",
+            "before": "Built so far: Campus LAN, Rack A, Proxmox host and 9 more.",
+            "after": "New: the hardening baseline, the backup and its local datastore. Snapshot, restore, patch, and hand it over.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "sp-w4-secure",
+                "step": "sp-w4-secure-s1",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "websrv",
+                  "host"
+                ],
+                "text": "Harden SSH on websrv"
+              },
+              {
+                "taskId": "sp-w4-secure",
+                "step": "sp-w4-secure-s2",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "linuxsrv",
+                  "websrv",
+                  "host"
+                ],
+                "text": "Restrict the DMZ host with ufw, and serve the site over TLS"
+              },
+              {
+                "taskId": "sp-w4-secure",
+                "step": "sp-w4-secure-s2b",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "websrv",
+                  "linuxsrv",
+                  "host"
+                ],
+                "text": "Repeat on linuxsrv, then write it down once"
+              },
+              {
+                "taskId": "sp-w4-secure",
+                "step": "sp-w4-secure-s2c",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "winserver"
+                ],
+                "text": "Harden winserver: a named admin and the firewall"
+              },
+              {
+                "taskId": "sp-w4-secure",
+                "step": "sp-w4-secure-s2d",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [
+                  "host"
+                ],
+                "text": "Diff the running systems against the Week 2 baseline"
+              },
+              {
+                "taskId": "sp-w4-secure",
+                "step": "sp-w4-secure-s3",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "host"
+                ],
+                "text": "Snapshot every VM before you patch"
+              },
+              {
+                "taskId": "sp-w4-secure",
+                "step": "sp-w4-secure-s4",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "host",
+                  "websrv"
+                ],
+                "text": "Patch the hypervisor and the Ubuntu guests"
+              },
+              {
+                "taskId": "sp-w4-secure",
+                "step": "sp-w4-secure-s5",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "winserver",
+                  "websrv",
+                  "linuxsrv",
+                  "host"
+                ],
+                "text": "Patch winserver, then check every service"
+              },
+              {
+                "taskId": "sp-w4-secure",
+                "step": "sp-w4-secure-s7",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [
+                  "laptop",
+                  "host",
+                  "linuxsrv"
+                ],
+                "text": "Close the root password door on the host itself"
+              },
+              {
+                "taskId": "sp-w4-secure",
+                "step": "sp-w4-secure-s6",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Log the patch run and the changes"
+              },
+              {
+                "taskId": "sp-w4-dr",
+                "step": "sp-w4-dr-s0",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [
+                  "host"
+                ],
+                "text": "Schedule the backup you have been promising"
+              },
+              {
+                "taskId": "sp-w4-dr",
+                "step": "sp-w4-dr-s2",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [
+                  "linuxsrv",
+                  "host"
+                ],
+                "text": "Run one real restore and time it"
+              },
+              {
+                "taskId": "sp-w4-dr",
+                "step": "sp-w4-dr-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Set the recovery targets and procedure"
+              },
+              {
+                "taskId": "sp-w4-handover",
+                "step": "sp-w4-handover-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Reconcile and export the package"
+              },
+              {
+                "taskId": "sp-w4-net",
+                "step": "sp-w4-net-s1",
+                "role": "net",
+                "kind": "evidence",
+                "at": [
+                  "host"
+                ],
+                "text": "Document recovering the network path"
+              },
+              {
+                "taskId": "sp-w4-win",
+                "step": "sp-w4-win-s1",
+                "role": "win",
+                "kind": "evidence",
+                "at": [
+                  "winserver"
+                ],
+                "text": "Document Windows patching and the restore"
+              },
+              {
+                "taskId": "sp-w4-lnx",
+                "step": "sp-w4-lnx-s1",
+                "role": "lnx",
+                "kind": "evidence",
+                "at": [
+                  "websrv",
+                  "linuxsrv",
+                  "host"
+                ],
+                "text": "Document the allow-list and the snapshot restore"
+              },
+              {
+                "taskId": "sp-w4-mgmt",
+                "step": "sp-w4-mgmt-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Document the numbers and the handover"
+              }
+            ]
+          },
+          {
+            "week": 5,
+            "wire": "Watch & Detect",
+            "focus": "Design the advanced hosts into the brief, watch every host with Prometheus, Grafana and Loki, and run your own Wazuh.",
+            "before": "Built so far: Campus LAN, Rack A, Proxmox host and 12 more.",
+            "after": "New: the monitoring host and your own SIEM. Every VM reports in; the first alert runs the runbook.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "sp-w5-plan",
+                "step": "sp-w5-plan-s0",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Add the three advanced machines to the plan"
+              },
+              {
+                "taskId": "sp-w5-secmon",
+                "step": "sp-w5-secmon-s0",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "secmon"
+                ],
+                "text": "Stand up Prometheus and Grafana"
+              },
+              {
+                "taskId": "sp-w5-secmon",
+                "step": "sp-w5-secmon-s1",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "host",
+                  "secmon"
+                ],
+                "text": "Scrape the Proxmox host itself"
+              },
+              {
+                "taskId": "sp-w5-secmon",
+                "step": "sp-w5-secmon-s2",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "secmon",
+                  "host"
+                ],
+                "text": "Add Loki and one dashboard"
+              },
+              {
+                "taskId": "sp-w5-secmon",
+                "step": "sp-w5-secmon-s3",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Alert on what matters, and fire one"
+              },
+              {
+                "taskId": "sp-w5-pulse",
+                "step": "sp-w5-pulse-s0",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Install Pulse and point it at your host"
+              },
+              {
+                "taskId": "sp-w5-wazuh",
+                "step": "sp-w5-wazuh-s0",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "wazuh"
+                ],
+                "text": "Install the manager"
+              },
+              {
+                "taskId": "sp-w5-wazuh",
+                "step": "sp-w5-wazuh-s1",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "websrv",
+                  "winserver",
+                  "linuxsrv"
+                ],
+                "text": "Enrol every server as an agent"
+              },
+              {
+                "taskId": "sp-w5-wazuh",
+                "step": "sp-w5-wazuh-s2",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Attack yourself, and watch it land"
+              },
+              {
+                "taskId": "sp-w5-win",
+                "step": "sp-w5-win-s1",
+                "role": "win",
+                "kind": "evidence",
+                "at": [],
+                "text": "Document winserver fully instrumented"
+              },
+              {
+                "taskId": "sp-w5-lnx",
+                "step": "sp-w5-lnx-s1",
+                "role": "lnx",
+                "kind": "evidence",
+                "at": [],
+                "text": "Document state that matches reality, logs that reach Loki"
+              }
+            ]
+          },
+          {
+            "week": 6,
+            "wire": "The Lab as Code",
+            "focus": "Define the lab in code, move the paper registers into NetBox and GLPI, and record it in the As-Built.",
+            "before": "Built so far: Campus LAN, Rack A, Proxmox host and 14 more.",
+            "after": "New: the tools host. The lab is rebuilt from code and registered in NetBox and GLPI.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "sp-w5-terraform",
+                "step": "sp-w5-terraform-s0",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "host",
+                  "workstation"
+                ],
+                "text": "A token, a provider, a plan"
+              },
+              {
+                "taskId": "sp-w5-terraform",
+                "step": "sp-w5-terraform-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "A template, a VM from code, and the existing three imported"
+              },
+              {
+                "taskId": "sp-w5-netbox",
+                "step": "sp-w5-netbox-s0",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Run NetBox and fill it from your forms"
+              },
+              {
+                "taskId": "sp-w5-glpi",
+                "step": "sp-w5-glpi-s0",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Run GLPI, load the register, run one change through it"
+              },
+              {
+                "taskId": "sp-w5-record",
+                "step": "sp-w5-record-s0",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Fill the Automation & observability section"
+              },
+              {
+                "taskId": "sp-w6-net",
+                "step": "sp-w6-net-s1",
+                "role": "net",
+                "kind": "evidence",
+                "at": [],
+                "text": "Document IPAM that matches the plan"
+              },
+              {
+                "taskId": "sp-w6-mgmt",
+                "step": "sp-w6-mgmt-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Document change control that the tool enforces"
+              }
+            ]
+          },
+          {
+            "week": 7,
+            "wire": "Join the Fleet",
+            "focus": "Wire the ops network, build the ops VM, put the site in Git, and bring it up from the template.",
+            "before": "Built so far: Campus LAN, Rack A, Proxmox host and 15 more.",
+            "after": "New: the operations network and your ops VM. The fleet’s Core node holds Git and the golden template.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "sp-w6-spine",
+                "step": "sp-w6-spine-s1",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "host"
+                ],
+                "text": "The bridge on the host, and the ping"
+              },
+              {
+                "taskId": "sp-w6-spine",
+                "step": "sp-w6-spine-s2",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "host"
+                ],
+                "text": "A second NIC on every server VM"
+              },
+              {
+                "taskId": "sp-w6-spine",
+                "step": "sp-w6-spine-s0",
+                "role": "mgmt",
+                "kind": "governance",
+                "at": [],
+                "text": "Read what you are joining"
+              },
+              {
+                "taskId": "sp-w6-spine",
+                "step": "sp-w6-spine-s3",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Put the ops network in the plan"
+              },
+              {
+                "taskId": "sp-w6-ops",
+                "step": "sp-w6-ops-s0",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "host",
+                  "opsVm"
+                ],
+                "text": "Build it dual-homed and install the toolchain"
+              },
+              {
+                "taskId": "sp-w6-ops",
+                "step": "sp-w6-ops-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Prove both paths, and move Week 6 state here"
+              },
+              {
+                "taskId": "sp-w6-git",
+                "step": "sp-w6-git-s0",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "opsVm"
+                ],
+                "text": "The repository, the ignore file, the README"
+              },
+              {
+                "taskId": "sp-w6-git",
+                "step": "sp-w6-git-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Write the repository runbook"
+              },
+              {
+                "taskId": "sp-w6-terraform",
+                "step": "sp-w6-terraform-s0",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "host",
+                  "opsVm"
+                ],
+                "text": "Template, token, provider"
+              },
+              {
+                "taskId": "sp-w6-terraform",
+                "step": "sp-w6-terraform-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Describe the servers once, apply, and plan again"
+              },
+              {
+                "taskId": "sp-w7-net",
+                "step": "sp-w7-net-s1",
+                "role": "net",
+                "kind": "evidence",
+                "at": [],
+                "text": "Document the trunk and the fence"
+              }
+            ]
+          },
+          {
+            "week": 8,
+            "wire": "Run It as a Fleet",
+            "focus": "Configure the site with a playbook, let the Core watch and back it up, then rebuild a VM from Git.",
+            "before": "Built so far: Campus LAN, Rack A, Proxmox host and 17 more.",
+            "after": "New: the fleet’s Core services. Playbooks, central metrics and backups, and a rebuild from Git.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "sp-w6-ansible",
+                "step": "sp-w6-ansible-s0",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "host",
+                  "opsVm"
+                ],
+                "text": "The hypervisor is the inventory"
+              },
+              {
+                "taskId": "sp-w6-ansible",
+                "step": "sp-w6-ansible-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Three roles, and the second run"
+              },
+              {
+                "taskId": "sp-w6-observe",
+                "step": "sp-w6-observe-s0",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "opsVm",
+                  "core"
+                ],
+                "text": "The targets file and the receiver"
+              },
+              {
+                "taskId": "sp-w6-observe",
+                "step": "sp-w6-observe-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Fire an alert through a plane you do not run"
+              },
+              {
+                "taskId": "sp-w6-vault",
+                "step": "sp-w6-vault-s0",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "host"
+                ],
+                "text": "Add the vault and run the first backup"
+              },
+              {
+                "taskId": "sp-w6-vault",
+                "step": "sp-w6-vault-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Destroy linuxsrv and restore it against the clock"
+              },
+              {
+                "taskId": "sp-w6-xdr",
+                "step": "sp-w6-xdr-s0",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "host",
+                  "wazuh",
+                  "opsVm",
+                  "core"
+                ],
+                "text": "Decide the tenancy, then enrol the fleet endpoints"
+              },
+              {
+                "taskId": "sp-w6-xdr",
+                "step": "sp-w6-xdr-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "SCA after hardening, one FIM event, the CVE list"
+              },
+              {
+                "taskId": "sp-w6-rebuild",
+                "step": "sp-w6-rebuild-s0",
+                "role": "mgmt",
+                "kind": "setup",
+                "at": [
+                  "host",
+                  "opsVm",
+                  "core"
+                ],
+                "text": "The demo"
+              },
+              {
+                "taskId": "sp-w6-rebuild",
+                "step": "sp-w6-rebuild-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "The Fleet section, the SLO line, the alerting runbook"
+              },
+              {
+                "taskId": "sp-w8-win",
+                "step": "sp-w8-win-s1",
+                "role": "win",
+                "kind": "evidence",
+                "at": [],
+                "text": "Document winserver under Ansible"
+              },
+              {
+                "taskId": "sp-w8-lnx",
+                "step": "sp-w8-lnx-s1",
+                "role": "lnx",
+                "kind": "evidence",
+                "at": [],
+                "text": "Document the base role as the hardening standard"
+              },
+              {
+                "taskId": "sp-w8-mgmt",
+                "step": "sp-w8-mgmt-s1",
+                "role": "mgmt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Document the runbook, the SLO and the demo"
+              }
+            ]
+          },
+          {
+            "week": 9,
+            "wire": "Local LLM serving: Serve a model locally",
+            "focus": "Serve a quantised model behind an API and size the memory it needs.",
+            "before": "Built so far: Campus LAN, Rack A, Proxmox host and 18 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "srv-local-llm-serving-w1-serve",
+                "step": "srv-local-llm-serving-w1-serve-s1",
+                "role": "net",
+                "kind": "setup",
+                "at": [
+                  "workstation"
+                ],
+                "text": "Serve a model behind an API"
+              },
+              {
+                "taskId": "srv-local-llm-serving-w1-serve",
+                "step": "srv-local-llm-serving-w1-serve-s2",
+                "role": "net",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the endpoint."
+              },
+              {
+                "taskId": "srv-local-llm-serving-w1-size",
+                "step": "srv-local-llm-serving-w1-size-s1",
+                "role": "net",
+                "kind": "setup",
+                "at": [
+                  "workstation"
+                ],
+                "text": "Size the memory"
+              },
+              {
+                "taskId": "srv-local-llm-serving-w1-size",
+                "step": "srv-local-llm-serving-w1-size-s2",
+                "role": "net",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the sizing."
+              }
+            ]
+          }
+        ],
+        "spec": {
+          "columns": [
+            "Component",
+            "Address",
+            "Runs",
+            "Who"
+          ],
+          "rows": [
+            [
+              "Your workstation",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "Campus edge",
+              "10.10.10.1",
+              "—",
+              "Outside"
+            ],
+            [
+              "websrv",
+              "172.16.0.10",
+              "80 The website · 443 The website over TLS · 22 Upload the site",
+              "Team"
+            ],
+            [
+              "winserver",
+              "192.168.0.2",
+              "53 DNS · 53 DNS · 22 SSH · 3389 RDP",
+              "Team"
+            ],
+            [
+              "linuxsrv",
+              "192.168.0.3",
+              "3306 The database · 22 SSH",
+              "Team"
+            ],
+            [
+              "secmon",
+              "192.168.0.4",
+              "Prometheus · Grafana · Loki · Pulse",
+              "Team"
+            ],
+            [
+              "wazuh",
+              "192.168.0.20",
+              "Wazuh manager · Wazuh indexer · Wazuh dashboard",
+              "Team"
+            ],
+            [
+              "tools",
+              "192.168.0.21",
+              "NetBox · GLPI · Docker",
+              "Team"
+            ],
+            [
+              "Ops VM",
+              "10.20.T.30",
+              "—",
+              "Team"
+            ],
+            [
+              "Core services",
+              "—",
+              "git · 10.20.0.10 · obs · 10.20.0.11 · xdr · 10.20.0.12 · pbs · 10.20.0.13 · cache · 10.20.0.14",
+              "Instructor"
+            ],
+            [
+              "Your laptop",
+              "—",
+              "—",
+              "Outside"
+            ],
+            [
+              "Proxmox host (pve-host)",
+              "10.10.30.T",
+              "8006 web console",
+              "Everyone"
+            ]
+          ]
+        }
       }
     },
     "weekVisuals": [

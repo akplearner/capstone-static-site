@@ -81,3 +81,20 @@ describe('LabNetworkPanel', () => {
     expect(container.querySelector('[data-net-control="ctl:ubuntu-ufw"][data-net-built="true"]')).not.toBeNull();
   });
 });
+
+describe('LabNetworkPanel — R157 a derived network draws too', () => {
+  it('Server+ shows its bridges as bands, its VMs as cards, the Proxmox host at the bottom, and no attack stepper', () => {
+    const doc = courseDocument('server-plus')!;
+    const { container } = render(
+      <CourseDocumentContext.Provider value={doc}>
+        <LabNetworkPanel week={3} />
+      </CourseDocumentContext.Provider>
+    );
+    expect(container.querySelector('[data-net-segment="vmbr1"]')).not.toBeNull();
+    expect(container.querySelector('[data-net-host="websrv"]')).not.toBeNull();
+    expect(container.querySelector('[data-net-host="host"]')).not.toBeNull();
+    expect(container.querySelector('svg[role="img"]')!.getAttribute('aria-label')).not.toMatch(/week \d/);
+    expect(container.querySelector('[data-net-stepper]')).toBeNull();
+    expect(container.querySelector('[data-net-no-attacks]')).not.toBeNull();
+  });
+});

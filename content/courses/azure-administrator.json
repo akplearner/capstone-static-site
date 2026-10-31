@@ -8,6 +8,7 @@
     "src/lib/cloud/azureTopology.ts",
     "src/lib/cloud/azureIac.ts",
     "src/lib/cloud/workflows.ts",
+    "src/lib/docs/networkFrom.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
     "src/lib/docs/certs.ts",
@@ -8183,6 +8184,1594 @@
           "detail": "Recover, fix and contain under pressure; hand over."
         }
       ]
+    },
+    "network": {
+      "NETWORK": {
+        "copy": {
+          "title": "The Azure Administrator Capstone network — what you build and where",
+          "howToRead": "15 components on 6 segments, under Azure subscription. Each card shows its address, what it runs and exposes, and the controls on it. Pick a week to see what has arrived.",
+          "footer": "Names are your subscription’s; your team’s follow the naming standard.",
+          "reference": {
+            "lede": "Every component of the Azure environment, its address where it has one, what it runs and exposes, the tools on it, and what each task does to it, week by week.",
+            "lan": "6 segments: Resource group, Virtual network, snet-app, snet-web and 2 more.",
+            "ports": "What answers on the network, and what stays inside a host or a single segment.",
+            "tools": "What is installed where, and the task that uses it.",
+            "attacks": "The attack types in exam vocabulary, where this lab uses each, and the control that answers it.",
+            "actions": "What each task of the week does on the network: the work placed on the components it touches.",
+            "links": "Every cable, port to port, with what it carries."
+          }
+        },
+        "view": {
+          "w": 1000,
+          "h": 1005
+        },
+        "fabric": {
+          "hypervisor": {
+            "id": "subscription",
+            "label": "Azure subscription",
+            "description": "your subscription",
+            "kind": "platform",
+            "os": "Azure",
+            "arrives": 0,
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:log",
+                "label": "Log Analytics · log-capstone-team01",
+                "description": "Where every log and metric ends up",
+                "kind": "detect",
+                "arrives": 0
+              },
+              {
+                "id": "ctl:actionGroup",
+                "label": "Action group · email the team",
+                "description": "Who gets told when the alert fires",
+                "kind": "detect",
+                "arrives": 0
+              },
+              {
+                "id": "ctl:nsgApp",
+                "label": "NSG · nsg-snet-app",
+                "description": "Rules for the app subnet: nothing inbound from the internet",
+                "kind": "harden",
+                "arrives": 0
+              },
+              {
+                "id": "ctl:nsgWeb",
+                "label": "NSG · nsg-snet-web",
+                "description": "Rules for the web subnet: HTTP from the internet, nothing else",
+                "kind": "harden",
+                "arrives": 2
+              },
+              {
+                "id": "ctl:nsgDb",
+                "label": "NSG · nsg-snet-db",
+                "description": "Rules for the database subnet: PostgreSQL from the app and web subnets only",
+                "kind": "harden",
+                "arrives": 3
+              },
+              {
+                "id": "ctl:readerRole",
+                "label": "Reader (group)",
+                "description": "The team’s group can look at everything and change nothing",
+                "kind": "harden",
+                "arrives": 0
+              },
+              {
+                "id": "ctl:budget",
+                "label": "Budget $5",
+                "description": "The $5 guardrail, set before anything can cost money",
+                "kind": "harden",
+                "arrives": 0
+              }
+            ],
+            "x": 140,
+            "y": 939
+          },
+          "segments": [
+            {
+              "id": "rg",
+              "label": "Resource group",
+              "note": "rg-capstone-team01",
+              "kind": "zone",
+              "arrives": 0,
+              "y": 46
+            },
+            {
+              "id": "vnet",
+              "label": "Virtual network",
+              "note": "vnet-capstone-team01 · 10.10.0.0/16",
+              "kind": "vpc",
+              "parent": "rg",
+              "arrives": 0,
+              "y": 295
+            },
+            {
+              "id": "snetApp",
+              "label": "snet-app",
+              "note": "10.10.1.0/24",
+              "kind": "subnet",
+              "parent": "vnet",
+              "arrives": 0,
+              "y": 428
+            },
+            {
+              "id": "snetWeb",
+              "label": "snet-web",
+              "note": "10.10.2.0/24 · zones 1 and 2",
+              "kind": "subnet",
+              "parent": "vnet",
+              "arrives": 2,
+              "y": 544
+            },
+            {
+              "id": "snetDb",
+              "label": "snet-db",
+              "note": "10.10.3.0/24 · delegated to PostgreSQL",
+              "kind": "subnet",
+              "parent": "vnet",
+              "arrives": 3,
+              "y": 694
+            },
+            {
+              "id": "governance",
+              "label": "Governance",
+              "note": "resource-group scope",
+              "kind": "zone",
+              "parent": "rg",
+              "arrives": 0,
+              "y": 827
+            }
+          ]
+        },
+        "hosts": [
+          {
+            "id": "user",
+            "label": "Visitors",
+            "description": "The visitors who load the site, call the counter and reach the fleet",
+            "kind": "external",
+            "arrives": 0,
+            "external": true,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 849
+          },
+          {
+            "id": "github",
+            "label": "GitHub",
+            "description": "The repository the site, the code and the template ship from",
+            "kind": "external",
+            "arrives": 0,
+            "external": true,
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 849
+          },
+          {
+            "id": "admin",
+            "label": "Team admin",
+            "description": "The team member who administers the environment",
+            "kind": "external",
+            "arrives": 0,
+            "external": true,
+            "services": [],
+            "controls": [],
+            "x": 620,
+            "y": 849,
+            "tools": [
+              {
+                "name": "Capstone guide",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "az-w0-setup"
+                ]
+              },
+              {
+                "name": "Azure portal",
+                "purpose": "A management console the task configures things in.",
+                "usedIn": [
+                  "az-w0-setup",
+                  "az-w5-arch",
+                  "az-w5-infra",
+                  "az-w5-dev",
+                  "az-w5-secops",
+                  "az-w6-arch",
+                  "az-w6-infra",
+                  "az-w6-dev",
+                  "az-w6-secops",
+                  "az-w7-arch",
+                  "az-w7-infra",
+                  "az-w7-dev",
+                  "az-w7-secops",
+                  "az-w8-arch",
+                  "az-w8-infra",
+                  "az-w8-dev",
+                  "az-w8-secops"
+                ]
+              },
+              {
+                "name": "Azure Cloud Shell",
+                "purpose": "A management console the task configures things in.",
+                "usedIn": [
+                  "az-w0-setup",
+                  "az-w5-arch",
+                  "az-w5-infra",
+                  "az-w5-dev",
+                  "az-w5-secops",
+                  "az-w6-arch",
+                  "az-w6-infra",
+                  "az-w6-dev",
+                  "az-w6-secops",
+                  "az-w7-arch",
+                  "az-w7-infra",
+                  "az-w7-dev",
+                  "az-w7-secops",
+                  "az-w8-arch",
+                  "az-w8-infra",
+                  "az-w8-dev",
+                  "az-w8-secops"
+                ]
+              },
+              {
+                "name": "Azure CLI",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "az-w0-setup",
+                  "az-w5-arch",
+                  "az-w5-infra",
+                  "az-w5-dev",
+                  "az-w5-secops",
+                  "az-w6-arch",
+                  "az-w6-infra",
+                  "az-w6-dev",
+                  "az-w6-secops",
+                  "az-w7-arch",
+                  "az-w7-infra",
+                  "az-w7-dev",
+                  "az-w7-secops",
+                  "az-w8-arch",
+                  "az-w8-infra",
+                  "az-w8-dev",
+                  "az-w8-secops"
+                ]
+              },
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "az-w5-arch",
+                  "az-w5-infra",
+                  "az-w5-dev",
+                  "az-w5-secops",
+                  "az-w6-arch",
+                  "az-w6-infra",
+                  "az-w6-dev",
+                  "az-w6-secops",
+                  "az-w7-arch",
+                  "az-w7-infra",
+                  "az-w7-dev",
+                  "az-w7-secops",
+                  "az-w8-arch",
+                  "az-w8-infra",
+                  "az-w8-dev",
+                  "az-w8-secops",
+                  "aza-local-llm-serving-w1-serve",
+                  "aza-local-llm-serving-w1-size",
+                  "aza-rag-engineering-w1-index",
+                  "aza-rag-engineering-w1-retrieve",
+                  "aza-rag-engineering-w2-evalset",
+                  "aza-rag-engineering-w2-passline"
+                ]
+              },
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "az-w5-infra",
+                  "az-w5-dev",
+                  "az-w5-secops",
+                  "az-w6-infra",
+                  "az-w6-dev",
+                  "az-w6-secops",
+                  "az-w7-arch",
+                  "az-w7-infra",
+                  "az-w7-dev",
+                  "az-w7-secops",
+                  "az-w8-arch",
+                  "az-w8-infra",
+                  "az-w8-secops",
+                  "aza-local-llm-serving-w1-size",
+                  "aza-rag-engineering-w1-retrieve",
+                  "aza-rag-engineering-w2-evalset",
+                  "aza-rag-engineering-w2-passline"
+                ]
+              },
+              {
+                "name": "curl",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "az-w5-dev",
+                  "az-w8-dev",
+                  "az-w8-secops",
+                  "aza-local-llm-serving-w1-serve"
+                ]
+              },
+              {
+                "name": "Azure Pricing Calculator",
+                "purpose": "A management console the task configures things in.",
+                "usedIn": [
+                  "az-w6-arch",
+                  "az-w7-arch",
+                  "az-w8-arch"
+                ]
+              },
+              {
+                "name": "Python",
+                "purpose": "A language the task writes or reads.",
+                "usedIn": [
+                  "az-w6-infra",
+                  "aza-local-llm-serving-w1-serve",
+                  "aza-local-llm-serving-w1-size",
+                  "aza-rag-engineering-w1-index",
+                  "aza-rag-engineering-w1-retrieve",
+                  "aza-rag-engineering-w2-evalset",
+                  "aza-rag-engineering-w2-passline"
+                ]
+              },
+              {
+                "name": "Ollama",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "aza-local-llm-serving-w1-serve",
+                  "aza-rag-engineering-w1-retrieve"
+                ]
+              },
+              {
+                "name": "Chroma",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "aza-rag-engineering-w1-index"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "webStorage",
+            "label": "Storage account · stweb… ($web)",
+            "description": "Hosts the company website over HTTPS",
+            "segment": "rg",
+            "kind": "storage",
+            "arrives": 0,
+            "services": [
+              {
+                "port": 443,
+                "proto": "tcp",
+                "name": "HTTPS",
+                "description": "Visitors → Storage account · stweb… ($web): HTTPS.",
+                "from": 0,
+                "scope": "lan"
+              }
+            ],
+            "controls": [],
+            "x": 140,
+            "y": 58
+          },
+          {
+            "id": "kv",
+            "label": "Key vault · kv-capstone-team01-…",
+            "description": "Holds secrets the function reads by identity",
+            "segment": "rg",
+            "kind": "identity",
+            "arrives": 1,
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:kvRoleFunc",
+                "label": "Secrets User",
+                "description": "Lets the function read secrets, nothing more",
+                "kind": "harden",
+                "arrives": 1
+              }
+            ],
+            "x": 380,
+            "y": 58
+          },
+          {
+            "id": "func",
+            "label": "Function app · func-capstone-team01",
+            "description": "The visitor-counter API and the ledger that drains the queue",
+            "segment": "rg",
+            "kind": "service",
+            "arrives": 0,
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:appi",
+                "label": "App Insights · appi-capstone-team01",
+                "description": "Requests, failures and traces from the function",
+                "kind": "detect",
+                "arrives": 0
+              },
+              {
+                "id": "ctl:http5xxAlert",
+                "label": "Alert: Http5xx · alert-func-5xx",
+                "description": "Fires when the API returns a server error",
+                "kind": "detect",
+                "arrives": 0
+              }
+            ],
+            "x": 620,
+            "y": 58
+          },
+          {
+            "id": "visitsQueue",
+            "label": "Queue: visits · on the runtime storage",
+            "description": "Decouples the counter from the ledger: the API answers now, the write happens when it can",
+            "segment": "rg",
+            "kind": "storage",
+            "arrives": 3,
+            "services": [],
+            "controls": [],
+            "x": 860,
+            "y": 58
+          },
+          {
+            "id": "visitsPoisonQueue",
+            "label": "visits-poison",
+            "description": "Where a message the ledger rejects five times ends up",
+            "segment": "rg",
+            "kind": "storage",
+            "arrives": 3,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 174
+          },
+          {
+            "id": "cosmos",
+            "label": "Azure Cosmos DB · serverless",
+            "description": "The database the counter and the ledger live in",
+            "segment": "rg",
+            "kind": "storage",
+            "arrives": 0,
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:cosmosRoleFunc",
+                "label": "Data Contributor",
+                "description": "Lets the function read and write data by identity",
+                "kind": "harden",
+                "arrives": 1
+              }
+            ],
+            "x": 380,
+            "y": 174
+          },
+          {
+            "id": "lb",
+            "label": "Load balancer · lb-web-team01 · Standard",
+            "description": "One address for the fleet; a health probe decides which instance answers",
+            "segment": "vnet",
+            "kind": "router",
+            "arrives": 2,
+            "services": [
+              {
+                "port": 80,
+                "proto": "tcp",
+                "name": "HTTP, one address",
+                "description": "Visitors → Load balancer · lb-web-team01 · Standard: HTTP, one address.",
+                "from": 2,
+                "scope": "lan"
+              }
+            ],
+            "controls": [],
+            "x": 140,
+            "y": 307
+          },
+          {
+            "id": "bastion",
+            "label": "Azure Bastion · Developer SKU · free",
+            "description": "A browser SSH session to the VM with no open port",
+            "segment": "vnet",
+            "kind": "server",
+            "arrives": 2,
+            "services": [
+              {
+                "port": 22,
+                "proto": "tcp",
+                "name": "browser SSH — no open port",
+                "description": "Team admin → Azure Bastion · Developer SKU · free: browser SSH — no open port.",
+                "from": 2,
+                "scope": "lan"
+              }
+            ],
+            "controls": [],
+            "x": 380,
+            "y": 307
+          },
+          {
+            "id": "vm",
+            "label": "Virtual machine · vm-tools-team01",
+            "description": "The internal IT tools server",
+            "segment": "snetApp",
+            "kind": "server",
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 440
+          },
+          {
+            "id": "dataDisk",
+            "label": "Data disk",
+            "description": "Data that must outlive the operating system",
+            "segment": "snetApp",
+            "kind": "storage",
+            "arrives": 3,
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 440
+          },
+          {
+            "id": "vmss",
+            "label": "Scale set · vmss-web-team01 · B1s × 0–3",
+            "description": "The web fleet across two zones, parked at zero between tasks",
+            "segment": "snetWeb",
+            "kind": "server",
+            "arrives": 2,
+            "services": [
+              {
+                "port": 80,
+                "proto": "tcp",
+                "name": "port 80, probed",
+                "description": "Load balancer · lb-web-team01 · Standard → Scale set · vmss-web-team01 · B1s × 0–3: port 80, probed.",
+                "from": 2,
+                "scope": "lan"
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:autoscale",
+                "label": "Autoscale · CPU 50% / 25%",
+                "description": "Adds an instance above 50% average CPU, removes one below 25%",
+                "kind": "detect",
+                "arrives": 4
+              }
+            ],
+            "x": 140,
+            "y": 556
+          },
+          {
+            "id": "pg",
+            "label": "PostgreSQL · flexible server · zone-redundant",
+            "description": "The relational store: a standby in another zone, encrypted, no public address",
+            "segment": "snetDb",
+            "kind": "storage",
+            "arrives": 3,
+            "services": [
+              {
+                "port": 5432,
+                "proto": "tcp",
+                "name": "port 5432, private",
+                "description": "Scale set · vmss-web-team01 · B1s × 0–3 → PostgreSQL · flexible server · zone-redundant: port 5432, private.",
+                "from": 3,
+                "scope": "segment",
+                "via": "snetDb"
+              }
+            ],
+            "controls": [],
+            "x": 140,
+            "y": 706
+          }
+        ],
+        "weeks": [
+          {
+            "week": 0,
+            "wire": "Start where the last course left off",
+            "focus": "Have the environment the Fundamentals course builds — deployed from the template if your team did not build it.",
+            "before": "Nothing built yet.",
+            "after": "What this course starts from — the previous course’s finished environment.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "az-w0-setup",
+                "step": "az-w0-setup-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Check what your team already has"
+              },
+              {
+                "taskId": "az-w0-setup",
+                "step": "az-w0-setup-s3",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Deploy through Week 4"
+              },
+              {
+                "taskId": "az-w0-setup",
+                "step": "az-w0-setup-s4",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Publish what the template cannot"
+              },
+              {
+                "taskId": "az-w0-setup",
+                "step": "az-w0-setup-s8",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Deallocate the VM"
+              },
+              {
+                "taskId": "az-w0-setup",
+                "step": "az-w0-setup-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Get the template"
+              }
+            ]
+          },
+          {
+            "week": 1,
+            "wire": "Secure by design",
+            "focus": "Give people and the Function exactly the access they need, protect the secrets, fence the API, find what is exposed.",
+            "before": "Built so far: Storage account, Function app, Azure Cosmos DB and 9 more.",
+            "after": "New: the team’s key and the secret under it, the fenced API. The function reads by identity; a denial is proved and the exposure read.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "az-w5-arch",
+                "step": "az-w5-arch-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Export the assignments"
+              },
+              {
+                "taskId": "az-w5-arch",
+                "step": "az-w5-arch-s3",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Read the role assignments back"
+              },
+              {
+                "taskId": "az-w5-arch",
+                "step": "az-w5-arch-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Name the layers"
+              },
+              {
+                "taskId": "az-w5-arch",
+                "step": "az-w5-arch-s9",
+                "role": "arch",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Access Control Matrix & Secrets Register"
+              },
+              {
+                "taskId": "az-w5-infra",
+                "step": "az-w5-infra-s1",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Create the vault and store the key"
+              },
+              {
+                "taskId": "az-w5-infra",
+                "step": "az-w5-infra-s2",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Point the Function at the vault"
+              },
+              {
+                "taskId": "az-w5-infra",
+                "step": "az-w5-infra-s3",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Protect the vault and log every read"
+              },
+              {
+                "taskId": "az-w5-infra",
+                "step": "az-w5-infra-s9",
+                "role": "infra",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Access Control Matrix & Secrets Register"
+              },
+              {
+                "taskId": "az-w5-dev",
+                "step": "az-w5-dev-s1",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Turn on the identity"
+              },
+              {
+                "taskId": "az-w5-dev",
+                "step": "az-w5-dev-s2",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Grant it the data role"
+              },
+              {
+                "taskId": "az-w5-dev",
+                "step": "az-w5-dev-s3",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Swap the setting and allow your origin only"
+              },
+              {
+                "taskId": "az-w5-dev",
+                "step": "az-w5-dev-s4",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Prove a foreign origin is refused"
+              },
+              {
+                "taskId": "az-w5-dev",
+                "step": "az-w5-dev-s9",
+                "role": "dev",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Access Control Matrix & Secrets Register"
+              },
+              {
+                "taskId": "az-w5-secops",
+                "step": "az-w5-secops-s1",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "List the identity’s roles"
+              },
+              {
+                "taskId": "az-w5-secops",
+                "step": "az-w5-secops-s2",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Test a denial"
+              },
+              {
+                "taskId": "az-w5-secops",
+                "step": "az-w5-secops-s3",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Read the posture"
+              },
+              {
+                "taskId": "az-w5-secops",
+                "step": "az-w5-secops-s9",
+                "role": "secops",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Access Control Matrix & Secrets Register"
+              }
+            ]
+          },
+          {
+            "week": 2,
+            "wire": "Resilient compute",
+            "focus": "Design, build and fence a two-zone scale set behind a load balancer, with no open port and a private path.",
+            "before": "Built so far: Storage account, Function app, Azure Cosmos DB and 12 more.",
+            "after": "New: a second zone, a load balancer, a fleet of two behind it, and a private path that needs no internet. One address, two zones.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "az-w6-arch",
+                "step": "az-w6-arch-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Read the zones"
+              },
+              {
+                "taskId": "az-w6-arch",
+                "step": "az-w6-arch-s2",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Cost the fleet"
+              },
+              {
+                "taskId": "az-w6-arch",
+                "step": "az-w6-arch-s9",
+                "role": "arch",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Network Design Document"
+              },
+              {
+                "taskId": "az-w6-infra",
+                "step": "az-w6-infra-s1",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Add the web subnet and its NSG"
+              },
+              {
+                "taskId": "az-w6-infra",
+                "step": "az-w6-infra-s2",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin",
+                  "vmss"
+                ],
+                "text": "Create the scale set"
+              },
+              {
+                "taskId": "az-w6-infra",
+                "step": "az-w6-infra-s3",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Read the instances"
+              },
+              {
+                "taskId": "az-w6-infra",
+                "step": "az-w6-infra-s4",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Park the fleet"
+              },
+              {
+                "taskId": "az-w6-infra",
+                "step": "az-w6-infra-s9",
+                "role": "infra",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Network Design Document"
+              },
+              {
+                "taskId": "az-w6-dev",
+                "step": "az-w6-dev-s1",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Create the balancer, the probe and the rule"
+              },
+              {
+                "taskId": "az-w6-dev",
+                "step": "az-w6-dev-s2",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Join the fleet to the pool"
+              },
+              {
+                "taskId": "az-w6-dev",
+                "step": "az-w6-dev-s3",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Prove both zones answer"
+              },
+              {
+                "taskId": "az-w6-dev",
+                "step": "az-w6-dev-s4",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Park the fleet"
+              },
+              {
+                "taskId": "az-w6-dev",
+                "step": "az-w6-dev-s9",
+                "role": "dev",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Network Design Document"
+              },
+              {
+                "taskId": "az-w6-secops",
+                "step": "az-w6-secops-s1",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin",
+                  "bastion"
+                ],
+                "text": "Close port 22 and open Bastion"
+              },
+              {
+                "taskId": "az-w6-secops",
+                "step": "az-w6-secops-s2",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Create the private endpoint and its DNS zone"
+              },
+              {
+                "taskId": "az-w6-secops",
+                "step": "az-w6-secops-s3",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Prove it from the VM, then remove the endpoint"
+              },
+              {
+                "taskId": "az-w6-secops",
+                "step": "az-w6-secops-s8",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Deallocate the VM"
+              },
+              {
+                "taskId": "az-w6-secops",
+                "step": "az-w6-secops-s9",
+                "role": "secops",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Network Design Document"
+              }
+            ]
+          },
+          {
+            "week": 3,
+            "wire": "Data and storage",
+            "focus": "Choose the data store, run a zone-redundant encrypted PostgreSQL, decouple the counter with a queue, and age blobs out.",
+            "before": "Built so far: Storage account, Function app, Azure Cosmos DB and 17 more.",
+            "after": "New: the Multi-AZ database, encrypted and private, and the queue with its dead-letter queue. The right store per workload, the right class per object.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "az-w7-arch",
+                "step": "az-w7-arch-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Read today’s data costs"
+              },
+              {
+                "taskId": "az-w7-arch",
+                "step": "az-w7-arch-s2",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Price the relational alternative"
+              },
+              {
+                "taskId": "az-w7-arch",
+                "step": "az-w7-arch-s9",
+                "role": "arch",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Data Store & Runbook"
+              },
+              {
+                "taskId": "az-w7-infra",
+                "step": "az-w7-infra-s1",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Add the delegated subnet and its NSG"
+              },
+              {
+                "taskId": "az-w7-infra",
+                "step": "az-w7-infra-s2",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin",
+                  "pg"
+                ],
+                "text": "Create the server, zone-redundant and private"
+              },
+              {
+                "taskId": "az-w7-infra",
+                "step": "az-w7-infra-s3",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Read the five facts"
+              },
+              {
+                "taskId": "az-w7-infra",
+                "step": "az-w7-infra-s4",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Stop the server"
+              },
+              {
+                "taskId": "az-w7-infra",
+                "step": "az-w7-infra-s9",
+                "role": "infra",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Data Store & Runbook"
+              },
+              {
+                "taskId": "az-w7-dev",
+                "step": "az-w7-dev-s1",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Create the queue"
+              },
+              {
+                "taskId": "az-w7-dev",
+                "step": "az-w7-dev-s2",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Create the ledger function"
+              },
+              {
+                "taskId": "az-w7-dev",
+                "step": "az-w7-dev-s3",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Send a visit and find the item"
+              },
+              {
+                "taskId": "az-w7-dev",
+                "step": "az-w7-dev-s4",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Poison the queue and read the poison queue"
+              },
+              {
+                "taskId": "az-w7-dev",
+                "step": "az-w7-dev-s9",
+                "role": "dev",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Data Store & Runbook"
+              },
+              {
+                "taskId": "az-w7-secops",
+                "step": "az-w7-secops-s1",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin",
+                  "webStorage"
+                ],
+                "text": "Harden every storage account"
+              },
+              {
+                "taskId": "az-w7-secops",
+                "step": "az-w7-secops-s2",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Check the database and who may restore it"
+              },
+              {
+                "taskId": "az-w7-secops",
+                "step": "az-w7-secops-s3",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Age the old blobs"
+              },
+              {
+                "taskId": "az-w7-secops",
+                "step": "az-w7-secops-s9",
+                "role": "secops",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Data Store & Runbook"
+              }
+            ]
+          },
+          {
+            "week": 4,
+            "wire": "Scale, monitor, recover",
+            "focus": "Set recovery targets, scale on demand, lose an instance and a database and get both back, and read the bill.",
+            "before": "Built so far: Storage account, Function app, Azure Cosmos DB and 23 more.",
+            "after": "New: the scaling policy. The fleet grows on CPU and replaces a lost instance; a file and the database come back; the drill is timed.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "az-w8-arch",
+                "step": "az-w8-arch-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Read the fleet’s usage"
+              },
+              {
+                "taskId": "az-w8-arch",
+                "step": "az-w8-arch-s2",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Cost the final design"
+              },
+              {
+                "taskId": "az-w8-arch",
+                "step": "az-w8-arch-s9",
+                "role": "arch",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Backup & Disaster Recovery Plan"
+              },
+              {
+                "taskId": "az-w8-infra",
+                "step": "az-w8-infra-s1",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Wake the fleet and add the autoscale setting"
+              },
+              {
+                "taskId": "az-w8-infra",
+                "step": "az-w8-infra-s2",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Load an instance until the set adds one"
+              },
+              {
+                "taskId": "az-w8-infra",
+                "step": "az-w8-infra-s3",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Delete one and watch it come back"
+              },
+              {
+                "taskId": "az-w8-infra",
+                "step": "az-w8-infra-s4",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Park the fleet"
+              },
+              {
+                "taskId": "az-w8-infra",
+                "step": "az-w8-infra-s9",
+                "role": "infra",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Backup & Disaster Recovery Plan"
+              },
+              {
+                "taskId": "az-w8-dev",
+                "step": "az-w8-dev-s1",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Turn on protection"
+              },
+              {
+                "taskId": "az-w8-dev",
+                "step": "az-w8-dev-s2",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Delete the page and bring it back"
+              },
+              {
+                "taskId": "az-w8-dev",
+                "step": "az-w8-dev-s3",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Start the database and restore it to a point in time"
+              },
+              {
+                "taskId": "az-w8-dev",
+                "step": "az-w8-dev-s4",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Delete both servers"
+              },
+              {
+                "taskId": "az-w8-dev",
+                "step": "az-w8-dev-s9",
+                "role": "dev",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Backup & Disaster Recovery Plan"
+              },
+              {
+                "taskId": "az-w8-secops",
+                "step": "az-w8-secops-s1",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Start the clock and wake the fleet"
+              },
+              {
+                "taskId": "az-w8-secops",
+                "step": "az-w8-secops-s2",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Serve through it, then tear it all down"
+              },
+              {
+                "taskId": "az-w8-secops",
+                "step": "az-w8-secops-s3",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Read the month’s cost"
+              },
+              {
+                "taskId": "az-w8-secops",
+                "step": "az-w8-secops-s9",
+                "role": "secops",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Backup & Disaster Recovery Plan"
+              }
+            ]
+          },
+          {
+            "week": 5,
+            "wire": "Local LLM serving: Serve a model locally",
+            "focus": "Serve a quantised model behind an API and size the memory it needs.",
+            "before": "Built so far: Storage account, Function app, Azure Cosmos DB and 25 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "aza-local-llm-serving-w1-serve",
+                "step": "aza-local-llm-serving-w1-serve-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Serve a model behind an API"
+              },
+              {
+                "taskId": "aza-local-llm-serving-w1-serve",
+                "step": "aza-local-llm-serving-w1-serve-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the endpoint."
+              },
+              {
+                "taskId": "aza-local-llm-serving-w1-size",
+                "step": "aza-local-llm-serving-w1-size-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Size the memory"
+              },
+              {
+                "taskId": "aza-local-llm-serving-w1-size",
+                "step": "aza-local-llm-serving-w1-size-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the sizing."
+              }
+            ]
+          },
+          {
+            "week": 6,
+            "wire": "RAG engineering: Index your documents",
+            "focus": "Load a folder of records into a vector store and query it for the right passage.",
+            "before": "Built so far: Storage account, Function app, Azure Cosmos DB and 25 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "aza-rag-engineering-w1-index",
+                "step": "aza-rag-engineering-w1-index-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Index a document set"
+              },
+              {
+                "taskId": "aza-rag-engineering-w1-index",
+                "step": "aza-rag-engineering-w1-index-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Query the store and read the top passage."
+              },
+              {
+                "taskId": "aza-rag-engineering-w1-retrieve",
+                "step": "aza-rag-engineering-w1-retrieve-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Answer from the passages"
+              },
+              {
+                "taskId": "aza-rag-engineering-w1-retrieve",
+                "step": "aza-rag-engineering-w1-retrieve-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Compare the answer to the record."
+              }
+            ]
+          },
+          {
+            "week": 7,
+            "wire": "RAG engineering: Evaluate the answers",
+            "focus": "Measure the pipeline against a question set and set a pass line before you trust it.",
+            "before": "Built so far: Storage account, Function app, Azure Cosmos DB and 25 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "aza-rag-engineering-w2-evalset",
+                "step": "aza-rag-engineering-w2-evalset-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Build a question set"
+              },
+              {
+                "taskId": "aza-rag-engineering-w2-evalset",
+                "step": "aza-rag-engineering-w2-evalset-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Read the misses and fix the cause."
+              },
+              {
+                "taskId": "aza-rag-engineering-w2-passline",
+                "step": "aza-rag-engineering-w2-passline-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Set the pass line"
+              },
+              {
+                "taskId": "aza-rag-engineering-w2-passline",
+                "step": "aza-rag-engineering-w2-passline-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the decision."
+              }
+            ]
+          }
+        ],
+        "spec": {
+          "columns": [
+            "Component",
+            "Address",
+            "Runs",
+            "Who"
+          ],
+          "rows": [
+            [
+              "Visitors",
+              "—",
+              "—",
+              "Outside"
+            ],
+            [
+              "GitHub",
+              "—",
+              "—",
+              "Outside"
+            ],
+            [
+              "Team admin",
+              "—",
+              "—",
+              "Outside"
+            ],
+            [
+              "Storage account · stweb… ($web)",
+              "—",
+              "443 HTTPS",
+              "Team"
+            ],
+            [
+              "Key vault · kv-capstone-team01-…",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "Function app · func-capstone-team01",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "Queue: visits · on the runtime storage",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "visits-poison",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "Azure Cosmos DB · serverless",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "Load balancer · lb-web-team01 · Standard",
+              "—",
+              "80 HTTP, one address",
+              "Team"
+            ],
+            [
+              "Azure Bastion · Developer SKU · free",
+              "—",
+              "22 browser SSH — no open port",
+              "Team"
+            ],
+            [
+              "Virtual machine · vm-tools-team01",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "Data disk",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "Scale set · vmss-web-team01 · B1s × 0–3",
+              "—",
+              "80 port 80, probed",
+              "Team"
+            ],
+            [
+              "PostgreSQL · flexible server · zone-redundant",
+              "—",
+              "5432 port 5432, private",
+              "Team"
+            ],
+            [
+              "Azure subscription",
+              "—",
+              "—",
+              "Everyone"
+            ]
+          ]
+        }
+      }
     },
     "weekVisuals": [
       {

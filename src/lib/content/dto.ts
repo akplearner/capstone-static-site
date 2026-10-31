@@ -61,6 +61,9 @@ import * as serverDiagrams from '@/lib/docs/serverDiagrams';
 import * as cysaContent from '@/lib/docs/cysaContent';
 import * as securityContent from '@/lib/docs/securityContent';
 import * as securityNetwork from '@/lib/docs/securityNetwork';
+import * as networkFrom from '@/lib/docs/networkFrom';
+import type { LabNetwork } from '@/lib/docs/labNetwork';
+import { toolsByTask, TOOLS } from '@/lib/docs/tools';
 import * as troubleshooting from '@/lib/docs/troubleshooting';
 import * as ccnaTopology from '@/lib/ccnaTopology';
 import * as ccnaKit from '@/lib/docs/ccnaKit';
@@ -81,7 +84,7 @@ import * as awsSecuritySpecialtyContent from '@/lib/docs/awsSecuritySpecialtyCon
 import * as ccspContent from '@/lib/docs/ccspContent';
 import * as networkPlusContent from '@/lib/docs/networkPlusContent';
 import * as networkPlusTopology from '@/lib/networkPlusTopology';
-import { weekVisualsFor } from '@/lib/docs/weekVisuals';
+import { weekVisualsFor, cloudBuildModel } from '@/lib/docs/weekVisuals';
 import type { BuildModel } from '@/lib/weekVisual';
 import type { ArchPicture } from '@/lib/docs/archPicture';
 import { FLOW_HOW_TO_READ, FLOW_KIND_LABEL, WORKS_LABEL, WORKS_SHORT, roleContentFor } from '@/lib/docs/roles';
@@ -295,6 +298,24 @@ const ARCH_CONTENT: Record<string, { file: string; mod: { ARCH: ArchPicture; ARC
   'network-plus': { file: 'src/lib/docs/networkPlusContent.ts', mod: networkPlusContent },
 };
 
+/**
+ * R157: every course's network — Security+ by hand, every other course derived from the shape it already
+ * carries (`networkFrom.ts`). `files` are the sources the document names in `generatedFrom`.
+ */
+type NetworkFamily = 'server' | 'ccna' | 'network-plus' | 'cloud' | 'soc' | 'arch';
+function networkSource(courseId: string, course: Course): { files: string[]; family: NetworkFamily | 'authored'; net: LabNetwork } {
+  if (courseId === 'security-plus') return { files: ['src/lib/docs/securityNetwork.ts'], family: 'authored', net: securityNetwork.NETWORK };
+  if (courseId === 'server-plus') return { files: ['src/lib/serverTopology.ts', 'src/lib/docs/serverDiagrams.ts'], family: 'server', net: networkFrom.networkFromServer(serverTopology, serverDiagrams, course) };
+  if (courseId === 'ccna') return { files: ['src/lib/ccnaTopology.ts', 'src/lib/docs/ccnaDiagrams.ts'], family: 'ccna', net: networkFrom.networkFromCcna(ccnaTopology, ccnaDiagrams, course) };
+  if (courseId === 'network-plus') return { files: ['src/lib/networkPlusTopology.ts', 'src/lib/docs/networkPlusContent.ts'], family: 'network-plus', net: networkFrom.networkFromNetworkPlus(networkPlusTopology, networkPlusContent.ARCH, networkPlusContent.ARCH_BUILD, course) };
+  if (SOC_TOPOLOGY_BY_COURSE[courseId]) return { files: ['src/lib/labTopology.ts', 'src/lib/docs/cysaContent.ts'], family: 'soc', net: networkFrom.networkFromSoc(SOC_TOPOLOGY_BY_COURSE[courseId], cysaContent, course) };
+  const cloud = CLOUD_CONTENT[courseId];
+  if (cloud) return { files: cloud.files, family: 'cloud', net: networkFrom.networkFromCloud(cloud.topology, cloud.block, cloudBuildModel(cloud.topology, cloud.block), course) };
+  const arch = ARCH_CONTENT[courseId];
+  if (arch) return { files: [arch.file], family: 'arch', net: networkFrom.withOperator(networkFrom.networkFromArch(arch.mod.ARCH, arch.mod.ARCH_BUILD, course)) };
+  throw new Error(`no network source for '${courseId}'`);
+}
+
 export function courseDto(courseId: string): CourseDto {
   const course = SEED_COURSES.find((c) => c.id === courseId);
   if (!course) throw new Error(`no seed course '${courseId}'`);
@@ -342,10 +363,8 @@ export function courseDto(courseId: string): CourseDto {
     content.cysa = contentData(cysaContent);
   }
   if (courseId === 'security-plus') {
-    generatedFrom.push('src/lib/docs/securityContent.ts', 'src/lib/docs/cysaContent.ts', 'src/lib/docs/securityNetwork.ts');
+    generatedFrom.push('src/lib/docs/securityContent.ts', 'src/lib/docs/cysaContent.ts');
     content.security = contentData(securityContent);
-    // R152: the lab network — hosts, ports, controls and the week's attack steps with Blue's answers.
-    content.network = contentData(securityNetwork);
     // Security+ draws two of the SOC diagrams on its own forms — the risk
     // matrix on the Risk Register, the incident timeline on the Incident
     // Report — so its document carries exactly those tables, no more.
@@ -382,6 +401,16 @@ export function courseDto(courseId: string): CourseDto {
       raci: CLOUD_RACI,
       phases: CLOUD_PHASES,
     };
+  }
+  // R152/R157: the lab network — every course, one shape. Security+ authored; every other course derived
+  // from its topology or architecture picture, then every course week present, then (derived courses) each
+  // task placed on the components its steps name, with the tools the task uses on the host it touches most.
+  {
+    const src = networkSource(courseId, course);
+    let net = networkFrom.withCourseWeeks(src.net, course);
+    if (src.family !== 'authored') net = networkFrom.actionsFromTasks(course, net, networkFrom.matchersFor(courseId, src.family, net, course), toolsByTask(course), TOOLS);
+    for (const f of ['src/lib/docs/networkFrom.ts', ...src.files]) if (!generatedFrom.includes(f)) generatedFrom.push(f);
+    content.network = { NETWORK: net };
   }
   // R99: "What you build this week" — one visual per week of every course,
   // derived from the course's build model (or the cloud topology) and the

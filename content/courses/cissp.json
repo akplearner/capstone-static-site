@@ -6,6 +6,7 @@
     "src/lib/docs/portfolioForm.ts",
     "src/lib/docs/manual.ts",
     "src/lib/docs/cisspContent.ts",
+    "src/lib/docs/networkFrom.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
     "src/lib/docs/certs.ts",
@@ -9934,6 +9935,1295 @@
           "4": "New: the AI gateway and the SIEM. A detection fires, a restore matches, and one customer never sees another’s records.",
           "5": "Nothing new is built: every control is assessed, the questionnaire is answered with evidence, and a tabletop tests the plans.",
           "6": "New: the federal boundary and the plan. Basic safeguarding has evidence, the SP 800-171 gaps have dates, and the SSP is assembled."
+        }
+      }
+    },
+    "network": {
+      "NETWORK": {
+        "copy": {
+          "title": "The CISSP Capstone: Six Releases network — what you build and where",
+          "howToRead": "17 components on 3 segments. Each card shows its address, what it runs and exposes, and the controls on it. Pick a week to see what has arrived.",
+          "footer": "Lab stand-in until the starter kit ships: containers on one Linux machine play the cloud account; OPNsense, Keycloak, Jenkins, Wazuh and restic play the services.",
+          "reference": {
+            "lede": "Every component of the system you work on, its address where it has one, what it runs and exposes, the tools on it, and what each task does to it, week by week.",
+            "lan": "3 segments: Office and field, Cloud account — the Service Hub, Suppliers and customers.",
+            "ports": "What answers on the network, and what stays inside a host or a single segment.",
+            "tools": "What is installed where, and the task that uses it.",
+            "attacks": "The attack types in exam vocabulary, where this lab uses each, and the control that answers it.",
+            "actions": "What each task of the week does on the network: the work placed on the components it touches.",
+            "links": "Every cable, port to port, with what it carries."
+          }
+        },
+        "view": {
+          "w": 1000,
+          "h": 618
+        },
+        "fabric": {
+          "segments": [
+            {
+              "id": "office",
+              "label": "Office and field",
+              "note": "being retired or connected",
+              "kind": "zone",
+              "arrives": 0,
+              "y": 46
+            },
+            {
+              "id": "cloud",
+              "label": "Cloud account — the Service Hub",
+              "note": "what Ridgeline answers for",
+              "kind": "zone",
+              "arrives": 0,
+              "y": 186
+            },
+            {
+              "id": "outside",
+              "label": "Suppliers and customers",
+              "note": "see D3",
+              "kind": "zone",
+              "arrives": 0,
+              "y": 500
+            }
+          ]
+        },
+        "hosts": [
+          {
+            "id": "staff",
+            "label": "Office staff",
+            "description": "Who the policy binds and who the training reaches",
+            "segment": "office",
+            "kind": "client",
+            "arrives": 0,
+            "external": true,
+            "apps": [
+              "40 people",
+              "policy",
+              "training"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 58,
+            "tools": [
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ci-w0-gov",
+                  "ci-w1-gov",
+                  "ci-w3-arch",
+                  "ci-w3-idops",
+                  "ci-w3-gov",
+                  "ci-w4-idops",
+                  "ci-w4-gov",
+                  "ci-w4-arch",
+                  "ci-w5-arch",
+                  "ci-w5-idops",
+                  "ci-w6-gov",
+                  "cissp-ai-security-validation-w1-inject",
+                  "cissp-ai-security-validation-w1-leak",
+                  "cissp-ai-security-validation-w2-suite",
+                  "cissp-ai-security-validation-w2-report",
+                  "cissp-enterprise-ai-architect-w1-gateway",
+                  "cissp-enterprise-ai-architect-w1-layers",
+                  "cissp-enterprise-ai-architect-w2-govern",
+                  "cissp-enterprise-ai-architect-w2-handover"
+                ]
+              },
+              {
+                "name": "sha256sum",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ci-w0-gov",
+                  "ci-w1-gov",
+                  "ci-w3-gov",
+                  "ci-w4-idops",
+                  "ci-w6-gov"
+                ]
+              },
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "ci-w0-gov",
+                  "ci-w0-arch",
+                  "ci-w0-idops",
+                  "ci-w1-gov",
+                  "ci-w1-arch",
+                  "ci-w1-idops",
+                  "ci-w2-gov",
+                  "ci-w2-arch",
+                  "ci-w2-idops",
+                  "ci-w4-idops",
+                  "ci-w4-gov",
+                  "ci-w4-arch",
+                  "ci-w5-gov",
+                  "ci-w5-idops",
+                  "ci-w6-gov",
+                  "ci-w6-idops",
+                  "cissp-ai-security-validation-w1-inject",
+                  "cissp-ai-security-validation-w1-leak",
+                  "cissp-ai-security-validation-w2-suite",
+                  "cissp-ai-security-validation-w2-report",
+                  "cissp-enterprise-ai-architect-w1-gateway",
+                  "cissp-enterprise-ai-architect-w1-layers",
+                  "cissp-enterprise-ai-architect-w2-govern",
+                  "cissp-enterprise-ai-architect-w2-handover"
+                ]
+              },
+              {
+                "name": "Git",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ci-w0-gov",
+                  "ci-w1-gov",
+                  "ci-w3-arch",
+                  "ci-w6-gov",
+                  "cissp-ai-security-validation-w2-suite"
+                ]
+              },
+              {
+                "name": "draw.io",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "ci-w0-arch",
+                  "ci-w1-arch",
+                  "ci-w2-arch",
+                  "ci-w6-arch"
+                ]
+              },
+              {
+                "name": "Notes",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "ci-w0-idops",
+                  "ci-w1-idops",
+                  "ci-w2-idops",
+                  "ci-w5-idops",
+                  "ci-w6-idops"
+                ]
+              },
+              {
+                "name": "Spreadsheet",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "ci-w1-gov",
+                  "ci-w2-gov"
+                ]
+              },
+              {
+                "name": "eramba",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "ci-w1-gov",
+                  "ci-w2-gov",
+                  "ci-w5-gov"
+                ]
+              },
+              {
+                "name": "Snipe-IT",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "ci-w2-gov"
+                ]
+              },
+              {
+                "name": "nmap",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ci-w3-arch",
+                  "ci-w5-arch"
+                ]
+              },
+              {
+                "name": "nftables",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ci-w3-arch"
+                ]
+              },
+              {
+                "name": "OpenSSL",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ci-w3-arch",
+                  "ci-w5-arch"
+                ]
+              },
+              {
+                "name": "Trivy",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ci-w3-arch"
+                ]
+              },
+              {
+                "name": "Jenkins",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "ci-w3-arch"
+                ]
+              },
+              {
+                "name": "curl",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ci-w3-idops",
+                  "cissp-enterprise-ai-architect-w1-gateway",
+                  "cissp-enterprise-ai-architect-w2-govern"
+                ]
+              },
+              {
+                "name": "Keycloak",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "ci-w3-idops",
+                  "ci-w5-idops"
+                ]
+              },
+              {
+                "name": "shred",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ci-w3-gov"
+                ]
+              },
+              {
+                "name": "OWASP Threat Dragon",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "ci-w3-gov"
+                ]
+              },
+              {
+                "name": "Wazuh",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "ci-w4-idops"
+                ]
+              },
+              {
+                "name": "restic",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ci-w4-idops"
+                ]
+              },
+              {
+                "name": "Microsoft Presidio",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "ci-w4-gov"
+                ]
+              },
+              {
+                "name": "Python",
+                "purpose": "A language the task writes or reads.",
+                "usedIn": [
+                  "ci-w4-gov",
+                  "cissp-ai-security-validation-w1-inject",
+                  "cissp-ai-security-validation-w1-leak",
+                  "cissp-ai-security-validation-w2-suite",
+                  "cissp-ai-security-validation-w2-report",
+                  "cissp-enterprise-ai-architect-w1-gateway",
+                  "cissp-enterprise-ai-architect-w1-layers",
+                  "cissp-enterprise-ai-architect-w2-govern",
+                  "cissp-enterprise-ai-architect-w2-handover"
+                ]
+              },
+              {
+                "name": "OpenVAS",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "ci-w4-arch"
+                ]
+              },
+              {
+                "name": "Lynis",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ci-w4-arch"
+                ]
+              },
+              {
+                "name": "OpenCRE",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "ci-w5-gov"
+                ]
+              },
+              {
+                "name": "OWASP ZAP",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "ci-w5-arch"
+                ]
+              },
+              {
+                "name": "OSCAL Compass",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ci-w6-gov"
+                ]
+              },
+              {
+                "name": "garak",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cissp-ai-security-validation-w1-inject"
+                ]
+              },
+              {
+                "name": "LLM Guard",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "cissp-ai-security-validation-w1-leak"
+                ]
+              },
+              {
+                "name": "LiteLLM",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "cissp-enterprise-ai-architect-w1-gateway",
+                  "cissp-enterprise-ai-architect-w2-govern"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "oldserver",
+            "label": "Old scheduling server",
+            "description": "The on-premises server to migrate, then sanitize",
+            "segment": "office",
+            "kind": "server",
+            "arrives": 0,
+            "apps": [
+              "past end of support (S-10)"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:mdm",
+                "label": "Device management",
+                "description": "Enrols the phones, enforces encryption and remote wipe",
+                "kind": "harden",
+                "arrives": 1
+              }
+            ],
+            "x": 380,
+            "y": 58
+          },
+          {
+            "id": "phones",
+            "label": "Technicians’ phones",
+            "description": "Remote access from the field; the biggest endpoint fleet",
+            "segment": "office",
+            "kind": "endpoint",
+            "arrives": 1,
+            "apps": [
+              "80 field devices"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 620,
+            "y": 58
+          },
+          {
+            "id": "sensors",
+            "label": "Building sensors",
+            "description": "Untrusted devices that feed the failure predictor",
+            "segment": "office",
+            "kind": "service",
+            "arrives": 2,
+            "apps": [
+              "IoT readings"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 860,
+            "y": 58
+          },
+          {
+            "id": "firewall",
+            "label": "Zones and firewall",
+            "description": "Separates office, cloud and sensor traffic; default deny",
+            "segment": "cloud",
+            "kind": "firewall",
+            "role": "archnet",
+            "arrives": 1,
+            "apps": [
+              "default deny",
+              "OPNsense"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:pipeline",
+                "label": "Pipeline gates",
+                "description": "No change reaches production without a scan and a second person",
+                "kind": "harden",
+                "arrives": 3,
+                "role": "archnet"
+              }
+            ],
+            "x": 140,
+            "y": 198
+          },
+          {
+            "id": "vpn",
+            "label": "VPN remote access",
+            "description": "The one recorded path for administrators and phones",
+            "segment": "cloud",
+            "kind": "router",
+            "role": "archnet",
+            "arrives": 1,
+            "apps": [
+              "WireGuard",
+              "MFA"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 198
+          },
+          {
+            "id": "idp",
+            "label": "Identity provider",
+            "description": "One account per person, MFA on every administrative login",
+            "segment": "cloud",
+            "kind": "identity",
+            "role": "idops",
+            "arrives": 1,
+            "apps": [
+              "Keycloak",
+              "MFA"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 620,
+            "y": 198
+          },
+          {
+            "id": "web",
+            "label": "Hub web app",
+            "description": "What customers and dispatchers see",
+            "segment": "cloud",
+            "kind": "service",
+            "role": "archnet",
+            "arrives": 0,
+            "apps": [
+              "customer portal",
+              "TLS 1.3"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 860,
+            "y": 198
+          },
+          {
+            "id": "api",
+            "label": "Hub API",
+            "description": "The business logic every client and agent calls",
+            "segment": "cloud",
+            "kind": "service",
+            "role": "archnet",
+            "arrives": 0,
+            "apps": [
+              "work orders",
+              "invoices"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:gateway",
+                "label": "AI gateway",
+                "description": "Tenant separation and a fallback when the provider is down",
+                "kind": "harden",
+                "arrives": 4,
+                "role": "archnet"
+              }
+            ],
+            "x": 140,
+            "y": 297
+          },
+          {
+            "id": "agent",
+            "label": "Dispatch agent",
+            "description": "The AI that assigns technicians through the API",
+            "segment": "cloud",
+            "kind": "service",
+            "role": "archnet",
+            "arrives": 0,
+            "apps": [
+              "assigns",
+              "messages"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 297
+          },
+          {
+            "id": "db",
+            "label": "Database and documents",
+            "description": "Where building records, contracts and work orders live",
+            "segment": "cloud",
+            "kind": "storage",
+            "role": "archnet",
+            "arrives": 0,
+            "apps": [
+              "customer data",
+              "federal info"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:backup",
+                "label": "Backup vault",
+                "description": "The restore-tested copy the recovery targets depend on",
+                "kind": "recover",
+                "arrives": 2,
+                "role": "idops"
+              }
+            ],
+            "x": 620,
+            "y": 297
+          },
+          {
+            "id": "kms",
+            "label": "Key management",
+            "description": "Owns the encryption keys and their yearly rotation",
+            "segment": "cloud",
+            "kind": "identity",
+            "role": "archnet",
+            "arrives": 2,
+            "apps": [
+              "AES-256 at rest",
+              "rotation"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 860,
+            "y": 297
+          },
+          {
+            "id": "siem",
+            "label": "Logs and SIEM",
+            "description": "Keeps and reviews the logs; raises the detections",
+            "segment": "cloud",
+            "kind": "server",
+            "role": "idops",
+            "arrives": 4,
+            "apps": [
+              "12 months",
+              "reviewed weekly"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 396
+          },
+          {
+            "id": "modelapi",
+            "label": "Model provider API",
+            "description": "The supplier whose outage stops dispatch",
+            "segment": "outside",
+            "kind": "service",
+            "arrives": 0,
+            "external": true,
+            "apps": [
+              "third-party LLM"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 512
+          },
+          {
+            "id": "custidp",
+            "label": "Customer identity",
+            "description": "Federated sign-on for the customers’ own staff",
+            "segment": "outside",
+            "kind": "identity",
+            "arrives": 3,
+            "external": true,
+            "apps": [
+              "SAML",
+              "OIDC"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 512
+          },
+          {
+            "id": "customer",
+            "label": "Largest customer",
+            "description": "Sets the contract terms and sends the questionnaire",
+            "segment": "outside",
+            "kind": "client",
+            "arrives": 0,
+            "external": true,
+            "apps": [
+              "72-hour notice",
+              "SOC 2"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 620,
+            "y": 512
+          },
+          {
+            "id": "federal",
+            "label": "Federal boundary",
+            "description": "The information that must stay inside authorized services",
+            "segment": "outside",
+            "kind": "external",
+            "arrives": 6,
+            "external": true,
+            "apps": [
+              "FCI now",
+              "CUI next year"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 860,
+            "y": 512
+          }
+        ],
+        "weeks": [
+          {
+            "week": 0,
+            "wire": "Scope and ledger",
+            "focus": "Agree the company facts, open the evidence ledger, and claim your domain sheets.",
+            "before": "Nothing built yet.",
+            "after": "Where Ridgeline starts: staff, an old server and spreadsheets, and the Hub’s web, API and agent tiers with a third-party model behind them.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ci-w0-gov",
+                "step": "ci-w0-gov-s2",
+                "role": "govrisk",
+                "kind": "setup",
+                "at": [
+                  "staff"
+                ],
+                "text": "Open the evidence ledger"
+              },
+              {
+                "taskId": "ci-w0-gov",
+                "step": "ci-w0-gov-s1",
+                "role": "govrisk",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the company and its obligations"
+              },
+              {
+                "taskId": "ci-w0-arch",
+                "step": "ci-w0-arch-s1",
+                "role": "archnet",
+                "kind": "governance",
+                "at": [],
+                "text": "List the systems and data locations"
+              },
+              {
+                "taskId": "ci-w0-idops",
+                "step": "ci-w0-idops-s1",
+                "role": "idops",
+                "kind": "governance",
+                "at": [],
+                "text": "Record how things stand"
+              }
+            ]
+          },
+          {
+            "week": 1,
+            "wire": "Release v1",
+            "focus": "One page per domain: every sheet written down with an owner. Score 8 of 32.",
+            "before": "Built so far: Office staff, Old scheduling server, Hub web app and 5 more.",
+            "after": "New: zones, the VPN, the identity provider and device management for the phones. Every domain is written down once, with an owner.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ci-w1-gov",
+                "step": "ci-w1-gov-s1",
+                "role": "govrisk",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the security policy (D1 v1)"
+              },
+              {
+                "taskId": "ci-w1-gov",
+                "step": "ci-w1-gov-s3",
+                "role": "govrisk",
+                "kind": "evidence",
+                "at": [],
+                "text": "Score the program and sign v1 (D6)"
+              },
+              {
+                "taskId": "ci-w1-arch",
+                "step": "ci-w1-arch-s1",
+                "role": "archnet",
+                "kind": "governance",
+                "at": [],
+                "text": "Draw the architecture (D3 v1)"
+              },
+              {
+                "taskId": "ci-w1-idops",
+                "step": "ci-w1-idops-s1",
+                "role": "idops",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the access rules (D5 v1)"
+              }
+            ]
+          },
+          {
+            "week": 2,
+            "wire": "Release v2",
+            "focus": "Numbers, owners and time limits replace every vague word. Score 16, eight control statements.",
+            "before": "Built so far: Office staff, Old scheduling server, Hub web app and 19 more.",
+            "after": "New: building sensors, key management and the backup vault. Every rule now has a number, an owner and a time limit.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ci-w2-gov",
+                "step": "ci-w2-gov-s1",
+                "role": "govrisk",
+                "kind": "governance",
+                "at": [],
+                "text": "Score the risks and screen people (D1 v2)"
+              },
+              {
+                "taskId": "ci-w2-arch",
+                "step": "ci-w2-arch-s1",
+                "role": "archnet",
+                "kind": "governance",
+                "at": [],
+                "text": "Cryptography and design (D3 v2)"
+              },
+              {
+                "taskId": "ci-w2-arch",
+                "step": "ci-w2-arch-s2",
+                "role": "archnet",
+                "kind": "evidence",
+                "at": [],
+                "text": "Rule base and change gates (D4, D8 v2)"
+              },
+              {
+                "taskId": "ci-w2-idops",
+                "step": "ci-w2-idops-s1",
+                "role": "idops",
+                "kind": "governance",
+                "at": [],
+                "text": "Access and privilege (D5 v2)"
+              }
+            ]
+          },
+          {
+            "week": 3,
+            "wire": "Release v3",
+            "focus": "Prove the rules in the lab: a blocking pipeline, TLS, segmentation and real identity. Score 20.",
+            "before": "Built so far: Office staff, Old scheduling server, Hub web app and 23 more.",
+            "after": "New: the pipeline and the customer’s identity provider. Gates block, TLS 1.2 is refused, and the old server is sanitized.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ci-w3-arch",
+                "step": "ci-w3-arch-s1",
+                "role": "archnet",
+                "kind": "setup",
+                "at": [
+                  "staff"
+                ],
+                "text": "A component list, and a gate that blocks"
+              },
+              {
+                "taskId": "ci-w3-arch",
+                "step": "ci-w3-arch-s2",
+                "role": "archnet",
+                "kind": "setup",
+                "at": [
+                  "staff"
+                ],
+                "text": "Prove TLS 1.2 is refused"
+              },
+              {
+                "taskId": "ci-w3-arch",
+                "step": "ci-w3-arch-s3",
+                "role": "archnet",
+                "kind": "setup",
+                "at": [
+                  "staff"
+                ],
+                "text": "Prove the segmentation"
+              },
+              {
+                "taskId": "ci-w3-idops",
+                "step": "ci-w3-idops-s1",
+                "role": "idops",
+                "kind": "setup",
+                "at": [
+                  "staff"
+                ],
+                "text": "Require MFA, prove a refusal"
+              },
+              {
+                "taskId": "ci-w3-idops",
+                "step": "ci-w3-idops-s2",
+                "role": "idops",
+                "kind": "governance",
+                "at": [],
+                "text": "Individual accounts, orphans disabled, federation"
+              },
+              {
+                "taskId": "ci-w3-gov",
+                "step": "ci-w3-gov-s1",
+                "role": "govrisk",
+                "kind": "governance",
+                "at": [],
+                "text": "Tier suppliers and threat-model"
+              }
+            ]
+          },
+          {
+            "week": 4,
+            "wire": "Release v4",
+            "focus": "Prove detection, restore and AI controls, and categorize the system. Score 24, all weaknesses closed.",
+            "before": "Built so far: Office staff, Old scheduling server, Hub web app and 25 more.",
+            "after": "New: the AI gateway and the SIEM. A detection fires, a restore matches, and one customer never sees another’s records.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ci-w4-idops",
+                "step": "ci-w4-idops-s1",
+                "role": "idops",
+                "kind": "setup",
+                "at": [
+                  "staff"
+                ],
+                "text": "Back up and restore, hashes matching"
+              },
+              {
+                "taskId": "ci-w4-idops",
+                "step": "ci-w4-idops-s2",
+                "role": "idops",
+                "kind": "setup",
+                "at": [
+                  "staff"
+                ],
+                "text": "Fire a detection, time it"
+              },
+              {
+                "taskId": "ci-w4-idops",
+                "step": "ci-w4-idops-s3",
+                "role": "idops",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the contingency plan"
+              },
+              {
+                "taskId": "ci-w4-gov",
+                "step": "ci-w4-gov-s1",
+                "role": "govrisk",
+                "kind": "setup",
+                "at": [
+                  "staff"
+                ],
+                "text": "Find and sanitize personal data"
+              },
+              {
+                "taskId": "ci-w4-gov",
+                "step": "ci-w4-gov-s2",
+                "role": "govrisk",
+                "kind": "governance",
+                "at": [],
+                "text": "Categorize and record the AI rules"
+              },
+              {
+                "taskId": "ci-w4-arch",
+                "step": "ci-w4-arch-s1",
+                "role": "archnet",
+                "kind": "governance",
+                "at": [],
+                "text": "Scan the configuration"
+              }
+            ]
+          },
+          {
+            "week": 5,
+            "wire": "Release v5",
+            "focus": "An independent assessment and the customer questionnaire, every answer with evidence. Score 32.",
+            "before": "Built so far: Office staff, Old scheduling server, Hub web app and 27 more.",
+            "after": "Nothing new is built: every control is assessed, the questionnaire is answered with evidence, and a tabletop tests the plans.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ci-w5-gov",
+                "step": "ci-w5-gov-s1",
+                "role": "govrisk",
+                "kind": "governance",
+                "at": [],
+                "text": "Assess the controls, write the report"
+              },
+              {
+                "taskId": "ci-w5-arch",
+                "step": "ci-w5-arch-s1",
+                "role": "archnet",
+                "kind": "setup",
+                "at": [
+                  "staff"
+                ],
+                "text": "Re-test TLS and rotate the key"
+              },
+              {
+                "taskId": "ci-w5-idops",
+                "step": "ci-w5-idops-s1",
+                "role": "idops",
+                "kind": "governance",
+                "at": [],
+                "text": "Time an account disablement"
+              }
+            ]
+          },
+          {
+            "week": 6,
+            "wire": "Release v6",
+            "focus": "Map the program to federal requirements and assemble the System Security Plan.",
+            "before": "Built so far: Office staff, Old scheduling server, Hub web app and 28 more.",
+            "after": "New: the federal boundary and the plan. Basic safeguarding has evidence, the SP 800-171 gaps have dates, and the SSP is assembled.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ci-w6-gov",
+                "step": "ci-w6-gov-s1",
+                "role": "govrisk",
+                "kind": "governance",
+                "at": [],
+                "text": "Self-assess basic safeguarding"
+              },
+              {
+                "taskId": "ci-w6-gov",
+                "step": "portfolio",
+                "role": "govrisk",
+                "kind": "evidence",
+                "at": [],
+                "text": "Write the Portfolio"
+              },
+              {
+                "taskId": "ci-w6-arch",
+                "step": "ci-w6-arch-s1",
+                "role": "archnet",
+                "kind": "governance",
+                "at": [],
+                "text": "Map the controls to federal rules"
+              },
+              {
+                "taskId": "ci-w6-idops",
+                "step": "ci-w6-idops-s1",
+                "role": "idops",
+                "kind": "governance",
+                "at": [],
+                "text": "Map identity and write federal reporting"
+              }
+            ]
+          },
+          {
+            "week": 7,
+            "wire": "AI security validation: Attack the model",
+            "focus": "Prove a prompt injection and a data leak against a model, with evidence.",
+            "before": "Built so far: Office staff, Old scheduling server, Hub web app and 31 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "cissp-ai-security-validation-w1-inject",
+                "step": "cissp-ai-security-validation-w1-inject-s1",
+                "role": "govrisk",
+                "kind": "setup",
+                "at": [
+                  "staff"
+                ],
+                "text": "Prove a prompt injection"
+              },
+              {
+                "taskId": "cissp-ai-security-validation-w1-inject",
+                "step": "cissp-ai-security-validation-w1-inject-s2",
+                "role": "govrisk",
+                "kind": "governance",
+                "at": [],
+                "text": "Map it to OWASP."
+              },
+              {
+                "taskId": "cissp-ai-security-validation-w1-leak",
+                "step": "cissp-ai-security-validation-w1-leak-s1",
+                "role": "govrisk",
+                "kind": "setup",
+                "at": [
+                  "staff"
+                ],
+                "text": "Prove a data leak"
+              },
+              {
+                "taskId": "cissp-ai-security-validation-w1-leak",
+                "step": "cissp-ai-security-validation-w1-leak-s2",
+                "role": "govrisk",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the finding."
+              }
+            ]
+          },
+          {
+            "week": 8,
+            "wire": "AI security validation: A suite that holds",
+            "focus": "Turn every proven attack into a test the pipeline runs, so a removed guardrail fails the build.",
+            "before": "Built so far: Office staff, Old scheduling server, Hub web app and 31 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "cissp-ai-security-validation-w2-suite",
+                "step": "cissp-ai-security-validation-w2-suite-s1",
+                "role": "govrisk",
+                "kind": "setup",
+                "at": [
+                  "staff"
+                ],
+                "text": "Automate the attack suite"
+              },
+              {
+                "taskId": "cissp-ai-security-validation-w2-suite",
+                "step": "cissp-ai-security-validation-w2-suite-s2",
+                "role": "govrisk",
+                "kind": "governance",
+                "at": [],
+                "text": "Prove the regression catch."
+              },
+              {
+                "taskId": "cissp-ai-security-validation-w2-report",
+                "step": "cissp-ai-security-validation-w2-report-s1",
+                "role": "govrisk",
+                "kind": "setup",
+                "at": [
+                  "staff"
+                ],
+                "text": "Report the validation"
+              },
+              {
+                "taskId": "cissp-ai-security-validation-w2-report",
+                "step": "cissp-ai-security-validation-w2-report-s2",
+                "role": "govrisk",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the residual risk."
+              }
+            ]
+          },
+          {
+            "week": 9,
+            "wire": "Enterprise AI architect: Design the hybrid platform",
+            "focus": "Draw a hybrid AI platform: a gateway in front of local and cloud models, with a fallback.",
+            "before": "Built so far: Office staff, Old scheduling server, Hub web app and 31 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "cissp-enterprise-ai-architect-w1-gateway",
+                "step": "cissp-enterprise-ai-architect-w1-gateway-s1",
+                "role": "govrisk",
+                "kind": "setup",
+                "at": [
+                  "staff"
+                ],
+                "text": "Put a gateway in front"
+              },
+              {
+                "taskId": "cissp-enterprise-ai-architect-w1-gateway",
+                "step": "cissp-enterprise-ai-architect-w1-gateway-s2",
+                "role": "govrisk",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the routing."
+              },
+              {
+                "taskId": "cissp-enterprise-ai-architect-w1-layers",
+                "step": "cissp-enterprise-ai-architect-w1-layers-s1",
+                "role": "govrisk",
+                "kind": "setup",
+                "at": [
+                  "staff"
+                ],
+                "text": "Layer the platform"
+              },
+              {
+                "taskId": "cissp-enterprise-ai-architect-w1-layers",
+                "step": "cissp-enterprise-ai-architect-w1-layers-s2",
+                "role": "govrisk",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the architecture."
+              }
+            ]
+          },
+          {
+            "week": 10,
+            "wire": "Enterprise AI architect: Govern the platform",
+            "focus": "Put the controls on the platform: identity at the gateway, an audit log and a cost ceiling.",
+            "before": "Built so far: Office staff, Old scheduling server, Hub web app and 31 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "cissp-enterprise-ai-architect-w2-govern",
+                "step": "cissp-enterprise-ai-architect-w2-govern-s1",
+                "role": "govrisk",
+                "kind": "setup",
+                "at": [
+                  "staff"
+                ],
+                "text": "Govern access and cost"
+              },
+              {
+                "taskId": "cissp-enterprise-ai-architect-w2-govern",
+                "step": "cissp-enterprise-ai-architect-w2-govern-s2",
+                "role": "govrisk",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the controls."
+              },
+              {
+                "taskId": "cissp-enterprise-ai-architect-w2-handover",
+                "step": "cissp-enterprise-ai-architect-w2-handover-s1",
+                "role": "govrisk",
+                "kind": "setup",
+                "at": [
+                  "staff"
+                ],
+                "text": "Hand the platform over"
+              },
+              {
+                "taskId": "cissp-enterprise-ai-architect-w2-handover",
+                "step": "cissp-enterprise-ai-architect-w2-handover-s2",
+                "role": "govrisk",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the handover."
+              }
+            ]
+          }
+        ],
+        "spec": {
+          "columns": [
+            "Component",
+            "Address",
+            "Runs",
+            "Who"
+          ],
+          "rows": [
+            [
+              "Office staff",
+              "—",
+              "40 people · policy · training",
+              "Outside"
+            ],
+            [
+              "Old scheduling server",
+              "—",
+              "past end of support (S-10)",
+              "Team"
+            ],
+            [
+              "Technicians’ phones",
+              "—",
+              "80 field devices",
+              "Team"
+            ],
+            [
+              "Building sensors",
+              "—",
+              "IoT readings",
+              "Team"
+            ],
+            [
+              "Zones and firewall",
+              "—",
+              "default deny · OPNsense",
+              "archnet"
+            ],
+            [
+              "VPN remote access",
+              "—",
+              "WireGuard · MFA",
+              "archnet"
+            ],
+            [
+              "Identity provider",
+              "—",
+              "Keycloak · MFA",
+              "idops"
+            ],
+            [
+              "Hub web app",
+              "—",
+              "customer portal · TLS 1.3",
+              "archnet"
+            ],
+            [
+              "Hub API",
+              "—",
+              "work orders · invoices",
+              "archnet"
+            ],
+            [
+              "Dispatch agent",
+              "—",
+              "assigns · messages",
+              "archnet"
+            ],
+            [
+              "Database and documents",
+              "—",
+              "customer data · federal info",
+              "archnet"
+            ],
+            [
+              "Key management",
+              "—",
+              "AES-256 at rest · rotation",
+              "archnet"
+            ],
+            [
+              "Logs and SIEM",
+              "—",
+              "12 months · reviewed weekly",
+              "idops"
+            ],
+            [
+              "Model provider API",
+              "—",
+              "third-party LLM",
+              "Outside"
+            ],
+            [
+              "Customer identity",
+              "—",
+              "SAML · OIDC",
+              "Outside"
+            ],
+            [
+              "Largest customer",
+              "—",
+              "72-hour notice · SOC 2",
+              "Outside"
+            ],
+            [
+              "Federal boundary",
+              "—",
+              "FCI now · CUI next year",
+              "Outside"
+            ]
+          ]
         }
       }
     },

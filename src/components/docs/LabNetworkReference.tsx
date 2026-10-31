@@ -10,15 +10,18 @@ import { networkOf } from '@/lib/content/read';
 import {
   ATTACK_CATALOGUE,
   catalogueUses,
+  hasAttacks,
+  hasPicture,
   lanComponents,
+  linkRows,
+  phaseLine,
   portRows,
   toolRows,
   weekTaskActions,
   type ActionKind,
-  type LabNetwork,
   type LanComponent,
-  type NetHost,
 } from '@/lib/docs/labNetwork';
+import { LanMap } from './LanMap';
 import type { Course, Member } from '@/lib/types';
 
 /**
@@ -26,14 +29,16 @@ import type { Course, Member } from '@/lib/types';
  *
  * Six sections, each read from the course document's network (`networkOf`), never typed here:
  *  1. the week's picture — the same `LabNetworkPanel` the Tasks tab shows, full size, with a week picker;
- *  2. the LAN map — an HTML layout (it reflows on a phone, unlike the SVG): the hypervisor, its adapter
- *     (the gateway), the segment, each VM with OS, adapter, address and ports, and the Docker engine
- *     nested inside the host that runs it, with the container's bridge address and published port;
+ *  2. the LAN map (`LanMap`) — an HTML layout that reflows on a phone: what everything runs under, its
+ *     adapter, every segment in tree order with its hosts, Docker nested in the host that runs it;
+ *     2b. the cabling table when the course records links (R157);
  *  3. every component in a table; 4. every port, with whether the LAN can reach it and what is behind it;
  *  5. the tools on each host and the task that uses each; 6. the attack catalogue in exam vocabulary;
  *  7. what every task of the week does on the network (attacks and controls through `builtBy`, the rest
  *     through the week's `actions`), each line placed on the components it touches.
- * Prose comes from `net.copy.reference`; this file holds labels only (R75-B).
+ * Prose comes from `net.copy.reference`; this file holds labels only (R75-B). R157: every course carries a
+ * network (hand-drawn or derived), so the catalogue shows only where attacks exist and the picture only
+ * where the network is laid out.
  */
 const ACTION_TONE: Record<ActionKind, ChipTone> = { setup: 'neutral', attack: 'warn', control: 'info', evidence: 'ok', governance: 'muted' };
 const ACTION_LABEL: Record<ActionKind, string> = { setup: 'set-up', attack: 'attack', control: 'control', evidence: 'evidence', governance: 'governance' };
@@ -74,69 +79,6 @@ function Section({ id, title, intro, children }: { id: string; title: string; in
   );
 }
 
-/** One VM card on the map: what it is, where it sits, what it exposes, and the Docker engine inside it. */
-function HostCard({ h, net }: { h: NetHost; net: LabNetwork }) {
-  const lan = h.services.filter((s) => (s.scope ?? 'lan') === 'lan');
-  const internal = h.services.filter((s) => s.scope === 'internal');
-  return (
-    <div className={`rounded-lg border bg-panel p-3 ${h.role === 'red' ? 'border-danger-line' : 'border-line'}`} data-lan-host={h.id}>
-      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <div>
-          <span className="font-semibold text-ink">{h.label}</span>
-          {h.optional && <span className="ml-2 text-2xs uppercase tracking-wide text-muted">optional</span>}
-        </div>
-        {h.addr && <span className="font-mono text-xs text-body">{h.addr}</span>}
-      </div>
-      <p className="mt-0.5 text-xs text-muted">
-        {[h.os, h.nic, h.role ? `${roleName(h.role)} operates it` : undefined].filter(Boolean).join(' · ')}
-      </p>
-      <p className="mt-1 text-sm text-body">{h.description}</p>
-      {(lan.length > 0 || internal.length > 0) && (
-        <ul className="mt-2 space-y-0.5 text-xs" aria-label={`${h.label} ports`}>
-          {lan.map((s) => (
-            <li key={`${s.port}/${s.proto}`} className="font-mono text-body" data-lan-port={s.port}>
-              {s.port}/{s.proto} <span className="font-sans">{s.name}</span>
-            </li>
-          ))}
-          {internal.map((s) => (
-            <li key={`${s.port}/${s.proto}`} className="font-mono text-muted" data-lan-port={s.port} data-lan-internal>
-              {s.port}/{s.proto} <span className="font-sans">{s.name} · internal only</span>
-            </li>
-          ))}
-        </ul>
-      )}
-      {h.docker && (
-        <div className="mt-3 rounded-md border border-dashed border-line bg-panel-2 p-2.5" data-lan-docker={h.id}>
-          <p className="text-xs font-semibold text-ink">
-            Docker <span className="ml-1 font-mono font-normal text-muted">{h.docker.bridge} · {h.docker.subnet}</span>
-          </p>
-          {h.docker.containers.map((c) => (
-            <div key={c.id} className="mt-2 rounded-md border border-line bg-panel p-2" data-lan-container={c.id}>
-              <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-                <span className="text-sm font-medium text-ink">{c.label}</span>
-                {c.addr && <span className="font-mono text-xs text-body">{c.addr}</span>}
-              </div>
-              <p className="font-mono text-2xs text-muted">{c.image}</p>
-              <p className="mt-1 text-xs text-body">{c.description}</p>
-              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                {c.ports.map((p) => (
-                  <Chip key={`${p.host}-${p.container}`} tone="accent" className="font-mono" data-lan-portmap>
-                    {h.addr ? `${h.addr}:` : ''}{p.host} → {c.label.split(' ')[0]}:{p.container}/{p.proto}
-                  </Chip>
-                ))}
-                {c.apps.map((a) => (
-                  <Chip key={a} tone="neutral">{a}</Chip>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-      <span className="sr-only">{net.subnet}</span>
-    </div>
-  );
-}
-
 const ROLE_NAME: Record<string, string> = { red: 'Red', blue: 'Blue', grc: 'GRC' };
 const roleName = (r: string) => ROLE_NAME[r] ?? r;
 
@@ -151,8 +93,10 @@ export function LabNetworkReference({ course, member }: { course: Course; member
 
   const components = lanComponents(net);
   const nameOf = (id: string) => components.find((c) => c.id === id)?.label ?? id;
+  const segName = (id: string) => net.fabric.segments.find((x) => x.id === id)?.label ?? id;
   const ports = portRows(net);
   const tools = toolRows(net);
+  const links = linkRows(net);
   const taskById = new Map(course.tasks.map((t) => [t.id, t] as const));
   const titleOfKey = (key: string) => {
     const [tid, sid] = key.split('::');
@@ -165,7 +109,7 @@ export function LabNetworkReference({ course, member }: { course: Course; member
   const actions = weekTaskActions(net, week, weekTasks);
   const wk = net.weeks.find((w) => w.week === week);
   const ref = net.copy.reference;
-  const whoRuns = (c: LanComponent) => (c.kind === 'hypervisor' || c.kind === 'adapter' ? 'Everyone' : c.role ? roleName(c.role) : '—');
+  const whoRuns = (c: LanComponent) => (c.kind === 'hypervisor' || c.kind === 'platform' || c.kind === 'adapter' ? 'Everyone' : c.role ? roleName(c.role) : c.external ? 'Outside' : 'Team');
 
   return (
     <div className="space-y-10" data-lan-reference>
@@ -178,42 +122,48 @@ export function LabNetworkReference({ course, member }: { course: Course; member
             </Chip>
           ))}
         </div>
-        <LabNetworkPanel week={week} built={built} />
+        {hasPicture(net) ? (
+          <LabNetworkPanel week={week} built={built} />
+        ) : (
+          <div className="rounded-lg depth-edge bg-panel-2 p-3 text-sm" data-lan-phase>
+            <p className="text-body">{phaseLine(net, week, 'before')}</p>
+            <p className="mt-1 text-ink">{phaseLine(net, week, 'after')}</p>
+          </div>
+        )}
       </Section>
 
       {/* 2. The LAN map */}
       <Section id="map" title="The LAN" intro={ref?.lan}>
-        <div className="rounded-xl border border-line bg-panel-2 p-3 sm:p-4" data-lan-map>
-          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-            <div>
-              <span className="font-semibold text-ink">{net.fabric.hypervisor.label}</span>
-              {net.fabric.hypervisor.os && <span className="ml-2 text-xs text-muted">{net.fabric.hypervisor.os}</span>}
-            </div>
-            <span className="text-xs text-muted">{net.fabric.hypervisor.description}</span>
-          </div>
-          {net.fabric.adapter && (
-            <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-0.5 rounded-md border border-line bg-panel px-3 py-2 text-sm" data-lan-adapter>
-              <span className="font-medium text-ink">{net.fabric.adapter.label}</span>
-              <span className="font-mono text-xs text-body">{net.fabric.adapter.addr}</span>
-              <span className="text-xs text-muted">{net.fabric.adapter.description}</span>
-            </div>
-          )}
-          <div className="mt-3 border-l-2 border-dashed border-line pl-3 sm:pl-4" data-lan-segment>
-            <p className="text-xs font-semibold text-muted">
-              {net.fabric.segment.label} <span className="ml-1 font-mono font-normal">{net.subnet}</span>
-            </p>
-            <div className="mt-2 grid gap-3 lg:grid-cols-3">
-              {net.hosts.map((h) => (
-                <HostCard key={h.id} h={h} net={net} />
-              ))}
-            </div>
-          </div>
-        </div>
+        <LanMap net={net} />
       </Section>
+
+      {/* 2b. Links (cabling), when the course records them */}
+      {links.length > 0 && (
+        <Section id="links" title="Links" intro={ref?.links}>
+          <Table hook="links" columns={['From', 'To', 'Kind', 'Media', 'VLANs', 'Since']}>
+            {links.map((l, i) => (
+              <tr key={i} className="border-b border-line last:border-0" data-lan-link>
+                <td className={`${TD} font-medium text-ink`}>
+                  {l.from}
+                  {l.fromPort && <span className="block font-mono text-2xs font-normal text-muted">{l.fromPort}</span>}
+                </td>
+                <td className={`${TD} font-medium text-ink`}>
+                  {l.to}
+                  {l.toPort && <span className="block font-mono text-2xs font-normal text-muted">{l.toPort}</span>}
+                </td>
+                <td className={`${TD} text-body`}>{l.kind}</td>
+                <td className={`${TD} text-body`}>{l.media ?? '—'}</td>
+                <td className={`${TD} font-mono text-xs text-body`}>{l.vlans?.join(', ') ?? '—'}</td>
+                <td className={`${TD} text-body`}>W{l.arrives}</td>
+              </tr>
+            ))}
+          </Table>
+        </Section>
+      )}
 
       {/* 3. Components */}
       <Section id="components" title="Components and addresses">
-        <Table hook="components" columns={['Component', 'Address', 'Runs', 'Who', 'Purpose']}>
+        <Table hook="components" columns={['Component', 'Address', 'Segment', 'Runs', 'Who', 'Purpose']}>
           {components.map((c) => (
             <tr key={c.id} className="border-b border-line last:border-0" data-lan-component={c.id}>
               <td className={`${TD} font-medium text-ink`}>
@@ -222,6 +172,7 @@ export function LabNetworkReference({ course, member }: { course: Course; member
                 {c.optional && <span className="block text-2xs font-normal uppercase tracking-wide text-muted">optional</span>}
               </td>
               <td className={`${TD} font-mono text-xs text-body`}>{c.addr ?? '—'}</td>
+              <td className={`${TD} text-xs text-body`}>{c.segment ? segName(c.segment) : c.external ? 'outside' : '—'}</td>
               <td className={`${TD} text-body`}>{c.os ?? '—'}</td>
               <td className={`${TD} text-body`}>{whoRuns(c)}</td>
               <td className={`${TD} text-muted`}>{c.description}</td>
@@ -242,7 +193,7 @@ export function LabNetworkReference({ course, member }: { course: Course; member
                 <span className="hidden text-2xs text-muted md:block">{r.description}</span>
               </td>
               <td className={TD}>
-                <Chip tone={r.scope === 'lan' ? 'ok' : 'muted'}>{r.scope === 'lan' ? 'LAN' : 'internal'}</Chip>
+                <Chip tone={r.scope === 'lan' ? 'ok' : r.scope === 'segment' ? 'info' : 'muted'}>{r.scope === 'lan' ? 'LAN' : r.scope === 'segment' ? r.via ?? 'segment' : 'internal'}</Chip>
               </td>
               <td className={`${TD} font-mono text-xs text-body`}>{r.behind ?? '—'}</td>
               <td className={`${TD} text-body`}>W{r.from}</td>
@@ -269,7 +220,8 @@ export function LabNetworkReference({ course, member }: { course: Course; member
         </Table>
       </Section>
 
-      {/* 6. Attack catalogue */}
+      {/* 6. Attack catalogue — only where the course runs attacks */}
+      {hasAttacks(net) && (
       <Section id="attacks" title="Types of attack" intro={ref?.attacks}>
         <div className="grid gap-3 md:grid-cols-2">
           {ATTACK_CATALOGUE.map((e) => {
@@ -293,6 +245,7 @@ export function LabNetworkReference({ course, member }: { course: Course; member
           })}
         </div>
       </Section>
+      )}
 
       {/* 7. Actions on tasks, this week */}
       <Section id="actions" title={`What each task does on the network — week ${week}`} intro={ref?.actions}>

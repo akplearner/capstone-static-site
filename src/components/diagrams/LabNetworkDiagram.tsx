@@ -4,20 +4,22 @@ import { useId } from 'react';
 import { useCourseDocument } from '@/lib/useCourse';
 import { networkOf } from '@/lib/content/read';
 import { useReducedMotionSafe } from '@/lib/useReducedMotionSafe';
-import { attackSteps, controlsAt, serviceId, servicesAt, type ComponentKind, type ControlKind, type NetHost, type Phase } from '@/lib/docs/labNetwork';
+import { CARD, attackSteps, cardHeight, controlsAt, hasPicture, hostsAt, serviceId, servicesAt, type ComponentKind, type ControlKind, type NetHost, type Phase } from '@/lib/docs/labNetwork';
 
 /**
- * R152/R153 — the lab network as a picture (Security+ today, any course with a network tomorrow).
+ * R152/R153 — the lab network as a picture (Security+ by hand; every other course through `layoutNetwork`, R157).
  *
  * Pure and controlled: the panel owns the week, the Before|After phase, the attack step and the clicked
- * component; this draws them. Each host is a card of its open ports and the controls on it at (week,
- * phase); the week's attacks are numbered Kali→target arrows, the current one lit, each with the Blue
- * response beside its control; a self-test is a badge on the host. Hosts, ports and controls are
- * keyboard-and-pointer selectable (`onSelect`) so the panel can show a description — the picture stays
- * clean until asked. Colours are tokens only — attacks `--color-danger`, Blue responses `--color-info`,
- * controls by kind. No reserved `data-*`; the aria-label never contains "week N". R156: a port that only
- * answers inside its host or container (`scope: 'internal'`) is drawn muted and marked, so the picture never
- * claims the LAN sees it.
+ * component; this draws them. Each segment is a dashed band; each host present at (week, phase) is a card
+ * of its open ports and the controls on it; the week's attacks are numbered arrows, the current one lit,
+ * each with the Blue response beside its control; a self-test is a badge on the host. Hosts, ports and
+ * controls are keyboard-and-pointer selectable (`onSelect`) so the panel can show a description — the
+ * picture stays clean until asked. Colours are tokens only — attacks `--color-danger`, Blue responses
+ * `--color-info`, controls by kind. No reserved `data-*`; the aria-label never contains "week N". R156: a
+ * port that only answers inside its host or container (`scope: 'internal'`) or from one segment
+ * (`scope: 'segment'`) is drawn muted and marked, so the picture never claims the LAN sees it. R157: every
+ * word on the picture comes from the data — the platform's second line is its `os`, the self-test badge
+ * is the attack's `tool`.
  */
 const CTRL_COLOR: Record<ControlKind, string> = {
   harden: 'var(--color-ok)',
@@ -25,13 +27,9 @@ const CTRL_COLOR: Record<ControlKind, string> = {
   contain: 'var(--color-danger)',
   recover: 'var(--color-w1)',
 };
-const CARD_W = 200;
-const HEAD = 42;
-const ROW = 17;
-
-function cardHeight(nServices: number, nControls: number): number {
-  return HEAD + (nServices + nControls) * ROW + 12;
-}
+const CARD_W = CARD.w;
+const HEAD = CARD.head;
+const ROW = CARD.row;
 
 export function LabNetworkDiagram({
   week,
@@ -55,10 +53,11 @@ export function LabNetworkDiagram({
   const net = networkOf(useCourseDocument());
   const mid = useId().replace(/:/g, '');
   const reduce = useReducedMotionSafe();
-  if (!net.hosts.length) return null;
+  if (!hasPicture(net)) return null;
 
   const steps = attackSteps(net, week);
-  const at = new Map(net.hosts.map((h) => [h.id, h] as const));
+  const shown = hostsAt(net, week, phase).filter((h) => h.x !== undefined && h.y !== undefined);
+  const at = new Map(shown.map((h) => [h.id, h] as const));
   const lit = (id: string) => (built ? built[id] ?? undefined : undefined);
   const isSel = (kind: ComponentKind, id: string) => selected?.kind === kind && selected?.id === id;
   // A keyboard-and-pointer handler for an SVG element acting as a button.
@@ -76,9 +75,13 @@ export function LabNetworkDiagram({
     },
   });
 
-  const rightOf = (h: NetHost) => ({ x: h.x + CARD_W / 2, y: h.y + HEAD / 2 });
-  const leftOf = (h: NetHost) => ({ x: h.x - CARD_W / 2, y: h.y + HEAD / 2 });
-  const realAttacks = steps.filter((s) => !s.selfTest);
+  const px = (h: NetHost) => h.x ?? 0;
+  const py = (h: NetHost) => h.y ?? 0;
+  const rightOf = (h: NetHost) => ({ x: px(h) + CARD_W / 2, y: py(h) + HEAD / 2 });
+  const leftOf = (h: NetHost) => ({ x: px(h) - CARD_W / 2, y: py(h) + HEAD / 2 });
+  const realAttacks = steps.filter((s) => !s.selfTest && at.has(s.from) && at.has(s.to));
+  const hv = net.fabric.hypervisor;
+  const tall = net.view.h > 600;
 
   return (
     <figure className="min-w-0" data-net-root>
@@ -87,7 +90,7 @@ export function LabNetworkDiagram({
         <svg
           viewBox={`0 0 ${net.view.w} ${net.view.h}`}
           preserveAspectRatio="xMidYMid meet"
-          className={`h-auto w-full min-w-0 sm:min-w-[640px] ${compact ? 'max-h-60' : 'lg:max-h-[30rem]'}`}
+          className={`h-auto w-full min-w-0 sm:min-w-[640px] ${compact ? 'max-h-60' : tall ? '' : 'lg:max-h-[30rem]'}`}
           role="img"
           aria-label={`${net.copy.title} — run ${week}, ${phase}`}
           data-net-phase={phase}
@@ -100,25 +103,27 @@ export function LabNetworkDiagram({
             </marker>
           </defs>
 
-          <line x1={40} y1={net.fabric.segment.y - 6} x2={net.view.w - 40} y2={net.fabric.segment.y - 6} stroke="var(--color-line)" strokeWidth={1.2} strokeDasharray="6 4" />
-          <text x={48} y={net.fabric.segment.y - 12} fontSize="10.5" fontWeight="700" style={{ fill: 'var(--color-muted)' }}>{net.fabric.segment.label}</text>
-          <text x={net.view.w - 48} y={net.fabric.segment.y - 12} textAnchor="end" fontSize="9" fontFamily="var(--font-mono)" style={{ fill: 'var(--color-muted)' }}>{net.fabric.segment.note}</text>
-
-          {(() => {
-            const h = net.fabric.hypervisor;
-            return (
-              <g data-net-host={h.id} {...pick('host', h.id, `${h.label}: ${h.description}`)}>
-                <rect x={h.x - CARD_W / 2} y={h.y} width={CARD_W} height={HEAD} rx={8} fill="var(--color-panel-2)" stroke={isSel('host', h.id) ? 'var(--color-accent)' : 'var(--color-line)'} strokeWidth={isSel('host', h.id) ? 2 : 1.2} />
-                <text x={h.x} y={h.y + 18} textAnchor="middle" fontSize="11" fontWeight="700" style={{ fill: 'var(--color-ink)' }}>{h.label}</text>
-                <text x={h.x} y={h.y + 32} textAnchor="middle" fontSize="8" style={{ fill: 'var(--color-muted)' }}>VirtualBox · VMware · UTM</text>
+          {net.fabric.segments.map((seg) =>
+            seg.y === undefined ? null : (
+              <g key={seg.id} data-net-segment={seg.id}>
+                <line x1={40} y1={seg.y - 6} x2={net.view.w - 40} y2={seg.y - 6} stroke="var(--color-line)" strokeWidth={1.2} strokeDasharray="6 4" />
+                <text x={48} y={seg.y - 12} fontSize="10.5" fontWeight="700" style={{ fill: 'var(--color-muted)' }}>{seg.label}</text>
+                <text x={net.view.w - 48} y={seg.y - 12} textAnchor="end" fontSize="9" fontFamily="var(--font-mono)" style={{ fill: 'var(--color-muted)' }}>{seg.note}</text>
               </g>
-            );
-          })()}
+            )
+          )}
+
+          {hv && hv.x !== undefined && hv.y !== undefined && (
+            <g data-net-host={hv.id} {...pick('host', hv.id, `${hv.label}: ${hv.description}`)}>
+              <rect x={hv.x - CARD_W / 2} y={hv.y} width={CARD_W} height={HEAD} rx={8} fill="var(--color-panel-2)" stroke={isSel('host', hv.id) ? 'var(--color-accent)' : 'var(--color-line)'} strokeWidth={isSel('host', hv.id) ? 2 : 1.2} />
+              <text x={hv.x} y={hv.y + 18} textAnchor="middle" fontSize="11" fontWeight="700" style={{ fill: 'var(--color-ink)' }}>{hv.label}</text>
+              <text x={hv.x} y={hv.y + 32} textAnchor="middle" fontSize="8" fontFamily={hv.os ? undefined : 'var(--font-mono)'} style={{ fill: 'var(--color-muted)' }}>{hv.os ?? hv.addr ?? ''}</text>
+            </g>
+          )}
 
           {realAttacks.map((a) => {
-            const from = at.get(a.from);
-            const to = at.get(a.to);
-            if (!from || !to) return null;
+            const from = at.get(a.from)!;
+            const to = at.get(a.to)!;
             const p1 = rightOf(from);
             const p2 = leftOf(to);
             const idx = realAttacks.indexOf(a);
@@ -138,44 +143,49 @@ export function LabNetworkDiagram({
             );
           })}
 
-          {net.hosts.map((h) => {
+          {shown.map((h) => {
+            const x = px(h);
+            const y0 = py(h);
             const svc = servicesAt(h, week, phase);
             const ctl = controlsAt(h, week, phase);
             const height = cardHeight(svc.length, ctl.length);
             const selfTest = steps.find((a) => a.selfTest && a.to === h.id);
             const selfOn = steps.find((a) => a.selfTest && a.to === h.id && a.n === step);
+            const hostV = lit(`host:${h.id}`);
             return (
-              <g key={h.id} data-net-host={h.id} data-net-role={h.role}>
-                <rect x={h.x - CARD_W / 2} y={h.y} width={CARD_W} height={height} rx={10} fill="var(--color-panel)" stroke={isSel('host', h.id) ? 'var(--color-accent)' : h.role === 'red' ? 'var(--color-danger)' : 'var(--color-w2)'} strokeWidth={isSel('host', h.id) ? 2.4 : 1.4} strokeDasharray={h.optional ? '5 3' : undefined} />
+              <g key={h.id} data-net-host={h.id} data-net-role={h.role} data-net-built={hostV !== undefined && hostV >= 1 ? 'true' : undefined}>
+                <rect x={x - CARD_W / 2} y={y0} width={CARD_W} height={height} rx={10} fill="var(--color-panel)" stroke={isSel('host', h.id) ? 'var(--color-accent)' : h.role === 'red' || h.kind === 'attacker' ? 'var(--color-danger)' : h.external ? 'var(--color-line)' : 'var(--color-w2)'} strokeWidth={isSel('host', h.id) ? 2 : 1.4} strokeDasharray={h.external ? '5 3' : undefined} />
                 <g {...pick('host', h.id, `${h.label}: ${h.description}`)}>
-                  <rect x={h.x - CARD_W / 2} y={h.y} width={CARD_W} height={HEAD} rx={10} fill="transparent" />
-                  <text x={h.x} y={h.y + 17} textAnchor="middle" fontSize="11" fontWeight="700" style={{ fill: 'var(--color-ink)' }}>{h.label}</text>
-                  {h.addr && <text x={h.x} y={h.y + 31} textAnchor="middle" fontSize="8.5" fontFamily="var(--font-mono)" style={{ fill: 'var(--color-muted)' }}>{h.addr}</text>}
+                  <rect x={x - CARD_W / 2} y={y0} width={CARD_W} height={HEAD} rx={10} fill="transparent" />
+                  <text x={x} y={y0 + 17} textAnchor="middle" fontSize="11" fontWeight="700" style={{ fill: 'var(--color-ink)' }}>{h.label.length > 30 ? `${h.label.slice(0, 29)}…` : h.label}</text>
+                  <text x={x} y={y0 + 31} textAnchor="middle" fontSize="8.5" fontFamily="var(--font-mono)" style={{ fill: 'var(--color-muted)' }}>{h.addr ?? h.os ?? ''}</text>
                 </g>
                 {svc.map((s, i) => {
-                  const y = h.y + HEAD + i * ROW;
+                  const y = y0 + HEAD + i * ROW;
+                  const quiet = s.scope === 'internal' || s.scope === 'segment';
+                  const tag = s.scope === 'internal' ? ' · internal' : s.scope === 'segment' && s.via ? ` · ${s.via}` : '';
                   return (
-                    <g key={`s${s.port}`} data-net-service={s.port} {...pick('service', serviceId(h.id, s.port), `${s.port}/${s.proto} ${s.name}: ${s.description}`)}>
-                      <rect x={h.x - CARD_W / 2 + 6} y={y - 9} width={CARD_W - 12} height={ROW - 2} rx={4} fill={isSel('service', serviceId(h.id, s.port)) ? 'var(--color-accent-soft)' : 'transparent'} />
-                      <text x={h.x - CARD_W / 2 + 12} y={y + 4} fontSize="9" fontFamily="var(--font-mono)" style={{ fill: s.scope === 'internal' ? 'var(--color-muted)' : 'var(--color-body)' }} data-net-scope={s.scope ?? 'lan'}>{`${s.port}/${s.proto} ${s.name}${s.scope === 'internal' ? ' · internal' : ''}`}</text>
+                    <g key={`s${s.port}/${s.proto}`} data-net-service={s.port} {...pick('service', serviceId(h.id, s.port), `${s.port}/${s.proto} ${s.name}: ${s.description}`)}>
+                      <rect x={x - CARD_W / 2 + 6} y={y - 9} width={CARD_W - 12} height={ROW - 2} rx={4} fill={isSel('service', serviceId(h.id, s.port)) ? 'var(--color-accent-soft)' : 'transparent'} />
+                      <text x={x - CARD_W / 2 + 12} y={y + 4} fontSize="9" fontFamily="var(--font-mono)" style={{ fill: quiet ? 'var(--color-muted)' : 'var(--color-body)' }} data-net-scope={s.scope ?? 'lan'}>{`${s.port}/${s.proto} ${s.name}${tag}`}</text>
                     </g>
                   );
                 })}
                 {ctl.map((c, i) => {
                   const v = lit(c.id);
-                  const y = h.y + HEAD + (svc.length + i) * ROW;
+                  const y = y0 + HEAD + (svc.length + i) * ROW;
                   return (
                     <g key={c.id} data-net-control={c.id} data-net-control-kind={c.kind} data-net-built={v !== undefined && v >= 1 ? 'true' : undefined} {...pick('control', c.id, `${c.label}: ${c.description}`)}>
-                      <rect x={h.x - CARD_W / 2 + 6} y={y - 9} width={CARD_W - 12} height={ROW - 2} rx={4} fill={isSel('control', c.id) ? 'var(--color-accent-soft)' : 'transparent'} />
-                      <circle cx={h.x - CARD_W / 2 + 14} cy={y - 2} r={4} fill={CTRL_COLOR[c.kind]} opacity={v === undefined || v >= 1 ? 1 : 0.4} />
-                      <text x={h.x - CARD_W / 2 + 24} y={y + 4} fontSize="9" style={{ fill: 'var(--color-body)' }}>{c.label}{v !== undefined && v >= 1 ? ' ✓' : ''}</text>
+                      <rect x={x - CARD_W / 2 + 6} y={y - 9} width={CARD_W - 12} height={ROW - 2} rx={4} fill={isSel('control', c.id) ? 'var(--color-accent-soft)' : 'transparent'} />
+                      <circle cx={x - CARD_W / 2 + 14} cy={y - 2} r={4} fill={CTRL_COLOR[c.kind]} opacity={v === undefined || v >= 1 ? 1 : 0.4} />
+                      <text x={x - CARD_W / 2 + 24} y={y + 4} fontSize="9" style={{ fill: 'var(--color-body)' }}>{c.label}{v !== undefined && v >= 1 ? ' ✓' : ''}</text>
                     </g>
                   );
                 })}
                 {selfTest && (
                   <g data-net-selftest={h.id} opacity={selfOn ? 1 : 0.5} pointerEvents="none">
-                    <rect x={h.x - CARD_W / 2} y={h.y + height + 4} width={CARD_W} height={18} rx={6} fill="var(--color-info-soft)" stroke="var(--color-info)" strokeWidth={1} />
-                    <text x={h.x} y={h.y + height + 16} textAnchor="middle" fontSize="8.5" style={{ fill: 'var(--color-info)' }}>Blue’s own test logons (4625)</text>
+                    <rect x={x - CARD_W / 2} y={y0 + height + 4} width={CARD_W} height={18} rx={6} fill="var(--color-info-soft)" stroke="var(--color-info)" strokeWidth={1} />
+                    <text x={x} y={y0 + height + 16} textAnchor="middle" fontSize="8.5" style={{ fill: 'var(--color-info)' }}>{selfTest.tool}</text>
                   </g>
                 )}
               </g>

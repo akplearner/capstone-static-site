@@ -34,6 +34,7 @@ the record. `src/lib/page-shape.test.ts` fails if an id is removed from the tabl
 | F25 | Joining a team no longer lets duplicate roles pile up: each role is led by one member, a second may join it as a co-work peer only if the first member allows it, and never a third; the join panel shows each role's state (open, peer welcome, taken, full) and the leader gets an allow-a-peer control; enforced in the browser and the database (0029: role_peering + a membership guard trigger) | R154 | Done |
 | F26 | A student who has not yet joined saw every team as 0/6, every role open and every lobby empty, with no live change: the roster and the peer flags were readable only by someone already on the course. Both are now readable by any signed-in user (never anonymous), `role_peering` is published for Realtime and the browser listens to it, so the join panel shows the real seats and role states before you join and updates live (0030) | R155 | Done |
 | F27 | Students asked for the actual LAN, not just the week picture: Security+ gains a Network tab — every component with its address (hypervisor, gateway adapter, the three VMs), Docker and the DVWA container with its bridge address and the one published port, every app and port with whether the LAN can reach it, the tools on each host with the task that uses each, the attack catalogue in exam vocabulary, and what every task of the week does on the network; the Tasks thumbnail links to it; three step texts corrected (gateway subnet, the container-log command, the Windows self-test) | R156 | Done |
+| F28 | The network was a Security+-only section; every course now carries `content.network` in one shape — Server+ (rack), CCNA (campus), Network+ (branch), the six cloud courses, CySA+ (SOC) and the eleven architecture-only courses — derived from the data each already has, laid out as a picture automatically, every task placed from what its steps say; the Network tab, the week picture and the Full-network chip appear on all 22 courses | R157 | Done |
 
 Order of the rounds: the field bug first (it blocks reporting and links), then the link size (the link
 fails today), then the earned-skills ledger (the record and the PDF both read it), then the live and
@@ -425,3 +426,43 @@ actions, the week picker and `?week=`); `CourseSubNav.network.test.tsx` (tab on 
 course without a network, no crash without a document); the `WeekVisualPanel` link; page-shape pins
 (route with the course bar, tab gated on the document, reference reads the document, no typed address in
 the network module).
+
+## F28 — every course carries its network (R157, done)
+
+**What.** R156 built the Network tab for Security+ from a hand-authored `content.network`. The owner's rule:
+the same structure and format for all courses, with the cloud, server and campus shapes expressed in that
+same DTO. Every course document now carries `content.network = { NETWORK }` in one shape and gets the same
+tab, picture and tables.
+
+**Wired.** The model generalised (`NetSegment[]` nested by `parent`, optional `hypervisor`/platform,
+`NetPublish`, `NetLink`, `segment`-scoped services with `via`, `apps`, `arrives`, `builtBy`, `external` on
+hosts; `hasPicture`, `allHosts`, `hostsAt`, `segmentTree`, `linkRows`, `layoutNetwork`). `networkFrom.ts`
+derives one network per family from the modules the course already ships: Server+ (`serverTopology`,
+`serverDiagrams`), CCNA (`ccnaTopology`, `ccnaDiagrams`), Network+ (`networkPlusTopology`, its `ARCH`), cloud
+(`CloudTopology` + `cloudBuildModel`), CySA+ (`SOC_TOPOLOGY_BY_COURSE` + `cysaContent`), architecture-only
+(`ARCH` + `ARCH_BUILD`). `dto.ts` picks the source per course (`networkSource`), adds every course week
+(`withCourseWeeks`, which also gives Security+ its AI-module weeks), and places every task
+(`actionsFromTasks`: the command's machine, the `where` line against the network's own host names and a few
+per-family phrases, the task's tools on the host it touches most; `at: []` when a step names nothing).
+`LabNetworkDiagram` draws every segment band from data, the platform's line and the self-test badge come
+from data (two Security+ literals removed), and `LanMap` nests segments. The Network | Build switch and the
+Full-network chip show on every course; the attack catalogue only where attacks exist.
+
+**Judgement calls not in the data, each at its call site.** The CySA+ pod serves DVWA on 80 (the seed's
+URL has no port); CCNA devices answer SSH from the week they arrive and harden in Week 4; well-known
+protocol ports (22, 53, 67, 69, 80, 123, 162, 443, 514, 3306, 3389, 5432) are the only numbers the deriver
+holds; an architecture control with no picture edge is placed on the first host of its zone; CySA+'s Week-4
+replay and containment are attributed to `cr-w4`, the task that contains the attack. `BASE_VMS.services`
+are product names, not ports — they became `apps`.
+
+**Verified.** `networkFrom.test.ts` over all 22 courses: a laid-out network with unique hosts and resolving
+segments/links; every address in the course's topology module (architecture-only courses print none); every
+`builtBy`, `usedIn`, action and attack reference resolves; weeks mirror the course; every graded task of the
+lab weeks has a line; cards never overlap and stay inside the view; shape spot checks (Server+ DMZ ports and
+publishes, CCNA 12 devices / 8 links / DNS+DHCP / NOC ports, Network+ ACL and port security, cloud platform
+and nested private subnet with 5432, CySA+ ATT&CK ids and the Week-4 containment, A+ zones and the operator
+host). `dto.test` (every document carries the section with a picture and names the deriver),
+`LabNetworkReference.test` (Server+, CCNA, AWS, A+ mounts), `LabNetworkPanel.test` (a derived picture),
+`CourseSubNav.network.test` (every seeded course has the tab; a bare document has none),
+`WeekVisualPanel.test` (the switch and the chip on a derived course), page-shape pins (pure address-free
+deriver, the new shape, the diagram draws from data, `networkSource` in the DTO). 22 documents regenerated.

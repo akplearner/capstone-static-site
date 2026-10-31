@@ -10,7 +10,16 @@ import type { Role } from '../types';
  * category, never a command. Every `builtBy` is a task id or `task::step` key, lit through the same
  * `builtMapFrom` the architecture picture uses; ids are namespaced (`ctl:`, `atk:`) so one map serves both.
  */
-export type HostKind = 'attacker' | 'server' | 'endpoint' | 'hypervisor';
+/**
+ * R157: one vocabulary for every course's components — the VMs of a lab, the devices of a campus, the
+ * resources of a cloud account, the parts of an architecture picture. `platform` is a cloud account or a
+ * simulator: the hypervisor-equivalent everything runs under.
+ */
+export type HostKind =
+  | 'attacker' | 'server' | 'endpoint' | 'hypervisor'
+  | 'platform'
+  | 'router' | 'switch' | 'firewall' | 'ap' | 'wlc'
+  | 'service' | 'storage' | 'identity' | 'client' | 'external';
 export type Proto = 'tcp' | 'udp';
 export type Phase = 'before' | 'after';
 
@@ -24,8 +33,45 @@ export interface NetService {
   from: number;
   /** The last week it is present; omitted = still present. */
   to?: number;
-  /** Where the port can be reached: on the lab network (default) or only inside its own host/container (R156). */
-  scope?: 'lan' | 'internal';
+  /** Where the port can be reached: on the lab network (default), only inside its own host/container (R156),
+   *  or only from a named segment or interface (`via`, R157) — a DMZ bridge, a private subnet, the tailnet. */
+  scope?: 'lan' | 'internal' | 'segment';
+  via?: string;
+}
+
+/** A network a host sits on: a LAN, a VLAN, a bridge, a subnet, a VPC, a zone or a site (R157). `note` carries the
+ *  prefix or rule — always a reference into a topology module when it is an address. `y` is picture-only. */
+export type SegmentKind = 'lan' | 'vlan' | 'bridge' | 'subnet' | 'vpc' | 'zone' | 'site';
+export interface NetSegment {
+  id: string;
+  label: string;
+  note: string;
+  kind: SegmentKind;
+  parent?: string;
+  arrives?: number;
+  y?: number;
+}
+
+/** A port a host forwards to another host: the campus reaches `:2200` on the hypervisor and lands on websrv:22 (R157). */
+export interface NetPublish {
+  host: number;
+  to: string;
+  port: number;
+  proto: Proto;
+  purpose: string;
+  from: number;
+}
+
+/** A cable between two components, as the cabling record needs it (R157). */
+export interface NetLink {
+  from: string;
+  to: string;
+  fromPort?: string;
+  toPort?: string;
+  kind: 'access' | 'trunk' | 'etherchannel' | 'routed' | 'wan' | 'uplink';
+  media?: string;
+  vlans?: number[];
+  arrives: number;
 }
 
 export type ControlKind = 'harden' | 'detect' | 'contain' | 'recover';
@@ -85,13 +131,26 @@ export interface NetHost {
   addr?: string;
   kind: HostKind;
   role?: Role;
-  x: number;
-  y: number;
+  /** Picture position; absent until `layoutNetwork` places a derived host (R157). */
+  x?: number;
+  y?: number;
   optional?: boolean;
   /** The operating system the course is written for (R156). */
   os?: string;
   /** How the VM is attached — the adapter kind on the hypervisor (R156). */
   nic?: string;
+  /** The segment it sits on (`NetSegment.id`, R157). */
+  segment?: string;
+  /** The course-local week it arrives in; 0 = from the start (R157). */
+  arrives?: number;
+  /** What runs on it, by name, when no port is known (R157). */
+  apps?: string[];
+  /** Ports it forwards to other hosts (R157). */
+  publishes?: NetPublish[];
+  /** The task(s) or step(s) that build it; lit as `host:<id>` (R157). */
+  builtBy?: string[];
+  /** Outside the lab: an ISP, a visitor, GitHub, your own laptop (R157). */
+  external?: boolean;
   services: NetService[];
   controls: NetControl[];
   /** What is installed on the host and what the course uses it for (R156). */
@@ -120,6 +179,8 @@ export interface NetAttack {
   tool: string;
   /** What the technique is and what it targets, exam terms, one line (R153). */
   description: string;
+  /** A technique reference (an ATT&CK id) when the course names one (R157). */
+  ref?: string;
   builtBy?: string;
   response?: AttackResponse;
   /** Blue's own validation (test logons, a labelled sample): a badge on the host, never a Kali arrow. */
@@ -158,17 +219,23 @@ export interface LabNetwork {
     howToRead: string;
     footer: string;
     /** The full LAN reference page's section intros (R156); absent on a course that only draws the picture. */
-    reference?: { lede: string; lan: string; ports: string; tools: string; attacks: string; actions: string };
+    reference?: { lede: string; lan: string; ports: string; tools: string; attacks: string; actions: string; links?: string };
   };
+  /** Picture size; `w === 0` means no picture yet (`layoutNetwork` sets it). */
   view: { w: number; h: number };
-  subnet: string;
+  /** The one prefix, when the lab has one; absent for a campus or a cloud. */
+  subnet?: string;
   fabric: {
-    hypervisor: NetHost;
-    segment: { id: string; label: string; note: string; y: number };
+    /** What everything runs under: a hypervisor, a cloud account, a simulator. Absent when the course has none. */
+    hypervisor?: NetHost;
+    /** The networks, in tree order (R157); the Security+ lab has one. */
+    segments: NetSegment[];
     /** The hypervisor's own interface on the lab network — the gateway address the VMs see (R156). */
     adapter?: { id: string; label: string; addr: string; description: string };
   };
   hosts: NetHost[];
+  /** Cables, when the course records them (R157). */
+  links?: NetLink[];
   weeks: NetWeek[];
   spec: { columns: string[]; rows: string[][] };
 }
@@ -177,12 +244,26 @@ export interface LabNetwork {
 export const NO_NETWORK: LabNetwork = {
   copy: { title: '', howToRead: '', footer: '' },
   view: { w: 0, h: 0 },
-  subnet: '',
-  fabric: { hypervisor: { id: 'hypervisor', label: '', description: '', kind: 'hypervisor', x: 0, y: 0, services: [], controls: [] }, segment: { id: 'segment', label: '', note: '', y: 0 } },
+  fabric: { segments: [] },
   hosts: [],
   weeks: [],
   spec: { columns: [], rows: [] },
 };
+
+/** Every host, the hypervisor included when there is one (R157). */
+export const allHosts = (net: LabNetwork): NetHost[] => (net.fabric.hypervisor ? [...net.hosts, net.fabric.hypervisor] : net.hosts);
+
+/** Whether the network has been laid out as a picture. */
+export const hasPicture = (net: LabNetwork) => net.view.w > 0 && net.hosts.length > 0;
+
+/** Whether any week carries attack steps (the catalogue and the step-through show only then). */
+export const hasAttacks = (net: LabNetwork) => net.weeks.some((w) => w.attacks.length > 0);
+
+/** Hosts present at (week, phase): before = arrived earlier; after = this week too. */
+export function hostsAt(net: LabNetwork, week: number, phase: Phase = 'after'): NetHost[] {
+  const limit = phase === 'before' ? week - 1 : week;
+  return net.hosts.filter((h) => (h.arrives ?? 0) <= limit);
+}
 
 /** Services on a host at (week, phase): before = arrived earlier; after = this week too. `to` ends one. */
 export function servicesAt(host: NetHost, week: number, phase: Phase): NetService[] {
@@ -214,7 +295,8 @@ export const attackId = (week: number, n: number) => `atk:w${week}:${n}`;
 /** Every id the network wants lit, with the work that lights it. */
 export function netBuiltEntries(net: LabNetwork): { id: string; builtBy: string[] }[] {
   const out: { id: string; builtBy: string[] }[] = [];
-  for (const h of [...net.hosts, net.fabric.hypervisor]) for (const c of h.controls) if (c.builtBy?.length) out.push({ id: c.id, builtBy: c.builtBy });
+  for (const h of allHosts(net)) for (const c of h.controls) if (c.builtBy?.length) out.push({ id: c.id, builtBy: c.builtBy });
+  for (const h of net.hosts) if (h.builtBy?.length) out.push({ id: `host:${h.id}`, builtBy: h.builtBy });
   for (const w of net.weeks) {
     for (const a of w.attacks) {
       const own = a.builtBy ? [a.builtBy] : a.response?.builtBy ? [a.response.builtBy] : [];
@@ -253,13 +335,13 @@ export const serviceId = (hostId: string, port: number) => `${hostId}:${port}`;
 
 /** Resolve a clicked component to its label and description; null when the id does not resolve. */
 export function findComponent(net: LabNetwork, kind: ComponentKind, id: string): ComponentDetail | null {
-  const allHosts = [...net.hosts, net.fabric.hypervisor];
+  const every = allHosts(net);
   if (kind === 'host') {
-    const h = allHosts.find((x) => x.id === id);
+    const h = every.find((x) => x.id === id);
     return h ? { kind, label: h.label, sub: h.addr, description: h.description } : null;
   }
   if (kind === 'control') {
-    for (const h of allHosts) {
+    for (const h of every) {
       const c = h.controls.find((x) => x.id === id);
       if (c) return { kind, label: c.label, sub: `${CONTROL_KIND_LABEL[c.kind]} · ${h.label}`, description: c.description };
     }
@@ -267,7 +349,7 @@ export function findComponent(net: LabNetwork, kind: ComponentKind, id: string):
   }
   // service: id is `${hostId}:${port}`
   const [hostId, portStr] = id.split(':');
-  const h = allHosts.find((x) => x.id === hostId);
+  const h = every.find((x) => x.id === hostId);
   const svc = h?.services.find((x) => x.port === Number(portStr));
   return h && svc ? { kind, label: `${svc.port}/${svc.proto} ${svc.name}`, sub: h.label, description: svc.description } : null;
 }
@@ -287,19 +369,101 @@ export interface LanComponent {
   optional?: boolean;
   /** For a container: the host it runs on. */
   on?: string;
+  /** The segment a host sits on (R157). */
+  segment?: string;
+  arrives?: number;
+  external?: boolean;
   description: string;
 }
 
 export function lanComponents(net: LabNetwork): LanComponent[] {
   const out: LanComponent[] = [];
   const hv = net.fabric.hypervisor;
-  out.push({ id: hv.id, kind: 'hypervisor', label: hv.label, os: hv.os, description: hv.description });
+  if (hv) out.push({ id: hv.id, kind: hv.kind, label: hv.label, addr: hv.addr, os: hv.os, description: hv.description, arrives: hv.arrives });
   if (net.fabric.adapter) out.push({ id: net.fabric.adapter.id, kind: 'adapter', label: net.fabric.adapter.label, addr: net.fabric.adapter.addr, description: net.fabric.adapter.description });
   for (const h of net.hosts) {
-    out.push({ id: h.id, kind: h.kind, label: h.label, addr: h.addr, os: h.os, role: h.role, optional: h.optional, description: h.description });
-    for (const c of h.docker?.containers ?? []) out.push({ id: c.id, kind: 'container', label: c.label, addr: c.addr, os: c.image, role: h.role, on: h.id, description: c.description });
+    out.push({ id: h.id, kind: h.kind, label: h.label, addr: h.addr, os: h.os, role: h.role, optional: h.optional, segment: h.segment, arrives: h.arrives, external: h.external, description: h.description });
+    for (const c of h.docker?.containers ?? []) out.push({ id: c.id, kind: 'container', label: c.label, addr: c.addr, os: c.image, role: h.role, on: h.id, segment: h.segment, description: c.description });
   }
   return out;
+}
+
+/** The segments as a tree in display order, each with the hosts on it (R157). Hosts on no known segment come last. */
+export interface SegmentBranch { seg: NetSegment; depth: number; hosts: NetHost[] }
+export function segmentTree(net: LabNetwork): { branches: SegmentBranch[]; unplaced: NetHost[] } {
+  const segs = net.fabric.segments;
+  const ids = new Set(segs.map((s) => s.id));
+  const branches: SegmentBranch[] = [];
+  const walk = (parent: string | undefined, depth: number) => {
+    for (const seg of segs) {
+      if ((seg.parent && ids.has(seg.parent) ? seg.parent : undefined) !== parent) continue;
+      branches.push({ seg, depth, hosts: net.hosts.filter((h) => h.segment === seg.id) });
+      walk(seg.id, depth + 1);
+    }
+  };
+  walk(undefined, 0);
+  const unplaced = net.hosts.filter((h) => !h.segment || !ids.has(h.segment));
+  return { branches, unplaced };
+}
+
+/** The cabling table, with labels resolved (R157). */
+export function linkRows(net: LabNetwork): { from: string; to: string; fromPort?: string; toPort?: string; kind: NetLink['kind']; media?: string; vlans?: number[]; arrives: number }[] {
+  const name = (id: string) => allHosts(net).find((h) => h.id === id)?.label ?? id;
+  return (net.links ?? []).map((l) => ({ ...l, from: name(l.from), to: name(l.to) }));
+}
+
+/* ── R157: the picture for a network that was not drawn by hand ── */
+
+/** The card geometry the picture draws with; `layoutNetwork` and `LabNetworkDiagram` share it. */
+export const CARD = { w: 200, head: 42, row: 17, gap: 40, margin: 40, selfTest: 24 } as const;
+
+export function cardHeight(nServices: number, nControls: number): number {
+  return CARD.head + (nServices + nControls) * CARD.row + 12;
+}
+
+/**
+ * Lay a derived network out: each segment is a horizontal band (tree order), its hosts in rows of up to
+ * four cards; hosts on no segment follow in their own band; the hypervisor or platform sits at the bottom.
+ * A network that already has positions (the hand-drawn Security+ picture) is returned unchanged. Pure: the
+ * result ships in the course document, so the diagram never lays anything out.
+ */
+export function layoutNetwork(net: LabNetwork): LabNetwork {
+  if (net.view.w > 0 && net.hosts.every((h) => h.x !== undefined && h.y !== undefined)) return net;
+  const { branches, unplaced } = segmentTree(net);
+  const bands: { seg?: NetSegment; hosts: NetHost[] }[] = [...branches.map((b) => ({ seg: b.seg, hosts: b.hosts })), ...(unplaced.length ? [{ hosts: unplaced }] : [])];
+  const most = Math.max(1, ...bands.map((b) => b.hosts.length));
+  const cols = Math.min(4, Math.max(2, most));
+  const w = CARD.margin * 2 + cols * CARD.w + (cols - 1) * CARD.gap;
+  const height = (h: NetHost) => cardHeight(h.services.length, h.controls.length) + (h.kind === 'attacker' || h.kind === 'endpoint' ? CARD.selfTest : 0);
+  const placed = new Map<string, { x: number; y: number }>();
+  const segments: NetSegment[] = [];
+  let cursor = 24;
+  for (const band of bands) {
+    if (band.seg) {
+      segments.push({ ...band.seg, y: cursor + 22 });
+      cursor += 34;
+    }
+    if (band.hosts.length === 0) {
+      cursor += 10;
+      continue;
+    }
+    for (let i = 0; i < band.hosts.length; i += cols) {
+      const row = band.hosts.slice(i, i + cols);
+      row.forEach((h, j) => placed.set(h.id, { x: CARD.margin + CARD.w / 2 + j * (CARD.w + CARD.gap), y: cursor }));
+      cursor += Math.max(...row.map(height)) + 28;
+    }
+  }
+  let hypervisor = net.fabric.hypervisor;
+  if (hypervisor) {
+    hypervisor = { ...hypervisor, x: CARD.margin + CARD.w / 2, y: cursor + 8 };
+    cursor += CARD.head + 8;
+  }
+  return {
+    ...net,
+    view: { w, h: cursor + 24 },
+    fabric: { ...net.fabric, hypervisor, segments },
+    hosts: net.hosts.map((h) => ({ ...h, ...(placed.get(h.id) ?? {}) })),
+  };
 }
 
 /** Every port the lab exposes, host by host, with the container behind it when there is one (R156). */
@@ -309,20 +473,26 @@ export interface PortRow {
   port: number;
   proto: Proto;
   name: string;
-  scope: 'lan' | 'internal';
+  scope: 'lan' | 'internal' | 'segment';
+  /** The segment or interface a `segment`-scoped port answers from (R157). */
+  via?: string;
   from: number;
-  /** `container:port` when the host port is a Docker publish. */
+  /** `container:port` when the host port is a Docker publish; `host:port` when a host forwards it (R157). */
   behind?: string;
   description: string;
 }
 
 export function portRows(net: LabNetwork): PortRow[] {
   const rows: PortRow[] = [];
-  for (const h of net.hosts) {
+  const name = (id: string) => allHosts(net).find((x) => x.id === id)?.label ?? id;
+  for (const h of allHosts(net)) {
     for (const s of h.services) {
       const c = h.docker?.containers.find((x) => x.ports.some((p) => p.host === s.port && p.proto === s.proto));
       const map = c?.ports.find((p) => p.host === s.port && p.proto === s.proto);
-      rows.push({ hostId: h.id, host: h.label, port: s.port, proto: s.proto, name: s.name, scope: s.scope ?? 'lan', from: s.from, behind: c && map ? `${c.label}:${map.container}` : undefined, description: s.description });
+      rows.push({ hostId: h.id, host: h.label, port: s.port, proto: s.proto, name: s.name, scope: s.scope ?? 'lan', via: s.via, from: s.from, behind: c && map ? `${c.label}:${map.container}` : undefined, description: s.description });
+    }
+    for (const pub of h.publishes ?? []) {
+      rows.push({ hostId: h.id, host: h.label, port: pub.host, proto: pub.proto, name: pub.purpose.split(' — ')[0], scope: 'lan', from: pub.from, behind: `${name(pub.to)}:${pub.port}`, description: pub.purpose });
     }
   }
   return rows.sort((a, b) => a.host.localeCompare(b.host) || a.port - b.port);
@@ -389,7 +559,7 @@ export function weekTaskActions(net: LabNetwork, week: number, tasks: { id: stri
   for (const t of tasks) get(t.id, t.role);
   const w = net.weeks.find((x) => x.week === week);
   if (!w) return [...by.values()];
-  const name = (id: string) => [...net.hosts, net.fabric.hypervisor].find((h) => h.id === id)?.label ?? id;
+  const name = (id: string) => allHosts(net).find((h) => h.id === id)?.label ?? id;
   // A control that answers an attack is placed once, as that answer — not again as "arrives this week".
   const answered = new Set<string>();
   for (const a of [...w.attacks].sort((x, y) => x.n - y.n)) {
@@ -404,7 +574,15 @@ export function weekTaskActions(net: LabNetwork, week: number, tasks: { id: stri
       answered.add(`${tid}:${a.response.controlId}`);
     }
   }
-  for (const h of [...net.hosts, net.fabric.hypervisor]) {
+  // A host built this week by a task is placed as that task's set-up line.
+  for (const h of net.hosts) {
+    if ((h.arrives ?? 0) !== week || !h.builtBy?.length) continue;
+    for (const key of h.builtBy) {
+      const [tid, step] = key.split('::');
+      get(tid, h.role).lines.push({ kind: 'setup', step, at: [h.id], text: `Build ${h.label}` });
+    }
+  }
+  for (const h of allHosts(net)) {
     for (const c of h.controls) {
       if (c.arrives !== week) continue;
       for (const key of c.builtBy ?? []) {
@@ -421,6 +599,6 @@ export function weekTaskActions(net: LabNetwork, week: number, tasks: { id: stri
 /** Every tool across the lab with the host it lives on (R156). */
 export function toolRows(net: LabNetwork): { hostId: string; host: string; tool: NetTool }[] {
   const out: { hostId: string; host: string; tool: NetTool }[] = [];
-  for (const h of [...net.hosts, net.fabric.hypervisor]) for (const t of h.tools ?? []) out.push({ hostId: h.id, host: h.label, tool: t });
+  for (const h of allHosts(net)) for (const t of h.tools ?? []) out.push({ hostId: h.id, host: h.label, tool: t });
   return out;
 }

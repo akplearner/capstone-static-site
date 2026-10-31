@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { CourseDocumentContext } from '@/lib/useCourse';
-import { courseDocument } from '@/lib/content/docs';
+import { bareDocument, courseDocument } from '@/lib/content/docs';
 import { CourseSubNav } from './CourseSubNav';
 
 vi.mock('next/navigation', () => ({ useParams: () => ({ courseId: 'security-plus' }), useRouter: () => ({ push: vi.fn() }), usePathname: () => '/' }));
@@ -28,8 +28,16 @@ describe('CourseSubNav — the Network tab', () => {
     expect(labels.indexOf('Network')).toBeGreaterThan(labels.indexOf('Guide'));
   });
 
-  it('a course without a lab network has no Network tab', () => {
-    const { container } = mount('azure-fundamentals');
+  it('every seeded course has the tab now (R157); a bare document — an authored course with no network — has none', () => {
+    const { container: az } = mount('azure-fundamentals');
+    expect(az.querySelector('[data-tab-network]')!.getAttribute('href')).toBe('/courses/azure-fundamentals/network');
+    const course = courseDocument('azure-fundamentals')!.course;
+    const bare = bareDocument({ ...course, id: 'my-own-course', basedOn: undefined } as typeof course);
+    const { container } = render(
+      <CourseDocumentContext.Provider value={bare}>
+        <CourseSubNav courseId="my-own-course" active="guide" teamId="2026-01-T01" />
+      </CourseDocumentContext.Provider>
+    );
     expect(container.querySelector('[data-tab-network]')).toBeNull();
   });
 

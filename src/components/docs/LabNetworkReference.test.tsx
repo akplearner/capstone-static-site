@@ -16,9 +16,9 @@ vi.mock('next/navigation', () => ({
  * publishes, every port with its reach, the tools per host, the attack catalogue and what each task of the
  * week does on the network. Everything is read from the course document; nothing here is typed.
  */
-function mount(week: string | null = null) {
+function mount(week: string | null = null, courseId = 'security-plus') {
   nav.week = week;
-  const doc = courseDocument('security-plus')!;
+  const doc = courseDocument(courseId)!;
   return render(
     <CourseDocumentContext.Provider value={doc}>
       <LabNetworkReference course={doc.course} member={null} />
@@ -90,5 +90,47 @@ describe('LabNetworkReference', () => {
     fireEvent.click(screen.getByRole('button', { name: 'W0' }));
     expect(container.querySelector('[data-lan-task="blue-w0-setup"]')!.textContent).toContain('8080 → 80');
     expect(container.querySelector('[data-net-panel="0"]')).not.toBeNull();
+  });
+});
+
+describe('LabNetworkReference — R157 derived courses render the same page', () => {
+  it('Server+: bridges nested under the Proxmox host, the published-port chip, the DMZ-only reach, no attack catalogue', () => {
+    const { container } = mount('3', 'server-plus');
+    expect(container.querySelector('[data-lan-hypervisor="host"]')!.textContent).toContain('10.10.30.T');
+    expect(container.querySelector('[data-lan-segment="vmbr1"] [data-lan-host="websrv"]')).not.toBeNull();
+    expect(container.querySelector('[data-lan-hypervisor="host"]')).not.toBeNull();
+    expect([...container.querySelectorAll('[data-lan-publish]')].map((e) => e.textContent)).toContain(':2200 → websrv:22/tcp');
+    expect(container.querySelector('[data-lan-port-row="websrv:80"]')!.textContent).toContain('vmbr1');
+    expect(container.querySelector('[data-lan-section="attacks"]')).toBeNull();
+    expect(container.querySelector('[data-lan-table="links"]')).toBeNull();
+    expect(container.querySelector('[data-lan-task="sp-w2-install"]')).toBeNull();
+    expect(container.querySelector('[data-lan-task="sp-w3-publish"], [data-lan-task^="sp-w3"]')).not.toBeNull();
+  });
+
+  it('CCNA: VLANs nest under their site, the links table lists the trunks, SRV-CORE serves DNS and DHCP', () => {
+    const { container } = mount('2', 'ccna');
+    const vlan = container.querySelector('[data-lan-segment="vlan:20"]')!;
+    expect(vlan.getAttribute('data-lan-depth')).toBe('1');
+    expect(vlan.querySelector('[data-lan-host="SRV-CORE"]')).not.toBeNull();
+    expect(container.querySelectorAll('[data-lan-table="links"] [data-lan-link]').length).toBe(8);
+    expect(container.querySelector('[data-lan-port-row="SRV-CORE:53"]')).not.toBeNull();
+  });
+
+  it('a cloud course: the account is the platform header, the private subnet is a nested segment, the database row is segment-only', () => {
+    const { container } = mount('3', 'aws-solutions-architect');
+    expect(container.querySelector('[data-lan-hypervisor="cloud"]')!.textContent).toContain('AWS');
+    expect(container.querySelector('[data-lan-segment="PrivateSubnetB"]')).not.toBeNull();
+    expect(container.querySelector('[data-lan-port-row="Database:5432"]')!.textContent).toContain('PrivateSubnetB');
+  });
+
+  it('an architecture-only course: no platform block, no addresses, zones as segments, tasks placed, catalogue hidden', () => {
+    const { container } = mount('1', 'a-plus');
+    expect(container.querySelector('[data-lan-hypervisor]')).toBeNull();
+    expect(container.querySelector('[data-lan-adapter]')).toBeNull();
+    expect(container.querySelector('[data-lan-segment="pc"]')).not.toBeNull();
+    expect(container.querySelector('[data-lan-table="components"]')!.textContent).not.toMatch(/\d+\.\d+\.\d+\.\d+/);
+    expect(container.querySelector('[data-lan-section="attacks"]')).toBeNull();
+    expect(container.querySelectorAll('[data-lan-task]').length).toBeGreaterThan(0);
+    expect(container.querySelector('[data-net-root]'), 'the derived picture draws').not.toBeNull();
   });
 });

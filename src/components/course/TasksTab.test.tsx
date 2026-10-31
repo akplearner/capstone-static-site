@@ -91,6 +91,9 @@ describe('TasksTab — every task open to every member', () => {
     const v = weekVisualsOf(courseDocument('azure-fundamentals')!).find((x) => x.week === 2)!;
     mount({ effectiveWeek: 2, teamWeekStats: { 1: 100, 2: 0 } });
     expect(screen.getAllByRole('heading', { name: 'What you build this week' })).toHaveLength(1); // R100: once, not twice
+    // R157: every course opens on its network picture; the build picture is the second option of the switch.
+    expect(document.querySelector('[data-net-root]')).not.toBeNull();
+    fireEvent.click(document.querySelector('[data-picture-pick="build"]')!);
     expect(screen.getByRole('img', { name: /week 2/ })).toBeInTheDocument();
     expect(screen.getByText(v.caption)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Expand' })).toHaveAttribute('aria-expanded', 'false');

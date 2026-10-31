@@ -6,6 +6,7 @@
     "src/lib/docs/portfolioForm.ts",
     "src/lib/docs/manual.ts",
     "src/lib/docs/kubernetesCkaContent.ts",
+    "src/lib/docs/networkFrom.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
     "src/lib/docs/certs.ts",
@@ -5133,6 +5134,756 @@
           "2": "New: the Deployment behind probes, requests and limits set, and a pod steered to a chosen node.",
           "3": "New: a Service and Ingress, a default-deny NetworkPolicy with one allow, and data on a persistent volume.",
           "4": "New: a broken pod worked to Running, a verified etcd snapshot, the recovery decided, and the cluster handed over and deleted."
+        }
+      }
+    },
+    "network": {
+      "NETWORK": {
+        "copy": {
+          "title": "The Certified Kubernetes Administrator — the Cluster Yard network — what you build and where",
+          "howToRead": "8 components on 4 segments. Each card shows its address, what it runs and exposes, and the controls on it. Pick a week to see what has arrived.",
+          "footer": "Everything runs on a laptop: a kind cluster in Docker, kubectl and helm. No paid cloud.",
+          "reference": {
+            "lede": "Every component of the system you work on, its address where it has one, what it runs and exposes, the tools on it, and what each task does to it, week by week.",
+            "lan": "4 segments: The control plane, Deploy and schedule, Expose and persist, Make it survivable.",
+            "ports": "What answers on the network, and what stays inside a host or a single segment.",
+            "tools": "What is installed where, and the task that uses it.",
+            "attacks": "The attack types in exam vocabulary, where this lab uses each, and the control that answers it.",
+            "actions": "What each task of the week does on the network: the work placed on the components it touches.",
+            "links": "Every cable, port to port, with what it carries."
+          }
+        },
+        "view": {
+          "w": 1000,
+          "h": 648
+        },
+        "fabric": {
+          "segments": [
+            {
+              "id": "plane",
+              "label": "The control plane",
+              "note": "kind · nodes · RBAC",
+              "kind": "zone",
+              "arrives": 0,
+              "y": 46
+            },
+            {
+              "id": "workloads",
+              "label": "Deploy and schedule",
+              "note": "Deployments · probes",
+              "kind": "zone",
+              "arrives": 1,
+              "y": 230
+            },
+            {
+              "id": "platform",
+              "label": "Expose and persist",
+              "note": "Services · policy · volumes",
+              "kind": "zone",
+              "arrives": 3,
+              "y": 380
+            },
+            {
+              "id": "proof",
+              "label": "Make it survivable",
+              "note": "fault · etcd backup · recovery",
+              "kind": "zone",
+              "arrives": 4,
+              "y": 520
+            }
+          ]
+        },
+        "hosts": [
+          {
+            "id": "kind",
+            "label": "kind cluster",
+            "description": "A whole cluster in Docker, the ground everything runs on",
+            "segment": "plane",
+            "kind": "server",
+            "role": "cluster",
+            "arrives": 0,
+            "apps": [
+              "nodes Ready"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:controlplane",
+                "label": "Control plane",
+                "description": "The API server, scheduler, controller manager and etcd",
+                "kind": "harden",
+                "arrives": 1,
+                "role": "cluster"
+              },
+              {
+                "id": "ctl:etcd",
+                "label": "etcd snapshot",
+                "description": "The one backup that rebuilds a cluster from nothing",
+                "kind": "recover",
+                "arrives": 4,
+                "role": "cluster"
+              },
+              {
+                "id": "ctl:recovery",
+                "label": "Recovery",
+                "description": "The decision for when a node or the state is lost",
+                "kind": "harden",
+                "arrives": 4,
+                "role": "cluster"
+              },
+              {
+                "id": "ctl:custody",
+                "label": "Custody",
+                "description": "A hash for every artifact the course produced",
+                "kind": "recover",
+                "arrives": 4,
+                "role": "records"
+              }
+            ],
+            "x": 140,
+            "y": 58
+          },
+          {
+            "id": "rbac",
+            "label": "RBAC",
+            "description": "Who can do what, proved on both the grant and the denial",
+            "segment": "plane",
+            "kind": "identity",
+            "role": "records",
+            "arrives": 1,
+            "apps": [
+              "role",
+              "binding"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 58
+          },
+          {
+            "id": "deploy",
+            "label": "Deployment",
+            "description": "The app as replicas behind liveness and readiness probes",
+            "segment": "workloads",
+            "kind": "service",
+            "role": "workloads",
+            "arrives": 2,
+            "apps": [
+              "replicas",
+              "probes"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:resources",
+                "label": "Requests & limits",
+                "description": "What the scheduler reserves and the kubelet caps",
+                "kind": "detect",
+                "arrives": 2,
+                "role": "workloads"
+              },
+              {
+                "id": "ctl:schedule",
+                "label": "Scheduling",
+                "description": "Steering which pod lands on which node",
+                "kind": "harden",
+                "arrives": 2,
+                "role": "net"
+              }
+            ],
+            "x": 140,
+            "y": 242
+          },
+          {
+            "id": "namespace",
+            "label": "Namespace",
+            "description": "Where the team works, isolated from the rest of the cluster",
+            "segment": "workloads",
+            "kind": "server",
+            "role": "cluster",
+            "arrives": 1,
+            "apps": [
+              "team isolation"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 242
+          },
+          {
+            "id": "app_run",
+            "label": "Running app",
+            "description": "The app pods serving behind their probes",
+            "segment": "workloads",
+            "kind": "service",
+            "role": "workloads",
+            "arrives": 2,
+            "apps": [
+              "Ready"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:netpol",
+                "label": "NetworkPolicy",
+                "description": "The cluster flipped from open to closed, one door opened on purpose",
+                "kind": "harden",
+                "arrives": 3,
+                "role": "net"
+              }
+            ],
+            "x": 620,
+            "y": 242
+          },
+          {
+            "id": "pvc",
+            "label": "Volume (PVC)",
+            "description": "The claim the data lives on, across pod recreates",
+            "segment": "workloads",
+            "kind": "storage",
+            "role": "records",
+            "arrives": 3,
+            "apps": [
+              "Bound"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 860,
+            "y": 242
+          },
+          {
+            "id": "service",
+            "label": "Service",
+            "description": "A stable name and address over moving pods",
+            "segment": "platform",
+            "kind": "switch",
+            "role": "net",
+            "arrives": 3,
+            "apps": [
+              "stable DNS"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 392
+          },
+          {
+            "id": "ingress",
+            "label": "Ingress",
+            "description": "The route that reaches the app by host name",
+            "segment": "platform",
+            "kind": "endpoint",
+            "role": "net",
+            "arrives": 3,
+            "apps": [
+              "host route"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 392
+          },
+          {
+            "id": "operator",
+            "label": "Your own machine",
+            "description": "Where you work from in this course.",
+            "kind": "client",
+            "external": true,
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 542,
+            "tools": [
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cka-w0-install",
+                  "cka-w0-orient",
+                  "cka-w1-cluster",
+                  "cka-w2-schedule",
+                  "cka-w3-services",
+                  "cka-w3-networkpolicy",
+                  "cka-w4-troubleshoot",
+                  "cka-w4-handover",
+                  "cka-local-llm-serving-w1-size",
+                  "cka-ai-agents-mcp-w1-tools",
+                  "cka-ai-agents-mcp-w1-leash",
+                  "cka-ai-agents-mcp-w2-audit"
+                ]
+              },
+              {
+                "name": "Kubernetes",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cka-w0-install",
+                  "cka-w0-cluster",
+                  "cka-w0-orient",
+                  "cka-w1-cluster",
+                  "cka-w1-components",
+                  "cka-w1-rbac",
+                  "cka-w2-deploy",
+                  "cka-w2-resources",
+                  "cka-w2-schedule",
+                  "cka-w3-services",
+                  "cka-w3-networkpolicy",
+                  "cka-w3-storage",
+                  "cka-w4-troubleshoot",
+                  "cka-w4-backup",
+                  "cka-w4-handover"
+                ]
+              },
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "cka-w4-handover",
+                  "cka-local-llm-serving-w1-serve",
+                  "cka-local-llm-serving-w1-size",
+                  "cka-ai-agents-mcp-w1-tools",
+                  "cka-ai-agents-mcp-w1-leash",
+                  "cka-ai-agents-mcp-w2-mcp",
+                  "cka-ai-agents-mcp-w2-audit"
+                ]
+              },
+              {
+                "name": "curl",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cka-local-llm-serving-w1-serve"
+                ]
+              },
+              {
+                "name": "Ollama",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "cka-local-llm-serving-w1-serve",
+                  "cka-ai-agents-mcp-w1-tools"
+                ]
+              },
+              {
+                "name": "Python",
+                "purpose": "A language the task writes or reads.",
+                "usedIn": [
+                  "cka-local-llm-serving-w1-serve",
+                  "cka-local-llm-serving-w1-size",
+                  "cka-ai-agents-mcp-w1-tools",
+                  "cka-ai-agents-mcp-w1-leash",
+                  "cka-ai-agents-mcp-w2-mcp",
+                  "cka-ai-agents-mcp-w2-audit"
+                ]
+              }
+            ]
+          }
+        ],
+        "weeks": [
+          {
+            "week": 0,
+            "wire": "Set up the cluster",
+            "focus": "Install kubectl, kind and helm, bring up a local cluster, pick your focus and make the cluster folder.",
+            "before": "Nothing built yet.",
+            "after": "The tools installed, a kind cluster up with a Ready node, and the folder ready.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "cka-w0-install",
+                "step": "cka-w0-install-s1",
+                "role": "cluster",
+                "kind": "evidence",
+                "at": [],
+                "text": "Install the tools and read their versions"
+              },
+              {
+                "taskId": "cka-w0-cluster",
+                "step": "cka-w0-cluster-s1",
+                "role": "workloads",
+                "kind": "governance",
+                "at": [],
+                "text": "Create the cluster and read its nodes"
+              },
+              {
+                "taskId": "cka-w0-orient",
+                "step": "cka-w0-orient-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Pick the focus and name the cluster"
+              },
+              {
+                "taskId": "cka-w0-orient",
+                "step": "cka-w0-orient-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Make the cluster folder"
+              }
+            ]
+          },
+          {
+            "week": 1,
+            "wire": "Read and lock the cluster",
+            "focus": "Read the control plane and the nodes, create a namespace, and lock access down with a role and a binding.",
+            "before": "Built so far: kind cluster, 1 Setup & access.",
+            "after": "New: the control plane read component by component, a team namespace, and RBAC proved on grant and denial.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "cka-w1-cluster",
+                "step": "cka-w1-cluster-s1",
+                "role": "cluster",
+                "kind": "governance",
+                "at": [],
+                "text": "Read the control-plane components"
+              },
+              {
+                "taskId": "cka-w1-cluster",
+                "step": "cka-w1-cluster-s2",
+                "role": "cluster",
+                "kind": "evidence",
+                "at": [],
+                "text": "Read the node health"
+              },
+              {
+                "taskId": "cka-w1-components",
+                "step": "cka-w1-components-s1",
+                "role": "cluster",
+                "kind": "evidence",
+                "at": [],
+                "text": "Create the namespace and make it the default"
+              },
+              {
+                "taskId": "cka-w1-rbac",
+                "step": "cka-w1-rbac-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Grant exactly the access the role allows"
+              },
+              {
+                "taskId": "cka-w1-rbac",
+                "step": "cka-w1-rbac-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Prove the limit: denied what the role forbids"
+              }
+            ]
+          },
+          {
+            "week": 2,
+            "wire": "Deploy and schedule",
+            "focus": "Deploy the app, give it probes and resource limits, scale it, and steer where its pods are scheduled.",
+            "before": "Built so far: kind cluster, 1 Setup & access, Control plane and 3 more.",
+            "after": "New: the Deployment behind probes, requests and limits set, and a pod steered to a chosen node.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "cka-w2-deploy",
+                "step": "cka-w2-deploy-s1",
+                "role": "workloads",
+                "kind": "evidence",
+                "at": [],
+                "text": "Deploy and confirm the pods are Ready"
+              },
+              {
+                "taskId": "cka-w2-resources",
+                "step": "cka-w2-resources-s1",
+                "role": "workloads",
+                "kind": "evidence",
+                "at": [],
+                "text": "Read the requests and limits, then scale"
+              },
+              {
+                "taskId": "cka-w2-schedule",
+                "step": "cka-w2-schedule-s1",
+                "role": "net",
+                "kind": "governance",
+                "at": [],
+                "text": "Taint a node and tolerate it"
+              }
+            ]
+          },
+          {
+            "week": 3,
+            "wire": "Expose and persist",
+            "focus": "Expose the app with a Service and an Ingress, fence it with a NetworkPolicy, and persist data on a volume.",
+            "before": "Built so far: kind cluster, 1 Setup & access, Control plane and 8 more.",
+            "after": "New: a Service and Ingress, a default-deny NetworkPolicy with one allow, and data on a persistent volume.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "cka-w3-services",
+                "step": "cka-w3-services-s1",
+                "role": "net",
+                "kind": "governance",
+                "at": [],
+                "text": "Create the Service and resolve it by name"
+              },
+              {
+                "taskId": "cka-w3-networkpolicy",
+                "step": "cka-w3-networkpolicy-s1",
+                "role": "net",
+                "kind": "evidence",
+                "at": [],
+                "text": "Prove the deny, then the allow"
+              },
+              {
+                "taskId": "cka-w3-storage",
+                "step": "cka-w3-storage-s1",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Bind a claim and prove the data survives"
+              }
+            ]
+          },
+          {
+            "week": 4,
+            "wire": "Recover and hand over",
+            "focus": "Work a broken pod the method way, back up and restore etcd, and hand the cluster over with custody.",
+            "before": "Built so far: kind cluster, 1 Setup & access, Control plane and 13 more.",
+            "after": "New: a broken pod worked to Running, a verified etcd snapshot, the recovery decided, and the cluster handed over and deleted.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "cka-w4-troubleshoot",
+                "step": "cka-w4-troubleshoot-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Read it before you change it"
+              },
+              {
+                "taskId": "cka-w4-troubleshoot",
+                "step": "cka-w4-troubleshoot-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Change one thing per row and record the result"
+              },
+              {
+                "taskId": "cka-w4-backup",
+                "step": "cka-w4-backup-s1",
+                "role": "cluster",
+                "kind": "evidence",
+                "at": [],
+                "text": "Take an etcd snapshot and verify it"
+              },
+              {
+                "taskId": "cka-w4-handover",
+                "step": "cka-w4-handover-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Write what the cluster runs and how to recover it"
+              },
+              {
+                "taskId": "cka-w4-handover",
+                "step": "cka-w4-handover-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Hash every artifact for custody"
+              }
+            ]
+          },
+          {
+            "week": 5,
+            "wire": "Local LLM serving: Serve a model locally",
+            "focus": "Serve a quantised model behind an API and size the memory it needs.",
+            "before": "Built so far: kind cluster, 1 Setup & access, Control plane and 21 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "cka-local-llm-serving-w1-serve",
+                "step": "cka-local-llm-serving-w1-serve-s1",
+                "role": "cluster",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Serve a model behind an API"
+              },
+              {
+                "taskId": "cka-local-llm-serving-w1-serve",
+                "step": "cka-local-llm-serving-w1-serve-s2",
+                "role": "cluster",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the endpoint."
+              },
+              {
+                "taskId": "cka-local-llm-serving-w1-size",
+                "step": "cka-local-llm-serving-w1-size-s1",
+                "role": "cluster",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Size the memory"
+              },
+              {
+                "taskId": "cka-local-llm-serving-w1-size",
+                "step": "cka-local-llm-serving-w1-size-s2",
+                "role": "cluster",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the sizing."
+              }
+            ]
+          },
+          {
+            "week": 6,
+            "wire": "AI agents and MCP: An agent with tools",
+            "focus": "Give a model two tools it can call, and log every call it makes.",
+            "before": "Built so far: kind cluster, 1 Setup & access, Control plane and 21 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "cka-ai-agents-mcp-w1-tools",
+                "step": "cka-ai-agents-mcp-w1-tools-s1",
+                "role": "cluster",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Give the agent tools"
+              },
+              {
+                "taskId": "cka-ai-agents-mcp-w1-tools",
+                "step": "cka-ai-agents-mcp-w1-tools-s2",
+                "role": "cluster",
+                "kind": "governance",
+                "at": [],
+                "text": "Read the call log."
+              },
+              {
+                "taskId": "cka-ai-agents-mcp-w1-leash",
+                "step": "cka-ai-agents-mcp-w1-leash-s1",
+                "role": "cluster",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Keep it on a leash"
+              },
+              {
+                "taskId": "cka-ai-agents-mcp-w1-leash",
+                "step": "cka-ai-agents-mcp-w1-leash-s2",
+                "role": "cluster",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the guardrail."
+              }
+            ]
+          },
+          {
+            "week": 7,
+            "wire": "AI agents and MCP: Expose a tool over MCP",
+            "focus": "Serve one tool over MCP so any client can call it the same way.",
+            "before": "Built so far: kind cluster, 1 Setup & access, Control plane and 21 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "cka-ai-agents-mcp-w2-mcp",
+                "step": "cka-ai-agents-mcp-w2-mcp-s1",
+                "role": "cluster",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Serve a tool over MCP"
+              },
+              {
+                "taskId": "cka-ai-agents-mcp-w2-mcp",
+                "step": "cka-ai-agents-mcp-w2-mcp-s2",
+                "role": "cluster",
+                "kind": "governance",
+                "at": [],
+                "text": "Call the tool from the client."
+              },
+              {
+                "taskId": "cka-ai-agents-mcp-w2-audit",
+                "step": "cka-ai-agents-mcp-w2-audit-s1",
+                "role": "cluster",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Audit the agent"
+              },
+              {
+                "taskId": "cka-ai-agents-mcp-w2-audit",
+                "step": "cka-ai-agents-mcp-w2-audit-s2",
+                "role": "cluster",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the audit."
+              }
+            ]
+          }
+        ],
+        "spec": {
+          "columns": [
+            "Component",
+            "Address",
+            "Runs",
+            "Who"
+          ],
+          "rows": [
+            [
+              "kind cluster",
+              "—",
+              "nodes Ready",
+              "cluster"
+            ],
+            [
+              "RBAC",
+              "—",
+              "role · binding",
+              "records"
+            ],
+            [
+              "Deployment",
+              "—",
+              "replicas · probes",
+              "workloads"
+            ],
+            [
+              "Namespace",
+              "—",
+              "team isolation",
+              "cluster"
+            ],
+            [
+              "Running app",
+              "—",
+              "Ready",
+              "workloads"
+            ],
+            [
+              "Volume (PVC)",
+              "—",
+              "Bound",
+              "records"
+            ],
+            [
+              "Service",
+              "—",
+              "stable DNS",
+              "net"
+            ],
+            [
+              "Ingress",
+              "—",
+              "host route",
+              "net"
+            ]
+          ]
         }
       }
     },

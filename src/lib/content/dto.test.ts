@@ -93,13 +93,22 @@ describe('content/courses — the JSON snapshot of every course', () => {
     }
   });
 
-  it('R152: Security+ carries its lab network under content.network, and other courses do not', () => {
+  it('R152/R157: every course carries its network under content.network — Security+ by hand, the rest derived', () => {
     const sp = JSON.parse(read('security-plus.json'));
     expect(sp.content.network?.NETWORK?.hosts?.length).toBe(3);
+    expect(sp.content.network.NETWORK.view.w).toBe(960);
     expect(sp.generatedFrom).toContain('src/lib/docs/securityNetwork.ts');
-    for (const id of ['cysa-plus', 'mssp', 'azure-fundamentals']) {
-      expect(JSON.parse(read(`${id}.json`)).content.network, id).toBeUndefined();
+    for (const c of SEED_COURSES) {
+      const doc = JSON.parse(read(`${c.id}.json`));
+      expect(Object.keys(doc.content.network), c.id).toEqual(['NETWORK']);
+      const net = doc.content.network.NETWORK;
+      expect(net.hosts.length, `${c.id} hosts`).toBeGreaterThan(0);
+      expect(net.view.w, `${c.id} has a picture`).toBeGreaterThan(0);
+      expect(net.weeks.map((w: { week: number }) => w.week), `${c.id} weeks`).toEqual(c.weeks.map((w) => w.number));
+      if (c.id !== 'security-plus') expect(doc.generatedFrom, `${c.id} names the deriver`).toContain('src/lib/docs/networkFrom.ts');
     }
+    expect(JSON.parse(read('server-plus.json')).generatedFrom).toContain('src/lib/serverTopology.ts');
+    expect(JSON.parse(read('azure-fundamentals.json')).generatedFrom).toContain('src/lib/cloud/azureTopology.ts');
   });
 });
 

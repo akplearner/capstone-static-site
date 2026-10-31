@@ -156,3 +156,23 @@ and the motion of the pictures live in the document's `content.roles`
 (`src/lib/docs/roles.ts`); the Overview standard and the role content
 standard in `docs/ARCHITECTURE.md` §6 set the register and the word budgets.
 Every build sheet ends with the course's role table.
+
+### Every course carries a network (R157)
+
+`content.network` is now a standard section of every course document. Security+ keeps its hand-drawn
+network; every other course's is derived by `src/lib/docs/networkFrom.ts` from the data it already has, then
+laid out by `layoutNetwork`. How the architecture picture's kinds map for the eleven courses that have only
+an `ARCH`:
+
+| `ArchNode.kind` | Becomes |
+|---|---|
+| server, endpoint, app, ai, data, firewall, router, switch, wireless, network, idp, identity, siem | a host (`segment` = its zone, `apps` from `sub`, `builtBy` kept; no address — none exists) |
+| people | a client host (the lead role's one is where the student works from); outside → an external host |
+| control, pipeline → harden · monitor, scanner → detect · backup → recover | a control on the host at the other end of the first picture edge, else the first host of the same zone built by then |
+| ticket, evidence (with `builtBy`) | a week action (governance / evidence) on the zone's hosts |
+| record | nothing — the forms lane is not a component |
+| a zone (not the lane) | a segment of kind `zone`, note = the zone's note |
+
+A picture that draws no person gets the one synthetic host the derivers may add, "Your own machine", so the
+task's tools have somewhere to live. The Network | Build switch and the "Full network" chip now show on every
+course; the attack catalogue and the step-through show only where attacks exist (Security+ and CySA+).

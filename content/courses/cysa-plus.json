@@ -7,6 +7,7 @@
     "src/lib/labTopology.ts",
     "src/lib/docs/manual.ts",
     "src/lib/docs/cysaContent.ts",
+    "src/lib/docs/networkFrom.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
     "src/lib/docs/certs.ts",
@@ -10058,6 +10059,1126 @@
           "2": "New: threat-intel lookups and the case queue. You run the attack chain yourself and hunt for the evidence each hop leaves.",
           "3": "New: the vulnerability view and the evidence share. Scan the pod from both sides and rank what you find.",
           "4": "New: the containment rule. Detect, investigate and contain the attack, then report it."
+        }
+      }
+    },
+    "network": {
+      "NETWORK": {
+        "copy": {
+          "title": "The CySA+ SOC Capstone network — what you build and where",
+          "howToRead": "5 components on 1 segment, under Proxmox host. Each card shows its address, what it runs and exposes, and the controls on it. Pick a week to see what has arrived and step through the attacks.",
+          "footer": "One shared SOC, 16 team pods on 10.10.0.0/16 — your team’s N makes an address yours.",
+          "reference": {
+            "lede": "Every component of the SOC lab, its address where it has one, what it runs and exposes, the tools on it, and what each task does to it, week by week.",
+            "lan": "1 segment: Lab network.",
+            "ports": "What answers on the network, and what stays inside a host or a single segment.",
+            "tools": "What is installed where, and the task that uses it.",
+            "attacks": "The attack types in exam vocabulary, where this lab uses each, and the control that answers it.",
+            "actions": "What each task of the week does on the network: the work placed on the components it touches.",
+            "links": "Every cable, port to port, with what it carries."
+          }
+        },
+        "view": {
+          "w": 1000,
+          "h": 381
+        },
+        "subnet": "10.10.0.0/16",
+        "fabric": {
+          "hypervisor": {
+            "id": "host",
+            "label": "Proxmox host",
+            "description": "The hypervisor every pod and the SOC run on",
+            "addr": "10.10.10.45",
+            "segment": "lab",
+            "kind": "hypervisor",
+            "arrives": 0,
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:host-edge",
+                "label": "Lab edge",
+                "description": "Only the agent ports and the dashboard are open; nothing else",
+                "kind": "harden",
+                "arrives": 0
+              }
+            ],
+            "x": 140,
+            "y": 315
+          },
+          "segments": [
+            {
+              "id": "lab",
+              "label": "Lab network",
+              "note": "10.10.0.0/16",
+              "kind": "lan",
+              "arrives": 0,
+              "y": 46
+            }
+          ]
+        },
+        "hosts": [
+          {
+            "id": "kali",
+            "label": "Kali Linux",
+            "description": "The attacker you drive: recon, exploit, brute force",
+            "addr": "10.10.30.N",
+            "segment": "lab",
+            "kind": "attacker",
+            "role": "red",
+            "arrives": 0,
+            "apps": [
+              "Nmap",
+              "Nikto",
+              "Hydra",
+              "attack tools"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 58,
+            "tools": [
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cg-w2"
+                ]
+              },
+              {
+                "name": "SSH",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cg-w2"
+                ]
+              },
+              {
+                "name": "curl",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cg-w2"
+                ]
+              },
+              {
+                "name": "sha256sum",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cg-w2"
+                ]
+              },
+              {
+                "name": "nmap",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cg-w2"
+                ]
+              },
+              {
+                "name": "Hydra",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cg-w2"
+                ]
+              },
+              {
+                "name": "Kali Linux",
+                "purpose": "The platform the task builds on.",
+                "usedIn": [
+                  "cg-w2"
+                ]
+              },
+              {
+                "name": "tcpdump",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cg-w2"
+                ]
+              },
+              {
+                "name": "Wireshark",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "cg-w2"
+                ]
+              },
+              {
+                "name": "Wazuh",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "cg-w2"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ubuntu",
+            "label": "Ubuntu + DVWA + Suricata",
+            "description": "The web target the attack chain lands on",
+            "addr": "10.10.100.N",
+            "segment": "lab",
+            "kind": "server",
+            "role": "blue",
+            "arrives": 0,
+            "apps": [
+              "DVWA web app",
+              "Suricata (network IDS)",
+              "Wazuh agent"
+            ],
+            "services": [
+              {
+                "port": 22,
+                "proto": "tcp",
+                "name": "SSH",
+                "description": "The student login; what the Week-2 brute force guesses at.",
+                "from": 0
+              },
+              {
+                "port": 80,
+                "proto": "tcp",
+                "name": "DVWA",
+                "description": "The vulnerable web app the attack lands on.",
+                "from": 0
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:ubuntu-agent",
+                "label": "Wazuh agent",
+                "description": "Ships logs and file changes from the pod to the manager",
+                "kind": "detect",
+                "arrives": 1,
+                "builtBy": [
+                  "cb-w1"
+                ],
+                "role": "blue"
+              },
+              {
+                "id": "ctl:ubuntu-suricata",
+                "label": "Suricata IDS",
+                "description": "Sees the attack on the wire and names the signature",
+                "kind": "detect",
+                "arrives": 1,
+                "builtBy": [
+                  "cg-w1"
+                ],
+                "role": "blue"
+              },
+              {
+                "id": "ctl:ubuntu-firewall",
+                "label": "Containment rule",
+                "description": "The rule that cuts the attacker off once the case is confirmed",
+                "kind": "contain",
+                "arrives": 4,
+                "builtBy": [
+                  "cr-w4"
+                ],
+                "role": "red"
+              }
+            ],
+            "x": 380,
+            "y": 58
+          },
+          {
+            "id": "windows",
+            "label": "Windows 11 + Sysmon",
+            "description": "The endpoint whose process tree Sysmon records",
+            "addr": "10.10.20.N",
+            "segment": "lab",
+            "kind": "endpoint",
+            "role": "blue",
+            "arrives": 0,
+            "apps": [
+              "Sysmon",
+              "Wazuh agent"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:windows-agent",
+                "label": "Wazuh agent",
+                "description": "Ships logs and file changes from the pod to the manager",
+                "kind": "detect",
+                "arrives": 1,
+                "builtBy": [
+                  "cb-w1"
+                ],
+                "role": "blue"
+              },
+              {
+                "id": "ctl:windows-sysmon",
+                "label": "Sysmon",
+                "description": "Records every process start and connection on Windows",
+                "kind": "detect",
+                "arrives": 1,
+                "builtBy": [
+                  "cr-w1"
+                ],
+                "role": "blue"
+              }
+            ],
+            "x": 620,
+            "y": 58
+          },
+          {
+            "id": "soc",
+            "label": "Wazuh SOC",
+            "description": "Manager, indexer and dashboard: every event, scored by a rule",
+            "addr": "10.10.100.100",
+            "segment": "lab",
+            "kind": "server",
+            "role": "blue",
+            "arrives": 0,
+            "apps": [
+              "one dashboard for everything",
+              "alerts · files · vulnerabilities",
+              "built once · shared by all teams"
+            ],
+            "services": [
+              {
+                "port": 22,
+                "proto": "tcp",
+                "name": "SSH",
+                "description": "Admin shell on the SOC host.",
+                "from": 0
+              },
+              {
+                "port": 443,
+                "proto": "tcp",
+                "name": "dashboard",
+                "description": "The Wazuh dashboard every role signs in to.",
+                "from": 0
+              },
+              {
+                "port": 1514,
+                "proto": "tcp",
+                "name": "agent events",
+                "description": "Where every agent ships its events.",
+                "from": 0
+              },
+              {
+                "port": 1515,
+                "proto": "tcp",
+                "name": "agent enrolment",
+                "description": "Where a new agent registers.",
+                "from": 0
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:soc-soc-vuln",
+                "label": "Vulnerability view",
+                "description": "What the pod exposes, ranked, from the inside",
+                "kind": "detect",
+                "arrives": 3,
+                "builtBy": [
+                  "cg-w3"
+                ],
+                "role": "grc"
+              }
+            ],
+            "x": 860,
+            "y": 58,
+            "tools": [
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cr-w0",
+                  "cg-w4"
+                ]
+              },
+              {
+                "name": "curl",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cr-w0"
+                ]
+              },
+              {
+                "name": "nmap",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cr-w0"
+                ]
+              },
+              {
+                "name": "Nikto",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cr-w0"
+                ]
+              },
+              {
+                "name": "DVWA",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "cr-w0"
+                ]
+              },
+              {
+                "name": "ufw",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cr-w0"
+                ]
+              },
+              {
+                "name": "Sysmon",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cr-w0"
+                ]
+              },
+              {
+                "name": "Suricata",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "cr-w0"
+                ]
+              },
+              {
+                "name": "Wazuh",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "cr-w0",
+                  "cb-w0",
+                  "cg-w0",
+                  "cb-w3",
+                  "cb-w4",
+                  "cg-w4"
+                ]
+              },
+              {
+                "name": "Git",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cr-w0"
+                ]
+              },
+              {
+                "name": "Proxmox VE",
+                "purpose": "The platform the task builds on.",
+                "usedIn": [
+                  "cr-w0"
+                ]
+              },
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "cb-w3",
+                  "cg-w4"
+                ]
+              },
+              {
+                "name": "Notes",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "cb-w4"
+                ]
+              },
+              {
+                "name": "SSH",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cg-w4"
+                ]
+              },
+              {
+                "name": "Apache httpd",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "cg-w4"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "browser",
+            "label": "Your browser",
+            "description": "Dashboards, searches and the triage decisions",
+            "kind": "client",
+            "external": true,
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 225,
+            "tools": [
+              {
+                "name": "Notes",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "cr-w3",
+                  "cg-w4b"
+                ]
+              },
+              {
+                "name": "CVE lookup (NVD)",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "cr-w3"
+                ]
+              },
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "cg-w4b",
+                  "cysa-ai-security-validation-w1-inject",
+                  "cysa-ai-security-validation-w1-leak",
+                  "cysa-ai-security-validation-w2-suite",
+                  "cysa-ai-security-validation-w2-report"
+                ]
+              },
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cysa-ai-security-validation-w1-inject",
+                  "cysa-ai-security-validation-w1-leak",
+                  "cysa-ai-security-validation-w2-suite",
+                  "cysa-ai-security-validation-w2-report"
+                ]
+              },
+              {
+                "name": "garak",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cysa-ai-security-validation-w1-inject"
+                ]
+              },
+              {
+                "name": "Python",
+                "purpose": "A language the task writes or reads.",
+                "usedIn": [
+                  "cysa-ai-security-validation-w1-inject",
+                  "cysa-ai-security-validation-w1-leak",
+                  "cysa-ai-security-validation-w2-suite",
+                  "cysa-ai-security-validation-w2-report"
+                ]
+              },
+              {
+                "name": "LLM Guard",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "cysa-ai-security-validation-w1-leak"
+                ]
+              },
+              {
+                "name": "Git",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "cysa-ai-security-validation-w2-suite"
+                ]
+              }
+            ]
+          }
+        ],
+        "weeks": [
+          {
+            "week": 0,
+            "wire": "Lab setup: build the environment (optional)",
+            "focus": "Stand up the Wazuh SOC and the team pods (instructor / builder).",
+            "before": "Nothing built yet.",
+            "after": "The lab as it is built for you: one Proxmox host, the shared SOC, your team pod and the Kali attacker.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "cr-w0",
+                "step": "cr-w0-s1",
+                "role": "red",
+                "kind": "setup",
+                "at": [
+                  "host"
+                ],
+                "text": "Make the virtual machines in Proxmox"
+              },
+              {
+                "taskId": "cr-w0",
+                "step": "cr-w0-s2",
+                "role": "red",
+                "kind": "setup",
+                "at": [
+                  "soc"
+                ],
+                "text": "Install the entire SOC with one command"
+              },
+              {
+                "taskId": "cr-w0",
+                "step": "cr-w0-s3",
+                "role": "red",
+                "kind": "setup",
+                "at": [
+                  "soc"
+                ],
+                "text": "Save the admin password"
+              },
+              {
+                "taskId": "cr-w0",
+                "step": "cr-w0-s4",
+                "role": "red",
+                "kind": "setup",
+                "at": [
+                  "soc"
+                ],
+                "text": "Freeze the Wazuh version"
+              },
+              {
+                "taskId": "cr-w0",
+                "step": "cr-w0-s5",
+                "role": "red",
+                "kind": "setup",
+                "at": [
+                  "soc"
+                ],
+                "text": "Open the firewall ports, then check services are up"
+              },
+              {
+                "taskId": "cr-w0",
+                "step": "cr-w0-s6",
+                "role": "red",
+                "kind": "setup",
+                "at": [
+                  "ubuntu"
+                ],
+                "text": "Build the Ubuntu pod: DVWA + Suricata + a student login"
+              },
+              {
+                "taskId": "cr-w0",
+                "step": "cr-w0-s7",
+                "role": "red",
+                "kind": "setup",
+                "at": [
+                  "ubuntu"
+                ],
+                "text": "Point Suricata at the right network card"
+              },
+              {
+                "taskId": "cr-w0",
+                "step": "cr-w0-s8",
+                "role": "red",
+                "kind": "setup",
+                "at": [
+                  "ubuntu"
+                ],
+                "text": "Forward Suricata + Apache logs to the SOC"
+              },
+              {
+                "taskId": "cr-w0",
+                "step": "cr-w0-s8b",
+                "role": "red",
+                "kind": "setup",
+                "at": [
+                  "soc",
+                  "ubuntu"
+                ],
+                "text": "Turn on the modules Weeks 3–4 rely on (Vulnerability, SCA, FIM)"
+              },
+              {
+                "taskId": "cr-w0",
+                "step": "cr-w0-s9",
+                "role": "red",
+                "kind": "setup",
+                "at": [
+                  "windows"
+                ],
+                "text": "Build the Windows pod: Sysmon + the agent"
+              },
+              {
+                "taskId": "cr-w0",
+                "step": "cr-w0-s10",
+                "role": "red",
+                "kind": "setup",
+                "at": [
+                  "kali"
+                ],
+                "text": "Clone both pods ×16 and prep the attacks"
+              },
+              {
+                "taskId": "cb-w0",
+                "step": "cb-w0-s2",
+                "role": "blue",
+                "kind": "setup",
+                "at": [
+                  "soc"
+                ],
+                "text": "Log into the SOC dashboard"
+              },
+              {
+                "taskId": "cb-w0",
+                "step": "cb-w0-s1",
+                "role": "blue",
+                "kind": "governance",
+                "at": [],
+                "text": "Read the scope and rules of engagement"
+              },
+              {
+                "taskId": "cg-w0",
+                "step": "cg-w0-s2",
+                "role": "grc",
+                "kind": "setup",
+                "at": [
+                  "soc"
+                ],
+                "text": "Log into the SOC dashboard"
+              },
+              {
+                "taskId": "cg-w0",
+                "step": "cg-w0-s1",
+                "role": "grc",
+                "kind": "governance",
+                "at": [],
+                "text": "Read the scope and rules of engagement"
+              }
+            ]
+          },
+          {
+            "week": 1,
+            "wire": "See everything: sensors & baseline",
+            "focus": "Install the sensor you own, prove its events reach the SOC, then record what normal looks like.",
+            "before": "Built so far: Kali Linux, Proxmox host, Lab edge and 4 more.",
+            "after": "New: a sensor per role and the first three records. Every pod reports to the SOC; the baseline of normal is written.",
+            "attacks": [],
+            "actions": []
+          },
+          {
+            "week": 2,
+            "wire": "Prove it: hunt & evidence",
+            "focus": "Spot suspicious activity and prove what happened.",
+            "before": "Built so far: Kali Linux, Proxmox host, Lab edge and 10 more.",
+            "after": "New: threat-intel lookups and the case queue. You run the attack chain yourself and hunt for the evidence each hop leaves.",
+            "attacks": [
+              {
+                "n": 1,
+                "kind": "scanning",
+                "from": "kali",
+                "to": "ubuntu",
+                "tool": "port scanner",
+                "description": "nmap scans your pod from Kali; evidence: Suricata: ET SCAN signatures.",
+                "ref": "T1046",
+                "builtBy": "cr-w2"
+              },
+              {
+                "n": 2,
+                "kind": "injection",
+                "from": "kali",
+                "to": "ubuntu",
+                "port": 80,
+                "tool": "SQL-injection tool",
+                "description": "SQL injection against DVWA; evidence: Apache access.log + web rules.",
+                "ref": "T1190",
+                "builtBy": "cr-w2"
+              },
+              {
+                "n": 3,
+                "kind": "brute-force",
+                "from": "kali",
+                "to": "ubuntu",
+                "port": 22,
+                "tool": "login brute-forcer",
+                "description": "hydra guesses the SSH password; evidence: repeated authentication_failed.",
+                "ref": "T1110",
+                "builtBy": "cr-w2"
+              }
+            ],
+            "actions": [
+              {
+                "taskId": "cr-w2",
+                "role": "grc",
+                "kind": "evidence",
+                "at": [
+                  "soc"
+                ],
+                "text": "Enriches an indicator before it goes in the database"
+              },
+              {
+                "taskId": "cb-w2",
+                "role": "blue",
+                "kind": "governance",
+                "at": [
+                  "soc"
+                ],
+                "text": "Every alert worked to true, false or escalate"
+              },
+              {
+                "taskId": "cg-w2",
+                "step": "cg-w2-s1",
+                "role": "grc",
+                "kind": "setup",
+                "at": [
+                  "kali"
+                ],
+                "text": "Generate the attack traffic (against your own pod)"
+              },
+              {
+                "taskId": "cg-w2",
+                "step": "cg-w2-s2",
+                "role": "grc",
+                "kind": "setup",
+                "at": [
+                  "soc"
+                ],
+                "text": "Pull everything from the suspicious source"
+              },
+              {
+                "taskId": "cg-w2",
+                "step": "cg-w2-s3",
+                "role": "grc",
+                "kind": "evidence",
+                "at": [
+                  "ubuntu"
+                ],
+                "text": "Capture the traffic for a closer look"
+              },
+              {
+                "taskId": "cg-w2",
+                "step": "cg-w2-s4",
+                "role": "grc",
+                "kind": "evidence",
+                "at": [],
+                "text": "Read it in Wireshark"
+              }
+            ]
+          },
+          {
+            "week": 3,
+            "wire": "Close the gaps: vulns & risk",
+            "focus": "Find the weak spots and say which ones matter most.",
+            "before": "Built so far: Kali Linux, Proxmox host, Lab edge and 15 more.",
+            "after": "New: the vulnerability view and the evidence share. Scan the pod from both sides and rank what you find.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "cb-w3",
+                "step": "cb-w3-s1",
+                "role": "blue",
+                "kind": "setup",
+                "at": [
+                  "soc"
+                ],
+                "text": "Read the built-in vulnerability list"
+              },
+              {
+                "taskId": "cb-w3",
+                "step": "cb-w3-s2",
+                "role": "blue",
+                "kind": "setup",
+                "at": [
+                  "soc"
+                ],
+                "text": "Run the configuration check"
+              },
+              {
+                "taskId": "cb-w3",
+                "step": "cb-w3-s3",
+                "role": "blue",
+                "kind": "setup",
+                "at": [
+                  "soc"
+                ],
+                "text": "Watch the SOC catch a scan"
+              },
+              {
+                "taskId": "cb-w3",
+                "step": "cb-w3-s4",
+                "role": "blue",
+                "kind": "evidence",
+                "at": [],
+                "text": "File your SOC Findings Record"
+              },
+              {
+                "taskId": "cr-w3",
+                "step": "cr-w3-s1",
+                "role": "red",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record each finding with its CVE and severity"
+              }
+            ]
+          },
+          {
+            "week": 4,
+            "wire": "Hold the line: respond & report",
+            "focus": "Handle a real attack: find it, prove it, stop it, report it.",
+            "before": "Built so far: Kali Linux, Proxmox host, Lab edge and 20 more.",
+            "after": "New: the containment rule. Detect, investigate and contain the attack, then report it.",
+            "attacks": [
+              {
+                "n": 1,
+                "kind": "scanning",
+                "from": "kali",
+                "to": "ubuntu",
+                "tool": "port scanner",
+                "description": "nmap scans your pod from Kali; evidence: Suricata: ET SCAN signatures.",
+                "ref": "T1046",
+                "builtBy": "cr-w4",
+                "response": {
+                  "kind": "detect",
+                  "controlId": "ctl:ubuntu-suricata",
+                  "label": "the SOC raises the first alert"
+                }
+              },
+              {
+                "n": 2,
+                "kind": "injection",
+                "from": "kali",
+                "to": "ubuntu",
+                "port": 80,
+                "tool": "SQL-injection tool",
+                "description": "SQL injection against DVWA; evidence: Apache access.log + web rules.",
+                "ref": "T1190",
+                "builtBy": "cr-w4",
+                "response": {
+                  "kind": "detect",
+                  "controlId": "ctl:ubuntu-agent",
+                  "label": "pivot on the source address"
+                }
+              },
+              {
+                "n": 3,
+                "kind": "brute-force",
+                "from": "kali",
+                "to": "ubuntu",
+                "port": 22,
+                "tool": "login brute-forcer",
+                "description": "hydra guesses the SSH password; evidence: repeated authentication_failed.",
+                "ref": "T1110",
+                "builtBy": "cr-w4"
+              },
+              {
+                "n": 4,
+                "kind": "remote-code-execution",
+                "from": "kali",
+                "to": "ubuntu",
+                "port": 80,
+                "tool": "web shell upload",
+                "description": "Web shell uploaded; seen by Integrity monitoring.",
+                "builtBy": "cr-w4",
+                "response": {
+                  "kind": "contain",
+                  "controlId": "ctl:ubuntu-firewall",
+                  "builtBy": "cr-w4",
+                  "label": "block the attacker at the firewall"
+                }
+              }
+            ],
+            "actions": [
+              {
+                "taskId": "cb-w4",
+                "step": "cb-w4-s1",
+                "role": "blue",
+                "kind": "evidence",
+                "at": [
+                  "soc"
+                ],
+                "text": "Find the first alert"
+              },
+              {
+                "taskId": "cb-w4",
+                "step": "cb-w4-s2",
+                "role": "blue",
+                "kind": "setup",
+                "at": [
+                  "soc"
+                ],
+                "text": "Check how far it spread"
+              },
+              {
+                "taskId": "cb-w4",
+                "step": "cb-w4-s3",
+                "role": "blue",
+                "kind": "evidence",
+                "at": [],
+                "text": "Hand the Hunter a clean start — fill the Detection Record"
+              },
+              {
+                "taskId": "cg-w4",
+                "step": "cg-w4-s1",
+                "role": "grc",
+                "kind": "setup",
+                "at": [
+                  "soc"
+                ],
+                "text": "Pull every event from the attacker"
+              },
+              {
+                "taskId": "cg-w4",
+                "step": "cg-w4-s2",
+                "role": "grc",
+                "kind": "evidence",
+                "at": [
+                  "ubuntu"
+                ],
+                "text": "Read the web server’s own log"
+              },
+              {
+                "taskId": "cg-w4",
+                "step": "cg-w4-s3",
+                "role": "grc",
+                "kind": "setup",
+                "at": [
+                  "soc"
+                ],
+                "text": "Check the endpoint to see if it worked"
+              },
+              {
+                "taskId": "cg-w4",
+                "step": "cg-w4-s4",
+                "role": "grc",
+                "kind": "evidence",
+                "at": [],
+                "text": "Write the timeline"
+              },
+              {
+                "taskId": "cg-w4b",
+                "step": "cg-w4b-s1",
+                "role": "grc",
+                "kind": "governance",
+                "at": [],
+                "text": "Gather the numbers and the story"
+              },
+              {
+                "taskId": "cg-w4b",
+                "step": "cg-w4b-s2",
+                "role": "grc",
+                "kind": "evidence",
+                "at": [],
+                "text": "Write the executive debrief"
+              }
+            ]
+          },
+          {
+            "week": 5,
+            "wire": "AI security validation: Attack the model",
+            "focus": "Prove a prompt injection and a data leak against a model, with evidence.",
+            "before": "Built so far: Kali Linux, Proxmox host, Lab edge and 25 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "cysa-ai-security-validation-w1-inject",
+                "step": "cysa-ai-security-validation-w1-inject-s1",
+                "role": "blue",
+                "kind": "setup",
+                "at": [
+                  "browser"
+                ],
+                "text": "Prove a prompt injection"
+              },
+              {
+                "taskId": "cysa-ai-security-validation-w1-inject",
+                "step": "cysa-ai-security-validation-w1-inject-s2",
+                "role": "blue",
+                "kind": "governance",
+                "at": [],
+                "text": "Map it to OWASP."
+              },
+              {
+                "taskId": "cysa-ai-security-validation-w1-leak",
+                "step": "cysa-ai-security-validation-w1-leak-s1",
+                "role": "blue",
+                "kind": "setup",
+                "at": [
+                  "browser"
+                ],
+                "text": "Prove a data leak"
+              },
+              {
+                "taskId": "cysa-ai-security-validation-w1-leak",
+                "step": "cysa-ai-security-validation-w1-leak-s2",
+                "role": "blue",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the finding."
+              }
+            ]
+          },
+          {
+            "week": 6,
+            "wire": "AI security validation: A suite that holds",
+            "focus": "Turn every proven attack into a test the pipeline runs, so a removed guardrail fails the build.",
+            "before": "Built so far: Kali Linux, Proxmox host, Lab edge and 25 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "cysa-ai-security-validation-w2-suite",
+                "step": "cysa-ai-security-validation-w2-suite-s1",
+                "role": "blue",
+                "kind": "setup",
+                "at": [
+                  "browser"
+                ],
+                "text": "Automate the attack suite"
+              },
+              {
+                "taskId": "cysa-ai-security-validation-w2-suite",
+                "step": "cysa-ai-security-validation-w2-suite-s2",
+                "role": "blue",
+                "kind": "governance",
+                "at": [],
+                "text": "Prove the regression catch."
+              },
+              {
+                "taskId": "cysa-ai-security-validation-w2-report",
+                "step": "cysa-ai-security-validation-w2-report-s1",
+                "role": "blue",
+                "kind": "setup",
+                "at": [
+                  "browser"
+                ],
+                "text": "Report the validation"
+              },
+              {
+                "taskId": "cysa-ai-security-validation-w2-report",
+                "step": "cysa-ai-security-validation-w2-report-s2",
+                "role": "blue",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the residual risk."
+              }
+            ]
+          }
+        ],
+        "spec": {
+          "columns": [
+            "Component",
+            "Address",
+            "Runs",
+            "Who"
+          ],
+          "rows": [
+            [
+              "Wazuh SOC",
+              "10.10.100.100",
+              "Wazuh manager + indexer + dashboard",
+              "Everyone, in a browser"
+            ],
+            [
+              "Ubuntu server",
+              "10.10.100.N",
+              "DVWA web app · Suricata (network IDS) · Wazuh agent",
+              "Your team"
+            ],
+            [
+              "Windows 11 PC",
+              "10.10.20.N",
+              "Sysmon · Wazuh agent",
+              "Your team"
+            ],
+            [
+              "Kali Linux",
+              "10.10.30.N",
+              "Nmap · Nikto · Hydra · attack tools",
+              "Your team (you drive the attacks)"
+            ],
+            [
+              "Proxmox host",
+              "10.10.10.45",
+              "Runs all the VMs above",
+              "Builder only"
+            ]
+          ]
         }
       }
     },

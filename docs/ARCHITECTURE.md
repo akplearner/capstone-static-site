@@ -1014,6 +1014,27 @@ the Docker engine and the DVWA container with its bridge address and the one pub
 with whether the LAN can reach it, the tools on each host and the task that uses each, the attack
 catalogue in exam vocabulary, and what every task of the week does on the network (`weekTaskActions`).
 The tab appears only when the course document carries a network (`CourseSubNav` reads `networkOf`).
+R157 makes `content.network` a section **every** course document carries, in one shape. The model grew to
+hold every environment the courses have: `fabric.segments[]` (LAN, VLAN, bridge, subnet, VPC, zone, site,
+nested by `parent`) replaces the single segment, `fabric.hypervisor` is optional (a hypervisor, a cloud
+account or a simulator as `kind: 'platform'`, or none), hosts carry `segment`, `arrives`, `apps`, `publishes`
+(`NetPublish`: a port a host forwards to another), `builtBy` and `external`, services gain
+`scope: 'segment'` with `via`, and `links[]` (`NetLink`) record cabling. `src/lib/docs/networkFrom.ts` derives
+a network from each family's existing data — Server+ from `serverTopology` + `serverDiagrams`, CCNA from
+`ccnaTopology` + `ccnaDiagrams`, Network+ from `networkPlusTopology` + its `ARCH`, the six cloud courses from
+their `CloudTopology` (containers → segments by geometric containment, nodes → hosts by icon family, traffic
+edges whose label names a port → services, control icons → controls on the resource that references them),
+CySA+ from the SOC topology + `cysaContent` (the `ATTACK_PATH` hops become Week-2 attacks with their ATT&CK
+ids and a Week-4 replay with the SOC's answers), and the eleven architecture-only courses from `ARCH` (zones →
+segments, host-like kinds → hosts, control/monitor/scanner/backup → controls placed by the picture's edges,
+ticket/evidence → actions; records are not components). `layoutNetwork` lays every derived network out as a
+picture (segment bands, rows of cards, the platform at the bottom) at DTO build time, so the stored JSON
+carries positions and the diagram stays pure. `actionsFromTasks` places every task from what its steps say —
+the machine a command runs on (Server+), the `where` line matched against the network's own host names and a
+few per-family phrases, the task's tools on the host it touches most — with `at: []` ("whole lab") when a step
+names nothing, never a guess, and the step's own title as the text. Honesty rules are tested over all 22
+courses: no address outside the course's topology module (architecture-only courses print none), every
+reference resolves, weeks mirror the course, every graded task of the lab weeks is placed, cards never overlap.
 
 ### Longitudinal validation, the task timer and the Understanding score (R140)
 

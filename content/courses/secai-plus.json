@@ -6,6 +6,7 @@
     "src/lib/docs/portfolioForm.ts",
     "src/lib/docs/manual.ts",
     "src/lib/docs/secaiContent.ts",
+    "src/lib/docs/networkFrom.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
     "src/lib/docs/certs.ts",
@@ -7583,6 +7584,911 @@
           "2": "New: the input guardrail, output screening, log redaction and alerts. A poisoned work order is caught; the agent cannot email without a person.",
           "3": "New: the pipeline gates, the quality audit and the staff’s own AI tools. A missing guardrail blocks the build.",
           "4": "New: the model-file scan. A clean copy is rebuilt, matches v3, alerts on all six, and the customers get evidence."
+        }
+      }
+    },
+    "network": {
+      "NETWORK": {
+        "copy": {
+          "title": "The SecAI+ Capstone: Four Releases network — what you build and where",
+          "howToRead": "13 components on 4 segments. Each card shows its address, what it runs and exposes, and the controls on it. Pick a week to see what has arrived.",
+          "footer": "Lab stand-in until the starter kit ships: a small open-weight model in Ollama, Chroma for retrieval, LiteLLM as the gateway, OpenBao for secrets, LLM Guard and Presidio for the guardrails.",
+          "reference": {
+            "lede": "Every component of the system you work on, its address where it has one, what it runs and exposes, the tools on it, and what each task does to it, week by week.",
+            "lan": "4 segments: People, Service Hub — your build, AI services and data, Watch and govern.",
+            "ports": "What answers on the network, and what stays inside a host or a single segment.",
+            "tools": "What is installed where, and the task that uses it.",
+            "attacks": "The attack types in exam vocabulary, where this lab uses each, and the control that answers it.",
+            "actions": "What each task of the week does on the network: the work placed on the components it touches.",
+            "links": "Every cable, port to port, with what it carries."
+          }
+        },
+        "view": {
+          "w": 1000,
+          "h": 764
+        },
+        "fabric": {
+          "segments": [
+            {
+              "id": "people",
+              "label": "People",
+              "note": "customers · staff",
+              "kind": "zone",
+              "arrives": 0,
+              "y": 46
+            },
+            {
+              "id": "app",
+              "label": "Service Hub — your build",
+              "note": "what you configure",
+              "kind": "zone",
+              "arrives": 0,
+              "y": 162
+            },
+            {
+              "id": "ai",
+              "label": "AI services and data",
+              "note": "models · retrieval · backups",
+              "kind": "zone",
+              "arrives": 0,
+              "y": 462
+            },
+            {
+              "id": "ops",
+              "label": "Watch and govern",
+              "note": "what proves it",
+              "kind": "zone",
+              "arrives": 1,
+              "y": 595
+            }
+          ]
+        },
+        "hosts": [
+          {
+            "id": "customer",
+            "label": "Customer",
+            "description": "Asks the assistant about buildings and contracts; the first attacker role",
+            "segment": "people",
+            "kind": "client",
+            "arrives": 0,
+            "external": true,
+            "apps": [
+              "property managers"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 58,
+            "tools": [
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sa-w0-gov",
+                  "sa-w0-def",
+                  "sa-w0-red",
+                  "sa-w1-gov",
+                  "sa-w1-red",
+                  "sa-w2-red",
+                  "sa-w2-gov",
+                  "sa-w3-red",
+                  "sa-w4-red",
+                  "sa-w4-gov",
+                  "secai-ai-security-validation-w1-inject",
+                  "secai-ai-security-validation-w1-leak",
+                  "secai-ai-security-validation-w2-suite",
+                  "secai-ai-security-validation-w2-report"
+                ]
+              },
+              {
+                "name": "sha256sum",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sa-w0-gov",
+                  "sa-w0-red",
+                  "sa-w1-gov",
+                  "sa-w1-red",
+                  "sa-w4-gov"
+                ]
+              },
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "sa-w0-gov",
+                  "sa-w1-gov",
+                  "sa-w2-gov",
+                  "sa-w4-red",
+                  "sa-w4-gov",
+                  "secai-ai-security-validation-w1-inject",
+                  "secai-ai-security-validation-w1-leak",
+                  "secai-ai-security-validation-w2-suite",
+                  "secai-ai-security-validation-w2-report"
+                ]
+              },
+              {
+                "name": "Git",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sa-w0-gov",
+                  "sa-w1-gov",
+                  "sa-w4-gov",
+                  "secai-ai-security-validation-w2-suite"
+                ]
+              },
+              {
+                "name": "Ollama",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sa-w0-def",
+                  "sa-w0-red",
+                  "sa-w1-red",
+                  "sa-w2-red",
+                  "sa-w3-red",
+                  "sa-w4-red"
+                ]
+              },
+              {
+                "name": "draw.io",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "sa-w1-gov",
+                  "sa-w2-gov"
+                ]
+              },
+              {
+                "name": "Mermaid",
+                "purpose": "A language the task writes or reads.",
+                "usedIn": [
+                  "sa-w1-gov"
+                ]
+              },
+              {
+                "name": "garak",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "sa-w1-red",
+                  "secai-ai-security-validation-w1-inject"
+                ]
+              },
+              {
+                "name": "Python",
+                "purpose": "A language the task writes or reads.",
+                "usedIn": [
+                  "sa-w1-red",
+                  "sa-w3-red",
+                  "sa-w4-red",
+                  "secai-ai-security-validation-w1-inject",
+                  "secai-ai-security-validation-w1-leak",
+                  "secai-ai-security-validation-w2-suite",
+                  "secai-ai-security-validation-w2-report"
+                ]
+              },
+              {
+                "name": "OWASP Threat Dragon",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "sa-w2-red"
+                ]
+              },
+              {
+                "name": "CISO Assistant",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "sa-w2-gov"
+                ]
+              },
+              {
+                "name": "Continue (IDE assistant)",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "sa-w3-red"
+                ]
+              },
+              {
+                "name": "LLM Guard",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "secai-ai-security-validation-w1-leak"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "technician",
+            "label": "Technician",
+            "description": "Uses the assistant and the dispatch agent from the field",
+            "segment": "people",
+            "kind": "client",
+            "arrives": 0,
+            "external": true,
+            "apps": [
+              "field app"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 58
+          },
+          {
+            "id": "staff",
+            "label": "Office staff",
+            "description": "Paste contracts into public chatbots until the tool rules exist",
+            "segment": "people",
+            "kind": "client",
+            "arrives": 0,
+            "external": true,
+            "apps": [
+              "personal chatbots (SA-7)"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 620,
+            "y": 58
+          },
+          {
+            "id": "outside",
+            "label": "Outside inbox",
+            "description": "The address a hijacked agent would email; proves the approval gate",
+            "segment": "people",
+            "kind": "external",
+            "arrives": 2,
+            "external": true,
+            "apps": [
+              "where leaks land"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 860,
+            "y": 58
+          },
+          {
+            "id": "portal",
+            "label": "Customer portal",
+            "description": "Where customers and technicians ask the assistant",
+            "segment": "app",
+            "kind": "service",
+            "arrives": 0,
+            "apps": [
+              "renders the answer"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:gitleaks",
+                "label": "Secret scan",
+                "description": "Proves no API key is left in any prompt or config",
+                "kind": "harden",
+                "arrives": 1,
+                "builtBy": [
+                  "sa-w1-def"
+                ],
+                "role": "defender"
+              },
+              {
+                "id": "ctl:modelscan",
+                "label": "Model-file scan",
+                "description": "Scans the model and config files before a clean rebuild",
+                "kind": "harden",
+                "arrives": 4,
+                "builtBy": [
+                  "sa-w4-def"
+                ],
+                "role": "defender"
+              },
+              {
+                "id": "ctl:redact",
+                "label": "Log redaction",
+                "description": "Strips names and codes before anything is written to a log",
+                "kind": "harden",
+                "arrives": 2,
+                "builtBy": [
+                  "sa-w2-def"
+                ],
+                "role": "defender"
+              },
+              {
+                "id": "ctl:gateway",
+                "label": "AI gateway",
+                "description": "The only path to the model: per-key limits, every call logged",
+                "kind": "harden",
+                "arrives": 1,
+                "builtBy": [
+                  "sa-w1-def"
+                ],
+                "role": "defender"
+              },
+              {
+                "id": "ctl:guardrail",
+                "label": "Input guardrail",
+                "description": "Screens prompts before the model; the attack suite tests it",
+                "kind": "harden",
+                "arrives": 2,
+                "builtBy": [
+                  "sa-w2-def"
+                ],
+                "role": "defender"
+              },
+              {
+                "id": "ctl:aitools",
+                "label": "Staff AI tools",
+                "description": "Which AI tools staff may use, with what data",
+                "kind": "harden",
+                "arrives": 3,
+                "builtBy": [
+                  "sa-w3-gov"
+                ],
+                "role": "governance"
+              }
+            ],
+            "x": 140,
+            "y": 174
+          },
+          {
+            "id": "agent",
+            "label": "Dispatch agent",
+            "description": "Assigns technicians and sends messages through its tools",
+            "segment": "app",
+            "kind": "service",
+            "arrives": 0,
+            "apps": [
+              "assigns",
+              "messages"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 174
+          },
+          {
+            "id": "tools",
+            "label": "Work-order + email tools",
+            "description": "What the agent can touch; scoped tokens and an approval for email",
+            "segment": "app",
+            "kind": "service",
+            "arrives": 0,
+            "apps": [
+              "scoped tokens"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 620,
+            "y": 174
+          },
+          {
+            "id": "secrets",
+            "label": "Secret store",
+            "description": "Holds the API keys the prompt used to carry; rotated",
+            "segment": "app",
+            "kind": "identity",
+            "role": "defender",
+            "arrives": 1,
+            "builtBy": [
+              "sa-w1-def"
+            ],
+            "apps": [
+              "OpenBao",
+              "keys out of prompts"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 860,
+            "y": 174
+          },
+          {
+            "id": "runtime",
+            "label": "Runtime hosting",
+            "description": "Where the portal, agent and gateway run",
+            "segment": "app",
+            "kind": "server",
+            "arrives": 0,
+            "apps": [
+              "containers",
+              "one Linux host"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 358
+          },
+          {
+            "id": "llm",
+            "label": "Language model",
+            "description": "Answers the prompts the gateway forwards",
+            "segment": "ai",
+            "kind": "service",
+            "arrives": 0,
+            "apps": [
+              "third-party API",
+              "lab: Ollama"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:outputguard",
+                "label": "Output screening",
+                "description": "Screens the model’s answers before they reach the caller",
+                "kind": "harden",
+                "arrives": 2,
+                "builtBy": [
+                  "sa-w2-def"
+                ],
+                "role": "defender"
+              }
+            ],
+            "x": 140,
+            "y": 474
+          },
+          {
+            "id": "retrieval",
+            "label": "Retrieval store",
+            "description": "The documents the model reads; poisoned if intake is missing",
+            "segment": "ai",
+            "kind": "storage",
+            "arrives": 0,
+            "apps": [
+              "manuals",
+              "records",
+              "contracts"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 474
+          },
+          {
+            "id": "predictor",
+            "label": "Failure predictor",
+            "description": "Rates equipment failure; its training data is of unknown origin",
+            "segment": "ai",
+            "kind": "service",
+            "arrives": 0,
+            "apps": [
+              "fine-tuned (SA-6)"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 620,
+            "y": 474
+          },
+          {
+            "id": "siem",
+            "label": "Wazuh alerts",
+            "description": "Turns gateway logs into alerts with an owner",
+            "segment": "ops",
+            "kind": "server",
+            "role": "defender",
+            "arrives": 2,
+            "builtBy": [
+              "sa-w3-def"
+            ],
+            "apps": [
+              "injection",
+              "cost spike"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:logs",
+                "label": "Logs and traces",
+                "description": "Every request and answer, redacted before it is written",
+                "kind": "detect",
+                "arrives": 1,
+                "builtBy": [
+                  "sa-w1-def"
+                ],
+                "role": "defender"
+              },
+              {
+                "id": "ctl:pipeline",
+                "label": "Pipeline gates",
+                "description": "Blocks a release that fails the scans or the attack suite",
+                "kind": "harden",
+                "arrives": 3,
+                "builtBy": [
+                  "sa-w3-def"
+                ],
+                "role": "defender"
+              },
+              {
+                "id": "ctl:audit",
+                "label": "Quality audit",
+                "description": "Measures accuracy, refusals and bias on a fixed sample",
+                "kind": "detect",
+                "arrives": 3,
+                "builtBy": [
+                  "sa-w3-gov"
+                ],
+                "role": "governance"
+              }
+            ],
+            "x": 140,
+            "y": 607
+          }
+        ],
+        "weeks": [
+          {
+            "week": 0,
+            "wire": "Lab and ground rules",
+            "focus": "Sign the lab rule, open the ledger, and capture the product as found.",
+            "before": "Nothing built yet.",
+            "after": "The product as found: portal, agent and tools on one runtime, the models and the retrieval store, every planted weakness in place.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "sa-w0-gov",
+                "step": "sa-w0-gov-s2",
+                "role": "governance",
+                "kind": "setup",
+                "at": [
+                  "customer"
+                ],
+                "text": "Open the evidence ledger"
+              },
+              {
+                "taskId": "sa-w0-gov",
+                "step": "sa-w0-gov-s1",
+                "role": "governance",
+                "kind": "governance",
+                "at": [],
+                "text": "Sign the lab rule"
+              },
+              {
+                "taskId": "sa-w0-def",
+                "step": "sa-w0-def-s1",
+                "role": "defender",
+                "kind": "setup",
+                "at": [
+                  "customer"
+                ],
+                "text": "Pull a small open-weight model"
+              },
+              {
+                "taskId": "sa-w0-def",
+                "step": "sa-w0-def-s2",
+                "role": "defender",
+                "kind": "setup",
+                "at": [
+                  "customer"
+                ],
+                "text": "Create the assistant as found"
+              },
+              {
+                "taskId": "sa-w0-red",
+                "step": "sa-w0-red-s1",
+                "role": "redteam",
+                "kind": "setup",
+                "at": [
+                  "customer"
+                ],
+                "text": "Ask five ordinary questions"
+              },
+              {
+                "taskId": "sa-w0-red",
+                "step": "sa-w0-red-s2",
+                "role": "redteam",
+                "kind": "setup",
+                "at": [
+                  "customer"
+                ],
+                "text": "Hash them into the ledger"
+              }
+            ]
+          },
+          {
+            "week": 1,
+            "wire": "Release v1",
+            "focus": "Ship the smallest complete release: two attacks proven, blocked and logged, and no secret in a prompt.",
+            "before": "Built so far: Customer, Technician, Office staff and 8 more.",
+            "after": "New: the secret store, the secret scan, the gateway, logging and the governance pack. The key leaves the prompt; every attempt is logged.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "sa-w1-gov",
+                "step": "sa-w1-gov-s1",
+                "role": "governance",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the system map (P1 v1)"
+              },
+              {
+                "taskId": "sa-w1-red",
+                "step": "sa-w1-red-s1",
+                "role": "redteam",
+                "kind": "setup",
+                "at": [
+                  "customer"
+                ],
+                "text": "Run the injection probe set"
+              },
+              {
+                "taskId": "sa-w1-red",
+                "step": "sa-w1-red-s2",
+                "role": "redteam",
+                "kind": "governance",
+                "at": [],
+                "text": "Run the disclosure case, then record both"
+              }
+            ]
+          },
+          {
+            "week": 2,
+            "wire": "Release v2",
+            "focus": "Cover all six attack cases: guardrails, a scoped agent, redacted logs and owned alert thresholds.",
+            "before": "Built so far: Customer, Technician, Office staff and 18 more.",
+            "after": "New: the input guardrail, output screening, log redaction and alerts. A poisoned work order is caught; the agent cannot email without a person.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "sa-w2-red",
+                "step": "sa-w2-red-s1",
+                "role": "redteam",
+                "kind": "setup",
+                "at": [
+                  "customer"
+                ],
+                "text": "Run all six cases through the gateway"
+              },
+              {
+                "taskId": "sa-w2-red",
+                "step": "sa-w2-red-s2",
+                "role": "redteam",
+                "kind": "governance",
+                "at": [],
+                "text": "Map the threats and the attacker’s use of AI"
+              },
+              {
+                "taskId": "sa-w2-gov",
+                "step": "sa-w2-gov-s1",
+                "role": "governance",
+                "kind": "governance",
+                "at": [],
+                "text": "Map the data and the life cycle (P1 v2)"
+              }
+            ]
+          },
+          {
+            "week": 3,
+            "wire": "Release v3",
+            "focus": "Make the suite a pipeline test, alert on all six cases, and measure accuracy.",
+            "before": "Built so far: Customer, Technician, Office staff and 23 more.",
+            "after": "New: the pipeline gates, the quality audit and the staff’s own AI tools. A missing guardrail blocks the build.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "sa-w3-red",
+                "step": "sa-w3-red-s1",
+                "role": "redteam",
+                "kind": "governance",
+                "at": [],
+                "text": "Define the automated suite"
+              }
+            ]
+          },
+          {
+            "week": 4,
+            "wire": "Release v4",
+            "focus": "Rebuild clean, prove the same results, and hand customers evidence-backed answers.",
+            "before": "Built so far: Customer, Technician, Office staff and 26 more.",
+            "after": "New: the model-file scan. A clean copy is rebuilt, matches v3, alerts on all six, and the customers get evidence.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "sa-w4-red",
+                "step": "sa-w4-red-s1",
+                "role": "redteam",
+                "kind": "setup",
+                "at": [
+                  "customer"
+                ],
+                "text": "Re-run the suite on the rebuild"
+              },
+              {
+                "taskId": "sa-w4-red",
+                "step": "sa-w4-red-s2",
+                "role": "redteam",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the four paper cases"
+              },
+              {
+                "taskId": "sa-w4-gov",
+                "step": "sa-w4-gov-s1",
+                "role": "governance",
+                "kind": "governance",
+                "at": [],
+                "text": "Model cards and the responsible-AI assessment"
+              },
+              {
+                "taskId": "sa-w4-gov",
+                "step": "portfolio",
+                "role": "governance",
+                "kind": "evidence",
+                "at": [],
+                "text": "Write the Portfolio"
+              }
+            ]
+          },
+          {
+            "week": 5,
+            "wire": "AI security validation: Attack the model",
+            "focus": "Prove a prompt injection and a data leak against a model, with evidence.",
+            "before": "Built so far: Customer, Technician, Office staff and 29 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "secai-ai-security-validation-w1-inject",
+                "step": "secai-ai-security-validation-w1-inject-s1",
+                "role": "redteam",
+                "kind": "setup",
+                "at": [
+                  "customer"
+                ],
+                "text": "Prove a prompt injection"
+              },
+              {
+                "taskId": "secai-ai-security-validation-w1-inject",
+                "step": "secai-ai-security-validation-w1-inject-s2",
+                "role": "redteam",
+                "kind": "governance",
+                "at": [],
+                "text": "Map it to OWASP."
+              },
+              {
+                "taskId": "secai-ai-security-validation-w1-leak",
+                "step": "secai-ai-security-validation-w1-leak-s1",
+                "role": "redteam",
+                "kind": "setup",
+                "at": [
+                  "customer"
+                ],
+                "text": "Prove a data leak"
+              },
+              {
+                "taskId": "secai-ai-security-validation-w1-leak",
+                "step": "secai-ai-security-validation-w1-leak-s2",
+                "role": "redteam",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the finding."
+              }
+            ]
+          },
+          {
+            "week": 6,
+            "wire": "AI security validation: A suite that holds",
+            "focus": "Turn every proven attack into a test the pipeline runs, so a removed guardrail fails the build.",
+            "before": "Built so far: Customer, Technician, Office staff and 29 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "secai-ai-security-validation-w2-suite",
+                "step": "secai-ai-security-validation-w2-suite-s1",
+                "role": "redteam",
+                "kind": "setup",
+                "at": [
+                  "customer"
+                ],
+                "text": "Automate the attack suite"
+              },
+              {
+                "taskId": "secai-ai-security-validation-w2-suite",
+                "step": "secai-ai-security-validation-w2-suite-s2",
+                "role": "redteam",
+                "kind": "governance",
+                "at": [],
+                "text": "Prove the regression catch."
+              },
+              {
+                "taskId": "secai-ai-security-validation-w2-report",
+                "step": "secai-ai-security-validation-w2-report-s1",
+                "role": "redteam",
+                "kind": "setup",
+                "at": [
+                  "customer"
+                ],
+                "text": "Report the validation"
+              },
+              {
+                "taskId": "secai-ai-security-validation-w2-report",
+                "step": "secai-ai-security-validation-w2-report-s2",
+                "role": "redteam",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the residual risk."
+              }
+            ]
+          }
+        ],
+        "spec": {
+          "columns": [
+            "Component",
+            "Address",
+            "Runs",
+            "Who"
+          ],
+          "rows": [
+            [
+              "Customer",
+              "—",
+              "property managers",
+              "Outside"
+            ],
+            [
+              "Technician",
+              "—",
+              "field app",
+              "Outside"
+            ],
+            [
+              "Office staff",
+              "—",
+              "personal chatbots (SA-7)",
+              "Outside"
+            ],
+            [
+              "Outside inbox",
+              "—",
+              "where leaks land",
+              "Outside"
+            ],
+            [
+              "Customer portal",
+              "—",
+              "renders the answer",
+              "Team"
+            ],
+            [
+              "Dispatch agent",
+              "—",
+              "assigns · messages",
+              "Team"
+            ],
+            [
+              "Work-order + email tools",
+              "—",
+              "scoped tokens",
+              "Team"
+            ],
+            [
+              "Secret store",
+              "—",
+              "OpenBao · keys out of prompts",
+              "defender"
+            ],
+            [
+              "Runtime hosting",
+              "—",
+              "containers · one Linux host",
+              "Team"
+            ],
+            [
+              "Language model",
+              "—",
+              "third-party API · lab: Ollama",
+              "Team"
+            ],
+            [
+              "Retrieval store",
+              "—",
+              "manuals · records · contracts",
+              "Team"
+            ],
+            [
+              "Failure predictor",
+              "—",
+              "fine-tuned (SA-6)",
+              "Team"
+            ],
+            [
+              "Wazuh alerts",
+              "—",
+              "injection · cost spike",
+              "defender"
+            ]
+          ]
         }
       }
     },

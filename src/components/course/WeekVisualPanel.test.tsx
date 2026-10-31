@@ -22,6 +22,8 @@ describe('WeekVisualPanel', () => {
     const { container } = mount();
     expect(screen.getAllByRole('heading', { name: 'What you build this week' })).toHaveLength(1);
     expect(container.querySelectorAll('h3')).toHaveLength(1);
+    // R157: every course opens on its network; the build thumbnail is the second option.
+    await userEvent.click(container.querySelector('[data-picture-pick="build"]')!);
     expect(container.querySelector('[data-compact="true"]')).not.toBeNull();
     expect(container.querySelector('[data-caption]')!.textContent!.length).toBeGreaterThan(0);
     const btn = screen.getByRole('button', { name: 'Expand' });
@@ -40,8 +42,8 @@ describe('WeekVisualPanel', () => {
 });
 
 /**
- * R152 — a course with a lab network (Security+) gets a Build | Network switch once expanded; a course
- * without one (azure-fundamentals) never shows it, and the single heading holds either way.
+ * R152 — a course with a lab network gets a Network | Build switch; R157 — every course has one (Security+
+ * by hand, the rest derived), and the single heading holds either way.
  */
 describe('WeekVisualPanel — R153 network primary', () => {
   const mountSec = (fill?: boolean) => {
@@ -53,9 +55,10 @@ describe('WeekVisualPanel — R153 network primary', () => {
     );
   };
 
-  it('azure-fundamentals shows no switch and keeps one h3', () => {
+  it('azure-fundamentals (a derived network, R157) shows the switch too and keeps one h3', () => {
     const { container } = mount();
-    expect(container.querySelector('[data-picture-pick]')).toBeNull();
+    expect(container.querySelector('[data-picture-pick="network"]')).not.toBeNull();
+    expect(container.querySelector('[data-net-root]')).not.toBeNull();
     expect(container.querySelectorAll('h3')).toHaveLength(1);
   });
 
@@ -84,7 +87,7 @@ describe('WeekVisualPanel — R153 network primary', () => {
 });
 
 describe('WeekVisualPanel — R156 the Full network link', () => {
-  it('Security+ links to the Network tab at this week; a course without a network does not', () => {
+  it('Security+ links to the Network tab at this week; so does every derived course (R157)', () => {
     const sp = courseDocument('security-plus')!;
     const { container, unmount } = render(
       <CourseDocumentContext.Provider value={sp}>
@@ -94,6 +97,6 @@ describe('WeekVisualPanel — R156 the Full network link', () => {
     expect(container.querySelector('[data-net-full-link]')!.getAttribute('href')).toBe('/courses/security-plus/network?week=3');
     unmount();
     const { container: az } = mount();
-    expect(az.querySelector('[data-net-full-link]')).toBeNull();
+    expect(az.querySelector('[data-net-full-link]')!.getAttribute('href'), 'R157: every course links to its network').toBe('/courses/azure-fundamentals/network?week=1');
   });
 });

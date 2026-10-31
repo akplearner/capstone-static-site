@@ -6,6 +6,7 @@
     "src/lib/docs/portfolioForm.ts",
     "src/lib/docs/manual.ts",
     "src/lib/docs/dockerDcaContent.ts",
+    "src/lib/docs/networkFrom.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
     "src/lib/docs/certs.ts",
@@ -5251,6 +5252,763 @@
           "2": "New: the stack composed, deployed to a Swarm as services, scaled, and a bad update rolled back.",
           "3": "New: the user network and name resolution, the data on a named volume, and a connectivity fault worked.",
           "4": "New: the image scanned, run non-root with no secret, the base decided, and the stack handed over and torn down."
+        }
+      }
+    },
+    "network": {
+      "NETWORK": {
+        "copy": {
+          "title": "The Docker Certified Associate — the Container Yard network — what you build and where",
+          "howToRead": "7 components on 4 segments. Each card shows its address, what it runs and exposes, and the controls on it. Pick a week to see what has arrived.",
+          "footer": "Everything runs on a laptop: Docker Engine, a local registry and a single-node Swarm. No paid cloud.",
+          "reference": {
+            "lede": "Every component of the system you work on, its address where it has one, what it runs and exposes, the tools on it, and what each task does to it, week by week.",
+            "lan": "4 segments: Build the image, Orchestrate the stack, Network and persist, Make it safe to ship.",
+            "ports": "What answers on the network, and what stays inside a host or a single segment.",
+            "tools": "What is installed where, and the task that uses it.",
+            "attacks": "The attack types in exam vocabulary, where this lab uses each, and the control that answers it.",
+            "actions": "What each task of the week does on the network: the work placed on the components it touches.",
+            "links": "Every cable, port to port, with what it carries."
+          }
+        },
+        "view": {
+          "w": 1000,
+          "h": 648
+        },
+        "fabric": {
+          "segments": [
+            {
+              "id": "build",
+              "label": "Build the image",
+              "note": "Dockerfile · registry",
+              "kind": "zone",
+              "arrives": 1,
+              "y": 46
+            },
+            {
+              "id": "stack",
+              "label": "Orchestrate the stack",
+              "note": "Compose · Swarm",
+              "kind": "zone",
+              "arrives": 1,
+              "y": 230
+            },
+            {
+              "id": "platform",
+              "label": "Network and persist",
+              "note": "networks · ports · volumes",
+              "kind": "zone",
+              "arrives": 3,
+              "y": 380
+            },
+            {
+              "id": "proof",
+              "label": "Make it safe to ship",
+              "note": "fault · scan · hardening",
+              "kind": "zone",
+              "arrives": 3,
+              "y": 520
+            }
+          ]
+        },
+        "hosts": [
+          {
+            "id": "image",
+            "label": "App image",
+            "description": "The built, tagged artifact the whole stack runs",
+            "segment": "build",
+            "kind": "service",
+            "role": "images",
+            "arrives": 1,
+            "apps": [
+              "tagged 1.0.0"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:registry",
+                "label": "Registry",
+                "description": "Where the image is shipped from; the digest is its true name",
+                "kind": "recover",
+                "arrives": 1,
+                "role": "images"
+              },
+              {
+                "id": "ctl:scan",
+                "label": "Image scan",
+                "description": "The vulnerabilities in the image, found before an attacker does",
+                "kind": "detect",
+                "arrives": 4,
+                "role": "images"
+              },
+              {
+                "id": "ctl:harden",
+                "label": "Hardening",
+                "description": "The image run least-privileged, secrets kept out",
+                "kind": "harden",
+                "arrives": 4,
+                "role": "records"
+              },
+              {
+                "id": "ctl:custody",
+                "label": "Custody",
+                "description": "A hash for every artifact the course produced",
+                "kind": "recover",
+                "arrives": 4,
+                "role": "records"
+              }
+            ],
+            "x": 140,
+            "y": 58
+          },
+          {
+            "id": "compose",
+            "label": "Compose stack",
+            "description": "The multi-container stack as one versioned file",
+            "segment": "stack",
+            "kind": "server",
+            "role": "stack",
+            "arrives": 2,
+            "apps": [
+              "app + db"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:scale",
+                "label": "Scale & rollback",
+                "description": "Scaling up and rolling a bad deploy back",
+                "kind": "detect",
+                "arrives": 2,
+                "role": "stack"
+              },
+              {
+                "id": "ctl:daemon",
+                "label": "Daemon config",
+                "description": "The storage and logging the engine runs with",
+                "kind": "harden",
+                "arrives": 1,
+                "role": "records"
+              }
+            ],
+            "x": 140,
+            "y": 242
+          },
+          {
+            "id": "swarm",
+            "label": "Swarm services",
+            "description": "The stack as desired-state services across replicas",
+            "segment": "stack",
+            "kind": "server",
+            "role": "stack",
+            "arrives": 2,
+            "apps": [
+              "replicas"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 242
+          },
+          {
+            "id": "app_run",
+            "label": "Running app",
+            "description": "The app container serving behind a healthcheck",
+            "segment": "stack",
+            "kind": "service",
+            "role": "stack",
+            "arrives": 2,
+            "apps": [
+              "healthy"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 620,
+            "y": 242
+          },
+          {
+            "id": "db",
+            "label": "Database",
+            "description": "The stateful service whose data lives on a volume",
+            "segment": "stack",
+            "kind": "storage",
+            "role": "net",
+            "arrives": 3,
+            "apps": [
+              "on a volume"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:volume",
+                "label": "Named volume",
+                "description": "Where the data outlives any one container",
+                "kind": "recover",
+                "arrives": 3,
+                "role": "net"
+              }
+            ],
+            "x": 860,
+            "y": 242
+          },
+          {
+            "id": "network",
+            "label": "User network",
+            "description": "The network containers resolve each other by name on",
+            "segment": "platform",
+            "kind": "switch",
+            "role": "net",
+            "arrives": 3,
+            "apps": [
+              "DNS by name"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 392
+          },
+          {
+            "id": "ports",
+            "label": "Published ports",
+            "description": "The host ports that reach the app",
+            "segment": "platform",
+            "kind": "endpoint",
+            "role": "net",
+            "arrives": 3,
+            "apps": [
+              "host → container"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 392
+          },
+          {
+            "id": "operator",
+            "label": "Your own machine",
+            "description": "Where you work from in this course.",
+            "kind": "client",
+            "external": true,
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 542,
+            "tools": [
+              {
+                "name": "Docker",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "dca-w0-install",
+                  "dca-w0-verify",
+                  "dca-w0-orient",
+                  "dca-w1-build",
+                  "dca-w1-registry",
+                  "dca-w1-config",
+                  "dca-w2-compose",
+                  "dca-w2-swarm",
+                  "dca-w2-scale",
+                  "dca-w3-network",
+                  "dca-w3-volumes",
+                  "dca-w3-ports",
+                  "dca-w4-scan",
+                  "dca-w4-harden",
+                  "dca-w4-handover"
+                ]
+              },
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "dca-w0-verify",
+                  "dca-w0-orient",
+                  "dca-w1-registry",
+                  "dca-w3-volumes",
+                  "dca-w4-scan",
+                  "dca-w4-harden",
+                  "dca-w4-handover",
+                  "dca-local-llm-serving-w1-size",
+                  "dca-rag-engineering-w1-retrieve",
+                  "dca-rag-engineering-w2-evalset",
+                  "dca-rag-engineering-w2-passline"
+                ]
+              },
+              {
+                "name": "curl",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "dca-w3-ports",
+                  "dca-local-llm-serving-w1-serve"
+                ]
+              },
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "dca-w4-handover",
+                  "dca-local-llm-serving-w1-serve",
+                  "dca-local-llm-serving-w1-size",
+                  "dca-rag-engineering-w1-index",
+                  "dca-rag-engineering-w1-retrieve",
+                  "dca-rag-engineering-w2-evalset",
+                  "dca-rag-engineering-w2-passline"
+                ]
+              },
+              {
+                "name": "Ollama",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "dca-local-llm-serving-w1-serve",
+                  "dca-rag-engineering-w1-retrieve"
+                ]
+              },
+              {
+                "name": "Python",
+                "purpose": "A language the task writes or reads.",
+                "usedIn": [
+                  "dca-local-llm-serving-w1-serve",
+                  "dca-local-llm-serving-w1-size",
+                  "dca-rag-engineering-w1-index",
+                  "dca-rag-engineering-w1-retrieve",
+                  "dca-rag-engineering-w2-evalset",
+                  "dca-rag-engineering-w2-passline"
+                ]
+              },
+              {
+                "name": "Chroma",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "dca-rag-engineering-w1-index"
+                ]
+              }
+            ]
+          }
+        ],
+        "weeks": [
+          {
+            "week": 0,
+            "wire": "Set up the yard",
+            "focus": "Install Docker Engine and Compose, run the hello-world, pick your focus and make the yard folder.",
+            "before": "Nothing built yet.",
+            "after": "The engine and Compose installed and proven, and the yard folder ready.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "dca-w0-install",
+                "step": "dca-w0-install-s1",
+                "role": "images",
+                "kind": "evidence",
+                "at": [],
+                "text": "Install Docker and read its version"
+              },
+              {
+                "taskId": "dca-w0-verify",
+                "step": "dca-w0-verify-s1",
+                "role": "stack",
+                "kind": "governance",
+                "at": [],
+                "text": "Run hello-world and list the image"
+              },
+              {
+                "taskId": "dca-w0-orient",
+                "step": "dca-w0-orient-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Pick the focus and name the app"
+              },
+              {
+                "taskId": "dca-w0-orient",
+                "step": "dca-w0-orient-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Make the yard folder"
+              }
+            ]
+          },
+          {
+            "week": 1,
+            "wire": "Build the image",
+            "focus": "Write a Dockerfile, build and tag the image, push it to a registry, and configure the daemon.",
+            "before": "Built so far: 1 Install & env.",
+            "after": "New: the image built from a Dockerfile, tagged, pushed and pulled back, and the daemon configured.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "dca-w1-build",
+                "step": "dca-w1-build-s1",
+                "role": "images",
+                "kind": "governance",
+                "at": [],
+                "text": "Build the image from a Dockerfile"
+              },
+              {
+                "taskId": "dca-w1-build",
+                "step": "dca-w1-build-s2",
+                "role": "images",
+                "kind": "evidence",
+                "at": [],
+                "text": "Shrink it with a multi-stage build"
+              },
+              {
+                "taskId": "dca-w1-registry",
+                "step": "dca-w1-registry-s1",
+                "role": "images",
+                "kind": "governance",
+                "at": [],
+                "text": "Run a registry and push the image"
+              },
+              {
+                "taskId": "dca-w1-registry",
+                "step": "dca-w1-registry-s2",
+                "role": "images",
+                "kind": "evidence",
+                "at": [],
+                "text": "Pull it back by tag"
+              },
+              {
+                "taskId": "dca-w1-config",
+                "step": "dca-w1-config-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Read the daemon configuration"
+              },
+              {
+                "taskId": "dca-w1-config",
+                "step": "dca-w1-config-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Cap the log size so a container cannot fill the disk"
+              }
+            ]
+          },
+          {
+            "week": 2,
+            "wire": "Orchestrate the stack",
+            "focus": "Compose the multi-container stack, deploy it to a Swarm as services, scale it, and roll a bad update back.",
+            "before": "Built so far: 1 Install & env, Dockerfile, App image and 3 more.",
+            "after": "New: the stack composed, deployed to a Swarm as services, scaled, and a bad update rolled back.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "dca-w2-compose",
+                "step": "dca-w2-compose-s1",
+                "role": "stack",
+                "kind": "governance",
+                "at": [],
+                "text": "Bring the stack up with Compose"
+              },
+              {
+                "taskId": "dca-w2-swarm",
+                "step": "dca-w2-swarm-s1",
+                "role": "stack",
+                "kind": "governance",
+                "at": [],
+                "text": "Init the Swarm and deploy the stack"
+              },
+              {
+                "taskId": "dca-w2-scale",
+                "step": "dca-w2-scale-s1",
+                "role": "stack",
+                "kind": "governance",
+                "at": [],
+                "text": "Scale the app up"
+              },
+              {
+                "taskId": "dca-w2-scale",
+                "step": "dca-w2-scale-s2",
+                "role": "stack",
+                "kind": "evidence",
+                "at": [],
+                "text": "Roll a bad update back"
+              }
+            ]
+          },
+          {
+            "week": 3,
+            "wire": "Network and persist",
+            "focus": "Wire the network and ports, persist the data in a volume, and work a connectivity fault the method way.",
+            "before": "Built so far: 1 Install & env, Dockerfile, App image and 8 more.",
+            "after": "New: the user network and name resolution, the data on a named volume, and a connectivity fault worked.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "dca-w3-network",
+                "step": "dca-w3-network-s1",
+                "role": "net",
+                "kind": "governance",
+                "at": [],
+                "text": "Resolve a service by name"
+              },
+              {
+                "taskId": "dca-w3-volumes",
+                "step": "dca-w3-volumes-s1",
+                "role": "net",
+                "kind": "evidence",
+                "at": [],
+                "text": "Prove the data survives a recreate"
+              },
+              {
+                "taskId": "dca-w3-ports",
+                "step": "dca-w3-ports-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the symptom exactly"
+              },
+              {
+                "taskId": "dca-w3-ports",
+                "step": "dca-w3-ports-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Change one thing per row and record the result"
+              }
+            ]
+          },
+          {
+            "week": 4,
+            "wire": "Harden and hand over",
+            "focus": "Scan the image, run it as a non-root user with secrets kept out, and hand the stack over with custody.",
+            "before": "Built so far: 1 Install & env, Dockerfile, App image and 15 more.",
+            "after": "New: the image scanned, run non-root with no secret, the base decided, and the stack handed over and torn down.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "dca-w4-scan",
+                "step": "dca-w4-scan-s1",
+                "role": "images",
+                "kind": "governance",
+                "at": [],
+                "text": "Scan the image"
+              },
+              {
+                "taskId": "dca-w4-harden",
+                "step": "dca-w4-harden-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Prove it runs as a non-root user"
+              },
+              {
+                "taskId": "dca-w4-harden",
+                "step": "dca-w4-harden-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Prove no secret is baked into the image"
+              },
+              {
+                "taskId": "dca-w4-handover",
+                "step": "dca-w4-handover-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Write what the stack is and how to run it"
+              },
+              {
+                "taskId": "dca-w4-handover",
+                "step": "dca-w4-handover-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Hash every artifact for custody"
+              }
+            ]
+          },
+          {
+            "week": 5,
+            "wire": "Local LLM serving: Serve a model locally",
+            "focus": "Serve a quantised model behind an API and size the memory it needs.",
+            "before": "Built so far: 1 Install & env, Dockerfile, App image and 21 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "dca-local-llm-serving-w1-serve",
+                "step": "dca-local-llm-serving-w1-serve-s1",
+                "role": "images",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Serve a model behind an API"
+              },
+              {
+                "taskId": "dca-local-llm-serving-w1-serve",
+                "step": "dca-local-llm-serving-w1-serve-s2",
+                "role": "images",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the endpoint."
+              },
+              {
+                "taskId": "dca-local-llm-serving-w1-size",
+                "step": "dca-local-llm-serving-w1-size-s1",
+                "role": "images",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Size the memory"
+              },
+              {
+                "taskId": "dca-local-llm-serving-w1-size",
+                "step": "dca-local-llm-serving-w1-size-s2",
+                "role": "images",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the sizing."
+              }
+            ]
+          },
+          {
+            "week": 6,
+            "wire": "RAG engineering: Index your documents",
+            "focus": "Load a folder of records into a vector store and query it for the right passage.",
+            "before": "Built so far: 1 Install & env, Dockerfile, App image and 21 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "dca-rag-engineering-w1-index",
+                "step": "dca-rag-engineering-w1-index-s1",
+                "role": "images",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Index a document set"
+              },
+              {
+                "taskId": "dca-rag-engineering-w1-index",
+                "step": "dca-rag-engineering-w1-index-s2",
+                "role": "images",
+                "kind": "governance",
+                "at": [],
+                "text": "Query the store and read the top passage."
+              },
+              {
+                "taskId": "dca-rag-engineering-w1-retrieve",
+                "step": "dca-rag-engineering-w1-retrieve-s1",
+                "role": "images",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Answer from the passages"
+              },
+              {
+                "taskId": "dca-rag-engineering-w1-retrieve",
+                "step": "dca-rag-engineering-w1-retrieve-s2",
+                "role": "images",
+                "kind": "governance",
+                "at": [],
+                "text": "Compare the answer to the record."
+              }
+            ]
+          },
+          {
+            "week": 7,
+            "wire": "RAG engineering: Evaluate the answers",
+            "focus": "Measure the pipeline against a question set and set a pass line before you trust it.",
+            "before": "Built so far: 1 Install & env, Dockerfile, App image and 21 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "dca-rag-engineering-w2-evalset",
+                "step": "dca-rag-engineering-w2-evalset-s1",
+                "role": "images",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Build a question set"
+              },
+              {
+                "taskId": "dca-rag-engineering-w2-evalset",
+                "step": "dca-rag-engineering-w2-evalset-s2",
+                "role": "images",
+                "kind": "governance",
+                "at": [],
+                "text": "Read the misses and fix the cause."
+              },
+              {
+                "taskId": "dca-rag-engineering-w2-passline",
+                "step": "dca-rag-engineering-w2-passline-s1",
+                "role": "images",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Set the pass line"
+              },
+              {
+                "taskId": "dca-rag-engineering-w2-passline",
+                "step": "dca-rag-engineering-w2-passline-s2",
+                "role": "images",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the decision."
+              }
+            ]
+          }
+        ],
+        "spec": {
+          "columns": [
+            "Component",
+            "Address",
+            "Runs",
+            "Who"
+          ],
+          "rows": [
+            [
+              "App image",
+              "—",
+              "tagged 1.0.0",
+              "images"
+            ],
+            [
+              "Compose stack",
+              "—",
+              "app + db",
+              "stack"
+            ],
+            [
+              "Swarm services",
+              "—",
+              "replicas",
+              "stack"
+            ],
+            [
+              "Running app",
+              "—",
+              "healthy",
+              "stack"
+            ],
+            [
+              "Database",
+              "—",
+              "on a volume",
+              "net"
+            ],
+            [
+              "User network",
+              "—",
+              "DNS by name",
+              "net"
+            ],
+            [
+              "Published ports",
+              "—",
+              "host → container",
+              "net"
+            ]
+          ]
         }
       }
     },

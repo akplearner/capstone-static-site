@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { NETWORK } from './securityNetwork';
-import { ATTACK_CATALOGUE, attackSentence, attackSteps, catalogueUses, controlsAt, findComponent, lanComponents, netBuiltEntries, portRows, serviceId, servicesAt, toolRows, weekTaskActions, words } from './labNetwork';
+import { ATTACK_CATALOGUE, allHosts, attackSentence, attackSteps, catalogueUses, controlsAt, findComponent, lanComponents, netBuiltEntries, portRows, serviceId, servicesAt, toolRows, weekTaskActions, words } from './labNetwork';
 import { ARCH } from './securityContent';
 import { SEED_COURSES } from '../content/dto';
 import { stepKey } from '../teamProgress';
@@ -96,7 +96,7 @@ describe('securityNetwork — word budgets', () => {
 
 describe('securityNetwork — descriptions (R153)', () => {
   it('every host, service, control and attack has a description within budget', () => {
-    for (const h of [...NETWORK.hosts, NETWORK.fabric.hypervisor]) {
+    for (const h of allHosts(NETWORK)) {
       expect(words(h.description), h.id).toBeGreaterThan(0);
       expect(words(h.description), h.id).toBeLessThanOrEqual(20);
       for (const s of h.services) { expect(words(s.description), `${h.id}:${s.port}`).toBeGreaterThan(0); expect(words(s.description)).toBeLessThanOrEqual(20); }

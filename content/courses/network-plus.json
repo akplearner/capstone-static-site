@@ -7,6 +7,7 @@
     "src/lib/networkPlusTopology.ts",
     "src/lib/docs/manual.ts",
     "src/lib/docs/networkPlusContent.ts",
+    "src/lib/docs/networkFrom.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
     "src/lib/docs/certs.ts",
@@ -5761,6 +5762,897 @@
           "3": "New: logs and backups on the server, the access list that refuses Guest, port security, one change under a record, three faults worked by layer.",
           "4": "New: real equipment researched against the design, a priced bill of materials, and the migration plan issued with custody.",
           "5": "Nothing new in the branch: the same build loaded onto borrowed hardware, the matrix rerun, and the differences listed."
+        }
+      }
+    },
+    "network": {
+      "NETWORK": {
+        "copy": {
+          "title": "The Network+ Capstone Branch network — what you build and where",
+          "howToRead": "10 components on 6 segments, under Packet Tracer. Each card shows its address, what it runs and exposes, and the controls on it. Pick a week to see what has arrived.",
+          "footer": "One branch in Packet Tracer; no hardware needed to pass. The ISP side is 203.0.113.0/30, a documentation range, so nothing here is anyone's address.",
+          "reference": {
+            "lede": "Every component of the branch network, its address where it has one, what it runs and exposes, the tools on it, and what each task does to it, week by week.",
+            "lan": "6 segments: Riverside branch, VLAN 10 Staff, VLAN 20 Devices, VLAN 30 Guest and 2 more.",
+            "ports": "What answers on the network, and what stays inside a host or a single segment.",
+            "tools": "What is installed where, and the task that uses it.",
+            "attacks": "The attack types in exam vocabulary, where this lab uses each, and the control that answers it.",
+            "actions": "What each task of the week does on the network: the work placed on the components it touches.",
+            "links": "Every cable, port to port, with what it carries."
+          }
+        },
+        "view": {
+          "w": 1000,
+          "h": 797
+        },
+        "fabric": {
+          "hypervisor": {
+            "id": "simulator",
+            "label": "Packet Tracer",
+            "description": "The sandbox every build and every proof runs in",
+            "kind": "platform",
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 731,
+            "tools": [
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "np-w0-tool",
+                  "np-w0-orient",
+                  "np-w1-requirements",
+                  "np-w1-plan",
+                  "np-w1-topology",
+                  "np-w2-switches",
+                  "np-w2-routing",
+                  "np-w2-services",
+                  "np-w3-monitor",
+                  "np-w3-secure",
+                  "np-w3-change",
+                  "np-w3-faults",
+                  "np-w4-research",
+                  "np-w4-bom",
+                  "np-w4-handover",
+                  "np-w5-realkit",
+                  "np-w5-differences"
+                ]
+              },
+              {
+                "name": "Cisco IOS",
+                "purpose": "A network or security appliance the task configures.",
+                "usedIn": [
+                  "np-w0-tool",
+                  "np-w1-topology",
+                  "np-w2-switches",
+                  "np-w2-routing",
+                  "np-w2-services",
+                  "np-w3-monitor",
+                  "np-w3-secure",
+                  "np-w3-change",
+                  "np-w3-faults",
+                  "np-w5-realkit"
+                ]
+              },
+              {
+                "name": "Network simulator",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "np-w0-tool",
+                  "np-w1-topology",
+                  "np-w2-switches",
+                  "np-w2-routing",
+                  "np-w2-services",
+                  "np-w3-monitor",
+                  "np-w3-secure",
+                  "np-w3-change",
+                  "np-w3-faults"
+                ]
+              },
+              {
+                "name": "Notes",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "np-w0-orient",
+                  "np-w1-requirements",
+                  "np-w5-differences"
+                ]
+              },
+              {
+                "name": "Spreadsheet",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "np-w1-plan",
+                  "np-w4-research",
+                  "np-w4-bom"
+                ]
+              },
+              {
+                "name": "PowerShell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "np-w1-topology",
+                  "np-w2-services"
+                ]
+              },
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "np-w2-switches",
+                  "np-w2-routing",
+                  "np-w2-services",
+                  "np-w3-secure",
+                  "np-w3-change"
+                ]
+              },
+              {
+                "name": "ping / traceroute",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "np-w2-routing",
+                  "np-w2-services",
+                  "np-w3-secure",
+                  "np-w3-faults"
+                ]
+              },
+              {
+                "name": "nslookup",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "np-w2-services"
+                ]
+              },
+              {
+                "name": "Vendor documentation",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "np-w4-research"
+                ]
+              },
+              {
+                "name": "sha256sum",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "np-w4-handover"
+                ]
+              },
+              {
+                "name": "Terminal program",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "np-w5-realkit"
+                ]
+              },
+              {
+                "name": "Console cable",
+                "purpose": "Physical equipment the task handles.",
+                "usedIn": [
+                  "np-w5-realkit"
+                ]
+              }
+            ]
+          },
+          "segments": [
+            {
+              "id": "site:riverside",
+              "label": "Riverside branch",
+              "note": "Millbrook Vets — Riverside branch",
+              "kind": "site",
+              "arrives": 0,
+              "y": 46
+            },
+            {
+              "id": "vlan:10",
+              "label": "VLAN 10 Staff",
+              "note": "10.70.10.0/24 · gw 10.70.10.1 · DHCP 10.70.10.50 – 10.70.10.199 — Reception and consulting-room PCs; reaches the practice system and the internet.",
+              "kind": "vlan",
+              "parent": "site:riverside",
+              "arrives": 2,
+              "y": 90
+            },
+            {
+              "id": "vlan:20",
+              "label": "VLAN 20 Devices",
+              "note": "10.70.20.0/24 · gw 10.70.20.1 · DHCP 10.70.20.50 – 10.70.20.99 — Printers and the label printer; reachable from Staff only.",
+              "kind": "vlan",
+              "parent": "site:riverside",
+              "arrives": 2,
+              "y": 206
+            },
+            {
+              "id": "vlan:30",
+              "label": "VLAN 30 Guest",
+              "note": "10.70.30.0/24 · gw 10.70.30.1 · DHCP 10.70.30.50 – 10.70.30.250 — The waiting-room WiFi; internet only, never the practice.",
+              "kind": "vlan",
+              "parent": "site:riverside",
+              "arrives": 2,
+              "y": 346
+            },
+            {
+              "id": "vlan:99",
+              "label": "VLAN 99 Management",
+              "note": "10.70.99.0/24 · gw 10.70.99.1 · static — The switches and the router, reached by the network team only.",
+              "kind": "vlan",
+              "parent": "site:riverside",
+              "arrives": 2,
+              "y": 462
+            },
+            {
+              "id": "wan",
+              "label": "ISP link",
+              "note": "203.0.113.0/30 · DNS 203.0.113.53",
+              "kind": "subnet",
+              "arrives": 2,
+              "y": 629
+            }
+          ]
+        },
+        "hosts": [
+          {
+            "id": "R1-BR",
+            "label": "R1-BR",
+            "description": "Routes between the VLANs and out to the ISP with NAT",
+            "addr": "10.70.99.1",
+            "segment": "vlan:99",
+            "kind": "router",
+            "os": "ISR 4321",
+            "arrives": 1,
+            "apps": [
+              "outside 203.0.113.2"
+            ],
+            "services": [
+              {
+                "port": 22,
+                "proto": "tcp",
+                "name": "SSH",
+                "description": "Management access from the Management VLAN; the console otherwise.",
+                "from": 1,
+                "scope": "segment",
+                "via": "vlan:99"
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:R1-BR-acl",
+                "label": "Access list GUEST-IN",
+                "description": "The policy as deny lines with match counters: 3 allow, 4 deny.",
+                "kind": "harden",
+                "arrives": 3
+              },
+              {
+                "id": "ctl:R1-BR-gateways",
+                "label": "Gateways and NAT",
+                "description": "A subinterface per VLAN, a default route, one public address out",
+                "kind": "harden",
+                "arrives": 2
+              }
+            ],
+            "x": 140,
+            "y": 474
+          },
+          {
+            "id": "SW-01",
+            "label": "SW-01",
+            "description": "Reception: staff PCs, the printer and the guest access point",
+            "addr": "10.70.99.11",
+            "segment": "vlan:99",
+            "kind": "switch",
+            "os": "Catalyst 2960-24TT",
+            "arrives": 1,
+            "services": [
+              {
+                "port": 22,
+                "proto": "tcp",
+                "name": "SSH",
+                "description": "Management access from the Management VLAN; the console otherwise.",
+                "from": 1,
+                "scope": "segment",
+                "via": "vlan:99"
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:SW-01-portsec",
+                "label": "Port security",
+                "description": "A stray laptop shuts the port instead of joining the network",
+                "kind": "harden",
+                "arrives": 3
+              }
+            ],
+            "x": 380,
+            "y": 474
+          },
+          {
+            "id": "SW-02",
+            "label": "SW-02",
+            "description": "Consulting rooms: staff PCs and the label printer",
+            "addr": "10.70.99.12",
+            "segment": "vlan:99",
+            "kind": "switch",
+            "os": "Catalyst 2960-24TT",
+            "arrives": 1,
+            "services": [
+              {
+                "port": 22,
+                "proto": "tcp",
+                "name": "SSH",
+                "description": "Management access from the Management VLAN; the console otherwise.",
+                "from": 1,
+                "scope": "segment",
+                "via": "vlan:99"
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:SW-02-portsec",
+                "label": "Port security",
+                "description": "A stray laptop shuts the port instead of joining the network",
+                "kind": "harden",
+                "arrives": 3
+              }
+            ],
+            "x": 620,
+            "y": 474
+          },
+          {
+            "id": "PC-STAFF-1",
+            "label": "PC-STAFF-1",
+            "description": "Reception desk; proves Staff reaches Devices and the internet",
+            "segment": "vlan:10",
+            "kind": "client",
+            "os": "PC-PT",
+            "arrives": 2,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 102
+          },
+          {
+            "id": "PC-STAFF-2",
+            "label": "PC-STAFF-2",
+            "description": "Consulting room; proves the trunk carries Staff between switches",
+            "segment": "vlan:10",
+            "kind": "client",
+            "os": "PC-PT",
+            "arrives": 2,
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 102
+          },
+          {
+            "id": "PRINTER-1",
+            "label": "PRINTER-1",
+            "description": "Reception printer, static address; reachable from Staff only",
+            "addr": "10.70.20.20",
+            "segment": "vlan:20",
+            "kind": "endpoint",
+            "os": "Printer-PT",
+            "arrives": 2,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 218
+          },
+          {
+            "id": "AP-GUEST",
+            "label": "AP-GUEST",
+            "description": "Waiting-room WiFi on the Guest VLAN",
+            "segment": "vlan:30",
+            "kind": "ap",
+            "os": "AccessPoint-PT",
+            "arrives": 2,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 358
+          },
+          {
+            "id": "PC-GUEST-1",
+            "label": "PC-GUEST-1",
+            "description": "A guest; proves the internet works and the practice is refused",
+            "segment": "vlan:30",
+            "kind": "client",
+            "os": "Laptop-PT",
+            "arrives": 2,
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 358
+          },
+          {
+            "id": "ISP",
+            "label": "ISP",
+            "description": "The provider; one public address on the far end of the link",
+            "addr": "203.0.113.1",
+            "segment": "wan",
+            "kind": "external",
+            "external": true,
+            "arrives": 2,
+            "os": "Cloud-PT",
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 641
+          },
+          {
+            "id": "server",
+            "label": "Syslog and TFTP server",
+            "description": "Receives every log line and holds every configuration backup",
+            "segment": "vlan:99",
+            "kind": "server",
+            "arrives": 3,
+            "services": [
+              {
+                "port": 514,
+                "proto": "udp",
+                "name": "syslog",
+                "description": "Receives every device’s log lines, timestamped, in one place.",
+                "from": 3
+              },
+              {
+                "port": 69,
+                "proto": "udp",
+                "name": "TFTP",
+                "description": "Holds every configuration backup, one per device, dated.",
+                "from": 3
+              }
+            ],
+            "controls": [],
+            "x": 860,
+            "y": 474
+          }
+        ],
+        "links": [
+          {
+            "from": "SW-01",
+            "to": "R1-BR",
+            "fromPort": "Gi0/1",
+            "toPort": "Gi0/0/0",
+            "kind": "trunk",
+            "arrives": 1
+          },
+          {
+            "from": "SW-01",
+            "to": "SW-02",
+            "fromPort": "Gi0/2",
+            "toPort": "Gi0/1",
+            "kind": "trunk",
+            "arrives": 1
+          },
+          {
+            "from": "SW-01",
+            "to": "PC-STAFF-1",
+            "fromPort": "Fa0/1",
+            "toPort": "Fa0",
+            "kind": "access",
+            "vlans": [
+              10
+            ],
+            "arrives": 2
+          },
+          {
+            "from": "SW-01",
+            "to": "PRINTER-1",
+            "fromPort": "Fa0/10",
+            "toPort": "Fa0",
+            "kind": "access",
+            "vlans": [
+              20
+            ],
+            "arrives": 2
+          },
+          {
+            "from": "SW-01",
+            "to": "AP-GUEST",
+            "fromPort": "Fa0/20",
+            "toPort": "Port 0",
+            "kind": "access",
+            "vlans": [
+              30
+            ],
+            "arrives": 2
+          },
+          {
+            "from": "SW-02",
+            "to": "PC-STAFF-2",
+            "fromPort": "Fa0/1",
+            "toPort": "Fa0",
+            "kind": "access",
+            "vlans": [
+              10
+            ],
+            "arrives": 2
+          },
+          {
+            "from": "R1-BR",
+            "to": "ISP",
+            "fromPort": "Gi0/0/1",
+            "toPort": "Eth6",
+            "kind": "wan",
+            "arrives": 2
+          }
+        ],
+        "weeks": [
+          {
+            "week": 0,
+            "wire": "Preparation",
+            "focus": "Install Packet Tracer, reach a device prompt, register the lab path, and pick your focus.",
+            "before": "Nothing built yet.",
+            "after": "The simulator installed, a prompt answering, one project file, four focuses named.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "np-w0-tool",
+                "step": "np-w0-tool-s1",
+                "role": "ops",
+                "kind": "governance",
+                "at": [],
+                "text": "Install Packet Tracer and record the version"
+              },
+              {
+                "taskId": "np-w0-tool",
+                "step": "np-w0-tool-s2",
+                "role": "ops",
+                "kind": "evidence",
+                "at": [],
+                "text": "Place a switch and prove the prompt"
+              },
+              {
+                "taskId": "np-w0-orient",
+                "step": "np-w0-orient-s1",
+                "role": "design",
+                "kind": "governance",
+                "at": [],
+                "text": "Pick the focus and name the project file"
+              }
+            ]
+          },
+          {
+            "week": 1,
+            "wire": "Design",
+            "focus": "Discover what the branch needs, plan every subnet and VLAN, and build the empty topology in Packet Tracer.",
+            "before": "Built so far: Packet Tracer, A device prompt, The team and 1 more.",
+            "after": "New: the requirements, the addressing rule, the port map, and every device placed and cabled with neighbours seen.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "np-w1-requirements",
+                "step": "np-w1-requirements-s1",
+                "role": "design",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the requirements from the brief"
+              },
+              {
+                "taskId": "np-w1-requirements",
+                "step": "np-w1-requirements-s2",
+                "role": "design",
+                "kind": "evidence",
+                "at": [],
+                "text": "Survey the building"
+              },
+              {
+                "taskId": "np-w1-plan",
+                "step": "np-w1-plan-s1",
+                "role": "design",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the rule, then derive every subnet from it"
+              },
+              {
+                "taskId": "np-w1-plan",
+                "step": "np-w1-plan-s2",
+                "role": "design",
+                "kind": "evidence",
+                "at": [],
+                "text": "Map every port before you touch a switch"
+              },
+              {
+                "taskId": "np-w1-topology",
+                "step": "np-w1-topology-s1",
+                "role": "sw",
+                "kind": "governance",
+                "at": [],
+                "text": "Place and cable it as the map says"
+              },
+              {
+                "taskId": "np-w1-topology",
+                "step": "np-w1-topology-s2",
+                "role": "sw",
+                "kind": "evidence",
+                "at": [],
+                "text": "Name the devices and prove the links"
+              }
+            ]
+          },
+          {
+            "week": 2,
+            "wire": "Configure",
+            "focus": "Configure the switches and the router so every VLAN gets an address, a gateway and a way out.",
+            "before": "Built so far: Packet Tracer, A device prompt, The team and 7 more.",
+            "after": "New: four VLANs on two switches, two trunks, gateways and NAT, DHCP and DNS served, and the test matrix with its MUST FAIL rows.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "np-w2-switches",
+                "step": "np-w2-switches-s1",
+                "role": "sw",
+                "kind": "governance",
+                "at": [],
+                "text": "Create the VLANs and place the access ports"
+              },
+              {
+                "taskId": "np-w2-switches",
+                "step": "np-w2-switches-s2",
+                "role": "sw",
+                "kind": "evidence",
+                "at": [],
+                "text": "Trunk the switches and the router, and address the management VLAN"
+              },
+              {
+                "taskId": "np-w2-routing",
+                "step": "np-w2-routing-s1",
+                "role": "rt",
+                "kind": "governance",
+                "at": [],
+                "text": "Give every VLAN a gateway on one trunk"
+              },
+              {
+                "taskId": "np-w2-routing",
+                "step": "np-w2-routing-s2",
+                "role": "rt",
+                "kind": "evidence",
+                "at": [],
+                "text": "One way out: the default route and NAT"
+              },
+              {
+                "taskId": "np-w2-services",
+                "step": "np-w2-services-s1",
+                "role": "rt",
+                "kind": "governance",
+                "at": [],
+                "text": "Serve the pools from the plan"
+              },
+              {
+                "taskId": "np-w2-services",
+                "step": "np-w2-services-s2",
+                "role": "rt",
+                "kind": "evidence",
+                "at": [],
+                "text": "Prove every rule in the test matrix"
+              }
+            ]
+          },
+          {
+            "week": 3,
+            "wire": "Operate",
+            "focus": "Add logging, back up the configs, enforce the policy, make one change properly, and work three faults.",
+            "before": "Built so far: Packet Tracer, A device prompt, The team and 16 more.",
+            "after": "New: logs and backups on the server, the access list that refuses Guest, port security, one change under a record, three faults worked by layer.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "np-w3-monitor",
+                "step": "np-w3-monitor-s1",
+                "role": "ops",
+                "kind": "governance",
+                "at": [],
+                "text": "Logs to one place, with the time on them"
+              },
+              {
+                "taskId": "np-w3-monitor",
+                "step": "np-w3-monitor-s2",
+                "role": "ops",
+                "kind": "evidence",
+                "at": [],
+                "text": "Back up every configuration off the device"
+              },
+              {
+                "taskId": "np-w3-secure",
+                "step": "np-w3-secure-s1",
+                "role": "sw",
+                "kind": "evidence",
+                "at": [],
+                "text": "Write the access list from the policy and prove the refusal"
+              },
+              {
+                "taskId": "np-w3-secure",
+                "step": "np-w3-secure-s2",
+                "role": "sw",
+                "kind": "governance",
+                "at": [],
+                "text": "Lock the access ports"
+              },
+              {
+                "taskId": "np-w3-change",
+                "step": "np-w3-change-s1",
+                "role": "ops",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the change before you make it"
+              },
+              {
+                "taskId": "np-w3-change",
+                "step": "np-w3-change-s2",
+                "role": "ops",
+                "kind": "evidence",
+                "at": [],
+                "text": "Back up, make the change, verify, close it"
+              },
+              {
+                "taskId": "np-w3-faults",
+                "step": "np-w3-faults-s1",
+                "role": "ops",
+                "kind": "governance",
+                "at": [],
+                "text": "Receive the faults and open the tickets"
+              },
+              {
+                "taskId": "np-w3-faults",
+                "step": "np-w3-faults-s2",
+                "role": "ops",
+                "kind": "evidence",
+                "at": [],
+                "text": "Work each one bottom up"
+              }
+            ]
+          },
+          {
+            "week": 4,
+            "wire": "Toward real equipment",
+            "focus": "Research real equipment against the design, price a bill of materials, and write the migration plan.",
+            "before": "Built so far: Packet Tracer, A device prompt, The team and 24 more.",
+            "after": "New: real equipment researched against the design, a priced bill of materials, and the migration plan issued with custody.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "np-w4-research",
+                "step": "np-w4-research-s1",
+                "role": "design",
+                "kind": "governance",
+                "at": [],
+                "text": "Turn the design into capabilities, not models"
+              },
+              {
+                "taskId": "np-w4-research",
+                "step": "np-w4-research-s2",
+                "role": "design",
+                "kind": "evidence",
+                "at": [],
+                "text": "Find two real candidates per class and the thing to check"
+              },
+              {
+                "taskId": "np-w4-bom",
+                "step": "np-w4-bom-s1",
+                "role": "ops",
+                "kind": "evidence",
+                "at": [],
+                "text": "Price every line from a real listing"
+              },
+              {
+                "taskId": "np-w4-handover",
+                "step": "np-w4-handover-s1",
+                "role": "design",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the migration plan"
+              },
+              {
+                "taskId": "np-w4-handover",
+                "step": "np-w4-handover-s2",
+                "role": "design",
+                "kind": "evidence",
+                "at": [],
+                "text": "Hash every artifact and hand it over"
+              }
+            ]
+          },
+          {
+            "week": 5,
+            "wire": "On real kit",
+            "focus": "Run the Week 2 build on the CCNA kit if the team can borrow it, and record what differed.",
+            "before": "Built so far: Packet Tracer, A device prompt, The team and 29 more.",
+            "after": "Nothing new in the branch: the same build loaded onto borrowed hardware, the matrix rerun, and the differences listed.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "np-w5-realkit",
+                "step": "np-w5-realkit-s1",
+                "role": "sw",
+                "kind": "evidence",
+                "at": [],
+                "text": "Load the build and rerun the matrix"
+              },
+              {
+                "taskId": "np-w5-differences",
+                "step": "np-w5-differences-s1",
+                "role": "ops",
+                "kind": "evidence",
+                "at": [],
+                "text": "List the differences and update the plan"
+              }
+            ]
+          }
+        ],
+        "spec": {
+          "columns": [
+            "Component",
+            "Address",
+            "Runs",
+            "Who"
+          ],
+          "rows": [
+            [
+              "R1-BR",
+              "10.70.99.1",
+              "22 SSH",
+              "Team"
+            ],
+            [
+              "SW-01",
+              "10.70.99.11",
+              "22 SSH",
+              "Team"
+            ],
+            [
+              "SW-02",
+              "10.70.99.12",
+              "22 SSH",
+              "Team"
+            ],
+            [
+              "PC-STAFF-1",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "PC-STAFF-2",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "PRINTER-1",
+              "10.70.20.20",
+              "—",
+              "Team"
+            ],
+            [
+              "AP-GUEST",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "PC-GUEST-1",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "ISP",
+              "203.0.113.1",
+              "—",
+              "Outside"
+            ],
+            [
+              "Syslog and TFTP server",
+              "—",
+              "514 syslog · 69 TFTP",
+              "Team"
+            ],
+            [
+              "Packet Tracer",
+              "—",
+              "—",
+              "Everyone"
+            ]
+          ]
         }
       }
     },

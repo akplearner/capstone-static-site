@@ -6,6 +6,7 @@
     "src/lib/docs/portfolioForm.ts",
     "src/lib/docs/manual.ts",
     "src/lib/docs/nvidiaAiInfrastructureContent.ts",
+    "src/lib/docs/networkFrom.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
     "src/lib/docs/certs.ts",
@@ -5037,6 +5038,750 @@
           "2": "New: a GPU read from nvidia-smi, its memory need computed, a GPU chosen, and the data path checked.",
           "3": "New: the fabric bandwidth, the rack power and cooling, and the node count, each computed from the table.",
           "4": "New: the telemetry monitored, a scheduling fault worked to Running, and the plan handed over with custody."
+        }
+      }
+    },
+    "network": {
+      "NETWORK": {
+        "copy": {
+          "title": "The NVIDIA AI Infrastructure & Operations — the GPU Yard network — what you build and where",
+          "howToRead": "6 components on 4 segments. Each card shows its address, what it runs and exposes, and the controls on it. Pick a week to see what has arrived.",
+          "footer": "No GPU required: the specs, the captured nvidia-smi and dcgmi output and the fault are all parsed on a laptop.",
+          "reference": {
+            "lede": "Every component of the system you work on, its address where it has one, what it runs and exposes, the tools on it, and what each task does to it, week by week.",
+            "lan": "4 segments: The essentials, Read and size the GPU, The data centre, Operate and survive.",
+            "ports": "What answers on the network, and what stays inside a host or a single segment.",
+            "tools": "What is installed where, and the task that uses it.",
+            "attacks": "The attack types in exam vocabulary, where this lab uses each, and the control that answers it.",
+            "actions": "What each task of the week does on the network: the work placed on the components it touches.",
+            "links": "Every cable, port to port, with what it carries."
+          }
+        },
+        "view": {
+          "w": 1000,
+          "h": 641
+        },
+        "fabric": {
+          "segments": [
+            {
+              "id": "essentials",
+              "label": "The essentials",
+              "note": "model · concepts · stack",
+              "kind": "zone",
+              "arrives": 0,
+              "y": 46
+            },
+            {
+              "id": "gpu",
+              "label": "Read and size the GPU",
+              "note": "nvidia-smi · memory · data path",
+              "kind": "zone",
+              "arrives": 0,
+              "y": 213
+            },
+            {
+              "id": "datacentre",
+              "label": "The data centre",
+              "note": "fabric · power · cooling",
+              "kind": "zone",
+              "arrives": 3,
+              "y": 380
+            },
+            {
+              "id": "proof",
+              "label": "Operate and survive",
+              "note": "monitoring · fault · custody",
+              "kind": "zone",
+              "arrives": 4,
+              "y": 513
+            }
+          ]
+        },
+        "hosts": [
+          {
+            "id": "model",
+            "label": "Local model",
+            "description": "Inference you can run and time on a laptop CPU",
+            "segment": "essentials",
+            "kind": "service",
+            "role": "knowledge",
+            "arrives": 0,
+            "apps": [
+              "Ollama",
+              "inference"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:stack",
+                "label": "NVIDIA stack",
+                "description": "Driver up to framework, the layers a mismatch hides in",
+                "kind": "harden",
+                "arrives": 1,
+                "role": "records"
+              },
+              {
+                "id": "ctl:monitor",
+                "label": "Monitoring",
+                "description": "The telemetry read and the thresholds to alert on",
+                "kind": "detect",
+                "arrives": 4,
+                "role": "records"
+              },
+              {
+                "id": "ctl:custody",
+                "label": "Custody",
+                "description": "A hash for every artifact the course produced",
+                "kind": "recover",
+                "arrives": 4,
+                "role": "records"
+              }
+            ],
+            "x": 140,
+            "y": 58
+          },
+          {
+            "id": "specs",
+            "label": "GPU spec table",
+            "description": "Every infrastructure number is computed from this table",
+            "segment": "gpu",
+            "kind": "storage",
+            "role": "infra",
+            "arrives": 0,
+            "apps": [
+              "the numbers"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 225
+          },
+          {
+            "id": "arch",
+            "label": "GPU architecture",
+            "description": "Tensor cores and memory, read from the table",
+            "segment": "gpu",
+            "kind": "server",
+            "role": "infra",
+            "arrives": 1,
+            "apps": [
+              "cores",
+              "memory"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 225
+          },
+          {
+            "id": "gpu_chosen",
+            "label": "GPU chosen",
+            "description": "The smallest GPU that holds the model with headroom",
+            "segment": "gpu",
+            "kind": "server",
+            "role": "infra",
+            "arrives": 2,
+            "apps": [
+              "fits with headroom"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:smi",
+                "label": "nvidia-smi",
+                "description": "What GPU this is, its memory and whether it is busy",
+                "kind": "detect",
+                "arrives": 2,
+                "role": "infra"
+              },
+              {
+                "id": "ctl:sizing",
+                "label": "Memory sizing",
+                "description": "The memory a model needs, computed from its parameters",
+                "kind": "harden",
+                "arrives": 2,
+                "role": "infra"
+              },
+              {
+                "id": "ctl:power",
+                "label": "Power & cooling",
+                "description": "The power drawn and the heat the cooling must remove",
+                "kind": "harden",
+                "arrives": 3,
+                "role": "datacenter"
+              }
+            ],
+            "x": 620,
+            "y": 225
+          },
+          {
+            "id": "datapath",
+            "label": "Data path",
+            "description": "What feeds the GPU, so it computes instead of starving",
+            "segment": "gpu",
+            "kind": "storage",
+            "role": "datacenter",
+            "arrives": 2,
+            "apps": [
+              "storage",
+              "DPU"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 860,
+            "y": 225
+          },
+          {
+            "id": "fabric",
+            "label": "Network fabric",
+            "description": "The fast fabric that makes many GPUs act as one",
+            "segment": "datacentre",
+            "kind": "switch",
+            "role": "datacenter",
+            "arrives": 3,
+            "apps": [
+              "NVLink",
+              "IB"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:scale",
+                "label": "Scaling",
+                "description": "The node count a training job needs for its deadline",
+                "kind": "detect",
+                "arrives": 3,
+                "role": "infra"
+              }
+            ],
+            "x": 140,
+            "y": 392
+          },
+          {
+            "id": "operator",
+            "label": "Your own machine",
+            "description": "Where you work from in this course.",
+            "kind": "client",
+            "external": true,
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 535,
+            "tools": [
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "nca-w0-lab",
+                  "nca-w0-local",
+                  "nca-w0-orient",
+                  "nca-w1-concepts",
+                  "nca-w1-arch",
+                  "nca-w1-stack",
+                  "nca-w2-smi",
+                  "nca-w2-sizing",
+                  "nca-w2-dpu",
+                  "nca-w3-network",
+                  "nca-w3-power",
+                  "nca-w3-scale",
+                  "nca-w4-monitor",
+                  "nca-w4-troubleshoot",
+                  "nca-w4-handover",
+                  "nca-local-llm-serving-w1-size",
+                  "nca-rag-engineering-w1-retrieve",
+                  "nca-rag-engineering-w2-evalset",
+                  "nca-rag-engineering-w2-passline"
+                ]
+              },
+              {
+                "name": "Python",
+                "purpose": "A language the task writes or reads.",
+                "usedIn": [
+                  "nca-w0-lab",
+                  "nca-w1-arch",
+                  "nca-w2-sizing",
+                  "nca-w2-dpu",
+                  "nca-w3-network",
+                  "nca-w3-power",
+                  "nca-w3-scale",
+                  "nca-local-llm-serving-w1-serve",
+                  "nca-local-llm-serving-w1-size",
+                  "nca-rag-engineering-w1-index",
+                  "nca-rag-engineering-w1-retrieve",
+                  "nca-rag-engineering-w2-evalset",
+                  "nca-rag-engineering-w2-passline"
+                ]
+              },
+              {
+                "name": "Ollama",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "nca-w0-local",
+                  "nca-w1-concepts",
+                  "nca-local-llm-serving-w1-serve",
+                  "nca-rag-engineering-w1-retrieve"
+                ]
+              },
+              {
+                "name": "nvidia-smi / DCGM",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "nca-w1-stack",
+                  "nca-w2-smi",
+                  "nca-w4-monitor"
+                ]
+              },
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "nca-w4-handover",
+                  "nca-local-llm-serving-w1-serve",
+                  "nca-local-llm-serving-w1-size",
+                  "nca-rag-engineering-w1-index",
+                  "nca-rag-engineering-w1-retrieve",
+                  "nca-rag-engineering-w2-evalset",
+                  "nca-rag-engineering-w2-passline"
+                ]
+              },
+              {
+                "name": "curl",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "nca-local-llm-serving-w1-serve"
+                ]
+              },
+              {
+                "name": "Chroma",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "nca-rag-engineering-w1-index"
+                ]
+              }
+            ]
+          }
+        ],
+        "weeks": [
+          {
+            "week": 0,
+            "wire": "Set up the lab",
+            "focus": "Confirm python and the shell, get a local model running, build the GPU spec pack, and pick your focus.",
+            "before": "Nothing built yet.",
+            "after": "A local model running, the GPU spec table and the captured telemetry built, and the folder ready.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "nca-w0-lab",
+                "step": "nca-w0-lab-s1",
+                "role": "infra",
+                "kind": "governance",
+                "at": [],
+                "text": "Build the spec table"
+              },
+              {
+                "taskId": "nca-w0-lab",
+                "step": "nca-w0-lab-s2",
+                "role": "infra",
+                "kind": "evidence",
+                "at": [],
+                "text": "Capture the nvidia-smi and dcgmi samples"
+              },
+              {
+                "taskId": "nca-w0-local",
+                "step": "nca-w0-local-s1",
+                "role": "knowledge",
+                "kind": "evidence",
+                "at": [],
+                "text": "Pull a small model and list it"
+              },
+              {
+                "taskId": "nca-w0-orient",
+                "step": "nca-w0-orient-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Pick the focus and name the plan"
+              },
+              {
+                "taskId": "nca-w0-orient",
+                "step": "nca-w0-orient-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Make the plan folder"
+              }
+            ]
+          },
+          {
+            "week": 1,
+            "wire": "Essential AI knowledge",
+            "focus": "Name AI, ML and DL, see training against inference, read the GPU architecture, and map the NVIDIA stack.",
+            "before": "Built so far: Local model, GPU spec table, 1 Setup & reference.",
+            "after": "New: inference run and timed, the GPU architecture read from the table, and the stack named from the driver up.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "nca-w1-concepts",
+                "step": "nca-w1-concepts-s1",
+                "role": "knowledge",
+                "kind": "governance",
+                "at": [],
+                "text": "Run inference and time it"
+              },
+              {
+                "taskId": "nca-w1-concepts",
+                "step": "nca-w1-concepts-s2",
+                "role": "knowledge",
+                "kind": "evidence",
+                "at": [],
+                "text": "Define AI, ML, DL, training and inference"
+              },
+              {
+                "taskId": "nca-w1-arch",
+                "step": "nca-w1-arch-s1",
+                "role": "infra",
+                "kind": "governance",
+                "at": [],
+                "text": "Read a GPU from the spec table"
+              },
+              {
+                "taskId": "nca-w1-arch",
+                "step": "nca-w1-arch-s2",
+                "role": "infra",
+                "kind": "evidence",
+                "at": [],
+                "text": "Compare two GPUs"
+              },
+              {
+                "taskId": "nca-w1-stack",
+                "step": "nca-w1-stack-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Read the driver and CUDA version"
+              },
+              {
+                "taskId": "nca-w1-stack",
+                "step": "nca-w1-stack-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Name the stack layers in order"
+              }
+            ]
+          },
+          {
+            "week": 2,
+            "wire": "Read and size the GPU",
+            "focus": "Read a GPU from nvidia-smi, size a GPU to a model, and follow the data-processing path.",
+            "before": "Built so far: Local model, GPU spec table, 1 Setup & reference and 4 more.",
+            "after": "New: a GPU read from nvidia-smi, its memory need computed, a GPU chosen, and the data path checked.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "nca-w2-smi",
+                "step": "nca-w2-smi-s1",
+                "role": "infra",
+                "kind": "evidence",
+                "at": [],
+                "text": "Read the GPU, memory and utilization"
+              },
+              {
+                "taskId": "nca-w2-sizing",
+                "step": "nca-w2-sizing-s1",
+                "role": "infra",
+                "kind": "governance",
+                "at": [],
+                "text": "Compute the memory a model needs"
+              },
+              {
+                "taskId": "nca-w2-sizing",
+                "step": "nca-w2-sizing-s2",
+                "role": "infra",
+                "kind": "evidence",
+                "at": [],
+                "text": "Choose the GPU that fits"
+              },
+              {
+                "taskId": "nca-w2-dpu",
+                "step": "nca-w2-dpu-s1",
+                "role": "datacenter",
+                "kind": "evidence",
+                "at": [],
+                "text": "Compute whether storage can feed the GPU"
+              }
+            ]
+          },
+          {
+            "week": 3,
+            "wire": "Plan the data centre",
+            "focus": "Compute the network bandwidth, the power and cooling, and the node count a training job needs.",
+            "before": "Built so far: Local model, GPU spec table, 1 Setup & reference and 9 more.",
+            "after": "New: the fabric bandwidth, the rack power and cooling, and the node count, each computed from the table.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "nca-w3-network",
+                "step": "nca-w3-network-s1",
+                "role": "datacenter",
+                "kind": "evidence",
+                "at": [],
+                "text": "Compute an eight-GPU node’s NVLink bandwidth"
+              },
+              {
+                "taskId": "nca-w3-power",
+                "step": "nca-w3-power-s1",
+                "role": "datacenter",
+                "kind": "evidence",
+                "at": [],
+                "text": "Compute the rack power and cooling load"
+              },
+              {
+                "taskId": "nca-w3-scale",
+                "step": "nca-w3-scale-s1",
+                "role": "infra",
+                "kind": "evidence",
+                "at": [],
+                "text": "Compute the nodes to hit a target time"
+              }
+            ]
+          },
+          {
+            "week": 4,
+            "wire": "Operate and hand over",
+            "focus": "Read the GPU telemetry, work a job that will not schedule, and hand the plan over.",
+            "before": "Built so far: Local model, GPU spec table, 1 Setup & reference and 13 more.",
+            "after": "New: the telemetry monitored, a scheduling fault worked to Running, and the plan handed over with custody.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "nca-w4-monitor",
+                "step": "nca-w4-monitor-s1",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Read the telemetry and find the hottest GPU"
+              },
+              {
+                "taskId": "nca-w4-troubleshoot",
+                "step": "nca-w4-troubleshoot-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Read it before you change it"
+              },
+              {
+                "taskId": "nca-w4-troubleshoot",
+                "step": "nca-w4-troubleshoot-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Read the scheduler reason"
+              },
+              {
+                "taskId": "nca-w4-handover",
+                "step": "nca-w4-handover-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the plan and how to operate it"
+              },
+              {
+                "taskId": "nca-w4-handover",
+                "step": "nca-w4-handover-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Hash every artifact for custody"
+              }
+            ]
+          },
+          {
+            "week": 5,
+            "wire": "Local LLM serving: Serve a model locally",
+            "focus": "Serve a quantised model behind an API and size the memory it needs.",
+            "before": "Built so far: Local model, GPU spec table, 1 Setup & reference and 20 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "nca-local-llm-serving-w1-serve",
+                "step": "nca-local-llm-serving-w1-serve-s1",
+                "role": "knowledge",
+                "kind": "setup",
+                "at": [
+                  "operator",
+                  "model"
+                ],
+                "text": "Serve a model behind an API"
+              },
+              {
+                "taskId": "nca-local-llm-serving-w1-serve",
+                "step": "nca-local-llm-serving-w1-serve-s2",
+                "role": "knowledge",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the endpoint."
+              },
+              {
+                "taskId": "nca-local-llm-serving-w1-size",
+                "step": "nca-local-llm-serving-w1-size-s1",
+                "role": "knowledge",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Size the memory"
+              },
+              {
+                "taskId": "nca-local-llm-serving-w1-size",
+                "step": "nca-local-llm-serving-w1-size-s2",
+                "role": "knowledge",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the sizing."
+              }
+            ]
+          },
+          {
+            "week": 6,
+            "wire": "RAG engineering: Index your documents",
+            "focus": "Load a folder of records into a vector store and query it for the right passage.",
+            "before": "Built so far: Local model, GPU spec table, 1 Setup & reference and 20 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "nca-rag-engineering-w1-index",
+                "step": "nca-rag-engineering-w1-index-s1",
+                "role": "knowledge",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Index a document set"
+              },
+              {
+                "taskId": "nca-rag-engineering-w1-index",
+                "step": "nca-rag-engineering-w1-index-s2",
+                "role": "knowledge",
+                "kind": "governance",
+                "at": [],
+                "text": "Query the store and read the top passage."
+              },
+              {
+                "taskId": "nca-rag-engineering-w1-retrieve",
+                "step": "nca-rag-engineering-w1-retrieve-s1",
+                "role": "knowledge",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Answer from the passages"
+              },
+              {
+                "taskId": "nca-rag-engineering-w1-retrieve",
+                "step": "nca-rag-engineering-w1-retrieve-s2",
+                "role": "knowledge",
+                "kind": "governance",
+                "at": [],
+                "text": "Compare the answer to the record."
+              }
+            ]
+          },
+          {
+            "week": 7,
+            "wire": "RAG engineering: Evaluate the answers",
+            "focus": "Measure the pipeline against a question set and set a pass line before you trust it.",
+            "before": "Built so far: Local model, GPU spec table, 1 Setup & reference and 20 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "nca-rag-engineering-w2-evalset",
+                "step": "nca-rag-engineering-w2-evalset-s1",
+                "role": "knowledge",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Build a question set"
+              },
+              {
+                "taskId": "nca-rag-engineering-w2-evalset",
+                "step": "nca-rag-engineering-w2-evalset-s2",
+                "role": "knowledge",
+                "kind": "governance",
+                "at": [],
+                "text": "Read the misses and fix the cause."
+              },
+              {
+                "taskId": "nca-rag-engineering-w2-passline",
+                "step": "nca-rag-engineering-w2-passline-s1",
+                "role": "knowledge",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Set the pass line"
+              },
+              {
+                "taskId": "nca-rag-engineering-w2-passline",
+                "step": "nca-rag-engineering-w2-passline-s2",
+                "role": "knowledge",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the decision."
+              }
+            ]
+          }
+        ],
+        "spec": {
+          "columns": [
+            "Component",
+            "Address",
+            "Runs",
+            "Who"
+          ],
+          "rows": [
+            [
+              "Local model",
+              "—",
+              "Ollama · inference",
+              "knowledge"
+            ],
+            [
+              "GPU spec table",
+              "—",
+              "the numbers",
+              "infra"
+            ],
+            [
+              "GPU architecture",
+              "—",
+              "cores · memory",
+              "infra"
+            ],
+            [
+              "GPU chosen",
+              "—",
+              "fits with headroom",
+              "infra"
+            ],
+            [
+              "Data path",
+              "—",
+              "storage · DPU",
+              "datacenter"
+            ],
+            [
+              "Network fabric",
+              "—",
+              "NVLink · IB",
+              "datacenter"
+            ]
+          ]
         }
       }
     },

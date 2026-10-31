@@ -8,6 +8,7 @@
     "src/lib/docs/manual.ts",
     "src/lib/docs/ccnaKit.ts",
     "src/lib/docs/ccnaDiagrams.ts",
+    "src/lib/docs/networkFrom.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
     "src/lib/docs/certs.ts",
@@ -7185,6 +7186,1572 @@
           "management": true
         }
       ]
+    },
+    "network": {
+      "NETWORK": {
+        "copy": {
+          "title": "The CCNA Network Capstone network — what you build and where",
+          "howToRead": "13 components on 14 segments. Each card shows its address, what it runs and exposes, and the controls on it. Pick a week to see what has arrived.",
+          "footer": "These are the worked-example numbers the course is written around. Record your own in the Low-Level Design — and what your kit can actually do in the Kit & Capability Register.",
+          "reference": {
+            "lede": "Every component of the campus, its address where it has one, what it runs and exposes, the tools on it, and what each task does to it, week by week.",
+            "lan": "14 segments: Austin HQ, Round Rock branch, VLAN 10 CORP-USERS, VLAN 20 SERVERS and 10 more.",
+            "ports": "What answers on the network, and what stays inside a host or a single segment.",
+            "tools": "What is installed where, and the task that uses it.",
+            "attacks": "The attack types in exam vocabulary, where this lab uses each, and the control that answers it.",
+            "actions": "What each task of the week does on the network: the work placed on the components it touches.",
+            "links": "Every cable, port to port, with what it carries."
+          }
+        },
+        "view": {
+          "w": 1000,
+          "h": 1238
+        },
+        "fabric": {
+          "segments": [
+            {
+              "id": "site:hq",
+              "label": "Austin HQ",
+              "note": "MDF in the server room, an IDF on the warehouse mezzanine",
+              "kind": "site",
+              "arrives": 1,
+              "y": 46
+            },
+            {
+              "id": "vlan:10",
+              "label": "VLAN 10 CORP-USERS",
+              "note": "10.50.10.0/24 · gw 10.50.10.1 · DHCP 10.50.10.50–10.50.10.200 · wireless — Staff PCs and laptops",
+              "kind": "vlan",
+              "parent": "site:hq",
+              "arrives": 2,
+              "y": 90
+            },
+            {
+              "id": "vlan:20",
+              "label": "VLAN 20 SERVERS",
+              "note": "10.50.20.0/24 · gw 10.50.20.1 · static — File, DNS/DHCP and the order system",
+              "kind": "vlan",
+              "parent": "site:hq",
+              "arrives": 2,
+              "y": 134
+            },
+            {
+              "id": "vlan:30",
+              "label": "VLAN 30 VOICE",
+              "note": "10.50.30.0/24 · gw 10.50.30.1 · DHCP 10.50.30.50–10.50.30.200 — Desk phones, on PoE",
+              "kind": "vlan",
+              "parent": "site:hq",
+              "arrives": 2,
+              "y": 318
+            },
+            {
+              "id": "vlan:40",
+              "label": "VLAN 40 SECURITY",
+              "note": "10.50.40.0/24 · gw 10.50.40.1 · static — Door controllers and cameras",
+              "kind": "vlan",
+              "parent": "site:hq",
+              "arrives": 2,
+              "y": 362
+            },
+            {
+              "id": "vlan:50",
+              "label": "VLAN 50 GUEST",
+              "note": "10.50.50.0/24 · gw 10.50.50.1 · DHCP 10.50.50.100–10.50.50.200 · wireless — Visitors — internet only, never the LAN",
+              "kind": "vlan",
+              "parent": "site:hq",
+              "arrives": 2,
+              "y": 406
+            },
+            {
+              "id": "vlan:60",
+              "label": "VLAN 60 IOT",
+              "note": "10.50.60.0/24 · gw 10.50.60.1 · DHCP 10.50.60.50–10.50.60.150 · wireless — Warehouse scanners and printers",
+              "kind": "vlan",
+              "parent": "site:hq",
+              "arrives": 2,
+              "y": 450
+            },
+            {
+              "id": "vlan:99",
+              "label": "VLAN 99 MGMT",
+              "note": "10.50.99.0/24 · gw 10.50.99.1 · static · management — Switch and router management only",
+              "kind": "vlan",
+              "parent": "site:hq",
+              "arrives": 2,
+              "y": 494
+            },
+            {
+              "id": "site:branch",
+              "label": "Round Rock branch",
+              "note": "One wall-mount cabinet in the office",
+              "kind": "site",
+              "arrives": 3,
+              "y": 777
+            },
+            {
+              "id": "vlan:110",
+              "label": "VLAN 110 BR-USERS",
+              "note": "10.60.110.0/24 · gw 10.60.110.1 · DHCP 10.60.110.50–10.60.110.200 · wireless — Branch staff PCs",
+              "kind": "vlan",
+              "parent": "site:branch",
+              "arrives": 2,
+              "y": 821
+            },
+            {
+              "id": "vlan:130",
+              "label": "VLAN 130 BR-VOICE",
+              "note": "10.60.130.0/24 · gw 10.60.130.1 · DHCP 10.60.130.50–10.60.130.200 — Branch desk phones",
+              "kind": "vlan",
+              "parent": "site:branch",
+              "arrives": 2,
+              "y": 865
+            },
+            {
+              "id": "vlan:199",
+              "label": "VLAN 199 BR-MGMT",
+              "note": "10.60.199.0/24 · gw 10.60.199.1 · static · management — Branch kit management only",
+              "kind": "vlan",
+              "parent": "site:branch",
+              "arrives": 2,
+              "y": 909
+            },
+            {
+              "id": "wan",
+              "label": "WAN link",
+              "note": "10.255.255.0/30 · OSPF area 0",
+              "kind": "subnet",
+              "arrives": 3,
+              "y": 1076
+            },
+            {
+              "id": "internet",
+              "label": "Internet",
+              "note": "198.51.100.0/30 · Lonestar Fibre LSF-44127 · 200 Mbps symmetric",
+              "kind": "zone",
+              "arrives": 3,
+              "y": 1120
+            }
+          ]
+        },
+        "hosts": [
+          {
+            "id": "R1-HQ",
+            "label": "R1-HQ",
+            "description": "Edge router — internet, NAT, OSPF",
+            "addr": "10.50.99.2",
+            "segment": "vlan:99",
+            "nic": "router",
+            "kind": "router",
+            "arrives": 3,
+            "apps": [
+              "WAN 10.255.255.1",
+              "outside 198.51.100.2"
+            ],
+            "services": [
+              {
+                "port": 22,
+                "proto": "tcp",
+                "name": "SSH",
+                "description": "Management access to the device, from the management VLAN only; no telnet.",
+                "from": 3,
+                "scope": "segment",
+                "via": "vlan:99"
+              },
+              {
+                "port": 123,
+                "proto": "udp",
+                "name": "NTP",
+                "description": "The router is the time source for the kit; it syncs from the pool itself.",
+                "from": 3
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:R1-HQ-mgmt",
+                "label": "Management plane",
+                "description": "SSH only, no telnet, logging on, a management VLAN",
+                "kind": "harden",
+                "arrives": 4
+              }
+            ],
+            "x": 140,
+            "y": 506,
+            "tools": [
+              {
+                "name": "ping / traceroute",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ccna-w3-wan"
+                ]
+              },
+              {
+                "name": "Cisco IOS",
+                "purpose": "A network or security appliance the task configures.",
+                "usedIn": [
+                  "ccna-w3-wan",
+                  "ccna-w3-internet"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "SW-CORE-01",
+            "label": "SW-CORE-01",
+            "description": "Core switch — SVIs, inter-VLAN routing",
+            "addr": "10.50.99.10",
+            "segment": "vlan:99",
+            "nic": "l3-switch",
+            "kind": "switch",
+            "arrives": 1,
+            "services": [
+              {
+                "port": 22,
+                "proto": "tcp",
+                "name": "SSH",
+                "description": "Management access to the device, from the management VLAN only; no telnet.",
+                "from": 1,
+                "scope": "segment",
+                "via": "vlan:99"
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:SW-CORE-01-mgmt",
+                "label": "Management plane",
+                "description": "SSH only, no telnet, logging on, a management VLAN",
+                "kind": "harden",
+                "arrives": 4
+              },
+              {
+                "id": "ctl:SW-CORE-01-policy",
+                "label": "Access policy",
+                "description": "Who may reach what, as ACL rows: 3 allow, 5 deny.",
+                "kind": "harden",
+                "arrives": 4
+              }
+            ],
+            "x": 380,
+            "y": 506,
+            "tools": [
+              {
+                "name": "Notes",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "ccna-w1-discover",
+                  "ccna-w1-design"
+                ]
+              },
+              {
+                "name": "Cisco IOS",
+                "purpose": "A network or security appliance the task configures.",
+                "usedIn": [
+                  "ccna-w1-discover",
+                  "ccna-w1-design",
+                  "ccna-w1-bringup",
+                  "ccna-w2-vlans",
+                  "ccna-w2-route",
+                  "ccna-w2-resilience",
+                  "ccna-w4-policy",
+                  "ccna-w4-harden",
+                  "ccna-w4-wireless"
+                ]
+              },
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ccna-w1-bringup"
+                ]
+              },
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "ccna-w2-vlans",
+                  "ccna-w4-policy",
+                  "ccna-w4-harden"
+                ]
+              },
+              {
+                "name": "ping / traceroute",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ccna-w2-route",
+                  "ccna-w4-policy"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "SW-ACC-01",
+            "label": "SW-ACC-01",
+            "description": "Access switch — offices, trunk to core",
+            "addr": "10.50.99.11",
+            "segment": "vlan:99",
+            "nic": "l2-switch",
+            "kind": "switch",
+            "arrives": 1,
+            "services": [
+              {
+                "port": 22,
+                "proto": "tcp",
+                "name": "SSH",
+                "description": "Management access to the device, from the management VLAN only; no telnet.",
+                "from": 1,
+                "scope": "segment",
+                "via": "vlan:99"
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:SW-ACC-01-mgmt",
+                "label": "Management plane",
+                "description": "SSH only, no telnet, logging on, a management VLAN",
+                "kind": "harden",
+                "arrives": 4
+              }
+            ],
+            "x": 620,
+            "y": 506
+          },
+          {
+            "id": "SW-ACC-02",
+            "label": "SW-ACC-02",
+            "description": "Access switch — warehouse IDF, PoE for phones",
+            "addr": "10.50.99.12",
+            "segment": "vlan:99",
+            "nic": "l2-switch",
+            "kind": "switch",
+            "arrives": 2,
+            "services": [
+              {
+                "port": 22,
+                "proto": "tcp",
+                "name": "SSH",
+                "description": "Management access to the device, from the management VLAN only; no telnet.",
+                "from": 2,
+                "scope": "segment",
+                "via": "vlan:99"
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:SW-ACC-02-mgmt",
+                "label": "Management plane",
+                "description": "SSH only, no telnet, logging on, a management VLAN",
+                "kind": "harden",
+                "arrives": 4
+              }
+            ],
+            "x": 860,
+            "y": 506
+          },
+          {
+            "id": "AP-01",
+            "label": "AP-01",
+            "description": "Access point — CORP, GUEST and IOT WLANs",
+            "addr": "10.50.99.20",
+            "segment": "vlan:99",
+            "nic": "ap",
+            "kind": "ap",
+            "arrives": 4,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 639
+          },
+          {
+            "id": "R2-BR",
+            "label": "R2-BR",
+            "description": "Branch router — WAN to HQ, OSPF",
+            "addr": "10.60.199.2",
+            "segment": "vlan:199",
+            "nic": "router",
+            "kind": "router",
+            "arrives": 3,
+            "apps": [
+              "WAN 10.255.255.2"
+            ],
+            "services": [
+              {
+                "port": 22,
+                "proto": "tcp",
+                "name": "SSH",
+                "description": "Management access to the device, from the management VLAN only; no telnet.",
+                "from": 3,
+                "scope": "segment",
+                "via": "vlan:199"
+              },
+              {
+                "port": 123,
+                "proto": "udp",
+                "name": "NTP",
+                "description": "The router is the time source for the kit; it syncs from the pool itself.",
+                "from": 3
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:R2-BR-mgmt",
+                "label": "Management plane",
+                "description": "SSH only, no telnet, logging on, a management VLAN",
+                "kind": "harden",
+                "arrives": 4
+              }
+            ],
+            "x": 140,
+            "y": 921
+          },
+          {
+            "id": "SW-BR-01",
+            "label": "SW-BR-01",
+            "description": "Branch access switch",
+            "addr": "10.60.199.11",
+            "segment": "vlan:199",
+            "nic": "l2-switch",
+            "kind": "switch",
+            "arrives": 3,
+            "services": [
+              {
+                "port": 22,
+                "proto": "tcp",
+                "name": "SSH",
+                "description": "Management access to the device, from the management VLAN only; no telnet.",
+                "from": 3,
+                "scope": "segment",
+                "via": "vlan:199"
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:SW-BR-01-mgmt",
+                "label": "Management plane",
+                "description": "SSH only, no telnet, logging on, a management VLAN",
+                "kind": "harden",
+                "arrives": 4
+              }
+            ],
+            "x": 380,
+            "y": 921
+          },
+          {
+            "id": "SRV-CORE",
+            "label": "SRV-CORE",
+            "description": "DNS · DHCP · the order system",
+            "addr": "10.50.20.10",
+            "segment": "vlan:20",
+            "nic": "server",
+            "kind": "server",
+            "arrives": 2,
+            "services": [
+              {
+                "port": 53,
+                "proto": "udp",
+                "name": "DNS",
+                "description": "The company’s own resolver; every device points at it.",
+                "from": 2
+              },
+              {
+                "port": 67,
+                "proto": "udp",
+                "name": "DHCP",
+                "description": "Hands out the pool addresses for every VLAN that has one.",
+                "from": 2
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:SRV-CORE-aaa",
+                "label": "AAA (RADIUS)",
+                "description": "Every device login checked against the server, not a local password",
+                "kind": "harden",
+                "arrives": 4
+              }
+            ],
+            "x": 140,
+            "y": 146
+          },
+          {
+            "id": "NETOPS",
+            "label": "NETOPS",
+            "description": "NetBox · LibreNMS · Oxidized — the advanced weeks",
+            "addr": "10.50.20.20",
+            "segment": "vlan:20",
+            "nic": "server",
+            "kind": "server",
+            "arrives": 5,
+            "optional": true,
+            "apps": [
+              "Automation (week 7)"
+            ],
+            "services": [
+              {
+                "port": 514,
+                "proto": "udp",
+                "name": "syslog",
+                "description": "Where every device’s log lines land once the NOC is up.",
+                "from": 6
+              },
+              {
+                "port": 162,
+                "proto": "udp",
+                "name": "SNMP trap",
+                "description": "Where every device’s traps land once the NOC is up.",
+                "from": 6
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:NETOPS-backups",
+                "label": "Config backups",
+                "description": "Every configuration saved automatically after a change",
+                "kind": "recover",
+                "arrives": 5
+              },
+              {
+                "id": "ctl:NETOPS-noc",
+                "label": "NOC",
+                "description": "Syslog and SNMP from every device become alerts and tickets",
+                "kind": "detect",
+                "arrives": 6
+              }
+            ],
+            "x": 380,
+            "y": 146
+          },
+          {
+            "id": "FW-HQ",
+            "label": "FW-HQ",
+            "description": "Edge firewall — inspects what the router passes",
+            "addr": "10.50.99.3",
+            "segment": "vlan:99",
+            "nic": "firewall",
+            "kind": "firewall",
+            "arrives": 4,
+            "optional": true,
+            "services": [
+              {
+                "port": 22,
+                "proto": "tcp",
+                "name": "SSH",
+                "description": "Management access to the device, from the management VLAN only; no telnet.",
+                "from": 4,
+                "scope": "segment",
+                "via": "vlan:99"
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:FW-HQ-mgmt",
+                "label": "Management plane",
+                "description": "SSH only, no telnet, logging on, a management VLAN",
+                "kind": "harden",
+                "arrives": 4
+              }
+            ],
+            "x": 380,
+            "y": 639
+          },
+          {
+            "id": "WLC-01",
+            "label": "WLC-01",
+            "description": "Wireless controller — the WLANs as one system",
+            "addr": "10.50.99.21",
+            "segment": "vlan:99",
+            "nic": "wlc",
+            "kind": "wlc",
+            "arrives": 4,
+            "optional": true,
+            "services": [
+              {
+                "port": 22,
+                "proto": "tcp",
+                "name": "SSH",
+                "description": "Management access to the device, from the management VLAN only; no telnet.",
+                "from": 4,
+                "scope": "segment",
+                "via": "vlan:99"
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:WLC-01-mgmt",
+                "label": "Management plane",
+                "description": "SSH only, no telnet, logging on, a management VLAN",
+                "kind": "harden",
+                "arrives": 4
+              }
+            ],
+            "x": 620,
+            "y": 639
+          },
+          {
+            "id": "ADMIN-PC",
+            "label": "ADMIN-PC",
+            "description": "Where you work — console, SSH, browser",
+            "addr": "10.50.99.50",
+            "segment": "vlan:99",
+            "nic": "workstation",
+            "kind": "client",
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 860,
+            "y": 639,
+            "tools": [
+              {
+                "name": "Terminal program",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "ccna-w0-path"
+                ]
+              },
+              {
+                "name": "Console cable",
+                "purpose": "Physical equipment the task handles.",
+                "usedIn": [
+                  "ccna-w0-path"
+                ]
+              },
+              {
+                "name": "Network simulator",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "ccna-w0-path"
+                ]
+              },
+              {
+                "name": "Cisco IOS",
+                "purpose": "A network or security appliance the task configures.",
+                "usedIn": [
+                  "ccna-w0-register",
+                  "ccna-w5-change",
+                  "ccna-w6-noc",
+                  "ccna-w6-ticket",
+                  "ccna-w8-incident"
+                ]
+              },
+              {
+                "name": "NetBox",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "ccna-w5-sot"
+                ]
+              },
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ccna-w5-change",
+                  "ccna-w6-noc",
+                  "ccna-w7-data",
+                  "ccna-w7-ansible",
+                  "ccna-local-llm-serving-w1-size"
+                ]
+              },
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "ccna-w5-change",
+                  "ccna-w6-ticket",
+                  "ccna-w7-ansible",
+                  "ccna-w8-incident",
+                  "ccna-w8-handover",
+                  "ccna-local-llm-serving-w1-serve",
+                  "ccna-local-llm-serving-w1-size"
+                ]
+              },
+              {
+                "name": "Wireshark",
+                "purpose": "A desktop or web application the task works in.",
+                "usedIn": [
+                  "ccna-w6-ticket"
+                ]
+              },
+              {
+                "name": "curl",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "ccna-local-llm-serving-w1-serve"
+                ]
+              },
+              {
+                "name": "Ollama",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "ccna-local-llm-serving-w1-serve"
+                ]
+              },
+              {
+                "name": "Python",
+                "purpose": "A language the task writes or reads.",
+                "usedIn": [
+                  "ccna-local-llm-serving-w1-serve",
+                  "ccna-local-llm-serving-w1-size"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "isp",
+            "label": "Lonestar Fibre",
+            "description": "The provider, the circuit id and the gateway on the other end",
+            "addr": "198.51.100.1",
+            "segment": "internet",
+            "kind": "external",
+            "external": true,
+            "arrives": 3,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 1132
+          }
+        ],
+        "links": [
+          {
+            "from": "SW-ACC-01",
+            "to": "SW-CORE-01",
+            "fromPort": "Gi1/0/24",
+            "toPort": "Gi1/0/1",
+            "kind": "trunk",
+            "media": "cat6",
+            "vlans": [
+              10,
+              20,
+              30,
+              40,
+              50,
+              60,
+              99
+            ],
+            "arrives": 2
+          },
+          {
+            "from": "SW-ACC-02",
+            "to": "SW-CORE-01",
+            "fromPort": "Gi1/0/23",
+            "toPort": "Gi1/0/2",
+            "kind": "etherchannel",
+            "media": "cat6",
+            "vlans": [
+              10,
+              20,
+              30,
+              40,
+              50,
+              60,
+              99
+            ],
+            "arrives": 2
+          },
+          {
+            "from": "SW-CORE-01",
+            "to": "R1-HQ",
+            "fromPort": "Gi1/0/48",
+            "toPort": "Gi0/0/1",
+            "kind": "routed",
+            "media": "cat6",
+            "arrives": 3
+          },
+          {
+            "from": "R1-HQ",
+            "to": "R2-BR",
+            "fromPort": "Gi0/0/0",
+            "toPort": "Gi0/0/0",
+            "kind": "wan",
+            "media": "serial",
+            "arrives": 3
+          },
+          {
+            "from": "SW-BR-01",
+            "to": "R2-BR",
+            "fromPort": "Gi1/0/24",
+            "toPort": "Gi0/0/1",
+            "kind": "trunk",
+            "media": "cat6",
+            "vlans": [
+              110,
+              130,
+              199
+            ],
+            "arrives": 3
+          },
+          {
+            "from": "AP-01",
+            "to": "SW-ACC-01",
+            "fromPort": "GigabitEthernet0",
+            "toPort": "Gi1/0/20",
+            "kind": "uplink",
+            "media": "cat6",
+            "vlans": [
+              10,
+              50,
+              60,
+              99
+            ],
+            "arrives": 4
+          },
+          {
+            "from": "FW-HQ",
+            "to": "R1-HQ",
+            "fromPort": "Gi1/1",
+            "toPort": "Gi0/0/2",
+            "kind": "routed",
+            "media": "cat6",
+            "arrives": 4
+          },
+          {
+            "from": "WLC-01",
+            "to": "SW-CORE-01",
+            "fromPort": "Gi1",
+            "toPort": "Gi1/0/3",
+            "kind": "trunk",
+            "media": "cat6",
+            "vlans": [
+              10,
+              50,
+              60,
+              99
+            ],
+            "arrives": 4
+          }
+        ],
+        "weeks": [
+          {
+            "week": 0,
+            "wire": "Acquisition & Kit",
+            "focus": "Declare how this build runs, register every device, and prove each capability with the command output that says so.",
+            "before": "Nothing built yet.",
+            "after": "Before the build: the kit on the bench and the admin PC. Only what you can touch exists.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccna-w0-path",
+                "step": "ccna-w0-path-s1",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Pick the path, and know what it costs you"
+              },
+              {
+                "taskId": "ccna-w0-register",
+                "step": "ccna-w0-register-s1",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Read what the device really is"
+              },
+              {
+                "taskId": "ccna-w0-register",
+                "step": "ccna-w0-register-s3",
+                "role": "arch",
+                "kind": "evidence",
+                "at": [],
+                "text": "Write down the gaps, and what one purchase would unlock"
+              }
+            ]
+          },
+          {
+            "week": 1,
+            "wire": "Connect",
+            "focus": "Discover what the business needs, design the network’s shape, then bring the first switches up — cabled, named, addressed, reachable.",
+            "before": "Built so far: ADMIN-PC.",
+            "after": "New: the HQ core and first access switch. Console in, name it, give it a management address.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccna-w1-discover",
+                "step": "ccna-w1-discover-s3",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "SW-CORE-01",
+                  "SW-ACC-01"
+                ],
+                "text": "Count what is already there"
+              },
+              {
+                "taskId": "ccna-w1-discover",
+                "step": "ccna-w1-discover-s4",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "SW-CORE-01",
+                  "SW-ACC-01"
+                ],
+                "text": "Read the addressing in use"
+              },
+              {
+                "taskId": "ccna-w1-discover",
+                "step": "ccna-w1-discover-s1",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Ask the business what it needs"
+              },
+              {
+                "taskId": "ccna-w1-discover",
+                "step": "ccna-w1-discover-s2",
+                "role": "arch",
+                "kind": "evidence",
+                "at": [],
+                "text": "Walk the building"
+              },
+              {
+                "taskId": "ccna-w1-design",
+                "step": "ccna-w1-design-s3",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "SW-CORE-01"
+                ],
+                "text": "Reserve the VLAN ids on the core"
+              },
+              {
+                "taskId": "ccna-w1-design",
+                "step": "ccna-w1-design-s4",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "SW-CORE-01"
+                ],
+                "text": "Prove the core can route"
+              },
+              {
+                "taskId": "ccna-w1-design",
+                "step": "ccna-w1-design-s1",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Decide where routing happens"
+              },
+              {
+                "taskId": "ccna-w1-design",
+                "step": "ccna-w1-design-s2",
+                "role": "arch",
+                "kind": "evidence",
+                "at": [],
+                "text": "Name the boundaries"
+              },
+              {
+                "taskId": "ccna-w1-bringup",
+                "step": "ccna-w1-bringup-s3",
+                "role": "impl",
+                "kind": "setup",
+                "at": [
+                  "SW-CORE-01",
+                  "SW-ACC-01"
+                ],
+                "text": "Name the switch and set the management address"
+              },
+              {
+                "taskId": "ccna-w1-bringup",
+                "step": "ccna-w1-bringup-s4",
+                "role": "impl",
+                "kind": "setup",
+                "at": [
+                  "SW-CORE-01",
+                  "SW-ACC-01"
+                ],
+                "text": "Save it and prove it survives a reload"
+              },
+              {
+                "taskId": "ccna-w1-bringup",
+                "step": "ccna-w1-bringup-s1",
+                "role": "impl",
+                "kind": "governance",
+                "at": [],
+                "text": "Name it, address it, save it"
+              },
+              {
+                "taskId": "ccna-w1-bringup",
+                "step": "ccna-w1-bringup-s2",
+                "role": "impl",
+                "kind": "evidence",
+                "at": [],
+                "text": "Read the interfaces like an engineer"
+              }
+            ]
+          },
+          {
+            "week": 2,
+            "wire": "Segment",
+            "focus": "Turn the flat office network into VLANs with trunks between switches, hand out addresses, and route between the departments.",
+            "before": "Built so far: ADMIN-PC, SW-CORE-01, SW-ACC-01 and 1 more.",
+            "after": "New: the second access switch, VLANs, trunks and an EtherChannel that survives a pulled cable.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccna-w2-vlans",
+                "step": "ccna-w2-vlans-s3",
+                "role": "impl",
+                "kind": "setup",
+                "at": [
+                  "SW-CORE-01",
+                  "SW-ACC-01",
+                  "SW-ACC-02"
+                ],
+                "text": "Prove the VLANs and the access ports"
+              },
+              {
+                "taskId": "ccna-w2-vlans",
+                "step": "ccna-w2-vlans-s4",
+                "role": "impl",
+                "kind": "setup",
+                "at": [
+                  "SW-CORE-01",
+                  "SW-ACC-01",
+                  "SW-ACC-02"
+                ],
+                "text": "Prove the trunk carries them"
+              },
+              {
+                "taskId": "ccna-w2-vlans",
+                "step": "ccna-w2-vlans-s1",
+                "role": "impl",
+                "kind": "evidence",
+                "at": [],
+                "text": "Write the plan down before you configure it"
+              },
+              {
+                "taskId": "ccna-w2-vlans",
+                "step": "ccna-w2-vlans-s2",
+                "role": "impl",
+                "kind": "governance",
+                "at": [],
+                "text": "Create the VLANs and trunk the switches"
+              },
+              {
+                "taskId": "ccna-w2-route",
+                "step": "ccna-w2-route-s3",
+                "role": "impl",
+                "kind": "setup",
+                "at": [
+                  "SW-CORE-01"
+                ],
+                "text": "Bring the gateways up"
+              },
+              {
+                "taskId": "ccna-w2-route",
+                "step": "ccna-w2-route-s4",
+                "role": "impl",
+                "kind": "setup",
+                "at": [
+                  "SW-CORE-01"
+                ],
+                "text": "Prove inter-VLAN routing with the table"
+              },
+              {
+                "taskId": "ccna-w2-route",
+                "step": "ccna-w2-route-s1",
+                "role": "impl",
+                "kind": "governance",
+                "at": [],
+                "text": "Give every VLAN a gateway"
+              },
+              {
+                "taskId": "ccna-w2-route",
+                "step": "ccna-w2-route-s2",
+                "role": "impl",
+                "kind": "evidence",
+                "at": [],
+                "text": "Hand out addresses, then prove it end to end"
+              },
+              {
+                "taskId": "ccna-w2-resilience",
+                "step": "ccna-w2-resilience-s3",
+                "role": "ops",
+                "kind": "setup",
+                "at": [
+                  "SW-CORE-01",
+                  "SW-ACC-01",
+                  "SW-ACC-02"
+                ],
+                "text": "Read the spanning-tree root and roles"
+              },
+              {
+                "taskId": "ccna-w2-resilience",
+                "step": "ccna-w2-resilience-s4",
+                "role": "ops",
+                "kind": "setup",
+                "at": [
+                  "SW-CORE-01",
+                  "SW-ACC-01",
+                  "SW-ACC-02"
+                ],
+                "text": "Pull the cable and watch it recover"
+              },
+              {
+                "taskId": "ccna-w2-resilience",
+                "step": "ccna-w2-resilience-s1",
+                "role": "ops",
+                "kind": "governance",
+                "at": [],
+                "text": "Decide where the root of the tree should be"
+              }
+            ]
+          },
+          {
+            "week": 3,
+            "wire": "Route",
+            "focus": "Join the branch to headquarters, learn routes dynamically, and give the company one way out to the internet.",
+            "before": "Built so far: ADMIN-PC, SW-CORE-01, SW-ACC-01 and 7 more.",
+            "after": "New: both routers, the branch site, the WAN link and the ISP circuit. OSPF and NAT connect it all.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccna-w3-wan",
+                "step": "ccna-w3-wan-s4",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "R1-HQ"
+                ],
+                "text": "Prove the OSPF neighbour"
+              },
+              {
+                "taskId": "ccna-w3-wan",
+                "step": "ccna-w3-wan-s5",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "R1-HQ"
+                ],
+                "text": "Prove the routes crossed the WAN"
+              },
+              {
+                "taskId": "ccna-w3-wan",
+                "step": "ccna-w3-wan-s1",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Address the link between the buildings"
+              },
+              {
+                "taskId": "ccna-w3-internet",
+                "step": "ccna-w3-internet-s3",
+                "role": "impl",
+                "kind": "setup",
+                "at": [
+                  "R1-HQ"
+                ],
+                "text": "Prove the default route and NAT"
+              },
+              {
+                "taskId": "ccna-w3-internet",
+                "step": "ccna-w3-internet-s4",
+                "role": "impl",
+                "kind": "setup",
+                "at": [
+                  "R1-HQ"
+                ],
+                "text": "Prove the branch gets out through HQ"
+              },
+              {
+                "taskId": "ccna-w3-internet",
+                "step": "ccna-w3-internet-s1",
+                "role": "impl",
+                "kind": "governance",
+                "at": [],
+                "text": "Default route out, and share it"
+              }
+            ]
+          },
+          {
+            "week": 4,
+            "wire": "Protect",
+            "focus": "Turn the policy into access lists, harden every device, put the WLANs on the air, prove forbidden traffic is blocked.",
+            "before": "Built so far: ADMIN-PC, SW-CORE-01, SW-ACC-01 and 14 more.",
+            "after": "New: the access point, the controller, the firewall, AAA, the policy and the hardened management plane.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccna-w4-policy",
+                "step": "ccna-w4-policy-s3",
+                "role": "auto",
+                "kind": "setup",
+                "at": [
+                  "SW-CORE-01"
+                ],
+                "text": "Prove the ACL is applied where the policy says"
+              },
+              {
+                "taskId": "ccna-w4-policy",
+                "step": "ccna-w4-policy-s4",
+                "role": "auto",
+                "kind": "setup",
+                "at": [
+                  "SW-CORE-01"
+                ],
+                "text": "Prove a blocked path fails and an allowed one works"
+              },
+              {
+                "taskId": "ccna-w4-policy",
+                "step": "ccna-w4-policy-s1",
+                "role": "auto",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the rule before the ACL"
+              },
+              {
+                "taskId": "ccna-w4-policy",
+                "step": "ccna-w4-policy-s2",
+                "role": "auto",
+                "kind": "evidence",
+                "at": [],
+                "text": "Apply it, then try to break it"
+              },
+              {
+                "taskId": "ccna-w4-harden",
+                "step": "ccna-w4-harden-s3",
+                "role": "auto",
+                "kind": "setup",
+                "at": [
+                  "SW-CORE-01",
+                  "SW-ACC-01",
+                  "SW-ACC-02",
+                  "SW-BR-01"
+                ],
+                "text": "Prove SSH-only management"
+              },
+              {
+                "taskId": "ccna-w4-harden",
+                "step": "ccna-w4-harden-s4",
+                "role": "auto",
+                "kind": "setup",
+                "at": [
+                  "SW-CORE-01",
+                  "SW-ACC-01",
+                  "SW-ACC-02",
+                  "SW-BR-01"
+                ],
+                "text": "Prove the unused ports are shut and secured"
+              },
+              {
+                "taskId": "ccna-w4-harden",
+                "step": "ccna-w4-harden-s1",
+                "role": "auto",
+                "kind": "governance",
+                "at": [],
+                "text": "Close the front door"
+              },
+              {
+                "taskId": "ccna-w4-harden",
+                "step": "portfolio",
+                "role": "auto",
+                "kind": "evidence",
+                "at": [],
+                "text": "Write the Portfolio"
+              },
+              {
+                "taskId": "ccna-w4-wireless",
+                "step": "ccna-w4-wireless-s3",
+                "role": "impl",
+                "kind": "setup",
+                "at": [
+                  "SW-CORE-01",
+                  "SW-ACC-01",
+                  "SW-ACC-02",
+                  "SW-BR-01"
+                ],
+                "text": "Prove the access point is on the trunk and powered"
+              },
+              {
+                "taskId": "ccna-w4-wireless",
+                "step": "ccna-w4-wireless-s4",
+                "role": "impl",
+                "kind": "setup",
+                "at": [
+                  "SW-CORE-01",
+                  "SW-ACC-01",
+                  "SW-ACC-02",
+                  "SW-BR-01"
+                ],
+                "text": "Prove a wireless client lands in the right VLAN"
+              },
+              {
+                "taskId": "ccna-w4-wireless",
+                "step": "ccna-w4-wireless-s1",
+                "role": "impl",
+                "kind": "governance",
+                "at": [],
+                "text": "One SSID per VLAN, and no surprises"
+              }
+            ]
+          },
+          {
+            "week": 5,
+            "wire": "Operate",
+            "focus": "A source of truth in NetBox, configurations backed up and versioned, and every change reviewed by a teammate and reversible.",
+            "before": "Built so far: ADMIN-PC, SW-CORE-01, SW-ACC-01 and 21 more.",
+            "after": "New: config backups. Nothing is built — the network is operated: backups, changes, tickets.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccna-w5-sot",
+                "step": "ccna-w5-sot-s1",
+                "role": "ops",
+                "kind": "governance",
+                "at": [],
+                "text": "Model what you already documented"
+              },
+              {
+                "taskId": "ccna-w5-change",
+                "step": "ccna-w5-change-s1",
+                "role": "ops",
+                "kind": "governance",
+                "at": [],
+                "text": "Collect every configuration, automatically"
+              },
+              {
+                "taskId": "ccna-w5-change",
+                "step": "ccna-w5-change-s2",
+                "role": "ops",
+                "kind": "evidence",
+                "at": [],
+                "text": "Run one change the way a business would"
+              }
+            ]
+          },
+          {
+            "week": 6,
+            "wire": "Observe",
+            "focus": "Stand up a small NOC — polling, logs, latency and dashboards — then work a real ticket down the layers.",
+            "before": "Built so far: ADMIN-PC, SW-CORE-01, SW-ACC-01 and 23 more.",
+            "after": "New: the NOC. Syslog and SNMP from every device become alerts, and alerts become tickets.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccna-w6-noc",
+                "step": "ccna-w6-noc-s1",
+                "role": "ops",
+                "kind": "governance",
+                "at": [],
+                "text": "Poll the devices and graph what matters"
+              },
+              {
+                "taskId": "ccna-w6-noc",
+                "step": "ccna-w6-noc-s2",
+                "role": "ops",
+                "kind": "evidence",
+                "at": [],
+                "text": "Send every log to one place"
+              },
+              {
+                "taskId": "ccna-w6-ticket",
+                "step": "ccna-w6-ticket-s1",
+                "role": "ops",
+                "kind": "governance",
+                "at": [],
+                "text": "Establish the scope before you touch anything"
+              }
+            ]
+          },
+          {
+            "week": 7,
+            "wire": "Automate",
+            "focus": "Read the network through its APIs, describe it as data, and let Ansible configure from the source of truth.",
+            "before": "Built so far: ADMIN-PC, SW-CORE-01, SW-ACC-01 and 24 more.",
+            "after": "New: automation. Configuration flows from the source of truth, not from the keyboard.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccna-w7-data",
+                "step": "ccna-w7-data-s1",
+                "role": "auto",
+                "kind": "governance",
+                "at": [],
+                "text": "Ask the source of truth a question"
+              },
+              {
+                "taskId": "ccna-w7-ansible",
+                "step": "ccna-w7-ansible-s1",
+                "role": "auto",
+                "kind": "governance",
+                "at": [],
+                "text": "One playbook, every switch"
+              }
+            ]
+          },
+          {
+            "week": 8,
+            "wire": "Engineer",
+            "focus": "Work an injected failure as an incident: root cause, a fix under change control, proof, and a handover.",
+            "before": "Built so far: ADMIN-PC, SW-CORE-01, SW-ACC-01 and 25 more.",
+            "after": "Nothing new is built. Break it, run the incident, write the RCA, hand the network over.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccna-w8-incident",
+                "step": "ccna-w8-incident-s1",
+                "role": "ops",
+                "kind": "governance",
+                "at": [],
+                "text": "Triage, then isolate"
+              },
+              {
+                "taskId": "ccna-w8-incident",
+                "step": "ccna-w8-incident-s2",
+                "role": "ops",
+                "kind": "evidence",
+                "at": [],
+                "text": "Fix it under change control, then prevent it"
+              },
+              {
+                "taskId": "ccna-w8-handover",
+                "step": "ccna-w8-handover-s1",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Say where the build differs from the design"
+              },
+              {
+                "taskId": "ccna-w8-handover",
+                "step": "ccna-w8-handover-s2",
+                "role": "arch",
+                "kind": "evidence",
+                "at": [],
+                "text": "Write the first-day runbook"
+              }
+            ]
+          },
+          {
+            "week": 9,
+            "wire": "Local LLM serving: Serve a model locally",
+            "focus": "Serve a quantised model behind an API and size the memory it needs.",
+            "before": "Built so far: ADMIN-PC, SW-CORE-01, SW-ACC-01 and 25 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "ccna-local-llm-serving-w1-serve",
+                "step": "ccna-local-llm-serving-w1-serve-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "ADMIN-PC"
+                ],
+                "text": "Serve a model behind an API"
+              },
+              {
+                "taskId": "ccna-local-llm-serving-w1-serve",
+                "step": "ccna-local-llm-serving-w1-serve-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the endpoint."
+              },
+              {
+                "taskId": "ccna-local-llm-serving-w1-size",
+                "step": "ccna-local-llm-serving-w1-size-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "ADMIN-PC"
+                ],
+                "text": "Size the memory"
+              },
+              {
+                "taskId": "ccna-local-llm-serving-w1-size",
+                "step": "ccna-local-llm-serving-w1-size-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the sizing."
+              }
+            ]
+          }
+        ],
+        "spec": {
+          "columns": [
+            "Component",
+            "Address",
+            "Runs",
+            "Who"
+          ],
+          "rows": [
+            [
+              "R1-HQ",
+              "10.50.99.2",
+              "22 SSH · 123 NTP",
+              "Team"
+            ],
+            [
+              "SW-CORE-01",
+              "10.50.99.10",
+              "22 SSH",
+              "Team"
+            ],
+            [
+              "SW-ACC-01",
+              "10.50.99.11",
+              "22 SSH",
+              "Team"
+            ],
+            [
+              "SW-ACC-02",
+              "10.50.99.12",
+              "22 SSH",
+              "Team"
+            ],
+            [
+              "AP-01",
+              "10.50.99.20",
+              "—",
+              "Team"
+            ],
+            [
+              "R2-BR",
+              "10.60.199.2",
+              "22 SSH · 123 NTP",
+              "Team"
+            ],
+            [
+              "SW-BR-01",
+              "10.60.199.11",
+              "22 SSH",
+              "Team"
+            ],
+            [
+              "SRV-CORE",
+              "10.50.20.10",
+              "53 DNS · 67 DHCP",
+              "Team"
+            ],
+            [
+              "NETOPS",
+              "10.50.20.20",
+              "514 syslog · 162 SNMP trap",
+              "Team"
+            ],
+            [
+              "FW-HQ",
+              "10.50.99.3",
+              "22 SSH",
+              "Team"
+            ],
+            [
+              "WLC-01",
+              "10.50.99.21",
+              "22 SSH",
+              "Team"
+            ],
+            [
+              "ADMIN-PC",
+              "10.50.99.50",
+              "—",
+              "Team"
+            ],
+            [
+              "Lonestar Fibre",
+              "198.51.100.1",
+              "—",
+              "Outside"
+            ]
+          ]
+        }
+      }
     },
     "weekVisuals": [
       {

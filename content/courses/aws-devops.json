@@ -8,6 +8,7 @@
     "src/lib/cloud/awsTopology.ts",
     "src/lib/cloud/awsIac.ts",
     "src/lib/cloud/workflows.ts",
+    "src/lib/docs/networkFrom.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
     "src/lib/docs/certs.ts",
@@ -8728,6 +8729,1748 @@
           "detail": "Recover, fix and contain under pressure; hand over."
         }
       ]
+    },
+    "network": {
+      "NETWORK": {
+        "copy": {
+          "title": "The AWS DevOps Engineer Capstone network — what you build and where",
+          "howToRead": "20 components on 9 segments, under AWS Cloud. Each card shows its address, what it runs and exposes, and the controls on it. Pick a week to see what has arrived.",
+          "footer": "Names are account · team01’s; your team’s follow the naming standard.",
+          "reference": {
+            "lede": "Every component of the AWS environment, its address where it has one, what it runs and exposes, the tools on it, and what each task does to it, week by week.",
+            "lan": "9 segments: Region, VPC, Availability Zone a, Availability Zone b and 5 more.",
+            "ports": "What answers on the network, and what stays inside a host or a single segment.",
+            "tools": "What is installed where, and the task that uses it.",
+            "attacks": "The attack types in exam vocabulary, where this lab uses each, and the control that answers it.",
+            "actions": "What each task of the week does on the network: the work placed on the components it touches.",
+            "links": "Every cable, port to port, with what it carries."
+          }
+        },
+        "view": {
+          "w": 1000,
+          "h": 1366
+        },
+        "fabric": {
+          "hypervisor": {
+            "id": "cloud",
+            "label": "AWS Cloud",
+            "description": "account · team01",
+            "kind": "platform",
+            "os": "AWS",
+            "arrives": 0,
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:MonthlyBudget",
+                "label": "Budget $5",
+                "description": "The $5 guardrail, set before anything can cost money",
+                "kind": "harden",
+                "arrives": 0
+              },
+              {
+                "id": "ctl:InstanceRole",
+                "label": "Role: SSM",
+                "description": "Lets the instance talk to Session Manager instead of SSH",
+                "kind": "harden",
+                "arrives": 0
+              },
+              {
+                "id": "ctl:AlertTopic",
+                "label": "Amazon SNS · email the team",
+                "description": "Who gets told when an alarm fires",
+                "kind": "detect",
+                "arrives": 0
+              },
+              {
+                "id": "ctl:BackupVault",
+                "label": "AWS Backup · capstone-team01-vault",
+                "description": "Where AWS Backup keeps the recovery points",
+                "kind": "recover",
+                "arrives": 0
+              }
+            ],
+            "x": 140,
+            "y": 1300
+          },
+          "segments": [
+            {
+              "id": "region",
+              "label": "Region",
+              "note": "us-east-1",
+              "kind": "site",
+              "arrives": 0,
+              "y": 46
+            },
+            {
+              "id": "Vpc",
+              "label": "VPC",
+              "note": "vpc-capstone-team01 · 10.10.0.0/16",
+              "kind": "vpc",
+              "parent": "region",
+              "arrives": 0,
+              "y": 278
+            },
+            {
+              "id": "az",
+              "label": "Availability Zone a",
+              "note": "us-east-1a",
+              "kind": "zone",
+              "parent": "Vpc",
+              "arrives": 0,
+              "y": 445
+            },
+            {
+              "id": "PublicSubnet",
+              "label": "Public subnet",
+              "note": "10.10.1.0/24",
+              "kind": "subnet",
+              "parent": "az",
+              "arrives": 0,
+              "y": 489
+            },
+            {
+              "id": "PrivateSubnet",
+              "label": "Private subnet",
+              "note": "10.10.2.0/24 · no internet route",
+              "kind": "subnet",
+              "parent": "az",
+              "arrives": 0,
+              "y": 639
+            },
+            {
+              "id": "azb",
+              "label": "Availability Zone b",
+              "note": "us-east-1b",
+              "kind": "zone",
+              "parent": "Vpc",
+              "arrives": 0,
+              "y": 755
+            },
+            {
+              "id": "PublicSubnetB",
+              "label": "Public subnet b",
+              "note": "10.10.3.0/24",
+              "kind": "subnet",
+              "parent": "azb",
+              "arrives": 0,
+              "y": 799
+            },
+            {
+              "id": "PrivateSubnetB",
+              "label": "Private subnet b",
+              "note": "10.10.4.0/24 · no internet route",
+              "kind": "subnet",
+              "parent": "azb",
+              "arrives": 0,
+              "y": 932
+            },
+            {
+              "id": "account-level",
+              "label": "Account level",
+              "note": "IAM · Budgets",
+              "kind": "zone",
+              "arrives": 0,
+              "y": 1082
+            }
+          ]
+        },
+        "hosts": [
+          {
+            "id": "github",
+            "label": "GitHub",
+            "description": "The repository the site, the code and the template ship from",
+            "kind": "external",
+            "arrives": 0,
+            "external": true,
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:DeployRole",
+                "label": "Deploy role",
+                "description": "What GitHub Actions may do: deploy the site and the code",
+                "kind": "harden",
+                "arrives": 2
+              }
+            ],
+            "x": 140,
+            "y": 1176,
+            "tools": [
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "aws-w10-arch",
+                  "aws-w10-infra",
+                  "aws-w10-dev"
+                ]
+              },
+              {
+                "name": "GitHub",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "aws-w10-arch",
+                  "aws-w10-infra",
+                  "aws-w10-dev"
+                ]
+              },
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "aws-w10-dev"
+                ]
+              },
+              {
+                "name": "GitHub Actions",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "aws-w10-dev"
+                ]
+              },
+              {
+                "name": "AWS console",
+                "purpose": "A management console the task configures things in.",
+                "usedIn": [
+                  "aws-w10-dev"
+                ]
+              },
+              {
+                "name": "AWS CloudShell",
+                "purpose": "A management console the task configures things in.",
+                "usedIn": [
+                  "aws-w10-dev"
+                ]
+              },
+              {
+                "name": "AWS CLI",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "aws-w10-dev"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "user",
+            "label": "Visitors",
+            "description": "The visitors who load the site and call the counter",
+            "kind": "external",
+            "arrives": 0,
+            "external": true,
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 1176
+          },
+          {
+            "id": "admin",
+            "label": "Team admin",
+            "description": "The team member who administers the environment",
+            "kind": "external",
+            "arrives": 0,
+            "external": true,
+            "services": [],
+            "controls": [],
+            "x": 620,
+            "y": 1176,
+            "tools": [
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "aws-w0-setup",
+                  "aws-w9-infra",
+                  "aws-w9-dev",
+                  "aws-w9-secops",
+                  "aws-w11-infra",
+                  "aws-w11-dev",
+                  "aws-w11-secops",
+                  "aws-w12-infra",
+                  "aws-w12-dev",
+                  "aws-w12-secops",
+                  "awsd-rag-engineering-w1-retrieve",
+                  "awsd-rag-engineering-w2-evalset",
+                  "awsd-rag-engineering-w2-passline",
+                  "awsd-ai-agents-mcp-w1-tools",
+                  "awsd-ai-agents-mcp-w1-leash",
+                  "awsd-ai-agents-mcp-w2-audit"
+                ]
+              },
+              {
+                "name": "Capstone guide",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "aws-w0-setup",
+                  "aws-w9-arch",
+                  "aws-w9-dev"
+                ]
+              },
+              {
+                "name": "AWS console",
+                "purpose": "A management console the task configures things in.",
+                "usedIn": [
+                  "aws-w0-setup",
+                  "aws-w9-infra",
+                  "aws-w9-dev",
+                  "aws-w9-secops",
+                  "aws-w10-secops",
+                  "aws-w11-arch",
+                  "aws-w11-infra",
+                  "aws-w11-dev",
+                  "aws-w11-secops",
+                  "aws-w12-infra",
+                  "aws-w12-dev",
+                  "aws-w12-secops"
+                ]
+              },
+              {
+                "name": "AWS CloudShell",
+                "purpose": "A management console the task configures things in.",
+                "usedIn": [
+                  "aws-w0-setup",
+                  "aws-w9-infra",
+                  "aws-w9-dev",
+                  "aws-w9-secops",
+                  "aws-w10-secops",
+                  "aws-w11-arch",
+                  "aws-w11-infra",
+                  "aws-w11-dev",
+                  "aws-w11-secops",
+                  "aws-w12-infra",
+                  "aws-w12-dev",
+                  "aws-w12-secops"
+                ]
+              },
+              {
+                "name": "AWS CLI",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "aws-w0-setup",
+                  "aws-w9-infra",
+                  "aws-w9-dev",
+                  "aws-w9-secops",
+                  "aws-w10-secops",
+                  "aws-w11-arch",
+                  "aws-w11-infra",
+                  "aws-w11-dev",
+                  "aws-w11-secops",
+                  "aws-w12-infra",
+                  "aws-w12-dev",
+                  "aws-w12-secops"
+                ]
+              },
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "aws-w9-arch",
+                  "aws-w9-infra",
+                  "aws-w9-dev",
+                  "aws-w9-secops",
+                  "aws-w10-secops",
+                  "aws-w11-arch",
+                  "aws-w11-infra",
+                  "aws-w11-dev",
+                  "aws-w11-secops",
+                  "aws-w12-arch",
+                  "aws-w12-infra",
+                  "aws-w12-dev",
+                  "aws-w12-secops",
+                  "awsd-rag-engineering-w1-index",
+                  "awsd-rag-engineering-w1-retrieve",
+                  "awsd-rag-engineering-w2-evalset",
+                  "awsd-rag-engineering-w2-passline",
+                  "awsd-ai-agents-mcp-w1-tools",
+                  "awsd-ai-agents-mcp-w1-leash",
+                  "awsd-ai-agents-mcp-w2-mcp",
+                  "awsd-ai-agents-mcp-w2-audit"
+                ]
+              },
+              {
+                "name": "curl",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "aws-w9-secops",
+                  "aws-w12-dev"
+                ]
+              },
+              {
+                "name": "Git",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "aws-w9-secops"
+                ]
+              },
+              {
+                "name": "Python",
+                "purpose": "A language the task writes or reads.",
+                "usedIn": [
+                  "aws-w9-secops",
+                  "awsd-rag-engineering-w1-index",
+                  "awsd-rag-engineering-w1-retrieve",
+                  "awsd-rag-engineering-w2-evalset",
+                  "awsd-rag-engineering-w2-passline",
+                  "awsd-ai-agents-mcp-w1-tools",
+                  "awsd-ai-agents-mcp-w1-leash",
+                  "awsd-ai-agents-mcp-w2-mcp",
+                  "awsd-ai-agents-mcp-w2-audit"
+                ]
+              },
+              {
+                "name": "CloudFormation",
+                "purpose": "A language the task writes or reads.",
+                "usedIn": [
+                  "aws-w9-secops"
+                ]
+              },
+              {
+                "name": "GitHub",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "aws-w10-secops",
+                  "aws-w12-dev"
+                ]
+              },
+              {
+                "name": "Chroma",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "awsd-rag-engineering-w1-index"
+                ]
+              },
+              {
+                "name": "Ollama",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "awsd-rag-engineering-w1-retrieve",
+                  "awsd-ai-agents-mcp-w1-tools"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "SiteDistribution",
+            "label": "CloudFront · d…cloudfront.net",
+            "description": "Serves the site over HTTPS worldwide",
+            "kind": "router",
+            "arrives": 0,
+            "services": [
+              {
+                "port": 443,
+                "proto": "tcp",
+                "name": "HTTPS",
+                "description": "Visitors → CloudFront · d…cloudfront.net: HTTPS.",
+                "from": 0,
+                "scope": "lan"
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:SiteOac",
+                "label": "OAC",
+                "description": "The identity CloudFront reads the private bucket with",
+                "kind": "harden",
+                "arrives": 0
+              }
+            ],
+            "x": 860,
+            "y": 1176
+          },
+          {
+            "id": "GithubOidcProvider",
+            "label": "GitHub OIDC",
+            "description": "Trusts GitHub’s tokens; the pipeline signs in with no access key",
+            "segment": "account-level",
+            "kind": "identity",
+            "arrives": 2,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 1094
+          },
+          {
+            "id": "SiteBucket",
+            "label": "Amazon S3 · site bucket (private)",
+            "description": "Holds the site files, private",
+            "segment": "region",
+            "kind": "storage",
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 58
+          },
+          {
+            "id": "HttpApi",
+            "label": "API Gateway · HTTP API",
+            "description": "The visitor-counter API’s front door",
+            "segment": "region",
+            "kind": "service",
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 58
+          },
+          {
+            "id": "CounterFunction",
+            "label": "AWS Lambda · capstone-team01-counter",
+            "description": "Counts a visit and returns the total",
+            "segment": "region",
+            "kind": "service",
+            "arrives": 0,
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:CounterLogGroup",
+                "label": "CloudWatch Logs · /aws/lambda/…counter",
+                "description": "Where the function’s logs land, kept two weeks",
+                "kind": "detect",
+                "arrives": 0
+              },
+              {
+                "id": "ctl:FunctionErrorsAlarm",
+                "label": "CloudWatch alarm · Errors > 0",
+                "description": "Fires when the counter function throws an error",
+                "kind": "detect",
+                "arrives": 0
+              }
+            ],
+            "x": 620,
+            "y": 58
+          },
+          {
+            "id": "VisitorTable",
+            "label": "DynamoDB · on-demand",
+            "description": "The table the count lives in",
+            "segment": "Vpc",
+            "kind": "storage",
+            "arrives": 0,
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:CounterFunctionRole",
+                "label": "Role: counter",
+                "description": "Lets the function write its logs and update one table",
+                "kind": "harden",
+                "arrives": 0
+              },
+              {
+                "id": "ctl:LedgerFunctionRole",
+                "label": "Role: ledger",
+                "description": "Put to one table, read from one queue",
+                "kind": "harden",
+                "arrives": 0
+              }
+            ],
+            "x": 140,
+            "y": 290
+          },
+          {
+            "id": "TrailBucket",
+            "label": "Audit log bucket",
+            "description": "Where the audit log is kept, private and versioned",
+            "segment": "region",
+            "kind": "storage",
+            "arrives": 3,
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:Trail",
+                "label": "AWS CloudTrail · capstone-team01-trail",
+                "description": "Every management call in the account, written to the bucket",
+                "kind": "detect",
+                "arrives": 3
+              }
+            ],
+            "x": 860,
+            "y": 58
+          },
+          {
+            "id": "InternetGateway",
+            "label": "Internet gateway",
+            "description": "The VPC’s door to the internet",
+            "segment": "Vpc",
+            "kind": "router",
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 290
+          },
+          {
+            "id": "ToolsInstance",
+            "label": "Amazon EC2 · ec2-tools-team01",
+            "description": "The internal IT tools server",
+            "segment": "PublicSubnet",
+            "kind": "server",
+            "arrives": 0,
+            "services": [
+              {
+                "port": 22,
+                "proto": "tcp",
+                "name": "SSH from your /32",
+                "description": "Team admin → Amazon EC2 · ec2-tools-team01: SSH from your /32.",
+                "from": 0,
+                "to": 0,
+                "scope": "lan"
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:ToolsSecurityGroup",
+                "label": "Security group",
+                "description": "Port 80 from the ALB’s group only; outbound for patches and the agent",
+                "kind": "harden",
+                "arrives": 0
+              }
+            ],
+            "x": 140,
+            "y": 501
+          },
+          {
+            "id": "DataVolume",
+            "label": "EBS volume",
+            "description": "Data that must outlive the instance",
+            "segment": "PublicSubnet",
+            "kind": "storage",
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 501
+          },
+          {
+            "id": "SiteAlb",
+            "label": "Application LB · alb-web-team01",
+            "description": "One address for the fleet in both zones; drains a dead instance in seconds",
+            "segment": "Vpc",
+            "kind": "router",
+            "arrives": 0,
+            "services": [
+              {
+                "port": 80,
+                "proto": "tcp",
+                "name": "HTTP :80",
+                "description": "Visitors → Application LB · alb-web-team01: HTTP :80.",
+                "from": 0,
+                "scope": "lan"
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:AlbSecurityGroup",
+                "label": "ALB group",
+                "description": "Port 80 from the internet to the balancer, nothing else",
+                "kind": "harden",
+                "arrives": 0
+              },
+              {
+                "id": "ctl:OpsDashboard",
+                "label": "CloudWatch dashboard · the service levels",
+                "description": "Healthy targets, p95 latency, 5XX and function errors on one screen",
+                "kind": "detect",
+                "arrives": 3
+              }
+            ],
+            "x": 620,
+            "y": 290
+          },
+          {
+            "id": "WebFleet",
+            "label": "Auto Scaling group · asg-web-team01 · 0–3",
+            "description": "The web fleet across both zones; replaces an instance that dies, parked at 0",
+            "segment": "PublicSubnetB",
+            "kind": "server",
+            "arrives": 0,
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:FleetCpuPolicy",
+                "label": "CPU 50% policy",
+                "description": "Target tracking: adds an instance above 50% average CPU, removes it below",
+                "kind": "detect",
+                "arrives": 0
+              }
+            ],
+            "x": 140,
+            "y": 811
+          },
+          {
+            "id": "S3GatewayEndpoint",
+            "label": "S3 gateway endpoint",
+            "description": "Private subnets reach S3 and the package repositories with no NAT, free",
+            "segment": "PrivateSubnet",
+            "kind": "service",
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 651
+          },
+          {
+            "id": "Database",
+            "label": "Amazon RDS · PostgreSQL · Multi-AZ",
+            "description": "The relational store, encrypted and private, with a standby in zone b (opt-in)",
+            "segment": "PrivateSubnetB",
+            "kind": "storage",
+            "arrives": 0,
+            "services": [
+              {
+                "port": 5432,
+                "proto": "tcp",
+                "name": "PostgreSQL :5432",
+                "description": "Auto Scaling group · asg-web-team01 · 0–3 → Amazon RDS · PostgreSQL · Multi-AZ: PostgreSQL :5432.",
+                "from": 0,
+                "scope": "segment",
+                "via": "PrivateSubnetB"
+              }
+            ],
+            "controls": [
+              {
+                "id": "ctl:DbSecurityGroup",
+                "label": "DB group",
+                "description": "PostgreSQL from the fleet’s group only",
+                "kind": "harden",
+                "arrives": 0
+              }
+            ],
+            "x": 140,
+            "y": 944
+          },
+          {
+            "id": "VisitsQueue",
+            "label": "Amazon SQS · visits",
+            "description": "The queue between the API and the ledger; the front door answers fast",
+            "segment": "region",
+            "kind": "storage",
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 174
+          },
+          {
+            "id": "VisitsDeadLetterQueue",
+            "label": "Dead-letter queue",
+            "description": "Where a message the ledger rejects goes after three tries",
+            "segment": "region",
+            "kind": "storage",
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 380,
+            "y": 174
+          },
+          {
+            "id": "LedgerFunction",
+            "label": "Ledger function · capstone-team01-ledger",
+            "description": "Writes one item per queued visit",
+            "segment": "region",
+            "kind": "service",
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 620,
+            "y": 174
+          }
+        ],
+        "weeks": [
+          {
+            "week": 0,
+            "wire": "Start where the last course left off",
+            "focus": "Have the environment the Solutions Architect course builds — deployed from the template if your team did not build it.",
+            "before": "Nothing built yet.",
+            "after": "What this course starts from — the previous course’s finished environment.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "aws-w0-setup",
+                "step": "aws-w0-setup-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Check what your team already has"
+              },
+              {
+                "taskId": "aws-w0-setup",
+                "step": "aws-w0-setup-s3",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Deploy through Week 8"
+              },
+              {
+                "taskId": "aws-w0-setup",
+                "step": "aws-w0-setup-s4",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Publish what the template cannot"
+              },
+              {
+                "taskId": "aws-w0-setup",
+                "step": "aws-w0-setup-s8",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Stop the instance"
+              },
+              {
+                "taskId": "aws-w0-setup",
+                "step": "aws-w0-setup-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Get the template"
+              }
+            ]
+          },
+          {
+            "week": 1,
+            "wire": "Infrastructure as code, tested",
+            "focus": "Read the environment as a template, detect drift, lint it, check it against policy, preview and deploy to dev.",
+            "before": "Built so far: CloudFront, OAC, Read-only group and 32 more.",
+            "after": "Nothing new is built. The environment comes from the template: drift detected, linted, checked against policy, previewed, deployed to dev.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "aws-w9-arch",
+                "step": "aws-w9-arch-s1",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Read the template beside the diagram"
+              },
+              {
+                "taskId": "aws-w9-arch",
+                "step": "aws-w9-arch-s9",
+                "role": "arch",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the IaC Design & Deployment Record"
+              },
+              {
+                "taskId": "aws-w9-infra",
+                "step": "aws-w9-infra-s1",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "List the resources"
+              },
+              {
+                "taskId": "aws-w9-infra",
+                "step": "aws-w9-infra-s2",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Change one tag by hand"
+              },
+              {
+                "taskId": "aws-w9-infra",
+                "step": "aws-w9-infra-s3",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Detect the drift"
+              },
+              {
+                "taskId": "aws-w9-infra",
+                "step": "aws-w9-infra-s9",
+                "role": "infra",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the IaC Design & Deployment Record"
+              },
+              {
+                "taskId": "aws-w9-dev",
+                "step": "aws-w9-dev-s2",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Preview, then deploy"
+              },
+              {
+                "taskId": "aws-w9-dev",
+                "step": "aws-w9-dev-s3",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Delete the dev stack"
+              },
+              {
+                "taskId": "aws-w9-dev",
+                "step": "aws-w9-dev-s1",
+                "role": "dev",
+                "kind": "governance",
+                "at": [],
+                "text": "Fill the starter"
+              },
+              {
+                "taskId": "aws-w9-dev",
+                "step": "aws-w9-dev-s9",
+                "role": "dev",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the IaC Design & Deployment Record"
+              },
+              {
+                "taskId": "aws-w9-secops",
+                "step": "aws-w9-secops-s1",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "github"
+                ],
+                "text": "Set the parameter values"
+              },
+              {
+                "taskId": "aws-w9-secops",
+                "step": "aws-w9-secops-s2",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Validate and lint"
+              },
+              {
+                "taskId": "aws-w9-secops",
+                "step": "aws-w9-secops-s3",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Write two Guard rules and run them"
+              },
+              {
+                "taskId": "aws-w9-secops",
+                "step": "aws-w9-secops-s9",
+                "role": "secops",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the IaC Design & Deployment Record"
+              }
+            ]
+          },
+          {
+            "week": 2,
+            "wire": "Pipelines with stages and gates",
+            "focus": "Deploy through a staged pipeline with no stored keys: a check job, dev, a reviewer before prod, a tested rollback.",
+            "before": "Built so far: CloudFront, OAC, Read-only group and 32 more.",
+            "after": "New: the deploy identity. GitHub signs in by OIDC, checks, deploys dev, waits for a reviewer, deploys prod; a failure stops at dev.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "aws-w10-arch",
+                "step": "aws-w10-arch-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "github"
+                ],
+                "text": "Write the RFC in a pull request"
+              },
+              {
+                "taskId": "aws-w10-arch",
+                "step": "aws-w10-arch-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Name the gates"
+              },
+              {
+                "taskId": "aws-w10-arch",
+                "step": "aws-w10-arch-s9",
+                "role": "arch",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Change Request & Release Record"
+              },
+              {
+                "taskId": "aws-w10-infra",
+                "step": "aws-w10-infra-s1",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "github"
+                ],
+                "text": "Protect main"
+              },
+              {
+                "taskId": "aws-w10-infra",
+                "step": "aws-w10-infra-s2",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "github"
+                ],
+                "text": "Add the environments"
+              },
+              {
+                "taskId": "aws-w10-infra",
+                "step": "aws-w10-infra-s9",
+                "role": "infra",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Change Request & Release Record"
+              },
+              {
+                "taskId": "aws-w10-dev",
+                "step": "aws-w10-dev-s1",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "github"
+                ],
+                "text": "Write the check job"
+              },
+              {
+                "taskId": "aws-w10-dev",
+                "step": "aws-w10-dev-s3",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "github"
+                ],
+                "text": "Run it end to end"
+              },
+              {
+                "taskId": "aws-w10-dev",
+                "step": "aws-w10-dev-s4",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Delete the dev stack"
+              },
+              {
+                "taskId": "aws-w10-dev",
+                "step": "aws-w10-dev-s2",
+                "role": "dev",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the dev and prod deploys"
+              },
+              {
+                "taskId": "aws-w10-dev",
+                "step": "aws-w10-dev-s9",
+                "role": "dev",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Change Request & Release Record"
+              },
+              {
+                "taskId": "aws-w10-secops",
+                "step": "aws-w10-secops-s1",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin",
+                  "github"
+                ],
+                "text": "Trust GitHub"
+              },
+              {
+                "taskId": "aws-w10-secops",
+                "step": "aws-w10-secops-s2",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Create the deploy role"
+              },
+              {
+                "taskId": "aws-w10-secops",
+                "step": "aws-w10-secops-s3",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Read what the role may do, and narrow it"
+              },
+              {
+                "taskId": "aws-w10-secops",
+                "step": "aws-w10-secops-s4",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "github"
+                ],
+                "text": "Break it, watch it roll back"
+              },
+              {
+                "taskId": "aws-w10-secops",
+                "step": "aws-w10-secops-s9",
+                "role": "secops",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Change Request & Release Record"
+              }
+            ]
+          },
+          {
+            "week": 3,
+            "wire": "Release strategies and observability",
+            "focus": "Set service levels and a dashboard, release the fleet blue/green and the function as a canary, judged by an alarm.",
+            "before": "Built so far: CloudFront, OAC, Read-only group and 34 more.",
+            "after": "New: the green pool and the dashboard. A blue/green shift and a canary, judged by metrics; the tag rule and the audit trail.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "aws-w11-arch",
+                "step": "aws-w11-arch-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Break down the cost"
+              },
+              {
+                "taskId": "aws-w11-arch",
+                "step": "aws-w11-arch-s3",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Read cost by service from the shell"
+              },
+              {
+                "taskId": "aws-w11-arch",
+                "step": "aws-w11-arch-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the service levels"
+              },
+              {
+                "taskId": "aws-w11-arch",
+                "step": "aws-w11-arch-s9",
+                "role": "arch",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Governance, Security & Cost Report"
+              },
+              {
+                "taskId": "aws-w11-infra",
+                "step": "aws-w11-infra-s1",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Publish the green version and its target group"
+              },
+              {
+                "taskId": "aws-w11-infra",
+                "step": "aws-w11-infra-s2",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Launch green beside blue"
+              },
+              {
+                "taskId": "aws-w11-infra",
+                "step": "aws-w11-infra-s3",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Shift 90/10, then 0/100"
+              },
+              {
+                "taskId": "aws-w11-infra",
+                "step": "aws-w11-infra-s4",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Retire blue and park"
+              },
+              {
+                "taskId": "aws-w11-infra",
+                "step": "aws-w11-infra-s9",
+                "role": "infra",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Governance, Security & Cost Report"
+              },
+              {
+                "taskId": "aws-w11-dev",
+                "step": "aws-w11-dev-s1",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Publish version 1 and version 2"
+              },
+              {
+                "taskId": "aws-w11-dev",
+                "step": "aws-w11-dev-s2",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Create the alias with a ten percent canary"
+              },
+              {
+                "taskId": "aws-w11-dev",
+                "step": "aws-w11-dev-s3",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Alarm on the canary’s errors"
+              },
+              {
+                "taskId": "aws-w11-dev",
+                "step": "aws-w11-dev-s4",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Promote or roll back"
+              },
+              {
+                "taskId": "aws-w11-dev",
+                "step": "aws-w11-dev-s9",
+                "role": "dev",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Governance, Security & Cost Report"
+              },
+              {
+                "taskId": "aws-w11-secops",
+                "step": "aws-w11-secops-s1",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Build the dashboard"
+              },
+              {
+                "taskId": "aws-w11-secops",
+                "step": "aws-w11-secops-s2",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Turn on the rule"
+              },
+              {
+                "taskId": "aws-w11-secops",
+                "step": "aws-w11-secops-s3",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Prove it flags"
+              },
+              {
+                "taskId": "aws-w11-secops",
+                "step": "aws-w11-secops-s4",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Read the audit trail"
+              },
+              {
+                "taskId": "aws-w11-secops",
+                "step": "aws-w11-secops-s9",
+                "role": "secops",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Governance, Security & Cost Report"
+              }
+            ]
+          },
+          {
+            "week": 4,
+            "wire": "Incident, compliance and handover",
+            "focus": "Recover from code, repair by runbook, fix drift through CI, contain an incident, write its post-mortem, hand over.",
+            "before": "Built so far: CloudFront, OAC, Read-only group and 38 more.",
+            "after": "Nothing new is built. Rebuild from code, a runbook, drift fixed through CI, an incident with its post-mortem, then the handover package.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "aws-w12-arch",
+                "step": "aws-w12-arch-s1",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Catalogue the services"
+              },
+              {
+                "taskId": "aws-w12-arch",
+                "step": "aws-w12-arch-s9",
+                "role": "arch",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Operational Handover Package"
+              },
+              {
+                "taskId": "aws-w12-infra",
+                "step": "aws-w12-infra-s1",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Rebuild it"
+              },
+              {
+                "taskId": "aws-w12-infra",
+                "step": "aws-w12-infra-s2",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Run an automation runbook"
+              },
+              {
+                "taskId": "aws-w12-infra",
+                "step": "aws-w12-infra-s3",
+                "role": "infra",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Delete the recovery stack"
+              },
+              {
+                "taskId": "aws-w12-infra",
+                "step": "aws-w12-infra-s9",
+                "role": "infra",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Operational Handover Package"
+              },
+              {
+                "taskId": "aws-w12-dev",
+                "step": "aws-w12-dev-s1",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Break it"
+              },
+              {
+                "taskId": "aws-w12-dev",
+                "step": "aws-w12-dev-s2",
+                "role": "dev",
+                "kind": "setup",
+                "at": [
+                  "github"
+                ],
+                "text": "Fix it through CI"
+              },
+              {
+                "taskId": "aws-w12-dev",
+                "step": "aws-w12-dev-s9",
+                "role": "dev",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Operational Handover Package"
+              },
+              {
+                "taskId": "aws-w12-secops",
+                "step": "aws-w12-secops-s1",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Inject the incident"
+              },
+              {
+                "taskId": "aws-w12-secops",
+                "step": "aws-w12-secops-s2",
+                "role": "secops",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Detect and contain"
+              },
+              {
+                "taskId": "aws-w12-secops",
+                "step": "aws-w12-secops-s3",
+                "role": "secops",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the post-mortem"
+              },
+              {
+                "taskId": "aws-w12-secops",
+                "step": "aws-w12-secops-s9",
+                "role": "secops",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record it in the Operational Handover Package"
+              }
+            ]
+          },
+          {
+            "week": 5,
+            "wire": "RAG engineering: Index your documents",
+            "focus": "Load a folder of records into a vector store and query it for the right passage.",
+            "before": "Built so far: CloudFront, OAC, Read-only group and 38 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "awsd-rag-engineering-w1-index",
+                "step": "awsd-rag-engineering-w1-index-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Index a document set"
+              },
+              {
+                "taskId": "awsd-rag-engineering-w1-index",
+                "step": "awsd-rag-engineering-w1-index-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Query the store and read the top passage."
+              },
+              {
+                "taskId": "awsd-rag-engineering-w1-retrieve",
+                "step": "awsd-rag-engineering-w1-retrieve-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Answer from the passages"
+              },
+              {
+                "taskId": "awsd-rag-engineering-w1-retrieve",
+                "step": "awsd-rag-engineering-w1-retrieve-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Compare the answer to the record."
+              }
+            ]
+          },
+          {
+            "week": 6,
+            "wire": "RAG engineering: Evaluate the answers",
+            "focus": "Measure the pipeline against a question set and set a pass line before you trust it.",
+            "before": "Built so far: CloudFront, OAC, Read-only group and 38 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "awsd-rag-engineering-w2-evalset",
+                "step": "awsd-rag-engineering-w2-evalset-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Build a question set"
+              },
+              {
+                "taskId": "awsd-rag-engineering-w2-evalset",
+                "step": "awsd-rag-engineering-w2-evalset-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Read the misses and fix the cause."
+              },
+              {
+                "taskId": "awsd-rag-engineering-w2-passline",
+                "step": "awsd-rag-engineering-w2-passline-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Set the pass line"
+              },
+              {
+                "taskId": "awsd-rag-engineering-w2-passline",
+                "step": "awsd-rag-engineering-w2-passline-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the decision."
+              }
+            ]
+          },
+          {
+            "week": 7,
+            "wire": "AI agents and MCP: An agent with tools",
+            "focus": "Give a model two tools it can call, and log every call it makes.",
+            "before": "Built so far: CloudFront, OAC, Read-only group and 38 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "awsd-ai-agents-mcp-w1-tools",
+                "step": "awsd-ai-agents-mcp-w1-tools-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Give the agent tools"
+              },
+              {
+                "taskId": "awsd-ai-agents-mcp-w1-tools",
+                "step": "awsd-ai-agents-mcp-w1-tools-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Read the call log."
+              },
+              {
+                "taskId": "awsd-ai-agents-mcp-w1-leash",
+                "step": "awsd-ai-agents-mcp-w1-leash-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Keep it on a leash"
+              },
+              {
+                "taskId": "awsd-ai-agents-mcp-w1-leash",
+                "step": "awsd-ai-agents-mcp-w1-leash-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the guardrail."
+              }
+            ]
+          },
+          {
+            "week": 8,
+            "wire": "AI agents and MCP: Expose a tool over MCP",
+            "focus": "Serve one tool over MCP so any client can call it the same way.",
+            "before": "Built so far: CloudFront, OAC, Read-only group and 38 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "awsd-ai-agents-mcp-w2-mcp",
+                "step": "awsd-ai-agents-mcp-w2-mcp-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Serve a tool over MCP"
+              },
+              {
+                "taskId": "awsd-ai-agents-mcp-w2-mcp",
+                "step": "awsd-ai-agents-mcp-w2-mcp-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Call the tool from the client."
+              },
+              {
+                "taskId": "awsd-ai-agents-mcp-w2-audit",
+                "step": "awsd-ai-agents-mcp-w2-audit-s1",
+                "role": "arch",
+                "kind": "setup",
+                "at": [
+                  "admin"
+                ],
+                "text": "Audit the agent"
+              },
+              {
+                "taskId": "awsd-ai-agents-mcp-w2-audit",
+                "step": "awsd-ai-agents-mcp-w2-audit-s2",
+                "role": "arch",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the audit."
+              }
+            ]
+          }
+        ],
+        "spec": {
+          "columns": [
+            "Component",
+            "Address",
+            "Runs",
+            "Who"
+          ],
+          "rows": [
+            [
+              "GitHub",
+              "—",
+              "—",
+              "Outside"
+            ],
+            [
+              "Visitors",
+              "—",
+              "—",
+              "Outside"
+            ],
+            [
+              "Team admin",
+              "—",
+              "—",
+              "Outside"
+            ],
+            [
+              "CloudFront · d…cloudfront.net",
+              "—",
+              "443 HTTPS",
+              "Team"
+            ],
+            [
+              "GitHub OIDC",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "Amazon S3 · site bucket (private)",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "API Gateway · HTTP API",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "AWS Lambda · capstone-team01-counter",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "DynamoDB · on-demand",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "Audit log bucket",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "Internet gateway",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "Amazon EC2 · ec2-tools-team01",
+              "—",
+              "22 SSH from your /32",
+              "Team"
+            ],
+            [
+              "EBS volume",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "Application LB · alb-web-team01",
+              "—",
+              "80 HTTP :80",
+              "Team"
+            ],
+            [
+              "Auto Scaling group · asg-web-team01 · 0–3",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "S3 gateway endpoint",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "Amazon RDS · PostgreSQL · Multi-AZ",
+              "—",
+              "5432 PostgreSQL :5432",
+              "Team"
+            ],
+            [
+              "Amazon SQS · visits",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "Dead-letter queue",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "Ledger function · capstone-team01-ledger",
+              "—",
+              "—",
+              "Team"
+            ],
+            [
+              "AWS Cloud",
+              "—",
+              "—",
+              "Everyone"
+            ]
+          ]
+        }
+      }
     },
     "weekVisuals": [
       {

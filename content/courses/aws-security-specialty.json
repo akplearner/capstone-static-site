@@ -6,6 +6,7 @@
     "src/lib/docs/portfolioForm.ts",
     "src/lib/docs/manual.ts",
     "src/lib/docs/awsSecuritySpecialtyContent.ts",
+    "src/lib/docs/networkFrom.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
     "src/lib/docs/certs.ts",
@@ -5780,6 +5781,868 @@
           "2": "New: the segmented network, least-exposure security groups, and the host reached through SSM with SSH closed.",
           "3": "New: a customer-managed key, a locked bucket that refuses an unencrypted put, and the findings triaged.",
           "4": "New: the incident contained one change per row, the alarm wired to page, and the baseline handed over with custody."
+        }
+      }
+    },
+    "network": {
+      "NETWORK": {
+        "copy": {
+          "title": "The AWS Security Specialty — the Secure Workload network — what you build and where",
+          "howToRead": "6 components on 5 segments. Each card shows its address, what it runs and exposes, and the controls on it. Pick a week to see what has arrived.",
+          "footer": "No paid resources required: every proof runs on the free tier, with dry-run where a change would cost, or against the sample findings shipped with the course.",
+          "reference": {
+            "lede": "Every component of the system you work on, its address where it has one, what it runs and exposes, the tools on it, and what each task does to it, week by week.",
+            "lan": "5 segments: Account & identity, The segmented network, The data, protected, Detection & response and 1 more.",
+            "ports": "What answers on the network, and what stays inside a host or a single segment.",
+            "tools": "What is installed where, and the task that uses it.",
+            "attacks": "The attack types in exam vocabulary, where this lab uses each, and the control that answers it.",
+            "actions": "What each task of the week does on the network: the work placed on the components it touches.",
+            "links": "Every cable, port to port, with what it carries."
+          }
+        },
+        "view": {
+          "w": 520,
+          "h": 723
+        },
+        "fabric": {
+          "segments": [
+            {
+              "id": "identity",
+              "label": "Account & identity",
+              "note": "root · users · roles",
+              "kind": "zone",
+              "arrives": 0,
+              "y": 46
+            },
+            {
+              "id": "network",
+              "label": "The segmented network",
+              "note": "VPC · groups · SSM",
+              "kind": "zone",
+              "arrives": 1,
+              "y": 196
+            },
+            {
+              "id": "data",
+              "label": "The data, protected",
+              "note": "KMS · locked bucket",
+              "kind": "zone",
+              "arrives": 3,
+              "y": 346
+            },
+            {
+              "id": "detect",
+              "label": "Detection & response",
+              "note": "findings · alarm",
+              "kind": "zone",
+              "arrives": 3,
+              "y": 479
+            },
+            {
+              "id": "proof",
+              "label": "The proof it holds",
+              "note": "baseline · incident · custody",
+              "kind": "zone",
+              "arrives": 1,
+              "y": 595
+            }
+          ]
+        },
+        "hosts": [
+          {
+            "id": "root",
+            "label": "Root user",
+            "description": "The account itself, protected with MFA and used for nothing routine",
+            "segment": "identity",
+            "kind": "identity",
+            "role": "records",
+            "arrives": 0,
+            "apps": [
+              "MFA",
+              "break-glass"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:alarm",
+                "label": "Metric alarm",
+                "description": "A metric filter and alarm so the next unauthorized call pages",
+                "kind": "detect",
+                "arrives": 4,
+                "role": "infra"
+              },
+              {
+                "id": "ctl:custody",
+                "label": "Custody",
+                "description": "A hash for every policy, finding and log the course produced",
+                "kind": "recover",
+                "arrives": 4,
+                "role": "records"
+              }
+            ],
+            "x": 140,
+            "y": 58
+          },
+          {
+            "id": "user",
+            "label": "IAM user",
+            "description": "The scoped identity daily work runs as, never root",
+            "segment": "identity",
+            "kind": "identity",
+            "role": "iam",
+            "arrives": 0,
+            "apps": [
+              "daily work",
+              "MFA"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:role",
+                "label": "Scoped roles",
+                "description": "A role per focus, assumed with MFA and proved to deny",
+                "kind": "harden",
+                "arrives": 1,
+                "role": "iam"
+              }
+            ],
+            "x": 380,
+            "y": 58
+          },
+          {
+            "id": "vpc",
+            "label": "VPC",
+            "description": "The network, segmented so the private subnet has no internet door",
+            "segment": "network",
+            "kind": "switch",
+            "role": "infra",
+            "arrives": 2,
+            "apps": [
+              "public + private"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:sg",
+                "label": "Security groups",
+                "description": "Only the needed port open, proved by a dry-run",
+                "kind": "harden",
+                "arrives": 2,
+                "role": "infra"
+              },
+              {
+                "id": "ctl:baseline_c",
+                "label": "Trail & Config",
+                "description": "A multi-region validated trail and a config recorder under everything",
+                "kind": "detect",
+                "arrives": 1,
+                "role": "records"
+              }
+            ],
+            "x": 140,
+            "y": 208
+          },
+          {
+            "id": "host",
+            "label": "The host",
+            "description": "Reached through SSM with port 22 closed to everyone",
+            "segment": "network",
+            "kind": "server",
+            "role": "infra",
+            "arrives": 2,
+            "apps": [
+              "private subnet"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:ssm",
+                "label": "SSM",
+                "description": "The audited management path that lets port 22 stay closed",
+                "kind": "harden",
+                "arrives": 2,
+                "role": "infra"
+              },
+              {
+                "id": "ctl:findings",
+                "label": "Findings",
+                "description": "The detection findings, sorted so the fire is first",
+                "kind": "detect",
+                "arrives": 3,
+                "role": "records"
+              }
+            ],
+            "x": 380,
+            "y": 208
+          },
+          {
+            "id": "bucket",
+            "label": "Data bucket",
+            "description": "Public access blocked, an unencrypted upload refused",
+            "segment": "data",
+            "kind": "storage",
+            "role": "data",
+            "arrives": 3,
+            "apps": [
+              "locked",
+              "encrypted"
+            ],
+            "services": [],
+            "controls": [
+              {
+                "id": "ctl:kms",
+                "label": "KMS key",
+                "description": "The customer-managed key the data is encrypted with",
+                "kind": "harden",
+                "arrives": 3,
+                "role": "data"
+              }
+            ],
+            "x": 140,
+            "y": 358
+          },
+          {
+            "id": "attacker",
+            "label": "The actor",
+            "description": "The unauthorized caller the incident is worked against",
+            "segment": "detect",
+            "kind": "external",
+            "role": "records",
+            "arrives": 4,
+            "external": true,
+            "apps": [
+              "from a bad IP"
+            ],
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 491
+          },
+          {
+            "id": "operator",
+            "label": "Your own machine",
+            "description": "Where you work from in this course.",
+            "kind": "client",
+            "external": true,
+            "arrives": 0,
+            "services": [],
+            "controls": [],
+            "x": 140,
+            "y": 617,
+            "tools": [
+              {
+                "name": "Linux shell",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "scs-w0-account",
+                  "scs-w0-orient",
+                  "scs-w2-sg",
+                  "scs-w2-edge",
+                  "scs-w3-s3",
+                  "scs-w3-detect",
+                  "scs-w4-incident",
+                  "scs-w4-handover",
+                  "scs-ai-security-validation-w1-inject",
+                  "scs-ai-security-validation-w1-leak",
+                  "scs-ai-security-validation-w2-suite",
+                  "scs-ai-security-validation-w2-report",
+                  "scs-local-llm-serving-w1-size"
+                ]
+              },
+              {
+                "name": "Capstone forms",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "scs-w0-account",
+                  "scs-w0-identity",
+                  "scs-w0-orient",
+                  "scs-w1-identity",
+                  "scs-w1-leastpriv",
+                  "scs-w1-governance",
+                  "scs-w2-vpc",
+                  "scs-w2-sg",
+                  "scs-w2-edge",
+                  "scs-w3-kms",
+                  "scs-w3-s3",
+                  "scs-w3-detect",
+                  "scs-w4-incident",
+                  "scs-w4-detect",
+                  "scs-w4-handover",
+                  "scs-ai-security-validation-w1-inject",
+                  "scs-ai-security-validation-w1-leak",
+                  "scs-ai-security-validation-w2-suite",
+                  "scs-ai-security-validation-w2-report",
+                  "scs-local-llm-serving-w1-serve",
+                  "scs-local-llm-serving-w1-size"
+                ]
+              },
+              {
+                "name": "AWS console",
+                "purpose": "A management console the task configures things in.",
+                "usedIn": [
+                  "scs-w0-account",
+                  "scs-w0-identity"
+                ]
+              },
+              {
+                "name": "AWS CloudShell",
+                "purpose": "A management console the task configures things in.",
+                "usedIn": [
+                  "scs-w0-account"
+                ]
+              },
+              {
+                "name": "AWS CLI",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "scs-w0-account",
+                  "scs-w0-identity",
+                  "scs-w1-identity",
+                  "scs-w1-leastpriv",
+                  "scs-w1-governance",
+                  "scs-w2-vpc",
+                  "scs-w2-sg",
+                  "scs-w2-edge",
+                  "scs-w3-kms",
+                  "scs-w3-s3",
+                  "scs-w3-detect",
+                  "scs-w4-incident",
+                  "scs-w4-detect",
+                  "scs-w4-handover"
+                ]
+              },
+              {
+                "name": "Notes",
+                "purpose": "A document format the task writes in.",
+                "usedIn": [
+                  "scs-w0-orient"
+                ]
+              },
+              {
+                "name": "garak",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "scs-ai-security-validation-w1-inject"
+                ]
+              },
+              {
+                "name": "Python",
+                "purpose": "A language the task writes or reads.",
+                "usedIn": [
+                  "scs-ai-security-validation-w1-inject",
+                  "scs-ai-security-validation-w1-leak",
+                  "scs-ai-security-validation-w2-suite",
+                  "scs-ai-security-validation-w2-report",
+                  "scs-local-llm-serving-w1-serve",
+                  "scs-local-llm-serving-w1-size"
+                ]
+              },
+              {
+                "name": "LLM Guard",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "scs-ai-security-validation-w1-leak"
+                ]
+              },
+              {
+                "name": "Git",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "scs-ai-security-validation-w2-suite"
+                ]
+              },
+              {
+                "name": "curl",
+                "purpose": "A command-line tool run in the task’s steps.",
+                "usedIn": [
+                  "scs-local-llm-serving-w1-serve"
+                ]
+              },
+              {
+                "name": "Ollama",
+                "purpose": "A managed service the task provisions or reads.",
+                "usedIn": [
+                  "scs-local-llm-serving-w1-serve"
+                ]
+              }
+            ]
+          }
+        ],
+        "weeks": [
+          {
+            "week": 0,
+            "wire": "Set up the account",
+            "focus": "Open the AWS free account, make an MFA-protected admin identity, set a budget guard, and make the evidence folder.",
+            "before": "Nothing built yet.",
+            "after": "The account with a budget guard, root locked with MFA, daily work on a scoped identity, and the folder ready.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "scs-w0-account",
+                "step": "scs-w0-account-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Open the account and lock the root user"
+              },
+              {
+                "taskId": "scs-w0-account",
+                "step": "scs-w0-account-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Set a $1 budget alert from the shell"
+              },
+              {
+                "taskId": "scs-w0-identity",
+                "step": "scs-w0-identity-s1",
+                "role": "iam",
+                "kind": "governance",
+                "at": [],
+                "text": "Confirm you are the IAM user, not root"
+              },
+              {
+                "taskId": "scs-w0-identity",
+                "step": "scs-w0-identity-s2",
+                "role": "iam",
+                "kind": "evidence",
+                "at": [],
+                "text": "List the account users and their MFA"
+              },
+              {
+                "taskId": "scs-w0-orient",
+                "step": "scs-w0-orient-s1",
+                "role": "infra",
+                "kind": "governance",
+                "at": [],
+                "text": "Pick the focus and name the workload"
+              },
+              {
+                "taskId": "scs-w0-orient",
+                "step": "scs-w0-orient-s2",
+                "role": "infra",
+                "kind": "evidence",
+                "at": [],
+                "text": "Make the evidence folder"
+              }
+            ]
+          },
+          {
+            "week": 1,
+            "wire": "Identity and governance",
+            "focus": "Give each role only the access it needs, prove a denial with the simulator, and turn the baseline on.",
+            "before": "Built so far: Root user, IAM user, 1 Account & access.",
+            "after": "New: a role per focus assumed with MFA, least privilege proved on a denial, and the governance baseline on.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "scs-w1-identity",
+                "step": "scs-w1-identity-s1",
+                "role": "iam",
+                "kind": "governance",
+                "at": [],
+                "text": "Assume a scoped role and read the new identity"
+              },
+              {
+                "taskId": "scs-w1-identity",
+                "step": "scs-w1-identity-s2",
+                "role": "iam",
+                "kind": "evidence",
+                "at": [],
+                "text": "Prove the trust policy requires MFA"
+              },
+              {
+                "taskId": "scs-w1-leastpriv",
+                "step": "scs-w1-leastpriv-s1",
+                "role": "iam",
+                "kind": "governance",
+                "at": [],
+                "text": "Prove the intended action is allowed"
+              },
+              {
+                "taskId": "scs-w1-leastpriv",
+                "step": "scs-w1-leastpriv-s2",
+                "role": "iam",
+                "kind": "evidence",
+                "at": [],
+                "text": "Prove the forbidden action is denied"
+              },
+              {
+                "taskId": "scs-w1-governance",
+                "step": "scs-w1-governance-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Confirm a trail is logging every call"
+              },
+              {
+                "taskId": "scs-w1-governance",
+                "step": "scs-w1-governance-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Confirm the trail log file is validated"
+              }
+            ]
+          },
+          {
+            "week": 2,
+            "wire": "Infrastructure security",
+            "focus": "Lay a segmented network, fence it with least-exposure security groups proved by dry-run, and reach hosts without SSH.",
+            "before": "Built so far: Root user, IAM user, 1 Account & access and 5 more.",
+            "after": "New: the segmented network, least-exposure security groups, and the host reached through SSM with SSH closed.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "scs-w2-vpc",
+                "step": "scs-w2-vpc-s1",
+                "role": "infra",
+                "kind": "governance",
+                "at": [],
+                "text": "List the subnets and whether they are public"
+              },
+              {
+                "taskId": "scs-w2-vpc",
+                "step": "scs-w2-vpc-s2",
+                "role": "infra",
+                "kind": "evidence",
+                "at": [],
+                "text": "Prove the private subnet has no door to the internet"
+              },
+              {
+                "taskId": "scs-w2-sg",
+                "step": "scs-w2-sg-s1",
+                "role": "infra",
+                "kind": "governance",
+                "at": [],
+                "text": "Find any rule open to the whole internet"
+              },
+              {
+                "taskId": "scs-w2-sg",
+                "step": "scs-w2-sg-s2",
+                "role": "infra",
+                "kind": "evidence",
+                "at": [],
+                "text": "Dry-run a too-wide rule to prove it is caught"
+              },
+              {
+                "taskId": "scs-w2-edge",
+                "step": "scs-w2-edge-s1",
+                "role": "infra",
+                "kind": "governance",
+                "at": [],
+                "text": "Confirm the host is managed by SSM"
+              },
+              {
+                "taskId": "scs-w2-edge",
+                "step": "scs-w2-edge-s2",
+                "role": "infra",
+                "kind": "evidence",
+                "at": [],
+                "text": "Confirm no inbound SSH remains"
+              }
+            ]
+          },
+          {
+            "week": 3,
+            "wire": "Data protection and detection",
+            "focus": "Protect the data with a customer-managed key and a locked bucket, then stand detection up and read its findings.",
+            "before": "Built so far: Root user, IAM user, 1 Account & access and 10 more.",
+            "after": "New: a customer-managed key, a locked bucket that refuses an unencrypted put, and the findings triaged.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "scs-w3-kms",
+                "step": "scs-w3-kms-s1",
+                "role": "data",
+                "kind": "governance",
+                "at": [],
+                "text": "Confirm the key is customer-managed"
+              },
+              {
+                "taskId": "scs-w3-kms",
+                "step": "scs-w3-kms-s2",
+                "role": "data",
+                "kind": "evidence",
+                "at": [],
+                "text": "Prove the data object is encrypted with your key"
+              },
+              {
+                "taskId": "scs-w3-s3",
+                "step": "scs-w3-s3-s1",
+                "role": "data",
+                "kind": "governance",
+                "at": [],
+                "text": "Confirm public access is fully blocked"
+              },
+              {
+                "taskId": "scs-w3-s3",
+                "step": "scs-w3-s3-s2",
+                "role": "data",
+                "kind": "evidence",
+                "at": [],
+                "text": "Prove an unencrypted upload is refused"
+              },
+              {
+                "taskId": "scs-w3-detect",
+                "step": "scs-w3-detect-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Sort the findings by severity"
+              },
+              {
+                "taskId": "scs-w3-detect",
+                "step": "scs-w3-detect-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Pull the detail of the top finding"
+              }
+            ]
+          },
+          {
+            "week": 4,
+            "wire": "Incident response and handover",
+            "focus": "Work an incident one change per row, wire an alarm for the next, and hand the baseline over.",
+            "before": "Built so far: Root user, IAM user, 1 Account & access and 15 more.",
+            "after": "New: the incident contained one change per row, the alarm wired to page, and the baseline handed over with custody.",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "scs-w4-incident",
+                "step": "scs-w4-incident-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the incident exactly"
+              },
+              {
+                "taskId": "scs-w4-incident",
+                "step": "scs-w4-incident-s3",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Record containment and the lesson"
+              },
+              {
+                "taskId": "scs-w4-detect",
+                "step": "scs-w4-detect-s1",
+                "role": "infra",
+                "kind": "governance",
+                "at": [],
+                "text": "Confirm the metric filter matches the pattern"
+              },
+              {
+                "taskId": "scs-w4-detect",
+                "step": "scs-w4-detect-s2",
+                "role": "infra",
+                "kind": "evidence",
+                "at": [],
+                "text": "Confirm the alarm will notify"
+              },
+              {
+                "taskId": "scs-w4-handover",
+                "step": "scs-w4-handover-s1",
+                "role": "records",
+                "kind": "governance",
+                "at": [],
+                "text": "Write the control baseline and the open risks"
+              },
+              {
+                "taskId": "scs-w4-handover",
+                "step": "scs-w4-handover-s2",
+                "role": "records",
+                "kind": "evidence",
+                "at": [],
+                "text": "Hash every artifact for custody"
+              }
+            ]
+          },
+          {
+            "week": 5,
+            "wire": "AI security validation: Attack the model",
+            "focus": "Prove a prompt injection and a data leak against a model, with evidence.",
+            "before": "Built so far: Root user, IAM user, 1 Account & access and 22 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "scs-ai-security-validation-w1-inject",
+                "step": "scs-ai-security-validation-w1-inject-s1",
+                "role": "iam",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Prove a prompt injection"
+              },
+              {
+                "taskId": "scs-ai-security-validation-w1-inject",
+                "step": "scs-ai-security-validation-w1-inject-s2",
+                "role": "iam",
+                "kind": "governance",
+                "at": [],
+                "text": "Map it to OWASP."
+              },
+              {
+                "taskId": "scs-ai-security-validation-w1-leak",
+                "step": "scs-ai-security-validation-w1-leak-s1",
+                "role": "iam",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Prove a data leak"
+              },
+              {
+                "taskId": "scs-ai-security-validation-w1-leak",
+                "step": "scs-ai-security-validation-w1-leak-s2",
+                "role": "iam",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the finding."
+              }
+            ]
+          },
+          {
+            "week": 6,
+            "wire": "AI security validation: A suite that holds",
+            "focus": "Turn every proven attack into a test the pipeline runs, so a removed guardrail fails the build.",
+            "before": "Built so far: Root user, IAM user, 1 Account & access and 22 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "scs-ai-security-validation-w2-suite",
+                "step": "scs-ai-security-validation-w2-suite-s1",
+                "role": "iam",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Automate the attack suite"
+              },
+              {
+                "taskId": "scs-ai-security-validation-w2-suite",
+                "step": "scs-ai-security-validation-w2-suite-s2",
+                "role": "iam",
+                "kind": "governance",
+                "at": [],
+                "text": "Prove the regression catch."
+              },
+              {
+                "taskId": "scs-ai-security-validation-w2-report",
+                "step": "scs-ai-security-validation-w2-report-s1",
+                "role": "iam",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Report the validation"
+              },
+              {
+                "taskId": "scs-ai-security-validation-w2-report",
+                "step": "scs-ai-security-validation-w2-report-s2",
+                "role": "iam",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the residual risk."
+              }
+            ]
+          },
+          {
+            "week": 7,
+            "wire": "Local LLM serving: Serve a model locally",
+            "focus": "Serve a quantised model behind an API and size the memory it needs.",
+            "before": "Built so far: Root user, IAM user, 1 Account & access and 22 more.",
+            "after": "",
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "scs-local-llm-serving-w1-serve",
+                "step": "scs-local-llm-serving-w1-serve-s1",
+                "role": "iam",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Serve a model behind an API"
+              },
+              {
+                "taskId": "scs-local-llm-serving-w1-serve",
+                "step": "scs-local-llm-serving-w1-serve-s2",
+                "role": "iam",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the endpoint."
+              },
+              {
+                "taskId": "scs-local-llm-serving-w1-size",
+                "step": "scs-local-llm-serving-w1-size-s1",
+                "role": "iam",
+                "kind": "setup",
+                "at": [
+                  "operator"
+                ],
+                "text": "Size the memory"
+              },
+              {
+                "taskId": "scs-local-llm-serving-w1-size",
+                "step": "scs-local-llm-serving-w1-size-s2",
+                "role": "iam",
+                "kind": "governance",
+                "at": [],
+                "text": "Record the sizing."
+              }
+            ]
+          }
+        ],
+        "spec": {
+          "columns": [
+            "Component",
+            "Address",
+            "Runs",
+            "Who"
+          ],
+          "rows": [
+            [
+              "Root user",
+              "—",
+              "MFA · break-glass",
+              "records"
+            ],
+            [
+              "IAM user",
+              "—",
+              "daily work · MFA",
+              "iam"
+            ],
+            [
+              "VPC",
+              "—",
+              "public + private",
+              "infra"
+            ],
+            [
+              "The host",
+              "—",
+              "private subnet",
+              "infra"
+            ],
+            [
+              "Data bucket",
+              "—",
+              "locked · encrypted",
+              "data"
+            ],
+            [
+              "The actor",
+              "—",
+              "from a bad IP",
+              "Outside"
+            ]
+          ]
         }
       }
     },
