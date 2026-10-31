@@ -30,6 +30,7 @@ the record. `src/lib/page-shape.test.ts` fails if an id is removed from the tabl
 | F21 | A student may leave a team (what they earned stays on the account, the course work starts over, the team's documents stay with the team) and may join this month's or next month's class session — never an earlier one, and never one behind a session they have already been in; the rule is the database's (0028: a floor table only triggers write, a guard on every join; instructors exempt) as well as the browser's | R150 | Done |
 | F22 | The Security+ lab picture draws what the tasks actually build (DVWA in Docker, ufw/fail2ban/Lynis, Defender/SMBv1, tcpdump/Wireshark, Windows 4625, the web-log watch and the ufw-deny containment, the snapshot and the hypervisor) with the correct arrival weeks, and it lights up as the team completes the work; the CySA+, MSSP and SecAI+ pictures name only real tools; Security+ task text no longer cites files nothing produces | R151 | Done |
 | F23 | Students asked for a network picture they can reference: Security+ now draws a lab network (hosts, addresses, open ports, Blue's controls) behind a Build | Network switch, with a Before | After toggle and a numbered attack step-through in exam vocabulary; DVWA is on :8080 everywhere, Blue's Week-3 log watch reads the DVWA container's log, and the Windows 4625 case is shown honestly as Blue's own test logons | R152 | Done |
+| F24 | The Security+ lab-network picture is now the primary week picture (the task-flow build picture is the secondary option on an always-visible switch), and every attack, host, open port and Blue control carries a one-line description — the attack's shown in the step-through, a component's revealed on click | R153 | Done |
 
 Order of the rounds: the field bug first (it blocks reporting and links), then the link size (the link
 fails today), then the earned-skills ledger (the record and the PDF both read it), then the live and
@@ -311,3 +312,25 @@ word budgets, :8080); `LabNetworkPanel.test.tsx` (hosts, DVWA port, toggle, step
 aria-label); `WeekVisualPanel` switch present for Security+ and absent for azure, one h3; `dto.test`
 (content.network carries three hosts, no top-level topology); page-shape pins; regenerated
 `content/courses/security-plus.json` and `index.json`.
+
+## F24 — the lab network made primary, with descriptions (R153, done)
+
+**What.** R152 put the lab network behind a Build | Network switch that defaulted to the task-flow
+picture and, on the Tasks tab, only appeared once expanded — so students saw the task-flow and never
+found the network. The owner wanted the network primary (task-flow kept, but secondary) and a
+description on each attack and each component. The week panel (`WeekVisualPanel`, and the Guide lab
+section) now defaults to the **Network** view when the course has one, lists **Build** as the second
+option, and shows the switch without expanding. Each `NetHost`, `NetService`, `NetControl` and
+`NetAttack` gained a one-line `description`; `src/lib/docs/securityNetwork.ts` authors them.
+
+**Wired.** `LabNetworkDiagram` makes each host, open port and control an accessible button
+(`role="button"`, keyboard, `aria-label`) that calls `onSelect`; `LabNetworkPanel` holds the selection
+and shows the component's description in an `aria-live` region (click-to-reveal), and always shows the
+current attack's description beside the step-through. The diagram takes a `compact` prop for the
+thumbnail (caps height, drops the spec table). Prose lives in the data module (`attackSentence` and the
+authored descriptions), not the component.
+
+**Verified.** `labNetwork.test.ts` (every component and attack has a description within budget;
+`findComponent` resolves); `LabNetworkPanel.test.tsx` (the attack description updates on Next; clicking a
+host and a control reveals its description); `WeekVisualPanel.test.tsx` (Security+ opens on Network with
+Build secondary, one h3; azure shows no switch); page-shape pins; regenerated `security-plus.json`.

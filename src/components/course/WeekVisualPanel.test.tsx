@@ -43,7 +43,7 @@ describe('WeekVisualPanel', () => {
  * R152 — a course with a lab network (Security+) gets a Build | Network switch once expanded; a course
  * without one (azure-fundamentals) never shows it, and the single heading holds either way.
  */
-describe('WeekVisualPanel — R152 Build | Network switch', () => {
+describe('WeekVisualPanel — R153 network primary', () => {
   const mountSec = (fill?: boolean) => {
     const doc = courseDocument('security-plus')!;
     return render(
@@ -59,16 +59,21 @@ describe('WeekVisualPanel — R152 Build | Network switch', () => {
     expect(container.querySelectorAll('h3')).toHaveLength(1);
   });
 
-  it('Security+ reveals the switch when expanded, still one h3, and Network shows the network root', async () => {
+  it('Security+ opens on the network without expanding, with Build as the secondary option, one h3', () => {
     const { container } = mountSec();
-    // collapsed: no switch yet
-    expect(container.querySelector('[data-picture-pick]')).toBeNull();
-    await userEvent.click(screen.getByRole('button', { name: 'Expand' }));
+    // the switch shows immediately (not gated on Expand) and the network is the default view
     expect(container.querySelector('[data-picture-pick="network"]')).not.toBeNull();
-    await userEvent.click(screen.getByRole('button', { name: 'network' }));
+    expect(container.querySelector('[data-picture-pick="build"]')).not.toBeNull();
     expect(container.querySelector('[data-net-root]')).not.toBeNull();
-    // The network picture adds no heading of its own — only the panel's one h3 remains.
+    // the network picture adds no heading of its own — only the panel's one h3 remains
     expect(container.querySelectorAll('h3')).toHaveLength(1);
+  });
+
+  it('switching to Build shows the task-flow picture instead of the network', async () => {
+    const { container } = mountSec();
+    await userEvent.click(screen.getByRole('button', { name: 'build' }));
+    expect(container.querySelector('[data-net-root]')).toBeNull();
+    expect(container.querySelector('[data-week-visual]')).not.toBeNull();
   });
 
   it('in the split-pane fill view the switch is available without an Expand toggle', () => {

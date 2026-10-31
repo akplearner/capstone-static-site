@@ -74,8 +74,8 @@ export function GuideManual({ course, member }: { course: Course; member: Member
   const built = useArchBuilt(course, member);
   // R99: the lab picture opens on the student's week and carries the week pills.
   const [pictureWeek, setPictureWeek] = useState(progress.activeWeek);
-  const [labView, setLabView] = useState<'build' | 'network'>('build');
   const hasNet = networkOf(useCourseDocument()).hosts.length > 0;
+  const [labView, setLabView] = useState<'build' | 'network'>(hasNet ? 'network' : 'build');
 
   // The deliverable chain, with filed status recomputed whenever docs change,
   // so the diagram reads as a live status board rather than a static plan.
@@ -120,7 +120,7 @@ export function GuideManual({ course, member }: { course: Course; member: Member
               {picture === 'rack' && <TeamBusinessPicker courseId={course.id} teamId={member.teamId} onBusiness={setTeamBusiness} />}
               {hasNet && (
                 <div className="inline-flex overflow-hidden rounded-[var(--radius-control)] depth-edge" role="group" aria-label="Picture">
-                  {(['build', 'network'] as const).map((v) => (
+                  {(['network', 'build'] as const).map((v) => (
                     <button key={v} type="button" data-picture-pick={v} aria-pressed={labView === v} onClick={() => setLabView(v)} className={`px-2.5 py-1 text-xs font-medium capitalize transition-colors ${labView === v ? 'bg-accent-soft text-accent-ink' : 'bg-panel text-muted hover:text-ink'}`}>
                       {v}
                     </button>

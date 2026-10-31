@@ -20,18 +20,18 @@ import { WeekAddsList } from './WeekAddsList';
  */
 export function WeekVisualPanel({ course, week, fill = false, built }: { course: WeekBuildCourse; week: number; fill?: boolean; /** R151: team-wide build state, threaded to the picture. */ built?: Record<string, number> }) {
   const [expanded, setExpanded] = useState(false);
-  const [view, setView] = useState<'build' | 'network'>('build');
-  const open = fill || expanded;
   const hasNet = networkOf(useCourseDocument()).hosts.length > 0;
-  const showNet = hasNet && open && view === 'network';
+  const [view, setView] = useState<'build' | 'network'>(hasNet ? 'network' : 'build');
+  const open = fill || expanded;
+  const showNet = hasNet && view === 'network';
   return (
     <section className="space-y-2" data-week-visual-panel={week} data-expanded={open ? 'true' : 'false'} aria-label="What you build this week">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-ink">What you build this week</h3>
         <div className="flex items-center gap-2">
-          {hasNet && open && (
+          {hasNet && (
             <div className="inline-flex overflow-hidden rounded-[var(--radius-control)] depth-edge" role="group" aria-label="Picture">
-              {(['build', 'network'] as const).map((v) => (
+              {(['network', 'build'] as const).map((v) => (
                 <button key={v} type="button" data-picture-pick={v} aria-pressed={view === v} onClick={() => setView(v)} className={`px-2.5 py-1 text-xs font-medium capitalize transition-colors ${view === v ? 'bg-accent-soft text-accent-ink' : 'bg-panel text-muted hover:text-ink'}`}>
                   {v}
                 </button>
@@ -46,7 +46,7 @@ export function WeekVisualPanel({ course, week, fill = false, built }: { course:
         </div>
       </div>
       {showNet ? (
-        <LabNetworkPanel week={week} built={built} />
+        <LabNetworkPanel week={week} built={built} compact={!open} />
       ) : (
         <>
           <WeekBuildDiagram course={course} week={week} compact={!open} built={built} />

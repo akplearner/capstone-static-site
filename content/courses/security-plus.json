@@ -8159,7 +8159,7 @@
       "NETWORK": {
         "copy": {
           "title": "The lab network — what you attack, defend and watch",
-          "howToRead": "One isolated Host-Only network. Kali on the left is the attacker; the Ubuntu web server and the optional Windows host are the targets. Each card shows its open ports and the controls on it. Switch Before and After to see the week change the system; step through the numbered attacks to follow Red, with the Blue answer to each.",
+          "howToRead": "One isolated Host-Only network. Kali on the left is the attacker; the Ubuntu web server and the optional Windows host are the targets. Each card shows its open ports and the controls on it. Switch Before and After to see the week change the system; step through the numbered attacks to follow Red, with the Blue answer to each; click any host, port or control for a description.",
           "footer": "The addresses are the worked example; your Lab access panel substitutes your own into every command."
         },
         "view": {
@@ -8171,6 +8171,7 @@
           "hypervisor": {
             "id": "hypervisor",
             "label": "Hypervisor",
+            "description": "Runs every VM on one isolated Host-Only network with no route to the internet.",
             "kind": "hypervisor",
             "x": 130,
             "y": 430,
@@ -8188,6 +8189,7 @@
           {
             "id": "kali",
             "label": "Kali attacker",
+            "description": "The attacker’s machine — where Red runs recon, scanning and exploitation inside the authorised scope.",
             "addr": "10.10.10.10",
             "kind": "attacker",
             "role": "red",
@@ -8199,6 +8201,7 @@
           {
             "id": "ubuntu",
             "label": "Ubuntu web server",
+            "description": "The target web server; it runs DVWA in Docker and is where most attacks land.",
             "addr": "10.10.10.5",
             "kind": "server",
             "role": "blue",
@@ -8209,30 +8212,35 @@
                 "port": 22,
                 "proto": "tcp",
                 "name": "SSH",
+                "description": "Remote shell for admins; a brute-force and entry target, so fail2ban watches it.",
                 "from": 0
               },
               {
                 "port": 80,
                 "proto": "tcp",
                 "name": "host web",
+                "description": "The Ubuntu host’s own web server, kept separate from the DVWA target on 8080.",
                 "from": 0
               },
               {
                 "port": 8080,
                 "proto": "tcp",
                 "name": "DVWA (Docker)",
+                "description": "The deliberately vulnerable app in Docker; the Week-3 attack surface for injection and more.",
                 "from": 0
               },
               {
                 "port": 3306,
                 "proto": "tcp",
                 "name": "MySQL",
+                "description": "The database behind DVWA; what a successful SQL injection reads from.",
                 "from": 0
               },
               {
                 "port": 53,
                 "proto": "udp",
                 "name": "DNS",
+                "description": "Name service the lab uses; Red queries it during passive reconnaissance.",
                 "from": 0
               }
             ],
@@ -8240,6 +8248,7 @@
               {
                 "id": "ctl:ubuntu-snapshot",
                 "label": "pre-hardening snapshot",
+                "description": "A clean restore point taken before hardening, so the host can be rolled back after the breach.",
                 "kind": "recover",
                 "arrives": 0,
                 "role": "blue",
@@ -8250,6 +8259,7 @@
               {
                 "id": "ctl:ubuntu-ufw",
                 "label": "ufw firewall",
+                "description": "The host firewall: only the ports in scope are allowed, everything else is denied.",
                 "kind": "harden",
                 "arrives": 1,
                 "role": "blue",
@@ -8260,6 +8270,7 @@
               {
                 "id": "ctl:ubuntu-fail2ban",
                 "label": "fail2ban",
+                "description": "Bans an address after repeated failed SSH logins, blunting brute force.",
                 "kind": "harden",
                 "arrives": 1,
                 "role": "blue",
@@ -8270,6 +8281,7 @@
               {
                 "id": "ctl:ubuntu-lynis",
                 "label": "Lynis audit",
+                "description": "An audit that scores the host against a hardening baseline and lists what to fix.",
                 "kind": "harden",
                 "arrives": 1,
                 "role": "blue",
@@ -8280,6 +8292,7 @@
               {
                 "id": "ctl:ubuntu-capture",
                 "label": "packet capture",
+                "description": "Records network traffic to a file so an attack can be seen and replayed.",
                 "kind": "detect",
                 "arrives": 2,
                 "role": "blue",
@@ -8291,6 +8304,7 @@
               {
                 "id": "ctl:ubuntu-filters",
                 "label": "detection filters",
+                "description": "Saved filters that pick a SYN scan or a SQL-injection request out of the capture.",
                 "kind": "detect",
                 "arrives": 2,
                 "role": "blue",
@@ -8301,6 +8315,7 @@
               {
                 "id": "ctl:ubuntu-weblog",
                 "label": "web-log watch",
+                "description": "Watches the DVWA container’s web log for the injection as it is tried.",
                 "kind": "detect",
                 "arrives": 3,
                 "role": "blue",
@@ -8312,6 +8327,7 @@
               {
                 "id": "ctl:ubuntu-ufwdeny",
                 "label": "ufw deny",
+                "description": "A deny rule that cuts the attacker’s address off once the case is confirmed.",
                 "kind": "contain",
                 "arrives": 3,
                 "role": "blue",
@@ -8324,6 +8340,7 @@
           {
             "id": "windows",
             "label": "Windows host",
+            "description": "The optional second target: a Windows endpoint reached over RDP, with local accounts to defend.",
             "addr": "10.10.10.6",
             "kind": "endpoint",
             "role": "blue",
@@ -8335,6 +8352,7 @@
                 "port": 3389,
                 "proto": "tcp",
                 "name": "RDP",
+                "description": "Remote Desktop into the Windows host; failed sign-ins here show up as event 4625.",
                 "from": 0
               }
             ],
@@ -8342,6 +8360,7 @@
               {
                 "id": "ctl:win-firewall",
                 "label": "Windows Firewall",
+                "description": "The Windows Firewall, turned on across every profile.",
                 "kind": "harden",
                 "arrives": 1,
                 "role": "blue",
@@ -8352,6 +8371,7 @@
               {
                 "id": "ctl:win-defender",
                 "label": "Defender · SMBv1 off",
+                "description": "Microsoft Defender on with real-time scanning, and the legacy SMBv1 protocol removed.",
                 "kind": "harden",
                 "arrives": 1,
                 "role": "blue",
@@ -8362,6 +8382,7 @@
               {
                 "id": "ctl:win-logging",
                 "label": "logon auditing",
+                "description": "Logon auditing on, so successful and failed sign-ins are recorded (events 4624/4625).",
                 "kind": "detect",
                 "arrives": 2,
                 "role": "blue",
@@ -8372,6 +8393,7 @@
               {
                 "id": "ctl:win-block",
                 "label": "firewall block rule",
+                "description": "A firewall rule that blocks the source after the failed-logon spike.",
                 "kind": "contain",
                 "arrives": 3,
                 "role": "blue",
@@ -8396,6 +8418,7 @@
                 "from": "kali",
                 "to": "ubuntu",
                 "tool": "connectivity check",
+                "description": "A reachability check that the attacker can see the target before any testing begins.",
                 "builtBy": "red-w0-setup::red-w0-s2"
               }
             ]
@@ -8414,6 +8437,7 @@
                 "to": "ubuntu",
                 "port": 80,
                 "tool": "OSINT and web fingerprinting",
+                "description": "Passive profiling from public sources and the site’s own banners, making no noise on the target.",
                 "builtBy": "red-w1-osint::red-w1-s3"
               }
             ]
@@ -8431,6 +8455,7 @@
                 "from": "kali",
                 "to": "ubuntu",
                 "tool": "all-ports scanner",
+                "description": "Sweeps every TCP port to map what the host exposes and where to look next.",
                 "builtBy": "red-w2-enumeration::red-w2-s1",
                 "response": {
                   "kind": "detect",
@@ -8446,6 +8471,7 @@
                 "to": "ubuntu",
                 "port": 80,
                 "tool": "web vulnerability scanner",
+                "description": "Probes the web server for known weaknesses and misconfigurations to follow up.",
                 "builtBy": "red-w2-enumeration::red-w2-s2",
                 "response": {
                   "kind": "detect",
@@ -8461,6 +8487,7 @@
                 "to": "ubuntu",
                 "port": 22,
                 "tool": "service enumeration",
+                "description": "Questions the SSH service to learn which login methods it will accept.",
                 "builtBy": "red-w2-enumeration::red-w2-s3"
               }
             ]
@@ -8479,6 +8506,7 @@
                 "to": "ubuntu",
                 "port": 8080,
                 "tool": "SQL-injection tool",
+                "description": "Feeds crafted input the app trusts, reading the database behind DVWA.",
                 "builtBy": "red-w3-attacks::red-w3-s1",
                 "response": {
                   "kind": "detect",
@@ -8494,6 +8522,7 @@
                 "to": "ubuntu",
                 "port": 8080,
                 "tool": "login brute-forcer",
+                "description": "Tries many passwords against the DVWA login until one works.",
                 "builtBy": "red-w3-attacks::red-w3-s2",
                 "response": {
                   "kind": "contain",
@@ -8509,6 +8538,7 @@
                 "to": "ubuntu",
                 "port": 8080,
                 "tool": "command injection to a shell",
+                "description": "Turns an unchecked input into commands on the host, opening a remote shell.",
                 "builtBy": "red-w3-attacks::red-w3-s3",
                 "response": {
                   "kind": "detect",
@@ -8524,6 +8554,7 @@
                 "to": "ubuntu",
                 "port": 8080,
                 "tool": "exploit framework upload",
+                "description": "Uploads a malicious file through DVWA to run code and gain a foothold.",
                 "builtBy": "red-w3-attacks::red-w3-msf"
               },
               {
@@ -8533,6 +8564,7 @@
                 "to": "windows",
                 "port": 3389,
                 "tool": "Blue's own test logons",
+                "description": "Blue triggers failed RDP logons on its own host to prove the 4625 detection fires.",
                 "selfTest": true,
                 "response": {
                   "kind": "detect",

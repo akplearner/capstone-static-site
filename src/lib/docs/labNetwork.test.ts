@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { NETWORK } from './securityNetwork';
-import { attackSentence, attackSteps, controlsAt, netBuiltEntries, servicesAt, words } from './labNetwork';
+import { attackSentence, attackSteps, controlsAt, findComponent, netBuiltEntries, serviceId, servicesAt, words } from './labNetwork';
 import { ARCH } from './securityContent';
 import { SEED_COURSES } from '../content/dto';
 import { stepKey } from '../teamProgress';
@@ -91,5 +91,25 @@ describe('securityNetwork — word budgets', () => {
     for (const h of NETWORK.hosts) for (const c of h.controls) expect(words(c.label), c.id).toBeLessThanOrEqual(6);
     expect(words(NETWORK.copy.howToRead)).toBeLessThanOrEqual(70);
     expect(words(NETWORK.copy.footer)).toBeLessThanOrEqual(30);
+  });
+});
+
+describe('securityNetwork — descriptions (R153)', () => {
+  it('every host, service, control and attack has a description within budget', () => {
+    for (const h of [...NETWORK.hosts, NETWORK.fabric.hypervisor]) {
+      expect(words(h.description), h.id).toBeGreaterThan(0);
+      expect(words(h.description), h.id).toBeLessThanOrEqual(20);
+      for (const s of h.services) { expect(words(s.description), `${h.id}:${s.port}`).toBeGreaterThan(0); expect(words(s.description)).toBeLessThanOrEqual(20); }
+      for (const c of h.controls) { expect(words(c.description), c.id).toBeGreaterThan(0); expect(words(c.description)).toBeLessThanOrEqual(20); }
+    }
+    for (const w of NETWORK.weeks) for (const a of w.attacks) { expect(words(a.description), `w${w.week}:${a.n}`).toBeGreaterThan(0); expect(words(a.description)).toBeLessThanOrEqual(20); }
+  });
+
+  it('findComponent resolves hosts, services and controls, and nulls on a bad id', () => {
+    expect(findComponent(NETWORK, 'host', 'ubuntu')?.label).toBe('Ubuntu web server');
+    expect(findComponent(NETWORK, 'service', serviceId('ubuntu', 8080))?.label).toMatch(/DVWA/i);
+    expect(findComponent(NETWORK, 'control', 'ctl:ubuntu-ufw')?.description.length).toBeGreaterThan(0);
+    expect(findComponent(NETWORK, 'host', 'nope')).toBeNull();
+    expect(findComponent(NETWORK, 'service', serviceId('ubuntu', 9999))).toBeNull();
   });
 });

@@ -18,6 +18,8 @@ export interface NetService {
   port: number;
   proto: Proto;
   name: string;
+  /** What runs on the port and why it matters, one line (R153). */
+  description: string;
   /** The week it first appears (0 = from the start). */
   from: number;
   /** The last week it is present; omitted = still present. */
@@ -30,6 +32,8 @@ export interface NetControl {
   /** Namespaced `ctl:…`, never an architecture-picture node id. */
   id: string;
   label: string;
+  /** What the control does, one line (R153). */
+  description: string;
   kind: ControlKind;
   arrives: number;
   builtBy?: string[];
@@ -39,6 +43,8 @@ export interface NetControl {
 export interface NetHost {
   id: string;
   label: string;
+  /** What the host is and its role in the lab, one line (R153). */
+  description: string;
   /** Always a reference into a topology module, never typed. */
   addr?: string;
   kind: HostKind;
@@ -68,6 +74,8 @@ export interface NetAttack {
   port?: number;
   /** A category, never a command. */
   tool: string;
+  /** What the technique is and what it targets, exam terms, one line (R153). */
+  description: string;
   builtBy?: string;
   response?: AttackResponse;
   /** Blue's own validation (test logons, a labelled sample): a badge on the host, never a Kali arrow. */
@@ -98,7 +106,7 @@ export const NO_NETWORK: LabNetwork = {
   copy: { title: '', howToRead: '', footer: '' },
   view: { w: 0, h: 0 },
   subnet: '',
-  fabric: { hypervisor: { id: 'hypervisor', label: '', kind: 'hypervisor', x: 0, y: 0, services: [], controls: [] }, segment: { id: 'segment', label: '', note: '', y: 0 } },
+  fabric: { hypervisor: { id: 'hypervisor', label: '', description: '', kind: 'hypervisor', x: 0, y: 0, services: [], controls: [] }, segment: { id: 'segment', label: '', note: '', y: 0 } },
   hosts: [],
   weeks: [],
   spec: { columns: [], rows: [] },
@@ -162,6 +170,34 @@ export function attackSentence(a: NetAttack, hosts: readonly NetHost[]): string 
   const port = a.port ? `:${a.port}` : '';
   const blue = a.response ? ` · Blue: ${a.response.label}` : ' · Blue: nothing yet, this is passive';
   return `${a.n}. ${ATTACK_KIND_LABEL[a.kind]} — ${where}${port} · ${a.tool}${blue}`;
+}
+
+/** What the click-to-reveal details panel shows for a selected host, port or control (R153). */
+export type ComponentKind = 'host' | 'service' | 'control';
+export interface ComponentDetail { kind: ComponentKind; label: string; sub?: string; description: string; }
+
+/** A service's selection id packs its host, since a port alone is not unique across hosts. */
+export const serviceId = (hostId: string, port: number) => `${hostId}:${port}`;
+
+/** Resolve a clicked component to its label and description; null when the id does not resolve. */
+export function findComponent(net: LabNetwork, kind: ComponentKind, id: string): ComponentDetail | null {
+  const allHosts = [...net.hosts, net.fabric.hypervisor];
+  if (kind === 'host') {
+    const h = allHosts.find((x) => x.id === id);
+    return h ? { kind, label: h.label, sub: h.addr, description: h.description } : null;
+  }
+  if (kind === 'control') {
+    for (const h of allHosts) {
+      const c = h.controls.find((x) => x.id === id);
+      if (c) return { kind, label: c.label, sub: `${CONTROL_KIND_LABEL[c.kind]} · ${h.label}`, description: c.description };
+    }
+    return null;
+  }
+  // service: id is `${hostId}:${port}`
+  const [hostId, portStr] = id.split(':');
+  const h = allHosts.find((x) => x.id === hostId);
+  const svc = h?.services.find((x) => x.port === Number(portStr));
+  return h && svc ? { kind, label: `${svc.port}/${svc.proto} ${svc.name}`, sub: h.label, description: svc.description } : null;
 }
 
 export const words = (s: string) => s.split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;

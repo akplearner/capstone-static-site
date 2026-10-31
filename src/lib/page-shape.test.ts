@@ -2196,6 +2196,16 @@ describe('R152 — the lab network picture', () => {
     expect(code('src/lib/archBuilt.ts')).toContain('export function builtMapFrom(');
     expect(code('src/components/course/useArchBuilt.ts')).toContain('netBuiltEntries(');
   });
+
+  it('R153: the network is the primary picture and its components are click-to-reveal', () => {
+    for (const f of ['src/components/course/WeekVisualPanel.tsx', 'src/components/docs/GuideManual.tsx']) {
+      expect(code(f), `${f}: defaults to the network when the course has one`).toContain("hasNet ? 'network' : 'build'");
+    }
+    // The diagram's hosts/ports/controls are selectable, and the details come from the data module.
+    expect(code('src/components/diagrams/LabNetworkDiagram.tsx')).toContain('onSelect');
+    expect(code('src/lib/docs/labNetwork.ts')).toContain('export function findComponent(');
+    expect(code('src/components/diagrams/LabNetworkPanel.tsx')).toContain('findComponent(');
+  });
 });
 
 describe('R151 — the picture marks what the team has built', () => {

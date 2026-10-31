@@ -61,7 +61,7 @@ never passes `validation`, and with no `built` prop the picture is exactly the c
 
 ## The lab network picture (R152)
 
-Security+ carries a second, different picture behind a **Build | Network** switch on the week panel
+Security+ carries a second, different picture — now the **primary** one — behind a **Build | Network** switch on the week panel (R153 makes Network the default and the task-flow build picture the secondary option; each host, port, control and attack carries a one-line description, shown in the step-through for an attack and revealed on click for a component)
 (the Tasks tab and the Guide lab section): the lab as a NETWORK. `src/lib/docs/labNetwork.ts` is the
 course-agnostic shape — hosts with their open ports (`NetService`, each with the week window it is
 present), the controls Blue puts on each host (`NetControl`, by kind: harden, detect, contain, recover),

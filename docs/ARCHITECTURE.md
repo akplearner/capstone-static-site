@@ -1004,7 +1004,10 @@ entering and leaving the week; a Prev/Next step-through walks the attacks. It is
 `LabNetworkDiagram`/`LabNetworkPanel`; before/after is a pure projection of one data set
 (`servicesAt`/`controlsAt`). Controls and attack steps light as the team finishes the work through the
 same `builtMapFrom` the architecture picture uses, with namespaced ids so one built map serves both. A
-course without a network reads `NO_NETWORK` and shows no switch.
+course without a network reads `NO_NETWORK` and shows no switch. R153 makes the network the primary
+picture (the task-flow build picture becomes the secondary switch option) and adds a one-line
+description to every host, port, control and attack — shown in the step-through for an attack, revealed
+on click for a component (`findComponent`, an `aria-live` details region).
 
 ### Longitudinal validation, the task timer and the Understanding score (R140)
 

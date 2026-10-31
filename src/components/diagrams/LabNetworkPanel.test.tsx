@@ -52,6 +52,29 @@ describe('LabNetworkPanel', () => {
     expect(container.querySelector('[data-net-stepper]')).toBeNull();
   });
 
+  it('shows the current attack’s description and updates it on Next (R153)', () => {
+    mount(3);
+    const desc = () => document.querySelector('[data-net-attack-description]')!.textContent!;
+    expect(desc().length).toBeGreaterThan(0);
+    const first = desc();
+    fireEvent.click(screen.getByRole('button', { name: 'Next step' }));
+    expect(desc()).not.toBe(first);
+  });
+
+  it('clicking a host reveals its description in the component details region (R153)', () => {
+    const { container } = mount(2);
+    expect(container.querySelector('[data-net-component-detail]')!.textContent).toMatch(/Select a host/);
+    const ubuntuHeader = container.querySelector('[data-net-host="ubuntu"] [role="button"]')!;
+    fireEvent.click(ubuntuHeader);
+    expect(container.querySelector('[data-net-component-detail]')!.textContent).toMatch(/target web server/i);
+  });
+
+  it('clicking a control reveals its description (R153)', () => {
+    const { container } = mount(2);
+    fireEvent.click(container.querySelector('[data-net-control="ctl:ubuntu-ufw"]')!);
+    expect(container.querySelector('[data-net-component-detail]')!.textContent).toMatch(/firewall/i);
+  });
+
   it('the built map lights a control the team has finished', () => {
     const { container } = mount(1, { 'ctl:ubuntu-ufw': 1 });
     fireEvent.click(screen.getByRole('button', { name: 'after' }));
