@@ -23,12 +23,12 @@ import { Surface } from './Surface';
  * it promises a layout and then delivers a different one.
  */
 
-/** The four-tab sub-nav that sits on every in-course page. */
+/** The sub-nav that sits on every in-course page (four tabs, five on a course with a lab network). */
 function SubNavSkeleton() {
   return (
     <div className="flex flex-wrap items-center gap-2 border-b border-line pb-2">
       <Skeleton className="h-8 w-full sm:w-52" />
-      {[64, 60, 92, 62].map((w, i) => (
+      {[64, 60, 92, 62, 80].map((w, i) => (
         <Skeleton key={i} className="h-8" style={{ width: w }} />
       ))}
       <Skeleton className="ml-auto h-6 w-28" />

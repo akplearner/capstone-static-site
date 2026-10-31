@@ -4482,3 +4482,31 @@ describe('R155 — the join panel sees the roster before you join, and it stays 
     expect(rls).toContain('anon: no roster (R155 widens to signed-in only)');
   });
 });
+
+describe('R156 — the Network tab is the full LAN reference', () => {
+  it('a Network route with the course bar, a tab gated on the document, and a reference that reads the document', () => {
+    const page = code('src/app/courses/[courseId]/network/page.tsx');
+    expect(page).toContain('<CourseSubNav');
+    expect(page).toContain('active="network"');
+    expect(page).toContain('<LabNetworkReference');
+    const nav = code('src/components/CourseSubNav.tsx');
+    expect(nav).toContain("'network'");
+    expect(nav, 'the tab shows only when the document carries a network').toContain('networkOf(doc).hosts.length > 0');
+    expect(nav).toContain('data-tab-network');
+    const ref = code('src/components/docs/LabNetworkReference.tsx');
+    expect(ref).toContain('networkOf(useCourseDocument())');
+    for (const fn of ['lanComponents(', 'portRows(', 'toolRows(', 'weekTaskActions(', 'catalogueUses(', 'ATTACK_CATALOGUE']) expect(ref, fn).toContain(fn);
+    expect(ref, 'no hex colour').not.toMatch(/#[0-9a-fA-F]{3}\b|#[0-9a-fA-F]{6}\b/);
+    expect(ref, 'never the Security+ module directly').not.toMatch(/from '@\/lib\/docs\/securityNetwork'/);
+    // The thumbnail links to the tab; the picture marks internal ports; the model carries the LAN.
+    expect(code('src/components/course/WeekVisualPanel.tsx')).toContain('data-net-full-link');
+    expect(code('src/components/diagrams/LabNetworkDiagram.tsx')).toContain("s.scope === 'internal'");
+    const model = read('src/lib/docs/labNetwork.ts');
+    for (const t of ['interface NetTool', 'interface NetContainer', 'interface NetDocker', 'interface NetAction', 'adapter?:']) expect(model, t).toContain(t);
+    // Addresses stay in the topology module: the network data types none of its own.
+    const data = read('src/lib/docs/securityNetwork.ts');
+    expect(data, 'no typed address').not.toMatch(/'\d+\.\d+\.\d+\.\d+'/);
+    expect(read('src/lib/labTopology.ts')).toContain('LAB_GATEWAY');
+    expect(read('src/lib/labTopology.ts')).toContain('LAB_DOCKER');
+  });
+});

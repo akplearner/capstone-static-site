@@ -1,13 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { useContext, useEffect, useId, useRef, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { SPRING } from '@/lib/motion';
-import { BookOpen, ClipboardList, Home, ListChecks } from 'lucide-react';
+import { BookOpen, ClipboardList, Home, ListChecks, Network } from 'lucide-react';
 import { RoleStrip } from '@/components/course/RoleStrip';
+import { CourseDocumentContext } from '@/lib/useCourse';
+import { networkOf } from '@/lib/content/read';
 
-export type CourseTab = 'home' | 'tasks' | 'deliverables' | 'guide';
+export type CourseTab = 'home' | 'tasks' | 'deliverables' | 'guide' | 'network';
 
 const BASE =
   'relative flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors';
@@ -60,7 +62,8 @@ interface CourseSubNavProps {
 }
 
 /**
- * The one in-course navigation bar — Home / Tasks / Deliverables / Guide —
+ * The one in-course navigation bar — Home / Tasks / Deliverables / Guide, and
+ * Network on a course that has a lab network (R156) —
  * rendered identically on the dashboard AND every sub-page so the tabs never
  * disappear. On the dashboard Home/Tasks are client-state buttons (onSelectTab);
  * on sub-pages they link back to the dashboard (`?tab=tasks` deep-links Tasks).
@@ -69,6 +72,10 @@ interface CourseSubNavProps {
  * is on top of every course page, however far the page scrolls: the bar is
  * sticky, follows the header's auto-hide and survives Focus mode.
  *
+ * R156: Network is the full LAN reference (components, addresses, Docker, ports,
+ * tools, the attack catalogue, what each task does on it); the tab shows only when
+ * the course document carries a network, read here through `networkOf`.
+ *
  * Four, down from six surfaces. Team folded into Home (your own team is the
  * only one you can see, so it never needed a URL of its own), and the Reference
  * manual folded into the Guide — it showed as "Guide" in this bar anyway, so a
@@ -76,6 +83,10 @@ interface CourseSubNavProps {
  */
 export function CourseSubNav({ courseId, active, teamId, onSelectTab, trailing }: CourseSubNavProps) {
   const cur = (tab: CourseTab) => (active === tab ? 'page' : undefined);
+  // Read the context directly (not `useCourseDocument`, which throws): the bar is also rendered in
+  // isolation by tests and must simply show no Network tab when there is no course document.
+  const doc = useContext(CourseDocumentContext);
+  const hasNet = doc ? networkOf(doc).hosts.length > 0 : false;
   const pillId = `subnav-pill-${useId()}`;
   const barRef = useRef<HTMLElement>(null);
   // Publish the bar's REAL height as `--subnav-h`. The week rail and the
@@ -143,6 +154,11 @@ export function CourseSubNav({ courseId, active, teamId, onSelectTab, trailing }
       <Link href={`/courses/${courseId}/guide`} aria-current={cur('guide')} className={cls(active === 'guide')}>
         {body('guide', <BookOpen className="h-4 w-4" />, 'Guide')}
       </Link>
+      {hasNet && (
+        <Link href={`/courses/${courseId}/network`} aria-current={cur('network')} className={cls(active === 'network')} data-tab-network>
+          {body('network', <Network className="h-4 w-4" />, 'Network')}
+        </Link>
+      )}
 
       {trailing && <div className="ml-auto flex items-center gap-2">{trailing}</div>}
     </nav>

@@ -208,7 +208,7 @@ const RED_TASKS: Task[] = [
         instruction: 'Run the command and note your ens18 address and the ping reply.',
         commands: [
           { cmd: 'ip a', explain: 'List your network interfaces and IP addresses.' },
-          { cmd: 'ping -c 1 10.10.10.1', explain: 'Send one packet to the target to confirm it answers.' },
+          { cmd: 'ping -c 1 10.10.10.1', explain: 'Send one packet to the lab gateway (the hypervisor’s Host-Only adapter) to confirm you are on the lab network.' },
         ],
         commandExplanation: '`ip a` lists every network interface and its assigned address; `ping -c 1` sends a single ICMP echo (the `-c 1` caps it at one packet) to confirm the target answers.',
         commandFlags: [
@@ -217,13 +217,13 @@ const RED_TASKS: Task[] = [
           { flag: '-c 1', meaning: 'Stop after 1 packet instead of pinging forever.' },
           { flag: '10.10.10.1', meaning: 'The host being pinged (the gateway/target).' },
         ],
-        expectedOutput: 'ens18 inet 10.10.100.X, ping reply from target Look for: "bytes from".',
-        outputExplanation: 'The `ens18` `inet` line in the 10.10.100.X range is your IP, and a "1 received, 0% packet loss" line proves the target answers.',
+        expectedOutput: 'ens18 inet 10.10.10.X, ping reply from the gateway Look for: "bytes from".',
+        outputExplanation: 'The `ens18` `inet` line in the 10.10.10.X range is your IP, and a "1 received, 0% packet loss" line proves the gateway (the hypervisor’s Host-Only adapter, .1) answers.',
         whatItMeans: 'Your Kali box and the target sit on the same subnet, so scanning will work.',
         frameworks: ['NIST_CSF'],
         fixes: [
           { symptom: 'No ping reply?', fix: 'Confirm the target VM is on and on the same lab network, and that .1 is your gateway (yours may differ — use the address from Lab access).' },
-          { symptom: '"Network is unreachable"?', fix: 'Your Kali NIC may be on the wrong adapter — check that `ip a` shows a 10.10.100.X address.' },
+          { symptom: '"Network is unreachable"?', fix: 'Your Kali NIC may be on the wrong adapter — check that `ip a` shows a 10.10.10.X address.' },
         ],
       },
       {
@@ -1385,10 +1385,10 @@ Enabled                         : True`,
           { cmd: 'mkdir -p ~/team-artifacts/week-3', explain: 'Create the week-3 artifacts folder.' },
           { cmd: 'sudo docker exec dvwa tail -n 200 /var/log/apache2/access.log | tee ~/team-artifacts/week-3/Attack_Logs.txt', explain: 'Save the last 200 DVWA web-server log lines (read inside the container) as evidence.' },
         ],
-        commandExplanation: '`tail -f` prints the end of the Apache access log and then *follows* it, streaming each new request live as it is written.',
+        commandExplanation: '`docker exec dvwa tail -n 200` reads the last 200 lines of the Apache access log from inside the DVWA container, and `tee` saves them as evidence while printing them.',
         commandFlags: [
           { flag: 'tail', meaning: 'Show the end of a file.' },
-          { flag: '-f', meaning: 'Follow — stream new lines as they are written.' },
+          { flag: '-n 200', meaning: 'The last 200 lines.' },
           { flag: 'docker exec dvwa … access.log', meaning: 'The DVWA container’s Apache request log, read from inside the container.' },
         ],
         expectedOutput: 'HTTP requests, errors, failed auth attempts Look for: "HTTP/1.1".',
@@ -1497,7 +1497,7 @@ Enabled                         : True`,
         producesDeliverable: 'Win_Detection.txt',
         isEvidenceStep: true,
         optional: true,
-        troubleshooting: 'No 4625 events? Confirm logon auditing was enabled in Week 2 (blue-w2-s4) and that Red has started the brute force.',
+        troubleshooting: 'No 4625 events? Confirm logon auditing was enabled in Week 2 (blue-w2-s4), then generate a few failed RDP sign-ins yourself — no Red step targets the Windows host, so these are your own test logons.',
       }
     ]
   },

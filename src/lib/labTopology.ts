@@ -11,6 +11,10 @@
  */
 
 export const LAB_SUBNET = '10.10.10.0/24';
+/** The hypervisor's own interface on the lab network — the `.1` the VMs use as their gateway (R156). */
+export const LAB_GATEWAY = '10.10.10.1';
+/** Docker's default bridge on the Ubuntu host; the first container started gets `.2` (R156). */
+export const LAB_DOCKER = { bridge: 'docker0', subnet: '172.17.0.0/16', dvwa: '172.17.0.2' } as const;
 
 export interface LabHost {
   key: 'kali' | 'ubuntu' | 'windows';
@@ -25,7 +29,7 @@ export interface LabHost {
 
 export const LAB_HOSTS: LabHost[] = [
   { key: 'kali', name: 'Kali (Attacker)', ip: '10.10.10.10', owner: 'red', services: [], note: 'recon → exploit' },
-  { key: 'ubuntu', name: 'Ubuntu web server', ip: '10.10.10.5', owner: 'blue', services: ['SSH', 'HTTP', 'DNS'], note: 'DVWA target · Blue defends' },
+  { key: 'ubuntu', name: 'Ubuntu web server', ip: '10.10.10.5', owner: 'blue', services: ['SSH', 'HTTP', 'Docker'], note: 'DVWA target · Blue defends' },
   { key: 'windows', name: 'Windows host', ip: '10.10.10.6', owner: 'blue', services: ['RDP'], optional: true, note: 'Blue defends · optional' },
 ];
 

@@ -15,7 +15,9 @@ import { attackSteps, controlsAt, serviceId, servicesAt, type ComponentKind, typ
  * response beside its control; a self-test is a badge on the host. Hosts, ports and controls are
  * keyboard-and-pointer selectable (`onSelect`) so the panel can show a description — the picture stays
  * clean until asked. Colours are tokens only — attacks `--color-danger`, Blue responses `--color-info`,
- * controls by kind. No reserved `data-*`; the aria-label never contains "week N".
+ * controls by kind. No reserved `data-*`; the aria-label never contains "week N". R156: a port that only
+ * answers inside its host or container (`scope: 'internal'`) is drawn muted and marked, so the picture never
+ * claims the LAN sees it.
  */
 const CTRL_COLOR: Record<ControlKind, string> = {
   harden: 'var(--color-ok)',
@@ -155,7 +157,7 @@ export function LabNetworkDiagram({
                   return (
                     <g key={`s${s.port}`} data-net-service={s.port} {...pick('service', serviceId(h.id, s.port), `${s.port}/${s.proto} ${s.name}: ${s.description}`)}>
                       <rect x={h.x - CARD_W / 2 + 6} y={y - 9} width={CARD_W - 12} height={ROW - 2} rx={4} fill={isSel('service', serviceId(h.id, s.port)) ? 'var(--color-accent-soft)' : 'transparent'} />
-                      <text x={h.x - CARD_W / 2 + 12} y={y + 4} fontSize="9" fontFamily="var(--font-mono)" style={{ fill: 'var(--color-body)' }}>{`${s.port}/${s.proto} ${s.name}`}</text>
+                      <text x={h.x - CARD_W / 2 + 12} y={y + 4} fontSize="9" fontFamily="var(--font-mono)" style={{ fill: s.scope === 'internal' ? 'var(--color-muted)' : 'var(--color-body)' }} data-net-scope={s.scope ?? 'lan'}>{`${s.port}/${s.proto} ${s.name}${s.scope === 'internal' ? ' · internal' : ''}`}</text>
                     </g>
                   );
                 })}

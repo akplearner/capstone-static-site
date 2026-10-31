@@ -544,7 +544,7 @@
               },
               {
                 "cmd": "ping -c 1 10.10.10.1",
-                "explain": "Send one packet to the target to confirm it answers."
+                "explain": "Send one packet to the lab gateway (the hypervisor’s Host-Only adapter) to confirm you are on the lab network."
               }
             ],
             "commandExplanation": "`ip a` lists every network interface and its assigned address; `ping -c 1` sends a single ICMP echo (the `-c 1` caps it at one packet) to confirm the target answers.",
@@ -566,8 +566,8 @@
                 "meaning": "The host being pinged (the gateway/target)."
               }
             ],
-            "expectedOutput": "ens18 inet 10.10.100.X, ping reply from target Look for: \"bytes from\".",
-            "outputExplanation": "The `ens18` `inet` line in the 10.10.100.X range is your IP, and a \"1 received, 0% packet loss\" line proves the target answers.",
+            "expectedOutput": "ens18 inet 10.10.10.X, ping reply from the gateway Look for: \"bytes from\".",
+            "outputExplanation": "The `ens18` `inet` line in the 10.10.10.X range is your IP, and a \"1 received, 0% packet loss\" line proves the gateway (the hypervisor’s Host-Only adapter, .1) answers.",
             "whatItMeans": "Your Kali box and the target sit on the same subnet, so scanning will work.",
             "frameworks": [
               "NIST_CSF"
@@ -579,7 +579,7 @@
               },
               {
                 "symptom": "\"Network is unreachable\"?",
-                "fix": "Your Kali NIC may be on the wrong adapter — check that `ip a` shows a 10.10.100.X address."
+                "fix": "Your Kali NIC may be on the wrong adapter — check that `ip a` shows a 10.10.10.X address."
               }
             ]
           },
@@ -2737,15 +2737,15 @@
                 "explain": "Save the last 200 DVWA web-server log lines (read inside the container) as evidence."
               }
             ],
-            "commandExplanation": "`tail -f` prints the end of the Apache access log and then *follows* it, streaming each new request live as it is written.",
+            "commandExplanation": "`docker exec dvwa tail -n 200` reads the last 200 lines of the Apache access log from inside the DVWA container, and `tee` saves them as evidence while printing them.",
             "commandFlags": [
               {
                 "flag": "tail",
                 "meaning": "Show the end of a file."
               },
               {
-                "flag": "-f",
-                "meaning": "Follow — stream new lines as they are written."
+                "flag": "-n 200",
+                "meaning": "The last 200 lines."
               },
               {
                 "flag": "docker exec dvwa … access.log",
@@ -2950,7 +2950,7 @@
             "producesDeliverable": "Win_Detection.txt",
             "isEvidenceStep": true,
             "optional": true,
-            "troubleshooting": "No 4625 events? Confirm logon auditing was enabled in Week 2 (blue-w2-s4) and that Red has started the brute force."
+            "troubleshooting": "No 4625 events? Confirm logon auditing was enabled in Week 2 (blue-w2-s4), then generate a few failed RDP sign-ins yourself — no Red step targets the Windows host, so these are your own test logons."
           }
         ]
       },
@@ -7257,7 +7257,7 @@
           {
             "id": "ubuntu",
             "label": "Ubuntu web server",
-            "sub": "SSH · HTTP · DNS",
+            "sub": "SSH · HTTP · Docker",
             "addr": "10.10.10.5",
             "kind": "server",
             "zone": "targets",
@@ -8160,7 +8160,15 @@
         "copy": {
           "title": "The lab network — what you attack, defend and watch",
           "howToRead": "One isolated Host-Only network. Kali on the left is the attacker; the Ubuntu web server and the optional Windows host are the targets. Each card shows its open ports and the controls on it. Switch Before and After to see the week change the system; step through the numbered attacks to follow Red, with the Blue answer to each; click any host, port or control for a description.",
-          "footer": "The addresses are the worked example; your Lab access panel substitutes your own into every command."
+          "footer": "The addresses are the worked example; your Lab access panel substitutes your own into every command.",
+          "reference": {
+            "lede": "Every component of the lab, its address, what it runs and exposes, the tools on it, the attack types Red uses and what each task does to it, week by week.",
+            "lan": "One hypervisor, one isolated Host-Only network. The hypervisor’s adapter is the gateway; three VMs sit on the segment; Docker on the Ubuntu host runs DVWA on its own bridge and publishes one port.",
+            "ports": "What answers on the lab network, and what stays inside a host or container. Red’s scans see only the LAN column.",
+            "tools": "What is installed where, and the task that uses it.",
+            "attacks": "The attack types in exam vocabulary, where this lab uses each, and the Blue control that answers it.",
+            "actions": "What each task of the week does on the network: Red’s attacks, Blue’s controls, and the set-up, evidence and governance work around them."
+          }
         },
         "view": {
           "w": 960,
@@ -8175,14 +8183,37 @@
             "kind": "hypervisor",
             "x": 130,
             "y": 430,
+            "os": "VirtualBox · VMware · UTM",
             "services": [],
-            "controls": []
+            "controls": [],
+            "tools": [
+              {
+                "name": "VM snapshots",
+                "purpose": "The pre-hardening restore point for each target.",
+                "usedIn": [
+                  "blue-w0-setup::blue-w0-s3"
+                ]
+              },
+              {
+                "name": "sha256sum",
+                "purpose": "Hashes every evidence file for the chain of custody.",
+                "usedIn": [
+                  "grc-w3-custody"
+                ]
+              }
+            ]
           },
           "segment": {
             "id": "hostonly",
             "label": "Host-Only network",
             "note": "10.10.10.0/24",
             "y": 150
+          },
+          "adapter": {
+            "id": "adapter",
+            "label": "Host-Only adapter",
+            "addr": "10.10.10.1",
+            "description": "The hypervisor’s own interface on the lab network — the .1 the VMs see as their gateway; no route to the internet."
           }
         },
         "hosts": [
@@ -8195,8 +8226,84 @@
             "role": "red",
             "x": 130,
             "y": 150,
+            "os": "Kali Linux",
+            "nic": "Host-Only adapter",
             "services": [],
-            "controls": []
+            "controls": [],
+            "tools": [
+              {
+                "name": "ip · ping",
+                "purpose": "Address and reachability checks before any testing.",
+                "usedIn": [
+                  "red-w0-setup::red-w0-s2",
+                  "red-w1-osint::red-w1-s1"
+                ]
+              },
+              {
+                "name": "whois · dig",
+                "purpose": "Registration and DNS look-ups during passive recon.",
+                "usedIn": [
+                  "red-w1-osint::red-w1-s2"
+                ]
+              },
+              {
+                "name": "whatweb",
+                "purpose": "Fingerprints the web server and its technologies.",
+                "usedIn": [
+                  "red-w1-osint::red-w1-s3"
+                ]
+              },
+              {
+                "name": "theHarvester",
+                "purpose": "Email and host discovery from public sources.",
+                "usedIn": [
+                  "red-w1-osint::red-w1-s4"
+                ]
+              },
+              {
+                "name": "nmap",
+                "purpose": "Port and service scanning of the target.",
+                "usedIn": [
+                  "red-w2-enumeration::red-w2-s1",
+                  "red-w2-enumeration::red-w2-s3"
+                ]
+              },
+              {
+                "name": "nikto",
+                "purpose": "Web vulnerability scanning.",
+                "usedIn": [
+                  "red-w2-enumeration::red-w2-s2"
+                ]
+              },
+              {
+                "name": "sqlmap",
+                "purpose": "Automated SQL injection against DVWA.",
+                "usedIn": [
+                  "red-w3-attacks::red-w3-s1"
+                ]
+              },
+              {
+                "name": "hydra",
+                "purpose": "Login brute force against the DVWA form.",
+                "usedIn": [
+                  "red-w3-attacks::red-w3-s2"
+                ]
+              },
+              {
+                "name": "netcat",
+                "purpose": "Catches the reverse shell the command injection opens.",
+                "usedIn": [
+                  "red-w3-attacks::red-w3-s3"
+                ]
+              },
+              {
+                "name": "Metasploit",
+                "purpose": "Delivers the upload and handles the session.",
+                "usedIn": [
+                  "red-w3-attacks::red-w3-msf"
+                ]
+              }
+            ]
           },
           {
             "id": "ubuntu",
@@ -8207,6 +8314,8 @@
             "role": "blue",
             "x": 470,
             "y": 150,
+            "os": "Ubuntu Server 22.04",
+            "nic": "Host-Only adapter",
             "services": [
               {
                 "port": 22,
@@ -8232,16 +8341,18 @@
               {
                 "port": 3306,
                 "proto": "tcp",
-                "name": "MySQL",
-                "description": "The database behind DVWA; what a successful SQL injection reads from.",
-                "from": 0
+                "name": "MySQL (in container)",
+                "description": "The database inside the DVWA container, reached only by the app; a SQL injection reads from it.",
+                "from": 0,
+                "scope": "internal"
               },
               {
                 "port": 53,
                 "proto": "udp",
-                "name": "DNS",
-                "description": "Name service the lab uses; Red queries it during passive reconnaissance.",
-                "from": 0
+                "name": "DNS stub",
+                "description": "Ubuntu’s own resolver stub on the loopback; not a name server the lab exposes.",
+                "from": 0,
+                "scope": "internal"
               }
             ],
             "controls": [
@@ -8335,7 +8446,99 @@
                   "blue-w3-detection::blue-w3-s4"
                 ]
               }
-            ]
+            ],
+            "tools": [
+              {
+                "name": "ssh",
+                "purpose": "The admin shell Blue works through.",
+                "usedIn": [
+                  "blue-w0-setup::blue-w0-s1",
+                  "blue-w1-hardening::blue-w1-s1"
+                ]
+              },
+              {
+                "name": "Docker",
+                "purpose": "Runs the DVWA container and reads its log.",
+                "usedIn": [
+                  "blue-w0-setup::blue-w0-s4",
+                  "blue-w0-setup::blue-w0-s5",
+                  "blue-w3-detection::blue-w3-s2"
+                ]
+              },
+              {
+                "name": "ufw",
+                "purpose": "The host firewall: allow the scope, deny the rest, block the attacker.",
+                "usedIn": [
+                  "blue-w1-hardening::blue-w1-s3",
+                  "blue-w3-detection::blue-w3-s4"
+                ]
+              },
+              {
+                "name": "fail2ban",
+                "purpose": "Bans an address after repeated failed SSH logins.",
+                "usedIn": [
+                  "blue-w1-hardening::blue-w1-s4"
+                ]
+              },
+              {
+                "name": "Lynis",
+                "purpose": "Audits the host against a hardening baseline.",
+                "usedIn": [
+                  "blue-w1-hardening::blue-w1-s5"
+                ]
+              },
+              {
+                "name": "tcpdump",
+                "purpose": "Captures normal and attack traffic to pcap files.",
+                "usedIn": [
+                  "blue-w2-baseline::blue-w2-s1",
+                  "blue-w2-baseline::blue-w2-s5",
+                  "blue-w3-detection::blue-w3-s1"
+                ]
+              },
+              {
+                "name": "Wireshark",
+                "purpose": "Reads the captures and holds the detection filters.",
+                "usedIn": [
+                  "blue-w2-baseline::blue-w2-s2",
+                  "blue-w2-baseline::blue-w2-s3"
+                ]
+              },
+              {
+                "name": "tail · grep",
+                "purpose": "Watches the web log for the injection as it is tried.",
+                "usedIn": [
+                  "blue-w3-detection::blue-w3-s2",
+                  "blue-w3-detection::blue-w3-s3"
+                ]
+              }
+            ],
+            "docker": {
+              "bridge": "docker0",
+              "subnet": "172.17.0.0/16",
+              "containers": [
+                {
+                  "id": "dvwa",
+                  "label": "dvwa container",
+                  "image": "vulnerables/web-dvwa",
+                  "addr": "172.17.0.2",
+                  "ports": [
+                    {
+                      "host": 8080,
+                      "container": 80,
+                      "proto": "tcp"
+                    }
+                  ],
+                  "apps": [
+                    "DVWA (PHP)",
+                    "Apache httpd",
+                    "MySQL"
+                  ],
+                  "description": "The vulnerable web app, its web server and its database in one container; only port 80 is published, as 8080.",
+                  "from": 0
+                }
+              ]
+            }
           },
           {
             "id": "windows",
@@ -8347,6 +8550,40 @@
             "optional": true,
             "x": 760,
             "y": 150,
+            "os": "Windows 10/11",
+            "nic": "Host-Only adapter",
+            "tools": [
+              {
+                "name": "Remote Desktop",
+                "purpose": "How Blue signs in to the Windows host.",
+                "usedIn": [
+                  "blue-w0-setup::blue-w0-s2"
+                ]
+              },
+              {
+                "name": "Windows Firewall",
+                "purpose": "On for every profile; later holds the block rule.",
+                "usedIn": [
+                  "blue-w1-hardening::blue-w1-s6",
+                  "blue-w3-detection::blue-w3-s5"
+                ]
+              },
+              {
+                "name": "Microsoft Defender",
+                "purpose": "Real-time scanning on; SMBv1 removed beside it.",
+                "usedIn": [
+                  "blue-w1-hardening::blue-w1-s7"
+                ]
+              },
+              {
+                "name": "PowerShell (Get-WinEvent)",
+                "purpose": "Reads the Security log for 4624 and 4625 events.",
+                "usedIn": [
+                  "blue-w2-baseline::blue-w2-s4",
+                  "blue-w3-detection::blue-w3-s5"
+                ]
+              }
+            ],
             "services": [
               {
                 "port": 3389,
@@ -8421,6 +8658,74 @@
                 "description": "A reachability check that the attacker can see the target before any testing begins.",
                 "builtBy": "red-w0-setup::red-w0-s2"
               }
+            ],
+            "actions": [
+              {
+                "taskId": "red-w0-setup",
+                "step": "red-w0-s1",
+                "role": "red",
+                "kind": "setup",
+                "at": [
+                  "kali"
+                ],
+                "text": "Boot and update Kali on the Host-Only adapter."
+              },
+              {
+                "taskId": "red-w0-setup",
+                "step": "red-w0-s3",
+                "role": "red",
+                "kind": "governance",
+                "at": [],
+                "text": "Confirm the authorised scope: only these addresses, nothing beyond the segment."
+              },
+              {
+                "taskId": "blue-w0-setup",
+                "step": "blue-w0-s1",
+                "role": "blue",
+                "kind": "setup",
+                "at": [
+                  "ubuntu"
+                ],
+                "text": "Reach the Ubuntu server over SSH (:22)."
+              },
+              {
+                "taskId": "blue-w0-setup",
+                "step": "blue-w0-s2",
+                "role": "blue",
+                "kind": "setup",
+                "at": [
+                  "windows"
+                ],
+                "text": "Reach the Windows host over RDP (:3389)."
+              },
+              {
+                "taskId": "blue-w0-setup",
+                "step": "blue-w0-s4",
+                "role": "blue",
+                "kind": "setup",
+                "at": [
+                  "ubuntu",
+                  "dvwa"
+                ],
+                "text": "Install Docker and start the dvwa container, publishing 8080 → 80."
+              },
+              {
+                "taskId": "blue-w0-setup",
+                "step": "blue-w0-s5",
+                "role": "blue",
+                "kind": "setup",
+                "at": [
+                  "dvwa"
+                ],
+                "text": "Initialise the DVWA database and learn to start, stop and read the container."
+              },
+              {
+                "taskId": "grc-w0-setup",
+                "role": "grc",
+                "kind": "governance",
+                "at": [],
+                "text": "Open the policy workspace and sign the scope and rules of engagement that bound every attack here."
+              }
             ]
           },
           {
@@ -8439,6 +8744,64 @@
                 "tool": "OSINT and web fingerprinting",
                 "description": "Passive profiling from public sources and the site’s own banners, making no noise on the target.",
                 "builtBy": "red-w1-osint::red-w1-s3"
+              }
+            ],
+            "actions": [
+              {
+                "taskId": "red-w1-osint",
+                "step": "red-w1-s1",
+                "role": "red",
+                "kind": "setup",
+                "at": [
+                  "kali",
+                  "adapter"
+                ],
+                "text": "Confirm your own address and that the gateway answers."
+              },
+              {
+                "taskId": "red-w1-osint",
+                "step": "red-w1-s2",
+                "role": "red",
+                "kind": "attack",
+                "at": [
+                  "kali"
+                ],
+                "text": "Registration and DNS look-ups — passive, nothing sent to the target."
+              },
+              {
+                "taskId": "red-w1-osint",
+                "step": "red-w1-s4",
+                "role": "red",
+                "kind": "attack",
+                "at": [
+                  "kali"
+                ],
+                "text": "Email and host discovery from public sources."
+              },
+              {
+                "taskId": "red-w1-osint",
+                "step": "red-w1-s5",
+                "role": "red",
+                "kind": "evidence",
+                "at": [],
+                "text": "Export what was learned to the asset list for GRC."
+              },
+              {
+                "taskId": "blue-w1-hardening",
+                "step": "blue-w1-s2",
+                "role": "blue",
+                "kind": "control",
+                "at": [
+                  "ubuntu"
+                ],
+                "text": "Patch the Ubuntu host before the baseline is measured."
+              },
+              {
+                "taskId": "grc-w1-framework",
+                "role": "grc",
+                "kind": "governance",
+                "at": [],
+                "text": "Map the controls to the framework and issue the hardening standard Blue builds to."
               }
             ]
           },
@@ -8489,6 +8852,33 @@
                 "tool": "service enumeration",
                 "description": "Questions the SSH service to learn which login methods it will accept.",
                 "builtBy": "red-w2-enumeration::red-w2-s3"
+              }
+            ],
+            "actions": [
+              {
+                "taskId": "red-w2-enumeration",
+                "step": "red-w2-s4",
+                "role": "red",
+                "kind": "evidence",
+                "at": [],
+                "text": "Summarise the findings for GRC’s risk register."
+              },
+              {
+                "taskId": "blue-w2-baseline",
+                "step": "blue-w2-s5",
+                "role": "blue",
+                "kind": "evidence",
+                "at": [
+                  "ubuntu"
+                ],
+                "text": "Capture a labelled attack sample while Red scans, to compare with normal."
+              },
+              {
+                "taskId": "grc-w2-risk",
+                "role": "grc",
+                "kind": "governance",
+                "at": [],
+                "text": "Score each finding (CVSS) and write the vulnerability-management SOP."
               }
             ]
           },
@@ -8573,6 +8963,27 @@
                   "label": "the 4625 spike is detected and a firewall rule added"
                 }
               }
+            ],
+            "actions": [
+              {
+                "taskId": "red-w3-attacks",
+                "step": "red-w3-s4",
+                "role": "red",
+                "kind": "evidence",
+                "at": [
+                  "kali"
+                ],
+                "text": "Screenshot each proven attack as evidence."
+              },
+              {
+                "taskId": "grc-w3-custody",
+                "role": "grc",
+                "kind": "evidence",
+                "at": [
+                  "hypervisor"
+                ],
+                "text": "Hash every evidence file and open the chain of custody; the IR runbook names the snapshot."
+              }
             ]
           },
           {
@@ -8581,7 +8992,30 @@
             "focus": "No new traffic: compile the evidence into findings and recommendations.",
             "before": "The incident is closed; the evidence is preserved.",
             "after": "The final report and the briefing are delivered.",
-            "attacks": []
+            "attacks": [],
+            "actions": [
+              {
+                "taskId": "red-w4-briefing",
+                "role": "red",
+                "kind": "governance",
+                "at": [],
+                "text": "Brief the technical findings — no new traffic on the network."
+              },
+              {
+                "taskId": "blue-w4-response",
+                "role": "blue",
+                "kind": "governance",
+                "at": [],
+                "text": "Write up what was detected, contained and recovered."
+              },
+              {
+                "taskId": "grc-w4-report",
+                "role": "grc",
+                "kind": "governance",
+                "at": [],
+                "text": "Deliver the final report and the presentation."
+              }
+            ]
           }
         ],
         "spec": {
@@ -8881,7 +9315,7 @@
           {
             "id": "ubuntu",
             "label": "Ubuntu web server",
-            "sub": "SSH · HTTP · DNS",
+            "sub": "SSH · HTTP · Docker",
             "addr": "10.10.10.5",
             "kind": "server",
             "zone": "targets",

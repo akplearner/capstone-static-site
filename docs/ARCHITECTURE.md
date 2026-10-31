@@ -1008,6 +1008,12 @@ course without a network reads `NO_NETWORK` and shows no switch. R153 makes the 
 picture (the task-flow build picture becomes the secondary switch option) and adds a one-line
 description to every host, port, control and attack — shown in the step-through for an attack, revealed
 on click for a component (`findComponent`, an `aria-live` details region).
+R156 adds the **Network tab** — the full LAN reference (`src/app/courses/[courseId]/network`,
+`LabNetworkReference`): the hypervisor and its gateway adapter, every VM with OS, adapter and address,
+the Docker engine and the DVWA container with its bridge address and the one published port, every port
+with whether the LAN can reach it, the tools on each host and the task that uses each, the attack
+catalogue in exam vocabulary, and what every task of the week does on the network (`weekTaskActions`).
+The tab appears only when the course document carries a network (`CourseSubNav` reads `networkOf`).
 
 ### Longitudinal validation, the task timer and the Understanding score (R140)
 

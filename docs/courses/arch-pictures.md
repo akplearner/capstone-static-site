@@ -78,6 +78,27 @@ without a network reads the empty `NO_NETWORK`, so the switch never shows. Hones
 attacks Windows, so its Week-3 4625 case is drawn as Blue's own test logons (`selfTest`), a badge on the
 host, never a Kali arrow.
 
+### The full LAN reference — the Network tab (R156)
+
+The picture is the week at a glance; the **Network tab** (`/courses/<id>/network`, shown only when the
+course document carries a network) is the whole LAN a student keeps open beside it. The model grew to
+carry it: `NetHost` gains `os`, `nic`, `tools` (`NetTool`: name, purpose, the task or step that uses it)
+and `docker` (`NetDocker`: the bridge, its subnet, and `NetContainer`s with image, bridge address,
+published `NetPortMap`s and the apps inside); `NetService` gains `scope: 'lan' | 'internal'` so a port
+that only answers inside its host or container (the database inside the DVWA container, Ubuntu's
+resolver stub) is never drawn as something the LAN sees; `fabric.adapter` is the hypervisor's own
+interface — the `.1` gateway; `NetWeek.actions` (`NetAction`) places the set-up, evidence and
+governance work that no attack or control names. Addresses stay in `labTopology` (`LAB_GATEWAY`,
+`LAB_DOCKER`); page-shape forbids a typed address in the network module. `LabNetworkReference`
+(`src/components/docs/`) renders seven sections from `networkOf(useCourseDocument())`: the week's
+picture with a week picker (`?week=` from the Tasks thumbnail's **Full network** chip), an HTML LAN map
+that reflows on a phone (hypervisor → adapter → segment → VMs, Docker nested in the host that runs it),
+`lanComponents`, `portRows` (reach and what is behind a published port), `toolRows`, the
+`ATTACK_CATALOGUE` with `catalogueUses`, and `weekTaskActions` — every task of the week with its lines
+(attacks and controls derived from `builtBy`, the rest from `actions`), each placed on the components it
+touches. `labNetwork.test.ts` holds it honest: every tool is one the task lists, every use resolves,
+every graded task of weeks 0–4 is placed, Docker publishes exactly the one port the Week-0 command does.
+
 ## The weekly breakdown
 
 `partsOf(doc)` (`src/lib/content/read.ts`) returns the catalogue of any

@@ -230,7 +230,7 @@ additive, none requiring a rewrite.
   A manual section is gated on a CAPABILITY (`Course.manualSections`, plus what the course demonstrates),
   never on a course id, so a course built from the deployment capstone gets its configuration guide.
 - **A course declares what it has, never its id:** `Course.manualSections` says which manual sections it
-  ships content for, and `Course.topologyPicture` ('arch' | 'rack' | 'campus' | 'cloud') says which reference picture, and Security+ adds a lab-network picture behind a Build | Network switch (R152)
+  ships content for, and `Course.topologyPicture` ('arch' | 'rack' | 'campus' | 'cloud') says which reference picture, and Security+ adds a lab-network picture behind a Build | Network switch (R152) and a Network tab with the full LAN reference (R156)
   its lab section draws. The picture used to be inferred from the configuration-guide flag — a coincidence
   that held only while exactly one course had a build guide. A section or a picture a course cannot fill is
   one it does not declare, so the CCNA skeleton renders no empty configuration guide and no other course's

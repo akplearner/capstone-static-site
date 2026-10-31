@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Maximize2, Minimize2 } from 'lucide-react';
+import Link from 'next/link';
+import { Maximize2, Minimize2, Network } from 'lucide-react';
 import { WeekBuildDiagram, type WeekBuildCourse } from '@/components/diagrams/WeekBuildDiagram';
 import { LabNetworkPanel } from '@/components/diagrams/LabNetworkPanel';
 import { Chip } from '@/components/ui/Chip';
@@ -17,6 +18,7 @@ import { WeekAddsList } from './WeekAddsList';
  * R152: a course that carries a lab network (Security+) gets a Build | Network switch — "Build" is this
  * picture, "Network" is the hosts, ports, controls and the week's numbered attacks with Blue's answers,
  * with a Before | After toggle. The switch shows only expanded (the thumbnail stays the build band).
+ * R156: "Full network" opens the Network tab — the full LAN reference — at this week.
  */
 export function WeekVisualPanel({ course, week, fill = false, built }: { course: WeekBuildCourse; week: number; fill?: boolean; /** R151: team-wide build state, threaded to the picture. */ built?: Record<string, number> }) {
   const [expanded, setExpanded] = useState(false);
@@ -41,6 +43,11 @@ export function WeekVisualPanel({ course, week, fill = false, built }: { course:
           {!fill && (
             <Chip as="button" tone="link" aria-expanded={expanded} onClick={() => setExpanded((e) => !e)} icon={expanded ? <Minimize2 /> : <Maximize2 />}>
               {expanded ? 'Shrink' : 'Expand'}
+            </Chip>
+          )}
+          {hasNet && (
+            <Chip as={Link} href={`/courses/${course.id}/network?week=${week}`} tone="link" icon={<Network />} data-net-full-link>
+              Full network
             </Chip>
           )}
         </div>

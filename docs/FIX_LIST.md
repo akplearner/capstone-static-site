@@ -33,6 +33,7 @@ the record. `src/lib/page-shape.test.ts` fails if an id is removed from the tabl
 | F24 | The Security+ lab-network picture is now the primary week picture (the task-flow build picture is the secondary option on an always-visible switch), and every attack, host, open port and Blue control carries a one-line description — the attack's shown in the step-through, a component's revealed on click | R153 | Done |
 | F25 | Joining a team no longer lets duplicate roles pile up: each role is led by one member, a second may join it as a co-work peer only if the first member allows it, and never a third; the join panel shows each role's state (open, peer welcome, taken, full) and the leader gets an allow-a-peer control; enforced in the browser and the database (0029: role_peering + a membership guard trigger) | R154 | Done |
 | F26 | A student who has not yet joined saw every team as 0/6, every role open and every lobby empty, with no live change: the roster and the peer flags were readable only by someone already on the course. Both are now readable by any signed-in user (never anonymous), `role_peering` is published for Realtime and the browser listens to it, so the join panel shows the real seats and role states before you join and updates live (0030) | R155 | Done |
+| F27 | Students asked for the actual LAN, not just the week picture: Security+ gains a Network tab — every component with its address (hypervisor, gateway adapter, the three VMs), Docker and the DVWA container with its bridge address and the one published port, every app and port with whether the LAN can reach it, the tools on each host with the task that uses each, the attack catalogue in exam vocabulary, and what every task of the week does on the network; the Tasks thumbnail links to it; three step texts corrected (gateway subnet, the container-log command, the Windows self-test) | R156 | Done |
 
 Order of the rounds: the field bug first (it blocks reporting and links), then the link size (the link
 fails today), then the earned-skills ledger (the record and the PDF both read it), then the live and
@@ -388,3 +389,39 @@ peer flags, anon reads neither; the hydrate test asserts the channel listens on 
 line, the listener and the two rls assertions; the `setupSql` equality contract. Out of scope, by design:
 lobby avatars before joining stay as initials (profiles remain teammate-scoped), and members of another
 class session or a legacy team id stay off this month's chips.
+
+## F27 — the Network tab: the actual LAN, component by component (R156, done)
+
+**What.** The week picture (R152/R153) showed hosts, ports, controls and the week's attacks, but it was
+small on a phone and it was not the LAN itself. The owner asked for the actual network: its components
+and addresses, Docker, the apps and ports, the tools, the types of attack, and what each task does to it.
+
+**Wired.** A fifth course tab, **Network** (`/courses/<id>/network`), shown only when the course document
+carries a network (`CourseSubNav` reads `networkOf` from the context). `LabNetworkReference` renders,
+from the document alone: the week's picture full size with a week picker; an HTML LAN map that reflows on
+a phone — the hypervisor, its Host-Only adapter as the `.1` gateway, the segment, each VM with OS,
+adapter, address and ports, and Docker nested inside the Ubuntu host with the `dvwa` container's bridge
+address, image, the `8080 → 80` publish and the apps inside; a components table; a ports table with
+**LAN** vs **internal** reach and what sits behind a published port; the tools per host with the task that
+uses each; the attack catalogue (definition, domain, Blue's answer, where this lab uses it); and every
+task of the week with its actions placed on the components it touches. The model grew (`NetTool`,
+`NetContainer`, `NetDocker`, `NetAction`, `scope`, `fabric.adapter`); addresses stay in `labTopology`
+(`LAB_GATEWAY`, `LAB_DOCKER`). The Tasks thumbnail gains a **Full network** chip to the tab at that week.
+
+**Honesty fixes the LAN forced.** The database is *inside* the DVWA container and Ubuntu runs no DNS
+server — both were drawn as LAN ports; they are now `internal` (muted in the picture, "internal" in the
+table), and the topology's Ubuntu service list says Docker, not DNS. Red's Week-1 connectivity step
+expected a `10.10.100.X` address and called the gateway "the target"; it now names the lab subnet and the
+hypervisor's adapter. Blue's Week-3 log step explained `tail -f` while running `tail -n 200`; the
+explanation and flags now match the command. Blue's Windows detection step said "Red has started the
+brute force" though no Red step targets Windows; it now says to generate your own test logons.
+
+**Verified.** `labNetwork.test.ts` R156 block (gateway and bridge from the topology; exactly one
+published port; LAN ports are 22/80/8080/3389 and only 3306/53 internal; every component addressed from
+the topology; every tool is listed by the task that uses it and every use resolves; every graded task of
+weeks 0–4 is placed; the catalogue covers every kind used); `LabNetworkReference.test.tsx` (the map with
+adapter, VMs, Docker and container; internal ports; components and tools; the catalogue; per-task
+actions, the week picker and `?week=`); `CourseSubNav.network.test.tsx` (tab on Security+, none on a
+course without a network, no crash without a document); the `WeekVisualPanel` link; page-shape pins
+(route with the course bar, tab gated on the document, reference reads the document, no typed address in
+the network module).

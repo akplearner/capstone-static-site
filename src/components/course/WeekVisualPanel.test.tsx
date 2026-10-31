@@ -82,3 +82,18 @@ describe('WeekVisualPanel — R153 network primary', () => {
     expect(screen.queryByRole('button', { name: /Expand|Shrink/ })).toBeNull();
   });
 });
+
+describe('WeekVisualPanel — R156 the Full network link', () => {
+  it('Security+ links to the Network tab at this week; a course without a network does not', () => {
+    const sp = courseDocument('security-plus')!;
+    const { container, unmount } = render(
+      <CourseDocumentContext.Provider value={sp}>
+        <WeekVisualPanel course={sp.course} week={3} />
+      </CourseDocumentContext.Provider>
+    );
+    expect(container.querySelector('[data-net-full-link]')!.getAttribute('href')).toBe('/courses/security-plus/network?week=3');
+    unmount();
+    const { container: az } = mount();
+    expect(az.querySelector('[data-net-full-link]')).toBeNull();
+  });
+});
